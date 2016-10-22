@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link href='https://fonts.googleapis.com/css?family=Lato:300,900' rel='stylesheet' type='text/css'>
+
+    <style>
+     body{
+        background-color: whitesmoke;
+     }
+
+     svg {
+        background-color: white;
+        font-family: 'Lato';
+     }
+
+     .line {
+        fill: none;
+        stroke: black;
+        stroke-width: 1px;
+      }
+
+      .annotation line {
+        stroke: red;
+      }
+
+    </style>
+</head>
+<body>
+    <svg width=960 height=500></svg>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script> -->
+
+    <script>
+// line chart code: https://bl.ocks.org/d3noob/402dd382a51a4f6eea487f9a35566de0
+// time series from: http://bl.ocks.org/mbostock/3883245
+        // set the dimensions and margins of the graph
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+    // parse the date / time
+    var parseTime = d3.timeParse("%d-%b-%y");
+
+    // set the ranges
+    var x = d3.scaleTime().range([0, width]);
+    var y = d3.scaleLinear().range([height, 0]);
+
+    // define the line
+    var valueline = d3.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.close); });
+
+    // append the svg obgect to the body of the page
+    // appends a 'group' element to 'svg'
+    // moves the 'group' element to the top left margin
+    var svg = d3.select("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+    // Get the data
+    d3.tsv("data.tsv", function(error, data) {
+    if (error) throw error;
+
+    // format the data
+    data.forEach(function(d) {
+      d.date = parseTime(d.date);
+      d.close = +d.close;
+    });
+
+    // Scale the range of the data
+    x.domain(d3.extent(data, function(d) { return d.date; }));
+    y.domain([0, d3.max(data, function(d) { return d.close; })]);
+
+    // Add the valueline path.
+    svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .attr("d", valueline);
+
+    // Add the X Axis
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+    // Add the Y Axis
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+
+    createAnnotations()
+    });
+
+    const createAnnotations = () => {
+      const labels = [
+        {
+          text: "Hellooooooooo",
+          data: {date: "18-Sep-09",	close: 185.02},
+          dy: -50,
+          dx: 20,
+          type: "line"
+        },
+        {
+          text: "heyo",
+          data: {date: "13-Oct-11",	close: 408.43},
+          dy: 50,
+          dx: 40,
+          type: "line"
+        }
+      ]
+
+      // making an xy scale for d3
+      //d3.annotate uses .container(chartArea.append('g'))
+      const container = svg.append('g')
+      .attr('class', 'annotations')
+
+      container.selectAll('g.annotation')
+      .data(labels)
+      .enter()
+      .append('g')
+      .attr('class', 'annotation')
+      .attr('transform', d => `translate(${x(parseTime(d.data.date)) + (d.dx || 0)}, ${y(+d.data.close) + (d.dy || 0)})`)
+      .call(drawText)
+      .call(drawUnderline)
+      .call(drawAnnotationLine) //will need to figure out logic for what to call
+    }
+
+    const drawText = (g) => {
+      g.append('text')
+      .text(d => d.text)
+    }
+
+    const drawUnderline = (g) => {
+        const bbox = g.node().getBBox()
+        g.append('line')
+          .attr('class', 'underline')
+          .attr('x1', bbox.x)
+          .attr('x2', bbox.x + bbox.width)
+    }
+
+    const drawAnnotationLine = (g) => {
+      g.append('line')
+        .attr('class','connector')
+        .attr('x2', d => -d.dx || 0)
+        .attr('y2', d => -d.dy || 0)
+    }
+
+    </script>
+
+</body>
+</html>
