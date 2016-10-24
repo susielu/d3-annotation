@@ -135,11 +135,14 @@
     }
 
     const drawUnderline = (g) => {
-        const bbox = g.node().getBBox()
-        g.append('line')
-          .attr('class', 'underline')
-          .attr('x1', bbox.x)
-          .attr('x2', bbox.x + bbox.width)
+        g.each(function(d) {
+           const bbox = this.getBBox();
+           d3.select(this)
+           .append('line')
+           .attr('class', 'underline')
+           .attr('x1', bbox.x)
+           .attr('x2', bbox.x + bbox.width);
+        });
     }
 
     const drawAnnotationLine = (g) => {
