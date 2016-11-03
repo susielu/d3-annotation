@@ -21,7 +21,11 @@
       }
 
       .annotation line {
-        stroke: red;
+        stroke: #e91e56;
+      }
+
+      .annotation text {
+        fill: #e91e56
       }
 
     </style>
@@ -101,14 +105,14 @@
           text: "Hellooooooooo",
           data: {date: "18-Sep-09",	close: 185.02},
           dy: -50,
-          dx: 20,
+          dx: -80,
           type: "line"
         },
         {
-          text: "heyo",
+          text: "Hii there",
           data: {date: "13-Oct-11",	close: 408.43},
           dy: 50,
-          dx: 40,
+          dx: -40,
           type: "line"
         }
       ]
@@ -118,38 +122,109 @@
       const container = svg.append('g')
       .attr('class', 'annotations')
 
+
+
+      function dragstarted(d) {
+        console.log('in drag started')
+        d3.event.sourceEvent.stopPropagation();
+        console.log(d3.select(this))
+        d3.select(this)
+        .classed("dragging", true)
+
+      }
+
+      function dragged(d) {
+
+        const event = d3.event
+       d3.select(this)
+       .attr('transform', d => `translate(${event.x}, ${event.y})`)
+
+        const dx = x(parseTime(d.data.date)) - event.x
+        const dy = y(+d.data.close) - event.y
+        const text = d3.select(this)
+            .select('text')
+        const bbox = text.node().getBBox();
+
+        text.attr('y', d => {
+          if (dy <= 0) {
+            return 5 + bbox.height
+          }
+          return -10
+        })
+
+        d3.select(this)
+          .select('line.connector')
+          .attr('x2', d => dx)
+          .attr('y2', d => dy)
+          .attr('x1', d => {
+            if (dx >= 0 && Math.abs(dx) > bbox.width/2) {
+             return bbox.width
+            }
+          })
+
+      }
+
+      function dragended(d) {
+        d3.select(this).classed("dragging", false);
+      }
+
+      var drag = d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended);
+
       container.selectAll('g.annotation')
       .data(labels)
       .enter()
       .append('g')
       .attr('class', 'annotation')
       .attr('transform', d => `translate(${x(parseTime(d.data.date)) + (d.dx || 0)}, ${y(+d.data.close) + (d.dy || 0)})`)
-      .call(drawText)
-      .call(drawUnderline)
-      .call(drawAnnotationLine) //will need to figure out logic for what to call
+      .each(function(d)  {
+
+        const g = d3.select(this)
+        const textBBox = drawText(g)
+        drawUnderline(g, textBBox)
+        drawAnnotationLine(g, textBBox)
+
+      })
+      .call(drag)
     }
 
     const drawText = (g) => {
-      g.append('text')
+      const text = g.append('text')
+      .attr('class', 'annotation-text')
       .text(d => d.text)
+
+      const bbox = text.node().getBBox();
+      g.select('text')
+      .attr('y', d => {
+        if (d.dy && d.dy > 0) {
+          return 5 + bbox.height
+        }
+        return -10
+      })
+
+      return bbox
     }
 
-    const drawUnderline = (g) => {
-        g.each(function(d) {
-           const bbox = this.getBBox();
-           d3.select(this)
-           .append('line')
-           .attr('class', 'underline')
-           .attr('x1', bbox.x)
-           .attr('x2', bbox.x + bbox.width);
-        });
+    const drawUnderline = (g, bbox) => {
+       g.append('line')
+       .attr('class', 'underline')
+       .attr('x1', bbox.x)
+       .attr('x2', bbox.x + bbox.width);
     }
 
-    const drawAnnotationLine = (g) => {
+    const drawAnnotationLine = (g, bbox) => {
+
       g.append('line')
         .attr('class','connector')
         .attr('x2', d => -d.dx || 0)
         .attr('y2', d => -d.dy || 0)
+        .attr('x1', d => {
+          if (d.dx && d.dx < 0 && Math.abs(d.dx) > bbox.width/2) {
+              return bbox.width
+          }
+        })
     }
 
     </script>

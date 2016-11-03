@@ -1,0 +1,28 @@
+{
+  "name": "d3-svg-annotation",
+  "version": "0.0.0",
+  "description": "",
+
+  "files": [
+  ],
+  "keywords": [
+  ],
+  "directories": {
+  },
+  "devDependencies": {
+  },
+  "scripts": {
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/susielu/d3-annotation.git"
+  },
+
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/susielu/d3-annotation/issues"
+  },
+  "dependencies": {
+  }
+}
