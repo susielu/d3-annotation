@@ -33,6 +33,7 @@
 <body>
     <svg width=960 height=500></svg>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.js"></script>
+    <script src="/annotation.js"></script>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script> -->
 
@@ -117,11 +118,22 @@
         }
       ]
 
+      var annotations = labels.map(l => new annotation.Annotation(l))
+
+      console.log(annotations)
+
+      //pseudo code example
+      // var makeAnnotations = d3.annotation()
+      //  .annotations(createAnnotations())
+      //  .scales()
+      //  .accessors()
+      //  .type('d3.annotationCallout')
+
+
       // making an xy scale for d3
       //d3.annotate uses .container(chartArea.append('g'))
       const container = svg.append('g')
       .attr('class', 'annotations')
-
 
 
       function dragstarted(d) {
