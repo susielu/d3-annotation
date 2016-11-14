@@ -16,11 +16,6 @@ export default {
       format: 'umd',
       moduleName: 'annotation',
       sourceMap: true
-    },
-    {
-      dest: pkg['jsnext:main'],
-      format: 'es',
-      sourceMap: true
     }
   ]
 };

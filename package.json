@@ -3,8 +3,6 @@
   "version": "0.0.0",
   "description": "",
   "main": "annotation.js",
-  "jsnext:main": "annotation.mjs",
-  "iife:main": "annotation.js",
   "files": [
     "lib",
     "index.js",
@@ -26,12 +24,12 @@
     "server": "http-server",
     "build": "rollup -c",
     "watch": "npm-watch",
-    "typescript": "tsc",
+    "typescript": "tsc --outdir src/js",
     "prepublish": "npm run build"
   },
-  "watch" : {
-    "build": "lib/*.js",
-    "typescript": "lib/*.ts"
+  "watch": {
+    "build": "src/js/*.js",
+    "typescript": "src/*.ts"
   },
   "repository": {
     "type": "git",
@@ -41,5 +39,9 @@
   "bugs": {
     "url": "https://github.com/susielu/d3-annotation/issues"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@types/d3": "4.3.0",
+    "d3-selection": "1.0.2",
+    "d3-transition": "1.0.3"
+  }
 }

@@ -4,6 +4,6 @@
         "module": "es2015"
     },
     "include": [
-      "lib/*.ts"
+      "src/*.ts"
     ]
 }
