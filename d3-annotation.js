@@ -1583,9 +1583,9 @@ var d3Callout = {
       drawUnderline(a, textBBox);
       drawConnectorLine(a, d, textBBox);
 
-      // if (editMode) {
-      a.call((0, _d3Drag.drag)().on('start', dragstarted).on('drag', dragged).on('end', dragended));
-      // }
+      if (editMode) {
+        a.call((0, _d3Drag.drag)().on('start', dragstarted).on('drag', dragged).on('end', dragended));
+      }
     });
   }
 

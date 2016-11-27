@@ -120,13 +120,13 @@ const d3Callout = {
       drawUnderline(a, textBBox)
       drawConnectorLine(a, d, textBBox)
 
-      // if (editMode) {
+      if (editMode) {
         a.call(drag()
           .on('start', dragstarted)
           .on('drag', dragged)
           .on('end', dragended)
         )
-      // }
+      }
     })
 
 
