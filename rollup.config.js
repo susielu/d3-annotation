@@ -14,7 +14,12 @@ export default {
     {
       dest: pkg['main'],
       format: 'umd',
-      moduleName: 'annotation',
+      moduleName: 'd3annotation',
+      sourceMap: true
+    },
+    {
+      dest: pkg['jsnext:main'],
+      format: 'es',
       sourceMap: true
     }
   ]

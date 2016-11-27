@@ -33,7 +33,7 @@
 <body>
     <svg width=960 height=500></svg>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.js"></script>
-    <script src="/annotation.js"></script>
+    <script src="/d3-annotation.js"></script>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script> -->
 
@@ -69,73 +69,68 @@
 
     // Get the data
     d3.tsv("data.tsv", function(error, data) {
-    if (error) throw error;
+      if (error) throw error;
 
-    // format the data
-    data.forEach(function(d) {
-      d.date = parseTime(d.date);
-      d.close = +d.close;
-    });
+      // format the data
+      data.forEach(function(d) {
+        d.date = parseTime(d.date);
+        d.close = +d.close;
+      });
 
-    // Scale the range of the data
-    x.domain(d3.extent(data, function(d) { return d.date; }));
-    y.domain([0, d3.max(data, function(d) { return d.close; })]);
+      // Scale the range of the data
+      x.domain(d3.extent(data, function(d) { return d.date; }));
+      y.domain([0, d3.max(data, function(d) { return d.close; })]);
 
-    // Add the valueline path.
-    svg.append("path")
-      .data([data])
-      .attr("class", "line")
-      .attr("d", valueline);
+      // Add the valueline path.
+      svg.append("path")
+        .data([data])
+        .attr("class", "line")
+        .attr("d", valueline);
 
-    // Add the X Axis
-    svg.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+      // Add the X Axis
+      svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
 
-    // Add the Y Axis
-    svg.append("g")
-      .call(d3.axisLeft(y));
+      // Add the Y Axis
+      svg.append("g")
+        .call(d3.axisLeft(y));
 
-
-    createAnnotations()
-    });
-
-    const createAnnotations = () => {
-      const labels = [
-        {
-          text: "Hellooooooooo",
-          data: {date: "18-Sep-09",	close: 185.02},
-          dy: -50,
-          dx: -80
-        },
-        {
-          text: "Hii there",
-          title: "I HAZ A TITLE",
-          data: {date: "13-Oct-11",	close: 408.43},
-          dy: 50,
-          dx: -40
-        }
-      ]
-
-    //  var annotations = labels.map(l => new annotation.Annotation(l))
-
-      //console.log(annotations)
-
-      //pseudo code example
-      var makeAnnotations = d3.annotation()//should this be the annotation type? that makes more sense?
-      //  .annotations(labels)
-      // below think of better word for translating data to point? Scales? positionTranslators
-      //  .accessors({ x: d => xScale(d.date) , y: d => yScale(d.close)})
-      //  instead of data and accessors can also just pass x and y coordinates, those would trump using scales
-      //  .type(d3.annotationCallout)
-      //  .design('d3.') ?? or is this part of type?
-      //  .editMode(true)
-      //makes all annotations draggable, creates global variable
-      //then in the console you can say JSON.stringify(Annotations.json())
-      //to get the updated positions for your annotations
+        const labels = [
+          {
+            text: "Hellooooooooo",
+            data: {date: "18-Sep-09",	close: 185.02},
+            dy: -50,
+            dx: -80
+          },
+          {
+            text: "Hii there",
+            title: "I HAZ A TITLE",
+            data: {date: "13-Oct-11",	close: 408.43},
+            dy: 50,
+            dx: -40
+          }
+        ]
 
 
-    }
+        //pseudo code example
+        var makeAnnotations = d3.annotation()//should this be the annotation type? that makes more sense?
+         .annotations(labels)
+        // below think of better word for translating data to point? Scales? positionTranslators
+         .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
+        //  instead of data and accessors can also just pass x and y coordinates, those would trump using scales
+         .type(d3.annotationCallout)
+        //  .design('d3.') ?? or is this part of type?
+        //  .editMode(true)
+        //makes all annotations draggable, creates global variable
+        //then in the console you can say JSON.stringify(Annotations.json())
+        //to get the updated positions for your annotations
+
+        svg.append("g")
+          // .attr("transform",
+          //       "translate(" + margin.left + "," + margin.top + ")")
+          .call(makeAnnotations)
+    })
 
 
     </script>
