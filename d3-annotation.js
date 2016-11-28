@@ -1298,6 +1298,10 @@ var _AnnotationCollection = require('./AnnotationCollection');
 
 var _AnnotationCollection2 = _interopRequireDefault(_AnnotationCollection);
 
+var _TypesD = require('./Types-d3');
+
+var _d3Selection = require('d3-selection');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // import { Annotation, AnnotationCollection } from 'viz-annotation'
@@ -1307,7 +1311,7 @@ function annotation() {
       collection = void 0,
       accessors = {},
       editMode = false,
-      type = { draw: function draw() {} };
+      type = _TypesD.d3Callout;
 
   //drawing an annotation in d3
   var annotation = function annotation(selection) {
@@ -1329,7 +1333,11 @@ function annotation() {
     var annotationG = selection.selectAll('g').data([collection]);
     annotationG.enter().append('g').attr('class', 'annotations');
 
-    type.draw && type.draw(selection.select('g.annotations'), collection, editMode);
+    var group = (0, _TypesD.drawEach)(selection.select('g.annotations'), collection);
+    group.each(function (d) {
+      var annotationType = d.type || type;
+      annotationType.draw((0, _d3Selection.select)(this), d, editMode);
+    });
   };
 
   //TODO: add in classprefix functionality
@@ -1360,7 +1368,7 @@ function annotation() {
   return annotation;
 };
 
-},{"./Annotation":5,"./AnnotationCollection":6}],5:[function(require,module,exports){
+},{"./Annotation":5,"./AnnotationCollection":6,"./Types-d3":7,"d3-selection":3}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1492,13 +1500,22 @@ exports.default = AnnotationCollection;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.drawEach = undefined;
 
 var _d3Selection = require('d3-selection');
 
 var _d3Drag = require('d3-drag');
 
-var drawEach = function drawEach(group, collection) {
-  group.selectAll('g.annotation').data(collection.annotations).enter().append('g').attr('class', 'annotation').merge(group).attr('transform', function (d) {
+function manageEnter(a, d, type, className) {
+  a.selectAll(type + '.' + className).data(d).enter().append(type).attr('class', className).merge(a);
+
+  return a;
+}
+
+var drawEach = exports.drawEach = function drawEach(group, collection) {
+
+  manageEnter(group, collection.annotations, 'g', 'annotation');
+  group.selectAll('g.annotation').attr('transform', function (d) {
     var translation = d.translation;
     return 'translate(' + translation.x + ', ' + translation.y + ')';
   });
@@ -1518,7 +1535,6 @@ function dragged(d) {
   d.offset = offset;
   var translate = d.translation;
   var a = (0, _d3Selection.select)(this);
-
   a.attr('transform', function (d) {
     return 'translate(' + translate.x + ', ' + translate.y + ')';
   });
@@ -1530,12 +1546,6 @@ function dragged(d) {
 
 function dragended(d) {
   (0, _d3Selection.select)(this).classed("dragging", false);
-}
-
-function manageEnter(a, d, type, className) {
-  a.selectAll('.' + className).data([d]).enter().append(type).attr('class', className).merge(a);
-
-  return a;
 }
 
 var drawText = function drawText(a, d) {
@@ -1565,25 +1575,25 @@ var drawUnderline = function drawUnderline(a, bbox) {
   a.select('line.underline').attr('x1', bbox.x).attr('x2', bbox.x + bbox.width);
 };
 
+var editable = function editable(a, editMode) {
+  if (editMode) {
+    a.call((0, _d3Drag.drag)().on('start', dragstarted).on('drag', dragged).on('end', dragended));
+  }
+};
+
 //TODO
 //const drawConnectorElbow = () => {}
 
 var d3Callout = {
-  draw: function draw(g, collection, editMode) {
-    var group = drawEach(g, collection);
-    group.each(function (d) {
-      var a = (0, _d3Selection.select)(this);
-      var textBBox = drawText(manageEnter(a, d, 'text', 'annotation-text'), d);
-      drawUnderline(manageEnter(a, textBBox, 'line', 'underline'), textBBox);
-      drawConnectorLine(manageEnter(a, d, 'line', 'connector'), d, textBBox);
-
-      if (editMode) {
-        a.call((0, _d3Drag.drag)().on('start', dragstarted).on('drag', dragged).on('end', dragended));
-      }
-    });
+  draw: function draw(a, d, editMode) {
+    var textBBox = drawText(manageEnter(a, [d], 'text', 'annotation-text'), d);
+    drawUnderline(manageEnter(a, [textBBox], 'line', 'underline'), textBBox);
+    drawConnectorLine(manageEnter(a, [d], 'line', 'connector'), d, textBBox);
+    editable(a, editMode);
   }
-
 };
+
+// const
 
 exports.default = {
   d3Callout: d3Callout

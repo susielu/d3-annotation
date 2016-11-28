@@ -1,6 +1,8 @@
 // import { Annotation, AnnotationCollection } from 'viz-annotation'
 import Annotation from './Annotation'
 import AnnotationCollection from './AnnotationCollection'
+import { drawEach, d3Callout } from './Types-d3'
+import { select } from 'd3-selection'
 
 export default function annotation(){
   //declare internal variables
@@ -8,7 +10,7 @@ export default function annotation(){
     collection,
     accessors= {},
     editMode = false,
-    type= { draw: () => {} };
+    type= d3Callout;
 
   //drawing an annotation in d3
   const annotation = function(selection){
@@ -28,7 +30,12 @@ export default function annotation(){
     const annotationG = selection.selectAll('g').data([collection])
     annotationG.enter().append('g').attr('class', 'annotations')
 
-    type.draw && type.draw(selection.select('g.annotations'), collection, editMode)
+    const group = drawEach(selection.select('g.annotations'), collection)
+    group.each(function(d)  {
+      const annotationType = d.type || type
+      annotationType.draw(select(this), d, editMode)
+    })
+
   }
 
   //TODO: add in classprefix functionality
