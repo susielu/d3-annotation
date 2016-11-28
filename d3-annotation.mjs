@@ -1,4 +1,5 @@
-import { select } from 'd3-selection';
+import { select, event } from 'd3-selection';
+import { drag } from 'd3-drag';
 
 var asyncGenerator = function () {
     function AwaitValue(value) {
@@ -145,17 +146,18 @@ var Annotation = function () {
           dx = _ref.dx,
           text = _ref.text,
           title = _ref.title,
-          data = _ref.data;
+          data = _ref.data,
+          type = _ref.type;
       classCallCheck(this, Annotation);
 
       //super() calls parent's constructor
-
       this.x = x || 0;
       this.y = y || 0;
       this.dx = dx || 0;
       this.dy = dy || 0;
       this.text = text;
       this.title = title;
+      this.type = type;
       this.data = data || {};
     }
 
@@ -170,6 +172,18 @@ var Annotation = function () {
 
         this.x = x;
         this.y = y;
+      }
+    }, {
+      key: "offset",
+      get: function get() {
+        return { x: this.dx, y: this.dy };
+      },
+      set: function set(_ref3) {
+        var x = _ref3.x,
+            y = _ref3.y;
+
+        this.dx = x;
+        this.dy = y;
       }
     }, {
       key: "translation",
@@ -222,25 +236,147 @@ var AnnotationCollection = function () {
     return AnnotationCollection;
   }();
 
-function annotation() {    //declare internal variables
+function manageEnter(a, d, type, className) {
+    a.selectAll(type + '.' + className).data(d).enter().append(type).attr('class', className).merge(a);
+
+    return a;
+  }
+
+  var drawEach = function drawEach(group, collection) {
+    manageEnter(group, collection.annotations, 'g', 'annotation');
+    group.selectAll('g.annotation').attr('transform', function (d) {
+      var translation = d.translation;
+      return 'translate(' + translation.x + ', ' + translation.y + ')';
+    });
+
+    return group.selectAll('g.annotation');
+  };
+
+  function dragstarted(d) {
+    d3Selection.event.sourceEvent.stopPropagation();
+    d3Selection.select(this).classed("dragging", true);
+  }
+
+  function dragged(d) {
+    d.type.update(d3Selection.select(this), d);
+  }
+
+  function dragended(d) {
+    d3Selection.select(this).classed("dragging", false);
+  }
+
+  var drawText = function drawText(a, d) {
+    a.select('text.annotation-text').text(d.text);
+
+    if (d.title) {
+      a.select('text.annotation-title').text(d.title).attr('y', -10);
+    }
+
+    var bbox = a.select('g.annotation-text').node().getBBox();
+    var textBBox = a.select('text.annotation-text').node().getBBox();
+
+    a.select('text.annotation-text').attr('y', function (d) {
+      if (d.title || d.dy && d.dy > 0) {
+        return 5 + textBBox.height;
+      }
+      return -10;
+    });
+
+    return bbox;
+  };
+
+  var drawConnectorLine = function drawConnectorLine(a, d, bbox) {
+    a.select('line.connector').attr('x2', -d.dx || 0).attr('y2', -d.dy || 0).attr('x1', function () {
+      if (d.dx && d.dx < 0 && Math.abs(d.dx) > bbox.width / 2) {
+        return bbox.width;
+      }
+    });
+  };
+
+  var drawUnderline = function drawUnderline(a, bbox) {
+    a.select('line.underline').attr('x1', bbox.x).attr('x2', bbox.x + bbox.width);
+  };
+
+  var drawLine = function drawLine(a, d) {
+    a.select('line.threshold').attr(d.x ? 'x1' : 'y1').attr(d.x ? 'x2' : 'y2');
+  };
+
+  var editable = function editable(a, editMode) {
+    if (editMode) {
+      a.call(d3Drag.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended));
+    }
+  };
+
+  var d3Callout = {
+    draw: function draw(a, d, editMode) {
+      manageEnter(a, [d], 'g', 'annotation-text');
+      manageEnter(a.select('g.annotation-text'), [d], 'text', 'annotation-text');
+      manageEnter(a.select('g.annotation-text'), [d], 'text', 'annotation-title');
+
+      var textBBox = drawText(a, d);
+      drawUnderline(manageEnter(a, [textBBox], 'line', 'underline'), textBBox);
+      drawConnectorLine(manageEnter(a, [d], 'line', 'connector'), d, textBBox);
+      editable(a, editMode);
+    },
+    update: function update(a, d) {
+      var offset = d.offset;
+      offset.x += d3Selection.event.dx;
+      offset.y += d3Selection.event.dy;
+      d.offset = offset;
+      var translate = d.translation;
+      a.attr('transform', function (d) {
+        return 'translate(' + translate.x + ', ' + translate.y + ')';
+      });
+
+      var bbox = drawText(a, d);
+      drawConnectorLine(a, d, bbox);
+      drawUnderline(a, bbox);
+    }
+  };
+
+  var d3XYThreshold = {
+    draw: function draw(a, d, editMode) {
+      console.log('here');
+      drawLine(manageEnter(a, [d], 'line', 'threshold'));
+    }
+  };
+
+  //TODO
+  //const drawConnectorElbow = () => {}
+  //Add text wraping option
+  //Create threshold annotation
+  //Create threshold range annotation
+  //Example to use with divided line
+
+var types = {    d3Callout: d3Callout,
+    d3XYThreshold: d3XYThreshold
+  };
+
+function annotation() {
+    //declare internal variables
     var annotations = [],
+        collection = void 0,
         accessors = {},
         editMode = false,
-        type = { draw: function draw() {} };
+        type = d3Callout;
 
     //drawing an annotation in d3
     var annotation = function annotation(selection) {
       var translatedAnnotations = annotations.map(function (a) {
+        console.log('a', a);
         if (!a.x && a.data && accessors.x) {
           a.x = accessors.x(a.data);
         }
         if (!a.y && a.data && accessors.y) {
           a.y = accessors.y(a.data);
         }
+        if (!a.type) {
+          console.log('no type');a.type = type;
+        }
         return new Annotation(a);
       });
 
-      var collection = new AnnotationCollection({
+      collection = new AnnotationCollection({
         annotations: translatedAnnotations,
         accessors: accessors
       });
@@ -248,7 +384,9 @@ function annotation() {    //declare internal variables
       var annotationG = selection.selectAll('g').data([collection]);
       annotationG.enter().append('g').attr('class', 'annotations');
 
-      type.draw && type.draw(selection.select('g.annotations'), collection, editMode);
+      var group = drawEach(selection.select('g.annotations'), collection);
+      group.each(function (d) {
+        d.type.draw(d3Selection.select(this), d, editMode);      });
     };
 
     //TODO: add in classprefix functionality
@@ -259,7 +397,7 @@ function annotation() {    //declare internal variables
     };
 
     annotation.annotations = function (_) {
-      if (!arguments.length) return annotations;
+      if (!arguments.length) return collection && collection.annotations || annotations;
       annotations = _;
       return annotation;
     };
@@ -279,70 +417,9 @@ function annotation() {    //declare internal variables
     return annotation;
   };
 
-var drawEach = function drawEach(group, collection) {
-    console.log('collection', collection, group);
-    group.selectAll('g.annotation').data(collection.annotations)
-    // console.log('annotations', group, collection, collection.annotations)
-    // console.log('group data',annotations, annotations.data())
-
-    .enter().append('g').attr('class', 'annotation').attr('transform', function (d) {
-      console.log('d', d);
-      var translation = d.translation;
-      return 'translate(' + translation.x + ', ' + translation.y + ')';
-    });
-
-    return group;
-  };
-
-  var drawText = function drawText(a, d) {
-    var text = a.selectAll('.annotation-text').data([d]);
-
-    text.enter().append('text').attr('class', 'annotation-text');
-
-    text.text(function (d) {
-      return d.text;
-    });
-
-    var bbox = text.node().getBBox();
-
-    // a.select('text.annotation-text')
-    // .attr('y', d => {
-    //   if (d.dy && d.dy > 0) {
-    //     return 5 + bbox.height
-    //   }
-    //   return -10
-    // })
-
-    return bbox;
-  };
-
-  //TODO
-  //const drawConnectorElbow = () => {}
-
-  var d3Callout = {
-    draw: function draw(g, collection, editMode) {
-      var group = drawEach(g, collection);
-
-      group.each(function (d) {
-        console.log(d3Selection.select);
-        var a = d3Selection.select(this);
-        var textBBox = drawText(a, d);
-        // drawUnderline(a, textBBox)
-        // drawAnnotationLine(a, textBBox)
-      });
-
-      // if (editMode) {
-      //   group.call(draggable)
-      // }
-    }
-
-  };
-
-var types = {    d3Callout: d3Callout
-  };
-
 var index = {    annotation: annotation,
-    annotationCallout: types.d3Callout
+    annotationCallout: types.d3Callout,
+    annotationXYThreshold: types.d3XYThreshold
   };
 
 export default index;

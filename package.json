@@ -25,9 +25,7 @@
     "start": "npm run server & npm run watch",
     "server": "http-server",
     "browserify": "browserify web.js -o d3-annotation.js -t [ babelify --presets [ es2015 ] ]",
-    "build": "rollup -c",
-    "watch": "npm-watch",
-    "prepublish": "npm run build"
+    "watch": "npm-watch"
   },
   "watch": {
     "browserify": "src/*.js"

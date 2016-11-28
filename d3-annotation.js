@@ -1304,28 +1304,23 @@ var _d3Selection = require('d3-selection');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import { Annotation, AnnotationCollection } from 'viz-annotation'
 function annotation() {
-  //declare internal variables
   var annotations = [],
       collection = void 0,
       accessors = {},
       editMode = false,
       type = _TypesD.d3Callout;
 
-  //drawing an annotation in d3
   var annotation = function annotation(selection) {
     var translatedAnnotations = annotations.map(function (a) {
-      if (!a.x && a.data && accessors.x) {
-        a.x = accessors.x(a.data);
-      }
-      if (!a.y && a.data && accessors.y) {
-        a.y = accessors.y(a.data);
-      }
       if (!a.type) {
         a.type = type;
       }
-      return new _Annotation2.default(a);
+      if (a.type.init) {
+        a = a.type.init(a, accessors);
+      }
+
+      return a.type.annotation && new a.type.annotation(a) || new _Annotation2.default(a);
     });
 
     collection = new _AnnotationCollection2.default({
@@ -1377,7 +1372,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1394,9 +1395,6 @@ var Annotation = function () {
 
     _classCallCheck(this, Annotation);
 
-    //super() calls parent's constructor
-    this.x = x || 0;
-    this.y = y || 0;
     this.dx = dx || 0;
     this.dy = dy || 0;
     this.text = text;
@@ -1406,43 +1404,21 @@ var Annotation = function () {
   }
 
   _createClass(Annotation, [{
-    key: "position",
+    key: "offset",
     get: function get() {
-      return { x: this.x, y: this.y };
+      return { x: this.dx, y: this.dy };
     },
     set: function set(_ref2) {
       var x = _ref2.x,
           y = _ref2.y;
 
-      this.x = x;
-      this.y = y;
-    }
-  }, {
-    key: "offset",
-    get: function get() {
-      return { x: this.dx, y: this.dy };
-    },
-    set: function set(_ref3) {
-      var x = _ref3.x,
-          y = _ref3.y;
-
       this.dx = x;
       this.dy = y;
-    }
-  }, {
-    key: "translation",
-    get: function get() {
-      return {
-        x: this.x + this.dx,
-        y: this.y + this.dy
-      };
     }
   }, {
     key: "json",
     get: function get() {
       return {
-        x: this.x,
-        y: this.y,
         dx: this.dx,
         dy: this.dy,
         text: this.text,
@@ -1456,6 +1432,102 @@ var Annotation = function () {
 }();
 
 exports.default = Annotation;
+
+var XYAnnotation = exports.XYAnnotation = function (_Annotation) {
+  _inherits(XYAnnotation, _Annotation);
+
+  function XYAnnotation(_ref3) {
+    var x = _ref3.x,
+        y = _ref3.y,
+        dy = _ref3.dy,
+        dx = _ref3.dx,
+        text = _ref3.text,
+        title = _ref3.title,
+        data = _ref3.data,
+        type = _ref3.type;
+
+    _classCallCheck(this, XYAnnotation);
+
+    var _this = _possibleConstructorReturn(this, (XYAnnotation.__proto__ || Object.getPrototypeOf(XYAnnotation)).call(this, { dy: dy, dx: dx, text: text, title: title, data: data, type: type }));
+
+    _this.x = x || 0;
+    _this.y = y || 0;
+    return _this;
+  }
+
+  _createClass(XYAnnotation, [{
+    key: "position",
+    get: function get() {
+      return { x: this.x, y: this.y };
+    },
+    set: function set(_ref4) {
+      var x = _ref4.x,
+          y = _ref4.y;
+
+      this.x = x;
+      this.y = y;
+    }
+  }, {
+    key: "translation",
+    get: function get() {
+      return {
+        x: this.x + this.dx,
+        y: this.y + this.dy
+      };
+    }
+  }, {
+    key: "json",
+    get: function get() {
+      return Object.assign({}, _get(XYAnnotation.prototype.__proto__ || Object.getPrototypeOf(XYAnnotation.prototype), "json", this).call(this), {
+        x: this.x,
+        y: this.y
+      });
+    }
+  }]);
+
+  return XYAnnotation;
+}(Annotation);
+
+var ThresholdAnnotation = exports.ThresholdAnnotation = function (_Annotation2) {
+  _inherits(ThresholdAnnotation, _Annotation2);
+
+  function ThresholdAnnotation(_ref5) {
+    var x1 = _ref5.x1,
+        x2 = _ref5.x2,
+        y1 = _ref5.y1,
+        y2 = _ref5.y2,
+        dy = _ref5.dy,
+        dx = _ref5.dx,
+        text = _ref5.text,
+        title = _ref5.title,
+        data = _ref5.data,
+        type = _ref5.type;
+
+    _classCallCheck(this, ThresholdAnnotation);
+
+    var _this2 = _possibleConstructorReturn(this, (ThresholdAnnotation.__proto__ || Object.getPrototypeOf(ThresholdAnnotation)).call(this, { dy: dy, dx: dx, text: text, title: title, data: data, type: type }));
+
+    _this2.x1 = x1 || 0;
+    _this2.x2 = x2 || 0;
+    _this2.y1 = y1 || 0;
+    _this2.y2 = y2 || 0;
+    return _this2;
+  }
+
+  _createClass(ThresholdAnnotation, [{
+    key: "json",
+    get: function get() {
+      return Object.assign({}, _get(ThresholdAnnotation.prototype.__proto__ || Object.getPrototypeOf(ThresholdAnnotation.prototype), "json", this).call(this), {
+        x1: this.x1,
+        x2: this.x2,
+        y1: this.y1,
+        y2: this.y2
+      });
+    }
+  }]);
+
+  return ThresholdAnnotation;
+}(Annotation);
 
 },{}],6:[function(require,module,exports){
 "use strict";
@@ -1504,12 +1576,16 @@ exports.default = AnnotationCollection;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.drawEach = undefined;
+exports.d3XYThreshold = exports.d3Callout = exports.drawEach = undefined;
 
 var _d3Selection = require('d3-selection');
 
 var _d3Drag = require('d3-drag');
 
+var _Annotation = require('./Annotation');
+
+//TODO change the types into classes as well to
+//make use of prototype functions
 function manageEnter(a, d, type, className) {
   a.selectAll(type + '.' + className).data(d).enter().append(type).attr('class', className).merge(a);
 
@@ -1571,13 +1647,18 @@ var drawUnderline = function drawUnderline(a, bbox) {
   a.select('line.underline').attr('x1', bbox.x).attr('x2', bbox.x + bbox.width);
 };
 
+var drawLine = function drawLine(a, d) {
+  console.log('a', a, d);
+  a.select('line.threshold').attr('x1', d.x1).attr('x2', d.x2).attr('y1', d.y1).attr('y2', d.y2);
+};
+
 var editable = function editable(a, editMode) {
   if (editMode) {
     a.call((0, _d3Drag.drag)().on('start', dragstarted).on('drag', dragged).on('end', dragended));
   }
 };
 
-var d3Callout = {
+var d3Callout = exports.d3Callout = {
   draw: function draw(a, d, editMode) {
     manageEnter(a, [d], 'g', 'annotation-text');
     manageEnter(a.select('g.annotation-text'), [d], 'text', 'annotation-text');
@@ -1601,11 +1682,38 @@ var d3Callout = {
     var bbox = drawText(a, d);
     drawConnectorLine(a, d, bbox);
     drawUnderline(a, bbox);
-  }
+  },
+  init: function init(a, accessors) {
+    if (!a.x && a.data && accessors.x) {
+      a.x = accessors.x(a.data);
+    }
+    if (!a.y && a.data && accessors.y) {
+      a.y = accessors.y(a.data);
+    }
+    return a;
+  },
+  annotation: _Annotation.XYAnnotation
 };
 
-var d3XYThreshold = {
-  draw: function draw(a, d, editMode) {}
+var d3XYThreshold = exports.d3XYThreshold = {
+  draw: function draw(a, d, editMode) {
+    console.log('here', d);
+    drawLine(manageEnter(a, [d], 'line', 'threshold'), d);
+  },
+  init: function init(a, accessors) {
+    if (!a.x1 && a.data && accessors.x) {
+      a.x1 = accessors.x(a.data);
+      a.x2 = accessors.x(a.data);
+    }
+
+    if (!a.y1 && a.data && accessors.y) {
+      a.y1 = accessors.y(a.data);
+      a.y2 = accessors.y(a.data);
+    }
+
+    return a;
+  },
+  annotation: _Annotation.ThresholdAnnotation
 };
 
 //TODO
@@ -1620,7 +1728,7 @@ exports.default = {
   d3XYThreshold: d3XYThreshold
 };
 
-},{"d3-drag":2,"d3-selection":3}],8:[function(require,module,exports){
+},{"./Annotation":5,"d3-drag":2,"d3-selection":3}],8:[function(require,module,exports){
 'use strict';
 
 var _AdapterD = require('./src/Adapter-d3');
@@ -1635,5 +1743,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 d3.annotation = _AdapterD2.default;
 d3.annotationCallout = _TypesD2.default.d3Callout;
+d3.annotationXYThreshold = _TypesD2.default.d3XYThreshold;
 
 },{"./src/Adapter-d3":4,"./src/Types-d3":7}]},{},[8]);

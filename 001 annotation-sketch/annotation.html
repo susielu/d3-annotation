@@ -25,7 +25,8 @@
       }
 
       .annotation text {
-        fill: #e91e56
+        fill: #e91e56;
+        cursor: move;
       }
 
       .annotation-title {
@@ -102,19 +103,22 @@
           {
             text: "Hellooooooooo",
             data: {date: "18-Sep-09",	close: 185.02},
-            dy: -50,
-            dx: -80
+            dy: 67,
+            dx: 42
           },
           {
             text: "Hii there",
             title: "I HAZ A TITLE",
             data: {date: "13-Oct-11",	close: 408.43},
-            dy: 149,
-            dx: -164
-          }//,
-          // {
-          //
-          // }
+            dy: -113,
+            dx: -176
+          },
+          {
+            data: {date: "28-Nov-08"},
+            type: d3.annotationXYThreshold,
+            y1: 0,
+            y2: height
+          }
         ]
 
 

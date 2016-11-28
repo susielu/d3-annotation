@@ -3,3 +3,4 @@ import types from './src/Types-d3'
 
 d3.annotation = annotation
 d3.annotationCallout = types.d3Callout
+d3.annotationXYThreshold = types.d3XYThreshold

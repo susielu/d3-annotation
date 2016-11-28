@@ -1,25 +1,22 @@
-// import { Annotation, AnnotationCollection } from 'viz-annotation'
 import Annotation from './Annotation'
 import AnnotationCollection from './AnnotationCollection'
 import { drawEach, d3Callout } from './Types-d3'
 import { select } from 'd3-selection'
 
 export default function annotation(){
-  //declare internal variables
   let annotations = [],
     collection,
     accessors= {},
     editMode = false,
     type= d3Callout;
 
-  //drawing an annotation in d3
   const annotation = function(selection){
     const translatedAnnotations = annotations
       .map(a => {
-        if (!a.x && a.data && accessors.x){ a.x = accessors.x(a.data) }
-        if (!a.y && a.data && accessors.y){ a.y = accessors.y(a.data) }
         if (!a.type) { a.type = type }
-        return new Annotation(a)
+        if (a.type.init) { a = a.type.init(a, accessors) }
+
+        return a.type.annotation && new a.type.annotation(a) ||  new Annotation(a)
       });
 
 
