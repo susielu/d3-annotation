@@ -1,6 +1,6 @@
 
 export default class Annotation {
-  constructor({ x, y, dy, dx, text, title, data }) {
+  constructor({ x, y, dy, dx, text, title, data, type }) {
     //super() calls parent's constructor
     this.x = x || 0
     this.y = y || 0
@@ -8,6 +8,7 @@ export default class Annotation {
     this.dy = dy || 0
     this.text = text
     this.title = title
+    this.type = type
     this.data = data || {}
   }
 

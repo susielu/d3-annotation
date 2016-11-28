@@ -28,6 +28,10 @@
         fill: #e91e56
       }
 
+      .annotation-title {
+        font-weight: bold;
+      }
+
     </style>
 </head>
 <body>
@@ -105,9 +109,12 @@
             text: "Hii there",
             title: "I HAZ A TITLE",
             data: {date: "13-Oct-11",	close: 408.43},
-            dy: 50,
-            dx: -40
-          }
+            dy: 149,
+            dx: -164
+          }//,
+          // {
+          //
+          // }
         ]
 
 
@@ -115,6 +122,7 @@
         var makeAnnotations = d3.annotation()//should this be the annotation type? that makes more sense?
          .annotations(labels)
         // below think of better word for translating data to point? Scales? positionTranslators
+        //also requires some more thought around making accessors more generic
          .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
         //  instead of data and accessors can also just pass x and y coordinates, those would trump using scales
          .type(d3.annotationCallout)

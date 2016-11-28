@@ -3,48 +3,34 @@ import { drag } from 'd3-drag'
 
 function manageEnter(a, d, type, className){
   a.selectAll(`${type}.${className}`)
-  .data(d)
-  .enter()
-  .append(type)
-  .attr('class', className)
-  .merge(a)
+    .data(d)
+    .enter()
+    .append(type)
+    .attr('class', className)
+    .merge(a)
 
   return a
 }
 
 
 export const drawEach = (group, collection) => {
-
   manageEnter(group, collection.annotations, 'g', 'annotation')
   group.selectAll('g.annotation')
-  .attr('transform', d => {
-    const translation = d.translation
-    return `translate(${translation.x}, ${translation.y})`
-  })
+    .attr('transform', d => {
+      const translation = d.translation
+      return `translate(${translation.x}, ${translation.y})`
+    })
 
   return group.selectAll('g.annotation')
 }
 
 function dragstarted(d) {
   event.sourceEvent.stopPropagation();
-  select(this)
-  .classed("dragging", true)
-
+  select(this).classed("dragging", true)
 }
 
 function dragged(d) {
-  const offset = d.offset
-  offset.x += event.dx
-  offset.y += event.dy
-  d.offset = offset
-  const translate = d.translation
-  const a = select(this)
-  a.attr('transform', d => `translate(${translate.x}, ${translate.y})`)
-
-  const bbox = drawText(a, d)
-  drawConnectorLine(a, d, bbox)
-  drawUnderline(a, bbox)
-
+  d.type.update(select(this), d)
 }
 
 function dragended(d) {
@@ -55,12 +41,19 @@ const drawText = (a, d) => {
   a.select('text.annotation-text')
     .text(d.text)
 
-  const bbox = a.select('text.annotation-text').node().getBBox();
+  if (d.title){
+    a.select('text.annotation-title')
+      .text(d.title)
+      .attr('y', -10)
+  }
+
+  const bbox = a.select('g.annotation-text').node().getBBox();
+  const textBBox = a.select('text.annotation-text').node().getBBox();
 
   a.select('text.annotation-text')
   .attr('y', d => {
-    if (d.dy && d.dy > 0) {
-      return 5 + bbox.height
+    if (d.title || d.dy && d.dy > 0) {
+      return 5 + textBBox.height
     }
     return -10
   })
@@ -95,20 +88,45 @@ const editable = (a, editMode) => {
   }
 }
 
-//TODO
-//const drawConnectorElbow = () => {}
-
 const d3Callout  = {
   draw: (a, d, editMode) => {
-      const textBBox = drawText(manageEnter(a, [d], 'text', 'annotation-text'), d)
+      manageEnter(a, [d], 'g', 'annotation-text')
+      manageEnter(a.select('g.annotation-text'), [d], 'text', 'annotation-text')
+      manageEnter(a.select('g.annotation-text'), [d], 'text', 'annotation-title')
+
+      const textBBox = drawText(a, d)
       drawUnderline(manageEnter(a, [textBBox], 'line', 'underline'), textBBox)
       drawConnectorLine(manageEnter(a, [d], 'line', 'connector'), d, textBBox)
       editable(a, editMode)
+  },
+  update: (a, d) => {
+    const offset = d.offset
+    offset.x += event.dx
+    offset.y += event.dy
+    d.offset = offset
+    const translate = d.translation
+    a.attr('transform', d => `translate(${translate.x}, ${translate.y})`)
+
+    const bbox = drawText(a, d)
+    drawConnectorLine(a, d, bbox)
+    drawUnderline(a, bbox)
   }
 }
 
-// const
+const d3XYThreshold = {
+  draw: (a, d, editMode) => {
+
+  }
+}
+
+//TODO
+//const drawConnectorElbow = () => {}
+//Add text wraping option
+//Create threshold annotation
+//Create threshold range annotation
+//Example to use with divided line
 
 export default {
-  d3Callout
+  d3Callout,
+  d3XYThreshold
 }

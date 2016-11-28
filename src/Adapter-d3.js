@@ -18,6 +18,7 @@ export default function annotation(){
       .map(a => {
         if (!a.x && a.data && accessors.x){ a.x = accessors.x(a.data) }
         if (!a.y && a.data && accessors.y){ a.y = accessors.y(a.data) }
+        if (!a.type) { a.type = type }
         return new Annotation(a)
       });
 
@@ -31,10 +32,7 @@ export default function annotation(){
     annotationG.enter().append('g').attr('class', 'annotations')
 
     const group = drawEach(selection.select('g.annotations'), collection)
-    group.each(function(d)  {
-      const annotationType = d.type || type
-      annotationType.draw(select(this), d, editMode)
-    })
+    group.each(function(d) { d.type.draw(select(this), d, editMode)})
 
   }
 

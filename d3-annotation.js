@@ -1322,6 +1322,9 @@ function annotation() {
       if (!a.y && a.data && accessors.y) {
         a.y = accessors.y(a.data);
       }
+      if (!a.type) {
+        a.type = type;
+      }
       return new _Annotation2.default(a);
     });
 
@@ -1335,8 +1338,7 @@ function annotation() {
 
     var group = (0, _TypesD.drawEach)(selection.select('g.annotations'), collection);
     group.each(function (d) {
-      var annotationType = d.type || type;
-      annotationType.draw((0, _d3Selection.select)(this), d, editMode);
+      d.type.draw((0, _d3Selection.select)(this), d, editMode);
     });
   };
 
@@ -1387,7 +1389,8 @@ var Annotation = function () {
         dx = _ref.dx,
         text = _ref.text,
         title = _ref.title,
-        data = _ref.data;
+        data = _ref.data,
+        type = _ref.type;
 
     _classCallCheck(this, Annotation);
 
@@ -1398,6 +1401,7 @@ var Annotation = function () {
     this.dy = dy || 0;
     this.text = text;
     this.title = title;
+    this.type = type;
     this.data = data || {};
   }
 
@@ -1513,7 +1517,6 @@ function manageEnter(a, d, type, className) {
 }
 
 var drawEach = exports.drawEach = function drawEach(group, collection) {
-
   manageEnter(group, collection.annotations, 'g', 'annotation');
   group.selectAll('g.annotation').attr('transform', function (d) {
     var translation = d.translation;
@@ -1529,19 +1532,7 @@ function dragstarted(d) {
 }
 
 function dragged(d) {
-  var offset = d.offset;
-  offset.x += _d3Selection.event.dx;
-  offset.y += _d3Selection.event.dy;
-  d.offset = offset;
-  var translate = d.translation;
-  var a = (0, _d3Selection.select)(this);
-  a.attr('transform', function (d) {
-    return 'translate(' + translate.x + ', ' + translate.y + ')';
-  });
-
-  var bbox = drawText(a, d);
-  drawConnectorLine(a, d, bbox);
-  drawUnderline(a, bbox);
+  d.type.update((0, _d3Selection.select)(this), d);
 }
 
 function dragended(d) {
@@ -1551,11 +1542,16 @@ function dragended(d) {
 var drawText = function drawText(a, d) {
   a.select('text.annotation-text').text(d.text);
 
-  var bbox = a.select('text.annotation-text').node().getBBox();
+  if (d.title) {
+    a.select('text.annotation-title').text(d.title).attr('y', -10);
+  }
+
+  var bbox = a.select('g.annotation-text').node().getBBox();
+  var textBBox = a.select('text.annotation-text').node().getBBox();
 
   a.select('text.annotation-text').attr('y', function (d) {
-    if (d.dy && d.dy > 0) {
-      return 5 + bbox.height;
+    if (d.title || d.dy && d.dy > 0) {
+      return 5 + textBBox.height;
     }
     return -10;
   });
@@ -1581,22 +1577,47 @@ var editable = function editable(a, editMode) {
   }
 };
 
-//TODO
-//const drawConnectorElbow = () => {}
-
 var d3Callout = {
   draw: function draw(a, d, editMode) {
-    var textBBox = drawText(manageEnter(a, [d], 'text', 'annotation-text'), d);
+    manageEnter(a, [d], 'g', 'annotation-text');
+    manageEnter(a.select('g.annotation-text'), [d], 'text', 'annotation-text');
+    manageEnter(a.select('g.annotation-text'), [d], 'text', 'annotation-title');
+
+    var textBBox = drawText(a, d);
     drawUnderline(manageEnter(a, [textBBox], 'line', 'underline'), textBBox);
     drawConnectorLine(manageEnter(a, [d], 'line', 'connector'), d, textBBox);
     editable(a, editMode);
+  },
+  update: function update(a, d) {
+    var offset = d.offset;
+    offset.x += _d3Selection.event.dx;
+    offset.y += _d3Selection.event.dy;
+    d.offset = offset;
+    var translate = d.translation;
+    a.attr('transform', function (d) {
+      return 'translate(' + translate.x + ', ' + translate.y + ')';
+    });
+
+    var bbox = drawText(a, d);
+    drawConnectorLine(a, d, bbox);
+    drawUnderline(a, bbox);
   }
 };
 
-// const
+var d3XYThreshold = {
+  draw: function draw(a, d, editMode) {}
+};
+
+//TODO
+//const drawConnectorElbow = () => {}
+//Add text wraping option
+//Create threshold annotation
+//Create threshold range annotation
+//Example to use with divided line
 
 exports.default = {
-  d3Callout: d3Callout
+  d3Callout: d3Callout,
+  d3XYThreshold: d3XYThreshold
 };
 
 },{"d3-drag":2,"d3-selection":3}],8:[function(require,module,exports){
