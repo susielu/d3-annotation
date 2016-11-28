@@ -13,14 +13,14 @@ export default class Annotation {
 
   get position() { return { x: this.x, y: this.y }}
 
-  set position({x, y}) {
+  set position({ x, y }) {
     this.x = x
     this.y = y
   }
 
   get offset() { return { x: this.dx, y: this.dy }}
 
-  set offset({x,y }) {
+  set offset({ x, y }) {
     this.dx = x
     this.dy = y
   }

@@ -34,8 +34,6 @@
     <svg width=960 height=500></svg>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.js"></script>
     <script src="/d3-annotation.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script> -->
 
     <script>
 // line chart code: https://bl.ocks.org/d3noob/402dd382a51a4f6eea487f9a35566de0
@@ -126,10 +124,11 @@
         //then in the console you can say JSON.stringify(Annotations.json())
         //to get the updated positions for your annotations
 
+
         svg.append("g")
-          // .attr("transform",
-          //       "translate(" + margin.left + "," + margin.top + ")")
           .call(makeAnnotations)
+
+        console.log('make annotations', makeAnnotations)
     })
 
 

@@ -1304,6 +1304,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function annotation() {
   //declare internal variables
   var annotations = [],
+      collection = void 0,
       accessors = {},
       editMode = false,
       type = { draw: function draw() {} };
@@ -1320,7 +1321,7 @@ function annotation() {
       return new _Annotation2.default(a);
     });
 
-    var collection = new _AnnotationCollection2.default({
+    collection = new _AnnotationCollection2.default({
       annotations: translatedAnnotations,
       accessors: accessors
     });
@@ -1339,7 +1340,7 @@ function annotation() {
   };
 
   annotation.annotations = function (_) {
-    if (!arguments.length) return annotations;
+    if (!arguments.length) return collection && collection.annotations || annotations;
     annotations = _;
     return annotation;
   };
@@ -1497,7 +1498,7 @@ var _d3Selection = require('d3-selection');
 var _d3Drag = require('d3-drag');
 
 var drawEach = function drawEach(group, collection) {
-  group.selectAll('g.annotation').data(collection.annotations).enter().append('g').attr('class', 'annotation').attr('transform', function (d) {
+  group.selectAll('g.annotation').data(collection.annotations).enter().append('g').attr('class', 'annotation').merge(group).attr('transform', function (d) {
     var translation = d.translation;
     return 'translate(' + translation.x + ', ' + translation.y + ')';
   });
@@ -1511,36 +1512,34 @@ function dragstarted(d) {
 }
 
 function dragged(d) {
-
   var offset = d.offset;
   offset.x += _d3Selection.event.dx;
   offset.y += _d3Selection.event.dy;
   d.offset = offset;
-
   var translate = d.translation;
-  (0, _d3Selection.select)(this).attr('transform', function (d) {
+  var a = (0, _d3Selection.select)(this);
+
+  a.attr('transform', function (d) {
     return 'translate(' + translate.x + ', ' + translate.y + ')';
   });
 
-  var bbox = (0, _d3Selection.select)(this).select('text.annotation-text').node().getBBox();
-
-  (0, _d3Selection.select)(this).select('line.connector').attr('x2', -d.dx || 0).attr('y2', -d.dy || 0).attr('x1', function () {
-    if (d.dx && d.dx < 0 && Math.abs(d.dx) > bbox.width / 2) {
-      return bbox.width;
-    }
-  });
-
-  (0, _d3Selection.select)(this).select('line.underline').attr('x1', bbox.x).attr('x2', bbox.x + bbox.width);
+  var bbox = drawText(a, d);
+  drawConnectorLine(a, d, bbox);
+  drawUnderline(a, bbox);
 }
 
 function dragended(d) {
   (0, _d3Selection.select)(this).classed("dragging", false);
 }
 
-var drawText = function drawText(a, d) {
-  var text = a.selectAll('.annotation-text').data([d]);
+function manageEnter(a, d, type, className) {
+  a.selectAll('.' + className).data([d]).enter().append(type).attr('class', className).merge(a);
 
-  text.enter().append('text').attr('class', 'annotation-text').merge(text).text(d.text);
+  return a;
+}
+
+var drawText = function drawText(a, d) {
+  a.select('text.annotation-text').text(d.text);
 
   var bbox = a.select('text.annotation-text').node().getBBox();
 
@@ -1555,9 +1554,7 @@ var drawText = function drawText(a, d) {
 };
 
 var drawConnectorLine = function drawConnectorLine(a, d, bbox) {
-  var line = a.selectAll('line.connector').data([d]);
-
-  line.enter().append('line').attr('class', 'connector').merge(line).attr('x2', -d.dx || 0).attr('y2', -d.dy || 0).attr('x1', function () {
+  a.select('line.connector').attr('x2', -d.dx || 0).attr('y2', -d.dy || 0).attr('x1', function () {
     if (d.dx && d.dx < 0 && Math.abs(d.dx) > bbox.width / 2) {
       return bbox.width;
     }
@@ -1565,9 +1562,7 @@ var drawConnectorLine = function drawConnectorLine(a, d, bbox) {
 };
 
 var drawUnderline = function drawUnderline(a, bbox) {
-  var line = a.selectAll('line.underline').data([bbox]);
-
-  line.enter().append('line').attr('class', 'underline').merge(line).attr('x1', bbox.x).attr('x2', bbox.x + bbox.width);
+  a.select('line.underline').attr('x1', bbox.x).attr('x2', bbox.x + bbox.width);
 };
 
 //TODO
@@ -1576,12 +1571,11 @@ var drawUnderline = function drawUnderline(a, bbox) {
 var d3Callout = {
   draw: function draw(g, collection, editMode) {
     var group = drawEach(g, collection);
-
     group.each(function (d) {
       var a = (0, _d3Selection.select)(this);
-      var textBBox = drawText(a, d);
-      drawUnderline(a, textBBox);
-      drawConnectorLine(a, d, textBBox);
+      var textBBox = drawText(manageEnter(a, d, 'text', 'annotation-text'), d);
+      drawUnderline(manageEnter(a, textBBox, 'line', 'underline'), textBBox);
+      drawConnectorLine(manageEnter(a, d, 'line', 'connector'), d, textBBox);
 
       if (editMode) {
         a.call((0, _d3Drag.drag)().on('start', dragstarted).on('drag', dragged).on('end', dragended));

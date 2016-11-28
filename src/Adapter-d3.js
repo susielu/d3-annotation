@@ -5,6 +5,7 @@ import AnnotationCollection from './AnnotationCollection'
 export default function annotation(){
   //declare internal variables
   let annotations = [],
+    collection,
     accessors= {},
     editMode = false,
     type= { draw: () => {} };
@@ -19,7 +20,7 @@ export default function annotation(){
       });
 
 
-    const collection = new AnnotationCollection ({
+    collection = new AnnotationCollection ({
       annotations: translatedAnnotations,
       accessors
     })
@@ -38,7 +39,7 @@ export default function annotation(){
   }
 
   annotation.annotations = function(_) {
-    if (!arguments.length) return annotations;
+    if (!arguments.length) return collection && collection.annotations || annotations;
     annotations = _
     return annotation;
   };

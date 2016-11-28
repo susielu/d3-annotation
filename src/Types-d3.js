@@ -7,6 +7,7 @@ const drawEach = (group, collection) => {
     .enter()
     .append('g')
     .attr('class', 'annotation')
+    .merge(group)
     .attr('transform', d => {
       const translation = d.translation
       return `translate(${translation.x}, ${translation.y})`
@@ -23,47 +24,39 @@ function dragstarted(d) {
 }
 
 function dragged(d) {
-
   const offset = d.offset
   offset.x += event.dx
   offset.y += event.dy
   d.offset = offset
-
   const translate = d.translation
-  select(this)
-    .attr('transform', d => `translate(${translate.x}, ${translate.y})`)
+  const a = select(this)
 
-  const bbox = select(this).select('text.annotation-text').node().getBBox()
+  a.attr('transform', d => `translate(${translate.x}, ${translate.y})`)
 
-  select(this)
-    .select('line.connector')
-    .attr('x2', -d.dx || 0)
-    .attr('y2', -d.dy || 0)
-    .attr('x1', () => {
-      if (d.dx && d.dx < 0 && Math.abs(d.dx) > bbox.width/2) {
-          return bbox.width
-      }
-    })
+  const bbox = drawText(a, d)
+  drawConnectorLine(a, d, bbox)
+  drawUnderline(a, bbox)
 
-  select(this)
-    .select('line.underline')
-    .attr('x1', bbox.x)
-    .attr('x2', bbox.x + bbox.width);
 }
 
 function dragended(d) {
   select(this).classed("dragging", false);
 }
 
-const drawText = (a, d) => {
-  const text = a.selectAll('.annotation-text')
-    .data([d])
+function manageEnter(a, d, type, className){
+  a.selectAll(`.${className}`)
+  .data([d])
+  .enter()
+  .append(type)
+  .attr('class', className)
+  .merge(a)
 
-  text.enter()
-  .append('text')
-  .attr('class', 'annotation-text')
-  .merge(text)
-  .text(d.text)
+  return a
+}
+
+const drawText = (a, d) => {
+  a.select('text.annotation-text')
+    .text(d.text)
 
   const bbox = a.select('text.annotation-text').node().getBBox();
 
@@ -79,13 +72,7 @@ const drawText = (a, d) => {
 }
 
 const drawConnectorLine = (a, d, bbox) => {
-  const line = a.selectAll('line.connector')
-    .data([d])
-
-  line.enter()
-    .append('line')
-    .attr('class','connector')
-    .merge(line)
+  a.select('line.connector')
     .attr('x2', -d.dx || 0)
     .attr('y2', -d.dy || 0)
     .attr('x1', () => {
@@ -96,13 +83,7 @@ const drawConnectorLine = (a, d, bbox) => {
 }
 
 const drawUnderline = (a, bbox) => {
-  const line = a.selectAll('line.underline')
-    .data([bbox])
-
-  line.enter()
-    .append('line')
-    .attr('class','underline')
-    .merge(line)
+  a.select('line.underline')
     .attr('x1', bbox.x)
     .attr('x2', bbox.x + bbox.width);
 }
@@ -113,12 +94,11 @@ const drawUnderline = (a, bbox) => {
 const d3Callout = {
   draw: (g, collection, editMode) => {
     const group = drawEach(g, collection)
-
     group.each(function(d)  {
       const a = select(this)
-      const textBBox = drawText(a, d)
-      drawUnderline(a, textBBox)
-      drawConnectorLine(a, d, textBBox)
+      const textBBox = drawText(manageEnter(a, d, 'text', 'annotation-text'), d)
+      drawUnderline(manageEnter(a, textBBox, 'line', 'underline'), textBBox)
+      drawConnectorLine(manageEnter(a, d, 'line', 'connector'), d, textBBox)
 
       if (editMode) {
         a.call(drag()
@@ -128,8 +108,6 @@ const d3Callout = {
         )
       }
     })
-
-
   }
 
 }
