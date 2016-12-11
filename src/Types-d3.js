@@ -1,6 +1,7 @@
 import { select, event } from 'd3-selection'
 import { drag } from 'd3-drag'
-import { XYAnnotation, ThresholdAnnotation } from './Annotation'
+import { Annotation } from './Annotation'
+import { connectorLine } from './Connector'
 
 //TODO change the types into classes as well to
 //make use of prototype functions
@@ -132,12 +133,11 @@ export const d3Callout  = {
     }
     return a
   },
-  annotation: XYAnnotation
+  annotation: Annotation
 }
 
 export const d3XYThreshold = {
   draw: (a, d, editMode) => {
-    console.log('here', d)
     drawLine(manageEnter(a, [d], 'line', 'threshold'), d)
   },
   init: (a, accessors) => {
@@ -153,7 +153,7 @@ export const d3XYThreshold = {
 
     return a
   },
-  annotation: ThresholdAnnotation
+  annotation: Annotation
 }
 
 //TODO
