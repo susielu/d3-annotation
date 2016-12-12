@@ -6,6 +6,7 @@ import { select } from 'd3-selection'
 export default function annotation(){
   let annotations = [],
     collection,
+    context,
     accessors= {},
     editMode = false,
     type= d3Callout;
@@ -48,6 +49,12 @@ export default function annotation(){
     annotations = _
     return annotation;
   };
+
+  annotation.context = function(_) {
+    if (!arguments.length) return context;
+    context = _
+    return annotation;
+  }; 
 
   annotation.accessors = function(_) {
     if (!arguments.length) return accessors;

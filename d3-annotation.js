@@ -3268,6 +3268,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function annotation() {
   var annotations = [],
       collection = void 0,
+      context = void 0,
       accessors = {},
       editMode = false,
       type = _TypesD.d3Callout;
@@ -3311,6 +3312,12 @@ function annotation() {
   annotation.annotations = function (_) {
     if (!arguments.length) return collection && collection.annotations || annotations;
     annotations = _;
+    return annotation;
+  };
+
+  annotation.context = function (_) {
+    if (!arguments.length) return context;
+    context = _;
     return annotation;
   };
 
@@ -3464,7 +3471,7 @@ var _d3Shape = require("d3-shape");
 var CLASS = "connector";
 
 var connectorLine = exports.connectorLine = function connectorLine(_ref) {
-  var a = _ref.a,
+  var annotation = _ref.annotation,
       _ref$offset = _ref.offset,
       offset = _ref$offset === undefined ? { x: 0, y: 0 } : _ref$offset,
       context = _ref.context,
@@ -3473,35 +3480,36 @@ var connectorLine = exports.connectorLine = function connectorLine(_ref) {
       bbox = _ref.bbox;
 
 
-  var x1 = a.x - offset.x,
-      x2 = x1 + a.dx,
-      y1 = a.y - offset.y,
-      y2 = y1 + a.dy;
+  var x1 = annotation.x - offset.x,
+      x2 = x1 + annotation.dx,
+      y1 = annotation.y - offset.y,
+      y2 = y1 + annotation.dy;
 
-  if (a.dx && bbox && bbox.width && a.dx < 0 && Math.abs(a.dx) > bbox.width / 2) {
-    x1 += bbox.width;
+  if (annotation.dx && bbox && bbox.width && annotation.dx < 0 && Math.abs(annotation.dx) > bbox.width / 2) {
+
+    x2 += bbox.width;
   }
 
   var data = [[x1, y1], [x2, y2]];
 
-  var lineGen = d3.line().curve(curve);
+  var lineGen = (0, _d3Shape.line)().curve(curve);
+
+  var builder = {
+    type: 'path',
+    className: CLASS,
+    data: data
+  };
 
   if (context) {
     lineGen.context(context);
-
-    return {
-      class: CLASS,
-      pathMethods: lineGen
-    };
+    builder.pathMethods = lineGen;
   } else {
-    return {
-      type: "path",
-      class: CLASS,
-      attr: {
-        d: (0, _d3Shape.line)(data)
-      }
+    builder.attrs = {
+      d: lineGen(data)
     };
   }
+
+  return builder;
 };
 
 },{"d3-shape":5}],10:[function(require,module,exports){
@@ -3510,7 +3518,7 @@ var connectorLine = exports.connectorLine = function connectorLine(_ref) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.d3XYThreshold = exports.d3Callout = exports.drawEach = undefined;
+exports.d3XYThreshold = exports.d3Callout = exports.drawOnSVG = exports.drawEach = undefined;
 
 var _d3Selection = require('d3-selection');
 
@@ -3521,18 +3529,32 @@ var _Annotation = require('./Annotation');
 var _Connector = require('./Connector');
 
 //TODO change the types into classes as well to
-//make use of prototype functions
-function manageEnter(a, d, type, className) {
+//make use of prototype functions?
+function onEnter(a, d, type, className) {
+  console.log('in on enter', a, d, type + '.' + className);
   a.selectAll(type + '.' + className).data(d).enter().append(type).attr('class', className).merge(a);
 
+  //TODO: handle exit behavior?
   return a;
 }
 
 var drawEach = exports.drawEach = function drawEach(group, collection) {
-  manageEnter(group, collection.annotations, 'g', 'annotation');
-  group.selectAll('g.annotation').attr('transform', function (d) {
-    var translation = d.translation;
-    return 'translate(' + translation.x + ', ' + translation.y + ')';
+  onEnter(group, collection.annotations, 'g', 'annotation');
+  var annotation = group.selectAll('g.annotation');
+
+  annotation.each(function (d) {
+    var a = (0, _d3Selection.select)(this);
+    var position = d.position;
+
+    a.attr('transform', 'translate(' + position.x + ', ' + position.y + ')');
+
+    onEnter(a, [d], 'g', 'annotation-textbox');
+
+    var textbox = a.select('g.annotation-textbox');
+    var offset = d.offset;
+    textbox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
+    onEnter(textbox, [d], 'text', 'annotation-text');
+    onEnter(textbox, [d], 'text', 'annotation-title');
   });
 
   return group.selectAll('g.annotation');
@@ -3558,7 +3580,7 @@ var drawText = function drawText(a, d) {
     a.select('text.annotation-title').text(d.title).attr('y', -10);
   }
 
-  var bbox = a.select('g.annotation-text').node().getBBox();
+  var bbox = a.select('g.annotation-textbox').node().getBBox();
   var textBBox = a.select('text.annotation-text').node().getBBox();
 
   a.select('text.annotation-text').attr('y', function (d) {
@@ -3571,11 +3593,20 @@ var drawText = function drawText(a, d) {
   return bbox;
 };
 
-var drawConnectorLine = function drawConnectorLine(a, d, bbox) {
-  a.select('line.connector').attr('x2', -d.dx || 0).attr('y2', -d.dy || 0).attr('x1', function () {
-    if (d.dx && d.dx < 0 && Math.abs(d.dx) > bbox.width / 2) {
-      return bbox.width;
-    }
+var drawOnSVG = exports.drawOnSVG = function drawOnSVG(_ref) {
+  var a = _ref.a,
+      d = _ref.d,
+      type = _ref.type,
+      className = _ref.className,
+      attrs = _ref.attrs;
+
+  onEnter(a, [d], type, className);
+
+  var el = a.select(type + '.' + className);
+
+  var attrKeys = Object.keys(attrs);
+  attrKeys.forEach(function (attr) {
+    el.attr(attr, attrs[attr]);
   });
 };
 
@@ -3584,7 +3615,6 @@ var drawUnderline = function drawUnderline(a, bbox) {
 };
 
 var drawLine = function drawLine(a, d) {
-  console.log('a', a, d);
   a.select('line.threshold').attr('x1', d.x1).attr('x2', d.x2).attr('y1', d.y1).attr('y2', d.y2);
 };
 
@@ -3595,14 +3625,15 @@ var editable = function editable(a, editMode) {
 };
 
 var d3Callout = exports.d3Callout = {
-  draw: function draw(a, d, editMode) {
-    manageEnter(a, [d], 'g', 'annotation-text');
-    manageEnter(a.select('g.annotation-text'), [d], 'text', 'annotation-text');
-    manageEnter(a.select('g.annotation-text'), [d], 'text', 'annotation-title');
+  draw: function draw(a, annotation, editMode) {
 
-    var textBBox = drawText(a, d);
-    drawUnderline(manageEnter(a, [textBBox], 'line', 'underline'), textBBox);
-    drawConnectorLine(manageEnter(a, [d], 'line', 'connector'), d, textBBox);
+    var base = { a: a, d: annotation };
+
+    var textBBox = drawText(a, annotation);
+    drawUnderline(onEnter(a, [textBBox], 'line', 'underline'), textBBox);
+
+    drawOnSVG(Object.assign({}, base, (0, _Connector.connectorLine)({ annotation: annotation, bbox: textBBox, offset: annotation.position })));
+
     editable(a, editMode);
   },
   update: function update(a, d) {
@@ -3633,7 +3664,7 @@ var d3Callout = exports.d3Callout = {
 
 var d3XYThreshold = exports.d3XYThreshold = {
   draw: function draw(a, d, editMode) {
-    drawLine(manageEnter(a, [d], 'line', 'threshold'), d);
+    drawLine(onEnter(a, [d], 'line', 'threshold'), d);
   },
   init: function init(a, accessors) {
     if (!a.x1 && a.data && accessors.x) {

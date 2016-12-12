@@ -4,8 +4,9 @@ import { Annotation } from './Annotation'
 import { connectorLine } from './Connector'
 
 //TODO change the types into classes as well to
-//make use of prototype functions
-function manageEnter(a, d, type, className){
+//make use of prototype functions?
+function onEnter(a, d, type, className){
+  console.log('in on enter', a, d, `${type}.${className}`)
   a.selectAll(`${type}.${className}`)
     .data(d)
     .enter()
@@ -13,20 +14,33 @@ function manageEnter(a, d, type, className){
     .attr('class', className)
     .merge(a)
 
+  //TODO: handle exit behavior?
   return a
 }
 
-
 export const drawEach = (group, collection) => {
-  manageEnter(group, collection.annotations, 'g', 'annotation')
-  group.selectAll('g.annotation')
-    .attr('transform', d => {
-      const translation = d.translation
-      return `translate(${translation.x}, ${translation.y})`
+  onEnter(group, collection.annotations, 'g', 'annotation')
+  const annotation = group.selectAll('g.annotation')
+    
+  annotation 
+    .each(function(d) {
+      const a = select(this)
+      const position = d.position
+
+      a.attr('transform', `translate(${position.x}, ${position.y})`)
+
+      onEnter(a, [d], 'g', 'annotation-textbox')
+ 
+      const textbox = a.select('g.annotation-textbox')
+      const offset = d.offset
+      textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+      onEnter(textbox, [d], 'text', 'annotation-text')
+      onEnter(textbox, [d], 'text', 'annotation-title')
     })
 
   return group.selectAll('g.annotation')
 }
+
 
 function dragstarted(d) {
   event.sourceEvent.stopPropagation();
@@ -51,7 +65,7 @@ const drawText = (a, d) => {
       .attr('y', -10)
   }
 
-  const bbox = a.select('g.annotation-text').node().getBBox();
+  const bbox = a.select('g.annotation-textbox').node().getBBox();
   const textBBox = a.select('text.annotation-text').node().getBBox();
 
   a.select('text.annotation-text')
@@ -65,16 +79,17 @@ const drawText = (a, d) => {
   return bbox
 }
 
-const drawConnectorLine = (a, d, bbox) => {
-  a.select('line.connector')
-    .attr('x2', -d.dx || 0)
-    .attr('y2', -d.dy || 0)
-    .attr('x1', () => {
-      if (d.dx && d.dx < 0 && Math.abs(d.dx) > bbox.width/2) {
-          return bbox.width
-      }
-    })
+export const drawOnSVG = ({a, d, type, className, attrs}) => {
+  onEnter(a, [d], type, className)
+
+  const el = a.select(`${type}.${className}`)
+ 
+  const attrKeys = Object.keys(attrs)
+  attrKeys.forEach(attr => {
+    el.attr(attr, attrs[attr])
+  })
 }
+
 
 const drawUnderline = (a, bbox) => {
   a.select('line.underline')
@@ -83,7 +98,6 @@ const drawUnderline = (a, bbox) => {
 }
 
 const drawLine = (a, d) => {
-  console.log('a', a, d)
   a.select('line.threshold')
     .attr('x1', d.x1)
     .attr('x2', d.x2)
@@ -102,14 +116,17 @@ const editable = (a, editMode) => {
 }
 
 export const d3Callout  = {
-  draw: (a, d, editMode) => {
-      manageEnter(a, [d], 'g', 'annotation-text')
-      manageEnter(a.select('g.annotation-text'), [d], 'text', 'annotation-text')
-      manageEnter(a.select('g.annotation-text'), [d], 'text', 'annotation-title')
+  draw: (a, annotation, editMode) => {
 
-      const textBBox = drawText(a, d)
-      drawUnderline(manageEnter(a, [textBBox], 'line', 'underline'), textBBox)
-      drawConnectorLine(manageEnter(a, [d], 'line', 'connector'), d, textBBox)
+      const base = { a, d: annotation }
+
+      const textBBox = drawText(a, annotation)
+      drawUnderline(onEnter(a, [textBBox], 'line', 'underline'), textBBox)
+      
+
+      drawOnSVG(Object.assign({}, base, connectorLine({ annotation, bbox: textBBox, offset: annotation.position })))
+
+
       editable(a, editMode)
   },
   update: (a, d) => {
@@ -138,7 +155,7 @@ export const d3Callout  = {
 
 export const d3XYThreshold = {
   draw: (a, d, editMode) => {
-    drawLine(manageEnter(a, [d], 'line', 'threshold'), d)
+    drawLine(onEnter(a, [d], 'line', 'threshold'), d)
   },
   init: (a, accessors) => {
     if (!a.x1 && a.data && accessors.x){
