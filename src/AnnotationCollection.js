@@ -8,5 +8,4 @@ export default class AnnotationCollection {
   get json() {
     return this.annotations.map(a => a.json)
   }
-
 }

@@ -41,61 +41,48 @@
     <script src="/d3-annotation.js"></script>
 
     <script>
-// line chart code: https://bl.ocks.org/d3noob/402dd382a51a4f6eea487f9a35566de0
-// time series from: http://bl.ocks.org/mbostock/3883245
-        // set the dimensions and margins of the graph
-    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    // line chart code: https://bl.ocks.org/d3noob/402dd382a51a4f6eea487f9a35566de0
+    // time series from: http://bl.ocks.org/mbostock/3883245
+    // set the dimensions and margins of the graph
+    const margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-    // parse the date / time
-    var parseTime = d3.timeParse("%d-%b-%y");
+    const parseTime = d3.timeParse("%d-%b-%y");
+    const x = d3.scaleTime().range([0, width]);
+    const y = d3.scaleLinear().range([height, 0]);
 
-    // set the ranges
-    var x = d3.scaleTime().range([0, width]);
-    var y = d3.scaleLinear().range([height, 0]);
+    const valueline = d3.line()
+    .x(d => x(d.date))
+    .y(d => y(d.close));
 
-    // define the line
-    var valueline = d3.line()
-    .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.close); });
-
-    // append the svg obgect to the body of the page
-    // appends a 'group' element to 'svg'
-    // moves the 'group' element to the top left margin
-    var svg = d3.select("svg")
+    const svg = d3.select("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
-    // Get the data
     d3.tsv("data.tsv", function(error, data) {
       if (error) throw error;
 
-      // format the data
       data.forEach(function(d) {
         d.date = parseTime(d.date);
         d.close = +d.close;
       });
 
-      // Scale the range of the data
-      x.domain(d3.extent(data, function(d) { return d.date; }));
-      y.domain([0, d3.max(data, function(d) { return d.close; })]);
+      x.domain(d3.extent(data, d => d.date));
+      y.domain([0, d3.max(data, d => d.close)]);
 
-      // Add the valueline path.
       svg.append("path")
         .data([data])
         .attr("class", "line")
         .attr("d", valueline);
 
-      // Add the X Axis
       svg.append("g")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x));
 
-      // Add the Y Axis
       svg.append("g")
         .call(d3.axisLeft(y));
 
@@ -114,25 +101,31 @@
             dy: -113,
             dx: -176,
             type: d3.annotationCallout
-          },
-          {
-            data: {date: "28-Nov-08"},
-            text: "Here I am",
-            type: d3.annotationXYThreshold,
-            dy: 20,
-            dx: 20,
-            typeData: {
-              y1: 0,
-              y2: height
-            }
-          }
+          } //,
+          // {
+          //   data: {date: "28-Nov-08"},
+          //   text: "Here I am",
+          //   type: d3.annotationXYThreshold,
+          //   dy: 20,
+          //   dx: 20,
+          //   typeData: {
+          //     y1: 0,
+          //     y2: height
+          //   }
+          // }
         ]
 
-
-        var makeAnnotations = d3.annotation()
+        const makeAnnotations = d3.annotation()
           .annotations(labels)
           .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
           .editMode(true)
+
+        svg.append("g")
+          .attr("class", "annotation-test")
+          .call(makeAnnotations)
+
+    })
+
 
         //pseudo code example
         // var makeAnnotations = d3.annotation()//should this be the annotation type? that makes more sense?
@@ -147,13 +140,6 @@
         //makes all annotations draggable, creates global variable
         //then in the console you can say JSON.stringify(Annotations.json())
         //to get the updated positions for your annotations
-
-
-        svg.append("g")
-          .call(makeAnnotations)
-
-        console.log('make annotations', makeAnnotations)
-    })
 
 
     </script>

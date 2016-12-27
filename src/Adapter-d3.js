@@ -1,6 +1,6 @@
 import Annotation from './Annotation'
 import AnnotationCollection from './AnnotationCollection'
-import { drawEach, d3Callout } from './Types-d3'
+import { newWithClass, d3Callout } from './Types-d3'
 import { select } from 'd3-selection'
 
 export default function annotation(){
@@ -28,9 +28,30 @@ export default function annotation(){
 
     const annotationG = selection.selectAll('g').data([collection])
     annotationG.enter().append('g').attr('class', 'annotations')
-    const group = drawEach(selection.select('g.annotations'), collection)
-    group.each(d => { d.type.draw(select(this), d, editMode)})
+    
+    const group = selection.select('g.annotations')
+    newWithClass(group, collection.annotations, 'g', 'annotation')
 
+    const annotation = group.selectAll('g.annotation')
+        
+    annotation 
+      .each(function(d) {
+        const a = select(this)
+        const position = d.position
+
+        a.attr('transform', `translate(${position.x}, ${position.y})`)
+        newWithClass(a, [d], 'g', 'annotation-connector')
+        newWithClass(a, [d], 'g', 'annotation-subject')
+        newWithClass(a, [d], 'g', 'annotation-textbox')
+  
+        const textbox = a.select('g.annotation-textbox')
+        const offset = d.offset
+        textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+        newWithClass(textbox, [d], 'text', 'annotation-text')
+        newWithClass(textbox, [d], 'text', 'annotation-title')
+
+        d.type.draw(a, d, editMode)
+      })
   }
 
   annotation.json = function() {

@@ -2,34 +2,34 @@ import { line, curveLinear } from "d3-shape"
 
 const CLASS = "connector"
 
-export const textBoxBasic = ({ annotation, offset={x: 0, y: 0}, context }) => {
+export const textBoxUnderline = ({ annotation, offset={x: 0, y: 0}, context, 
+    curve=curveLinear, bbox}) => {
 
+  let x1 = offset.x,
+    x2 = x1 + bbox.width,
+    y1 = offset.y,
+    y2 = offset.y
+
+  const data = [[x1, y1], [x2, y2]]
+
+  const lineGen = line()
+    .curve(curve)
+
+  const builder = {
+    type: 'path',
+    className: 'underline',
+    data
+  }
+
+  if (context) {
+    lineGen.context(context)
+    builder.pathMethods = lineGen
+
+  } else {
+    builder.attrs = {
+      d: lineGen(data)
+    }
+  }
+
+  return builder
 }
-
-export const textBoxUnderline = () => {
-  
-}
-
-// const drawText = (a, d) => {
-//   a.select('text.annotation-text')
-//     .text(d.text)
-
-//   if (d.title){
-//     a.select('text.annotation-title')
-//       .text(d.title)
-//       .attr('y', -10)
-//   }
-
-//   const bbox = a.select('g.annotation-textbox').node().getBBox();
-//   const textBBox = a.select('text.annotation-text').node().getBBox();
-
-//   a.select('text.annotation-text')
-//   .attr('y', d => {
-//     if (d.title || d.dy && d.dy > 0) {
-//       return 5 + textBBox.height
-//     }
-//     return -10
-//   })
-
-//   return bbox
-// }

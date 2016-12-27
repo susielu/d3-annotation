@@ -2,109 +2,56 @@ import { select, event } from 'd3-selection'
 import { drag } from 'd3-drag'
 import { Annotation } from './Annotation'
 import { connectorLine } from './Connector'
+import { textBoxUnderline } from './TextBox'
 
 //TODO change the types into classes as well to
 //make use of prototype functions?
-function onEnter(a, d, type, className){
-  const group = a.selectAll(`${type}.${className}`)
-    .data(d)
-    
+export const newWithClass = (a, d, type, className) => {
+  const group = a.selectAll(`${type}.${className}`).data(d)
   group.enter()
     .append(type)
+    .merge(group)
     .attr('class', className)
-    .merge(a)
 
-  group.exit()
-    .remove()
+  group.exit().remove()
     
   return a
 }
 
-export const drawEach = (group, collection) => {
-  onEnter(group, collection.annotations, 'g', 'annotation')
-  const annotation = group.selectAll('g.annotation')
-    
-  annotation 
-    .each(function(d) {
-      const a = select(this)
-      const position = d.position
-
-      a.attr('transform', `translate(${position.x}, ${position.y})`)
-
-      onEnter(a, [d], 'g', 'annotation-textbox')
- 
-      const textbox = a.select('g.annotation-textbox')
-      const offset = d.offset
-      textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
-      onEnter(textbox, [d], 'text', 'annotation-text')
-      onEnter(textbox, [d], 'text', 'annotation-title')
-    })
-
-  return group.selectAll('g.annotation')
-}
-
-
+// default drag behavior
 function dragstarted(d) {
   event.sourceEvent.stopPropagation();
   select(this).classed("dragging", true)
 }
-
-function dragged(d) {
-  d.type.update(select(this), d)
-}
-
-function dragended(d) {
-  select(this).classed("dragging", false);
-}
+function dragged(d) { d.type.update(select(this), d) }
+function dragended(d) { select(this).classed("dragging", false);}
 
 const drawText = (a, d) => {
-  a.select('text.annotation-text')
-    .text(d.text)
+  let titleBBox = { height: 0 }
+  const text = a.select('text.annotation-text')
 
   if (d.title){
-    a.select('text.annotation-title')
-      .text(d.title)
-      .attr('y', -10)
+    const title = a.select('text.annotation-title')
+    title.text(d.title)
+    titleBBox = title.node().getBBox()
+    title.attr('y', titleBBox.height)
   }
 
-  const bbox = a.select('g.annotation-textbox').node().getBBox();
-  const textBBox = a.select('text.annotation-text').node().getBBox();
+  text.text(d.text)
+  const textBBox = text.node().getBBox()
+  text.attr('y', titleBBox.height + textBBox.height)
 
-  a.select('text.annotation-text')
-  .attr('y', d => {
-    if (d.title || d.dy && d.dy > 0) {
-      return 5 + textBBox.height
-    }
-    return -10
-  })
+  return a.select('g.annotation-textbox').node().getBBox();
+ }
 
-  return bbox
-}
-
-export const drawOnSVG = ({a, d, type, className, attrs}) => {
-  onEnter(a, [d], type, className)
-
-  const el = a.select(`${type}.${className}`)
- 
+export const drawOnSVG = ({a, annotation, type, className, attrs}) => {
+  newWithClass(a, [annotation], type, className)
+  const el = a.select(`${type}.${className}`) 
   const attrKeys = Object.keys(attrs)
+
   attrKeys.forEach(attr => {
     el.attr(attr, attrs[attr])
   })
-}
-
-
-const drawUnderline = (a, bbox) => {
-  a.select('line.underline')
-    .attr('x1', bbox.x)
-    .attr('x2', bbox.x + bbox.width);
-}
-
-const drawLine = (a, d) => {
-  a.select('line.threshold')
-    .attr('x1', d.x1)
-    .attr('x2', d.x2)
-    .attr('y1', d.y1)
-    .attr('y2', d.y2)
 }
 
 const editable = (a, editMode) => {
@@ -119,29 +66,31 @@ const editable = (a, editMode) => {
 
 export const d3Callout  = {
   draw: (a, annotation, editMode) => {
-
-      const base = { a, d: annotation }
-
-      const textBBox = drawText(a, annotation)
-      drawUnderline(onEnter(a, [textBBox], 'line', 'underline'), textBBox)
+      const bbox = drawText(a, annotation)
       
+      drawOnSVG({ annotation, a: a.select('g.annotation-connector'), 
+        ...connectorLine({ annotation, bbox}) })
 
-      drawOnSVG(Object.assign({}, base, connectorLine({ annotation, bbox: textBBox, offset: annotation.position })))
-
-
+      drawOnSVG({ annotation, a: a.select('g.annotation-textbox'), 
+        ...textBoxUnderline({ annotation, bbox })})
+        
       editable(a, editMode)
   },
-  update: (a, d) => {
-    const offset = d.offset
+
+  update: (a, annotation) => { 
+    const offset = annotation.offset
     offset.x += event.dx
     offset.y += event.dy
-    d.offset = offset
-    const translate = d.translation
-    a.attr('transform', d => `translate(${translate.x}, ${translate.y})`)
+    annotation.offset = offset
 
-    const bbox = drawText(a, d)
-    drawConnectorLine(a, d, bbox)
-    drawUnderline(a, bbox)
+    a.select('g.annotation-textbox')
+      .attr('transform', `translate(${offset.x}, ${offset.y})`)
+
+    const bbox = a.select('g.annotation-textbox').node().getBBox()
+
+    drawOnSVG({ a: a.select('g.annotation-connector'), 
+      annotation, ...connectorLine({ annotation, bbox}) })
+
   },
   init: (a, accessors) => {
     if (!a.x && a.data && accessors.x){
@@ -155,25 +104,25 @@ export const d3Callout  = {
   annotation: Annotation
 }
 
-export const d3XYThreshold = {
-  draw: (a, d, editMode) => {
-    drawLine(onEnter(a, [d], 'line', 'threshold'), d)
-  },
-  init: (a, accessors) => {
-    if (!a.x1 && a.data && accessors.x){
-      a.x1 = accessors.x(a.data)
-      a.x2 = accessors.x(a.data)
-    }
+// export const d3XYThreshold = {
+//   draw: (a, d, editMode) => {
+//     drawLine(newWithClass(a, [d], 'line', 'threshold'), d)
+//   },
+//   init: (a, accessors) => {
+//     if (!a.x1 && a.data && accessors.x){
+//       a.x1 = accessors.x(a.data)
+//       a.x2 = accessors.x(a.data)
+//     }
 
-    if (!a.y1 && a.data && accessors.y){
-      a.y1 = accessors.y(a.data)
-      a.y2 = accessors.y(a.data)
-    }
+//     if (!a.y1 && a.data && accessors.y){
+//       a.y1 = accessors.y(a.data)
+//       a.y2 = accessors.y(a.data)
+//     }
 
-    return a
-  },
-  annotation: Annotation
-}
+//     return a
+//   },
+//   annotation: Annotation
+// }
 
 //TODO
 //const drawConnectorElbow = () => {}
@@ -183,6 +132,6 @@ export const d3XYThreshold = {
 //Example to use with divided line
 
 export default {
-  d3Callout,
-  d3XYThreshold
+  d3Callout//,
+  //d3XYThreshold
 }
