@@ -3274,6 +3274,8 @@ function annotation() {
       type = _TypesD.d3Callout;
 
   var annotation = function annotation(selection) {
+    var _this = this;
+
     var translatedAnnotations = annotations.map(function (a) {
       if (!a.type) {
         a.type = type;
@@ -3294,7 +3296,7 @@ function annotation() {
     annotationG.enter().append('g').attr('class', 'annotations');
     var group = (0, _TypesD.drawEach)(selection.select('g.annotations'), collection);
     group.each(function (d) {
-      d.type.draw((0, _d3Selection.select)(this), d, editMode);
+      d.type.draw((0, _d3Selection.select)(_this), d, editMode);
     });
   };
 
@@ -3531,10 +3533,12 @@ var _Connector = require('./Connector');
 //TODO change the types into classes as well to
 //make use of prototype functions?
 function onEnter(a, d, type, className) {
-  console.log('in on enter', a, d, type + '.' + className);
-  a.selectAll(type + '.' + className).data(d).enter().append(type).attr('class', className).merge(a);
+  var group = a.selectAll(type + '.' + className).data(d);
 
-  //TODO: handle exit behavior?
+  group.enter().append(type).attr('class', className).merge(a);
+
+  group.exit().remove();
+
   return a;
 }
 

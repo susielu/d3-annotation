@@ -29,7 +29,7 @@ export default function annotation(){
     const annotationG = selection.selectAll('g').data([collection])
     annotationG.enter().append('g').attr('class', 'annotations')
     const group = drawEach(selection.select('g.annotations'), collection)
-    group.each(function(d) { d.type.draw(select(this), d, editMode)})
+    group.each(d => { d.type.draw(select(this), d, editMode)})
 
   }
 

@@ -6,15 +6,17 @@ import { connectorLine } from './Connector'
 //TODO change the types into classes as well to
 //make use of prototype functions?
 function onEnter(a, d, type, className){
-  console.log('in on enter', a, d, `${type}.${className}`)
-  a.selectAll(`${type}.${className}`)
+  const group = a.selectAll(`${type}.${className}`)
     .data(d)
-    .enter()
+    
+  group.enter()
     .append(type)
     .attr('class', className)
     .merge(a)
 
-  //TODO: handle exit behavior?
+  group.exit()
+    .remove()
+    
   return a
 }
 
