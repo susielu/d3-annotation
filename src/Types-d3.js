@@ -4,8 +4,6 @@ import { Annotation } from './Annotation'
 import { connectorLine } from './Connector'
 import { textBoxUnderline } from './TextBox'
 
-//TODO change the types into classes as well to
-//make use of prototype functions?
 export const newWithClass = (a, d, type, className) => {
   const group = a.selectAll(`${type}.${className}`).data(d)
   group.enter()
@@ -18,32 +16,6 @@ export const newWithClass = (a, d, type, className) => {
   return a
 }
 
-// default drag behavior
-function dragstarted(d) {
-  event.sourceEvent.stopPropagation();
-  select(this).classed("dragging", true)
-}
-function dragged(d) { d.type.update(select(this), d) }
-function dragended(d) { select(this).classed("dragging", false);}
-
-const drawText = (a, d) => {
-  let titleBBox = { height: 0 }
-  const text = a.select('text.annotation-text')
-
-  if (d.title){
-    const title = a.select('text.annotation-title')
-    title.text(d.title)
-    titleBBox = title.node().getBBox()
-    title.attr('y', titleBBox.height)
-  }
-
-  text.text(d.text)
-  const textBBox = text.node().getBBox()
-  text.attr('y', titleBBox.height + textBBox.height)
-
-  return a.select('g.annotation-textbox').node().getBBox();
- }
-
 export const drawOnSVG = ({a, annotation, type, className, attrs}) => {
   newWithClass(a, [annotation], type, className)
   const el = a.select(`${type}.${className}`) 
@@ -54,54 +26,104 @@ export const drawOnSVG = ({a, annotation, type, className, attrs}) => {
   })
 }
 
-const editable = (a, editMode) => {
-  if (editMode) {
-    a.call(drag()
-      .on('start', dragstarted)
-      .on('drag', dragged)
-      .on('end', dragended)
-    )
+class TypeBase {
+  constructor({ a, annotation, editMode }) {
+    this.a = a
+    this.textBox = a.select('g.annotation-textbox')
+    this.connector = a.select('g.annotation-connector')
+    this.subject = a.select('g.annotation-subject')
+    this.annotation = annotation
+    this.editMode = editMode
+
+  }
+
+  drawText() {
+    let titleBBox = { height: 0 }
+    const text = this.a.select('text.annotation-text')
+
+    if (this.annotation.title){
+      const title = this.a.select('text.annotation-title')
+      title.text(this.annotation.title)
+      titleBBox = title.node().getBBox()
+      title.attr('y', titleBBox.height)
+    }
+
+    text.text(this.annotation.text)
+    const textBBox = text.node().getBBox()
+    text.attr('y', titleBBox.height + textBBox.height)
+
+    return this.textBox.node().getBBox();
+  }
+
+  draw() {
+    const bbox = this.drawText()
+    this.editable()
+    return bbox
+  }
+
+  update() {
+    const offset = this.annotation.offset
+    offset.x += event.dx
+    offset.y += event.dy
+    this.annotation.offset = offset
+    
+    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    
+    return this.textBox.node().getBBox()
+  }
+
+  dragstarted() {
+    event.sourceEvent.stopPropagation();
+    this.a.classed("dragging", true)
+  }
+
+  dragged() { this.update() }
+  dragended() { this.a.classed("dragging", false);}
+
+  editable() {
+    if (this.editMode) {
+      this.a.call(drag()
+        .on('start', this.dragstarted.bind(this))
+        .on('drag', this.dragged.bind(this))
+        .on('end', this.dragended.bind(this))
+      )
+    }
+  }
+
+  static init(annotation, accessors) {
+    if (!annotation.x && annotation.data && accessors.x){
+      annotation.x = accessors.x(annotation.data)
+    }
+    if (!annotation.y && annotation.data && accessors.y){
+      annotation.y = accessors.y(annotation.data)
+    }
+    return annotation
+  }
+  
+}
+
+class Type extends TypeBase {
+  customization(bbox) {}  
+
+  draw() {
+    this.customization(super.draw()) //super.draw returns textbox bbox 
+  }
+
+  update() {
+    this.customization(super.update()) //super.update returns textbox bbox
   }
 }
 
-export const d3Callout  = {
-  draw: (a, annotation, editMode) => {
-      const bbox = drawText(a, annotation)
-      
-      drawOnSVG({ annotation, a: a.select('g.annotation-connector'), 
-        ...connectorLine({ annotation, bbox}) })
 
-      drawOnSVG({ annotation, a: a.select('g.annotation-textbox'), 
-        ...textBoxUnderline({ annotation, bbox })})
-        
-      editable(a, editMode)
-  },
+// Custom annotation types
+export class d3Callout extends Type {
+  customization(bbox){
+    const annotation = this.annotation
+    const context = { annotation, bbox }
 
-  update: (a, annotation) => { 
-    const offset = annotation.offset
-    offset.x += event.dx
-    offset.y += event.dy
-    annotation.offset = offset
-
-    a.select('g.annotation-textbox')
-      .attr('transform', `translate(${offset.x}, ${offset.y})`)
-
-    const bbox = a.select('g.annotation-textbox').node().getBBox()
-
-    drawOnSVG({ a: a.select('g.annotation-connector'), 
-      annotation, ...connectorLine({ annotation, bbox}) })
-
-  },
-  init: (a, accessors) => {
-    if (!a.x && a.data && accessors.x){
-      a.x = accessors.x(a.data)
-    }
-    if (!a.y && a.data && accessors.y){
-      a.y = accessors.y(a.data)
-    }
-    return a
-  },
-  annotation: Annotation
+    drawOnSVG({ annotation, a: this.connector, ...connectorLine(context) })
+    drawOnSVG({ annotation, a: this.textBox, ...textBoxUnderline(context) })
+  }
 }
 
 // export const d3XYThreshold = {
@@ -120,8 +142,7 @@ export const d3Callout  = {
 //     }
 
 //     return a
-//   },
-//   annotation: Annotation
+//   }
 // }
 
 //TODO

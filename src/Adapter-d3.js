@@ -17,7 +17,7 @@ export default function annotation(){
         if (!a.type) { a.type = type }
         if (a.type.init) { a = a.type.init(a, accessors) }
 
-        return a.type.annotation && new a.type.annotation(a) ||  new Annotation(a)
+        return new Annotation(a)
       });
 
 
@@ -50,7 +50,9 @@ export default function annotation(){
         newWithClass(textbox, [d], 'text', 'annotation-text')
         newWithClass(textbox, [d], 'text', 'annotation-title')
 
-        d.type.draw(a, d, editMode)
+        const type = new d.type({ a, annotation: d, editMode})
+        
+        type.draw()
       })
   }
 

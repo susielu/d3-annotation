@@ -3282,7 +3282,7 @@ function annotation() {
         a = a.type.init(a, accessors);
       }
 
-      return a.type.annotation && new a.type.annotation(a) || new _Annotation2.default(a);
+      return new _Annotation2.default(a);
     });
 
     collection = new _AnnotationCollection2.default({
@@ -3313,7 +3313,9 @@ function annotation() {
       (0, _TypesD.newWithClass)(textbox, [d], 'text', 'annotation-text');
       (0, _TypesD.newWithClass)(textbox, [d], 'text', 'annotation-title');
 
-      d.type.draw(a, d, editMode);
+      var type = new d.type({ a: a, annotation: d, editMode: editMode });
+
+      type.draw();
     });
   };
 
@@ -3590,6 +3592,10 @@ exports.d3Callout = exports.drawOnSVG = exports.newWithClass = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _d3Selection = require('d3-selection');
 
 var _d3Drag = require('d3-drag');
@@ -3600,8 +3606,12 @@ var _Connector = require('./Connector');
 
 var _TextBox = require('./TextBox');
 
-//TODO change the types into classes as well to
-//make use of prototype functions?
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var newWithClass = exports.newWithClass = function newWithClass(a, d, type, className) {
   var group = a.selectAll(type + '.' + className).data(d);
   group.enter().append(type).merge(group).attr('class', className);
@@ -3609,36 +3619,6 @@ var newWithClass = exports.newWithClass = function newWithClass(a, d, type, clas
   group.exit().remove();
 
   return a;
-};
-
-// default drag behavior
-function dragstarted(d) {
-  _d3Selection.event.sourceEvent.stopPropagation();
-  (0, _d3Selection.select)(this).classed("dragging", true);
-}
-function dragged(d) {
-  d.type.update((0, _d3Selection.select)(this), d);
-}
-function dragended(d) {
-  (0, _d3Selection.select)(this).classed("dragging", false);
-}
-
-var drawText = function drawText(a, d) {
-  var titleBBox = { height: 0 };
-  var text = a.select('text.annotation-text');
-
-  if (d.title) {
-    var title = a.select('text.annotation-title');
-    title.text(d.title);
-    titleBBox = title.node().getBBox();
-    title.attr('y', titleBBox.height);
-  }
-
-  text.text(d.text);
-  var textBBox = text.node().getBBox();
-  text.attr('y', titleBBox.height + textBBox.height);
-
-  return a.select('g.annotation-textbox').node().getBBox();
 };
 
 var drawOnSVG = exports.drawOnSVG = function drawOnSVG(_ref) {
@@ -3657,49 +3637,151 @@ var drawOnSVG = exports.drawOnSVG = function drawOnSVG(_ref) {
   });
 };
 
-var editable = function editable(a, editMode) {
-  if (editMode) {
-    a.call((0, _d3Drag.drag)().on('start', dragstarted).on('drag', dragged).on('end', dragended));
+var TypeBase = function () {
+  function TypeBase(_ref2) {
+    var a = _ref2.a,
+        annotation = _ref2.annotation,
+        editMode = _ref2.editMode;
+
+    _classCallCheck(this, TypeBase);
+
+    this.a = a;
+    this.textBox = a.select('g.annotation-textbox');
+    this.connector = a.select('g.annotation-connector');
+    this.subject = a.select('g.annotation-subject');
+    this.annotation = annotation;
+    this.editMode = editMode;
   }
-};
 
-var d3Callout = exports.d3Callout = {
-  draw: function draw(a, annotation, editMode) {
-    var bbox = drawText(a, annotation);
+  _createClass(TypeBase, [{
+    key: 'drawText',
+    value: function drawText() {
+      var titleBBox = { height: 0 };
+      var text = this.a.select('text.annotation-text');
 
-    drawOnSVG(_extends({ annotation: annotation, a: a.select('g.annotation-connector')
-    }, (0, _Connector.connectorLine)({ annotation: annotation, bbox: bbox })));
+      if (this.annotation.title) {
+        var title = this.a.select('text.annotation-title');
+        title.text(this.annotation.title);
+        titleBBox = title.node().getBBox();
+        title.attr('y', titleBBox.height);
+      }
 
-    drawOnSVG(_extends({ annotation: annotation, a: a.select('g.annotation-textbox')
-    }, (0, _TextBox.textBoxUnderline)({ annotation: annotation, bbox: bbox })));
+      text.text(this.annotation.text);
+      var textBBox = text.node().getBBox();
+      text.attr('y', titleBBox.height + textBBox.height);
 
-    editable(a, editMode);
-  },
-
-  update: function update(a, annotation) {
-    var offset = annotation.offset;
-    offset.x += _d3Selection.event.dx;
-    offset.y += _d3Selection.event.dy;
-    annotation.offset = offset;
-
-    a.select('g.annotation-textbox').attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
-
-    var bbox = a.select('g.annotation-textbox').node().getBBox();
-
-    drawOnSVG(_extends({ a: a.select('g.annotation-connector'),
-      annotation: annotation }, (0, _Connector.connectorLine)({ annotation: annotation, bbox: bbox })));
-  },
-  init: function init(a, accessors) {
-    if (!a.x && a.data && accessors.x) {
-      a.x = accessors.x(a.data);
+      return this.textBox.node().getBBox();
     }
-    if (!a.y && a.data && accessors.y) {
-      a.y = accessors.y(a.data);
+  }, {
+    key: 'draw',
+    value: function draw() {
+      var bbox = this.drawText();
+      this.editable();
+      return bbox;
     }
-    return a;
-  },
-  annotation: _Annotation.Annotation
-};
+  }, {
+    key: 'update',
+    value: function update() {
+      var offset = this.annotation.offset;
+      offset.x += _d3Selection.event.dx;
+      offset.y += _d3Selection.event.dy;
+      this.annotation.offset = offset;
+
+      this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
+
+      return this.textBox.node().getBBox();
+    }
+  }, {
+    key: 'dragstarted',
+    value: function dragstarted() {
+      _d3Selection.event.sourceEvent.stopPropagation();
+      this.a.classed("dragging", true);
+    }
+  }, {
+    key: 'dragged',
+    value: function dragged() {
+      this.update();
+    }
+  }, {
+    key: 'dragended',
+    value: function dragended() {
+      this.a.classed("dragging", false);
+    }
+  }, {
+    key: 'editable',
+    value: function editable() {
+      if (this.editMode) {
+        this.a.call((0, _d3Drag.drag)().on('start', this.dragstarted.bind(this)).on('drag', this.dragged.bind(this)).on('end', this.dragended.bind(this)));
+      }
+    }
+  }], [{
+    key: 'init',
+    value: function init(annotation, accessors) {
+      if (!annotation.x && annotation.data && accessors.x) {
+        annotation.x = accessors.x(annotation.data);
+      }
+      if (!annotation.y && annotation.data && accessors.y) {
+        annotation.y = accessors.y(annotation.data);
+      }
+      return annotation;
+    }
+  }]);
+
+  return TypeBase;
+}();
+
+var Type = function (_TypeBase) {
+  _inherits(Type, _TypeBase);
+
+  function Type() {
+    _classCallCheck(this, Type);
+
+    return _possibleConstructorReturn(this, (Type.__proto__ || Object.getPrototypeOf(Type)).apply(this, arguments));
+  }
+
+  _createClass(Type, [{
+    key: 'customization',
+    value: function customization(bbox) {}
+  }, {
+    key: 'draw',
+    value: function draw() {
+      this.customization(_get(Type.prototype.__proto__ || Object.getPrototypeOf(Type.prototype), 'draw', this).call(this)); //super.draw returns textbox bbox 
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      this.customization(_get(Type.prototype.__proto__ || Object.getPrototypeOf(Type.prototype), 'update', this).call(this)); //super.update returns textbox bbox
+    }
+  }]);
+
+  return Type;
+}(TypeBase);
+
+// Custom annotation types
+
+
+var d3Callout = exports.d3Callout = function (_Type) {
+  _inherits(d3Callout, _Type);
+
+  function d3Callout() {
+    _classCallCheck(this, d3Callout);
+
+    return _possibleConstructorReturn(this, (d3Callout.__proto__ || Object.getPrototypeOf(d3Callout)).apply(this, arguments));
+  }
+
+  _createClass(d3Callout, [{
+    key: 'customization',
+    value: function customization(bbox) {
+      var annotation = this.annotation;
+      var context = { annotation: annotation, bbox: bbox };
+
+      drawOnSVG(_extends({ annotation: annotation, a: this.connector }, (0, _Connector.connectorLine)(context)));
+      drawOnSVG(_extends({ annotation: annotation, a: this.textBox }, (0, _TextBox.textBoxUnderline)(context)));
+    }
+  }]);
+
+  return d3Callout;
+}(Type);
 
 // export const d3XYThreshold = {
 //   draw: (a, d, editMode) => {
@@ -3717,8 +3799,7 @@ var d3Callout = exports.d3Callout = {
 //     }
 
 //     return a
-//   },
-//   annotation: Annotation
+//   }
 // }
 
 //TODO
