@@ -34,7 +34,6 @@ class TypeBase {
     this.subject = a.select('g.annotation-subject')
     this.annotation = annotation
     this.editMode = editMode
-
   }
 
   drawText() {
@@ -57,7 +56,7 @@ class TypeBase {
 
   draw() {
     const bbox = this.drawText()
-    this.editable()
+    if (this.editMode) this.editable()
     return bbox
   }
 
@@ -72,22 +71,16 @@ class TypeBase {
     return this.textBox.node().getBBox()
   }
 
-  dragstarted() {
-    event.sourceEvent.stopPropagation();
-    this.a.classed("dragging", true)
-  }
-
+  dragstarted() { event.sourceEvent.stopPropagation(); this.a.classed("dragging", true) }
   dragged() { this.update() }
-  dragended() { this.a.classed("dragging", false);}
+  dragended() { this.a.classed("dragging", false)}
 
   editable() {
-    if (this.editMode) {
-      this.a.call(drag()
-        .on('start', this.dragstarted.bind(this))
-        .on('drag', this.dragged.bind(this))
-        .on('end', this.dragended.bind(this))
-      )
-    }
+    this.a.call(drag()
+      .on('start', this.dragstarted.bind(this))
+      .on('drag', this.dragged.bind(this))
+      .on('end', this.dragended.bind(this))
+    )
   }
 
   static init(annotation, accessors) {
@@ -103,26 +96,33 @@ class TypeBase {
 }
 
 class Type extends TypeBase {
+  //should be overwritten with custom annotation components
   customization(bbox) {}  
 
-  draw() {
-    this.customization(super.draw()) //super.draw returns textbox bbox 
-  }
-
-  update() {
-    this.customization(super.update()) //super.update returns textbox bbox
-  }
+  //super.draw and super.update return textbox bbox 
+  draw() { this.customization(super.draw()) }
+  update() { this.customization(super.update()) }
 }
 
 
 // Custom annotation types
 export class d3Callout extends Type {
-  customization(bbox){
+  customization(bbox) {
     const annotation = this.annotation
     const context = { annotation, bbox }
 
     drawOnSVG({ annotation, a: this.connector, ...connectorLine(context) })
     drawOnSVG({ annotation, a: this.textBox, ...textBoxUnderline(context) })
+  }
+}
+
+export class d3XYThreshold extends Type {
+  customization(bbox) {
+    
+  }
+
+  static init(annotation, accessors) {
+
   }
 }
 
@@ -148,8 +148,6 @@ export class d3Callout extends Type {
 //TODO
 //const drawConnectorElbow = () => {}
 //Add text wraping option
-//Create threshold annotation
-//Create threshold range annotation
 //Example to use with divided line
 
 export default {
