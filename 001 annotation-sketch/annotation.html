@@ -24,6 +24,10 @@
         stroke: #e91e56;
       }
 
+      .annotation.xythreshold .annotation-connector {
+        stroke-dasharray: 5;
+      }
+
       .annotation text {
         fill: #e91e56;
         cursor: move;
@@ -100,19 +104,35 @@
             data: {date: "13-Oct-11",	close: 408.43},
             dy: -113,
             dx: -176,
-            type: d3.annotationCallout
-          } //,
-          // {
-          //   data: {date: "28-Nov-08"},
-          //   text: "Here I am",
-          //   type: d3.annotationXYThreshold,
-          //   dy: 20,
-          //   dx: 20,
-          //   typeData: {
-          //     y1: 0,
-          //     y2: height
-          //   }
-          // }
+            type: d3.annotationCalloutCircle,
+            typeData: {
+              radius: 30
+            }
+          },
+          {
+            data: {date: "28-Nov-08"},
+            text: "Here I am",
+            type: d3.annotationXYThreshold,
+            y: 20,
+            dy: 30,
+            dx: 20,
+            typeData: {
+              y1: 0,
+              y2: height
+            }
+          },
+          {
+            data: {date: "2-Jan-08", close: 194.84},
+            text: "Yo 2008",
+            title: "Ohai",
+            type: d3.annotationXYThreshold,
+            dy: -80,
+            dx: -100,
+            typeData: {
+              y1: 310,
+              y2: height
+            }
+          }
         ]
 
         const makeAnnotations = d3.annotation()

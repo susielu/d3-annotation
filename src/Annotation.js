@@ -1,6 +1,6 @@
 
 export default class Annotation {
-  constructor({ x, y, dy, dx, text, title, data, type }) {
+  constructor({ x, y, dy, dx, text, title, data, type, typeData }) {
 
     this.dx = dx || 0
     this.dy = dy || 0
@@ -10,6 +10,7 @@ export default class Annotation {
     this.title = title
     this.type = type
     this.data = data || {}
+    this.typeData = typeData || {}
   }
 
   get offset() { return { x: this.dx, y: this.dy }}

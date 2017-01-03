@@ -39,6 +39,11 @@ export default function annotation(){
         const a = select(this)
         const position = d.position
 
+        const className = d.type.className && d.type.className()
+        if (className){
+          a.attr('class', `annotation ${className}`)
+        }
+
         a.attr('transform', `translate(${position.x}, ${position.y})`)
         newWithClass(a, [d], 'g', 'annotation-connector')
         newWithClass(a, [d], 'g', 'annotation-subject')
