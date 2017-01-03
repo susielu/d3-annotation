@@ -3362,7 +3362,7 @@ function annotation() {
   return annotation;
 };
 
-},{"./Annotation":7,"./AnnotationCollection":8,"./Types-d3":12,"d3-selection":4}],7:[function(require,module,exports){
+},{"./Annotation":7,"./AnnotationCollection":8,"./Types-d3":13,"d3-selection":4}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3487,6 +3487,70 @@ var AnnotationCollection = function () {
 exports.default = AnnotationCollection;
 
 },{}],9:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.arcBuilder = exports.lineBuilder = undefined;
+
+var _d3Shape = require('d3-shape');
+
+var lineBuilder = exports.lineBuilder = function lineBuilder(_ref) {
+  var data = _ref.data,
+      _ref$curve = _ref.curve,
+      curve = _ref$curve === undefined ? _d3Shape.curveLinear : _ref$curve,
+      context = _ref.context,
+      className = _ref.className;
+
+  var lineGen = (0, _d3Shape.line)().curve(curve);
+
+  var builder = {
+    type: 'path',
+    className: className,
+    data: data
+  };
+
+  if (context) {
+    lineGen.context(context);
+    builder.pathMethods = lineGen;
+  } else {
+    builder.attrs = {
+      d: lineGen(data)
+    };
+  }
+
+  return builder;
+};
+
+var arcBuilder = exports.arcBuilder = function arcBuilder(_ref2) {
+  var data = _ref2.data,
+      context = _ref2.context,
+      className = _ref2.className;
+
+
+  var builder = {
+    type: 'path',
+    className: className,
+    data: data
+  };
+
+  var arcShape = (0, _d3Shape.arc)().innerRadius(data.innerRadius || 0).outerRadius(data.outerRadius || data.radius || 0).startAngle(data.startAngle || 0).endAngle(data.endAngle || 2 * Math.PI);
+
+  if (context) {
+    arcShape.context(context);
+    builder.pathMethods = lineGen;
+  } else {
+
+    builder.attrs = {
+      d: arcShape()
+    };
+  }
+
+  return builder;
+};
+
+},{"d3-shape":5}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3494,7 +3558,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.connectorLine = undefined;
 
-var _d3Shape = require("d3-shape");
+var _Builder = require("./Builder");
 
 var CLASS = "connector";
 
@@ -3503,8 +3567,7 @@ var connectorLine = exports.connectorLine = function connectorLine(_ref) {
       _ref$offset = _ref.offset,
       offset = _ref$offset === undefined ? annotation.position : _ref$offset,
       context = _ref.context,
-      _ref$curve = _ref.curve,
-      curve = _ref$curve === undefined ? _d3Shape.curveLinear : _ref$curve,
+      curve = _ref.curve,
       bbox = _ref.bbox;
 
 
@@ -3518,37 +3581,29 @@ var connectorLine = exports.connectorLine = function connectorLine(_ref) {
     x2 += bbox.width;
   }
 
-  var data = [[x1, y1], [x2, y2]];
+  if (annotation.typeData.outerRadius || annotation.typeData.radius) {
 
-  var lineGen = (0, _d3Shape.line)().curve(curve);
+    var h = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+    var angle = Math.asin(-y2 / h);
+    var r = annotation.typeData.outerRadius || annotation.typeData.radius;
 
-  var builder = {
-    type: 'path',
-    className: CLASS,
-    data: data
-  };
-
-  if (context) {
-    lineGen.context(context);
-    builder.pathMethods = lineGen;
-  } else {
-    builder.attrs = {
-      d: lineGen(data)
-    };
+    x1 = Math.abs(Math.cos(angle) * r) * (x2 < 0 ? -1 : 1);
+    y1 = Math.abs(Math.sin(angle) * r) * (y2 < 0 ? -1 : 1);
   }
 
-  return builder;
+  var data = [[x1, y1], [x2, y2]];
+  return (0, _Builder.lineBuilder)({ data: data, curve: curve, context: context, className: CLASS });
 };
 
-},{"d3-shape":5}],10:[function(require,module,exports){
+},{"./Builder":9}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.subjectLine = undefined;
+exports.subjectCircle = exports.subjectLine = undefined;
 
-var _d3Shape = require("d3-shape");
+var _Builder = require("./Builder");
 
 var CLASS = "subject";
 
@@ -3557,8 +3612,7 @@ var subjectLine = exports.subjectLine = function subjectLine(_ref) {
       _ref$offset = _ref.offset,
       offset = _ref$offset === undefined ? annotation.position : _ref$offset,
       context = _ref.context,
-      _ref$curve = _ref.curve,
-      curve = _ref$curve === undefined ? _d3Shape.curveLinear : _ref$curve,
+      curve = _ref.curve,
       bbox = _ref.bbox;
 
 
@@ -3570,28 +3624,20 @@ var subjectLine = exports.subjectLine = function subjectLine(_ref) {
       y2 = (td.y2 !== undefined ? td.y2 : annotation.y) - offset.y;
 
   var data = [[x1, y1], [x2, y2]];
-
-  var lineGen = (0, _d3Shape.line)().curve(curve);
-
-  var builder = {
-    type: 'path',
-    className: CLASS,
-    data: data
-  };
-
-  if (context) {
-    lineGen.context(context);
-    builder.pathMethods = lineGen;
-  } else {
-    builder.attrs = {
-      d: lineGen(data)
-    };
-  }
-
-  return builder;
+  return (0, _Builder.lineBuilder)({ data: data, curve: curve, context: context, className: CLASS });
 };
 
-},{"d3-shape":5}],11:[function(require,module,exports){
+var subjectCircle = exports.subjectCircle = function subjectCircle(_ref2) {
+  var annotation = _ref2.annotation,
+      _ref2$offset = _ref2.offset,
+      offset = _ref2$offset === undefined ? annotation.position : _ref2$offset,
+      context = _ref2.context;
+
+  var data = annotation.typeData || {};
+  return (0, _Builder.arcBuilder)({ data: data, context: context, className: CLASS });
+};
+
+},{"./Builder":9}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3599,7 +3645,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.textBoxUnderline = undefined;
 
-var _d3Shape = require("d3-shape");
+var _Builder = require("./Builder");
 
 var CLASS = "connector";
 
@@ -3608,8 +3654,7 @@ var textBoxUnderline = exports.textBoxUnderline = function textBoxUnderline(_ref
       _ref$offset = _ref.offset,
       offset = _ref$offset === undefined ? { x: 0, y: 0 } : _ref$offset,
       context = _ref.context,
-      _ref$curve = _ref.curve,
-      curve = _ref$curve === undefined ? _d3Shape.curveLinear : _ref$curve,
+      curve = _ref.curve,
       bbox = _ref.bbox;
 
 
@@ -3619,28 +3664,10 @@ var textBoxUnderline = exports.textBoxUnderline = function textBoxUnderline(_ref
       y2 = offset.y;
 
   var data = [[x1, y1], [x2, y2]];
-
-  var lineGen = (0, _d3Shape.line)().curve(curve);
-
-  var builder = {
-    type: 'path',
-    className: 'underline',
-    data: data
-  };
-
-  if (context) {
-    lineGen.context(context);
-    builder.pathMethods = lineGen;
-  } else {
-    builder.attrs = {
-      d: lineGen(data)
-    };
-  }
-
-  return builder;
+  return (0, _Builder.lineBuilder)({ data: data, curve: curve, context: context, className: CLASS });
 };
 
-},{"d3-shape":5}],12:[function(require,module,exports){
+},{"./Builder":9}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3891,15 +3918,21 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_Type2) {
       return (0, _Connector.connectorLine)(context);
     }
   }, {
-    key: 'drawTextBox',
-    value: function drawTextBox(_ref6) {
+    key: 'drawSubject',
+    value: function drawSubject(_ref6) {
       var context = _ref6.context;
+      return (0, _Subject.subjectCircle)(context);
+    }
+  }, {
+    key: 'drawTextBox',
+    value: function drawTextBox(_ref7) {
+      var context = _ref7.context;
       return (0, _TextBox.textBoxUnderline)(context);
     }
   }], [{
     key: 'className',
     value: function className() {
-      return "callout";
+      return "callout circle";
     }
   }]);
 
@@ -3917,20 +3950,20 @@ var d3XYThreshold = exports.d3XYThreshold = function (_Type3) {
 
   _createClass(d3XYThreshold, [{
     key: 'drawConnector',
-    value: function drawConnector(_ref7) {
-      var context = _ref7.context;
+    value: function drawConnector(_ref8) {
+      var context = _ref8.context;
       return (0, _Connector.connectorLine)(context);
     }
   }, {
     key: 'drawSubject',
-    value: function drawSubject(_ref8) {
-      var context = _ref8.context;
+    value: function drawSubject(_ref9) {
+      var context = _ref9.context;
       return (0, _Subject.subjectLine)(context);
     }
   }, {
     key: 'drawTextBox',
-    value: function drawTextBox(_ref9) {
-      var context = _ref9.context;
+    value: function drawTextBox(_ref10) {
+      var context = _ref10.context;
       return (0, _TextBox.textBoxUnderline)(context);
     }
   }], [{
@@ -3969,7 +4002,7 @@ exports.default = {
   d3XYThreshold: d3XYThreshold
 };
 
-},{"./Annotation":7,"./Connector":9,"./Subject":10,"./TextBox":11,"d3-drag":2,"d3-selection":4}],13:[function(require,module,exports){
+},{"./Annotation":7,"./Connector":10,"./Subject":11,"./TextBox":12,"d3-drag":2,"d3-selection":4}],14:[function(require,module,exports){
 'use strict';
 
 var _AdapterD = require('./src/Adapter-d3');
@@ -3984,6 +4017,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 d3.annotation = _AdapterD2.default;
 d3.annotationCallout = _TypesD2.default.d3Callout;
+d3.annotationCalloutCircle = _TypesD2.default.d3CalloutCircle;
 d3.annotationXYThreshold = _TypesD2.default.d3XYThreshold;
 
-},{"./src/Adapter-d3":6,"./src/Types-d3":12}]},{},[13]);
+},{"./src/Adapter-d3":6,"./src/Types-d3":13}]},{},[14]);

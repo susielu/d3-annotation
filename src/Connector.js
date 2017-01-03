@@ -1,9 +1,9 @@
-import { line, curveLinear } from "d3-shape"
 
+import { lineBuilder } from './Builder'
 const CLASS = "connector"
 
 export const connectorLine = ({ annotation, offset=annotation.position, context, 
-    curve=curveLinear, bbox}) => {
+    curve, bbox}) => {
 
   let x1 = annotation.x - offset.x,
     x2 = x1 + annotation.dx,
@@ -17,26 +17,17 @@ export const connectorLine = ({ annotation, offset=annotation.position, context,
     x2 += bbox.width
   }
 
+  if (annotation.typeData.outerRadius || annotation.typeData.radius){
+
+    const h =  Math.sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2))
+    const angle = Math.asin(-y2/h)
+    const r = annotation.typeData.outerRadius || annotation.typeData.radius
+
+    x1 = Math.abs(Math.cos(angle)*r)*(x2 < 0 ? -1 : 1)
+    y1 = Math.abs(Math.sin(angle)*r)*(y2 < 0 ? -1 : 1)
+
+  }
+
   const data = [[x1, y1], [x2, y2]]
-
-  const lineGen = line()
-    .curve(curve)
-
-  const builder = {
-    type: 'path',
-    className: CLASS,
-    data
-  }
-
-  if (context) {
-    lineGen.context(context)
-    builder.pathMethods = lineGen
-
-  } else {
-    builder.attrs = {
-      d: lineGen(data)
-    }
-  }
-
-  return builder
+  return lineBuilder({ data, curve, context, className : CLASS })
 }

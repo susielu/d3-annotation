@@ -3,7 +3,7 @@ import { drag } from 'd3-drag'
 import { Annotation } from './Annotation'
 import { connectorLine } from './Connector'
 import { textBoxUnderline } from './TextBox'
-import { subjectLine } from './Subject'
+import { subjectLine, subjectCircle } from './Subject'
 
 export const newWithClass = (a, d, type, className) => {
   const group = a.selectAll(`${type}.${className}`).data(d)
@@ -133,8 +133,9 @@ export class d3Callout extends Type {
 }
 
 export class d3CalloutCircle extends Type {
-  static className(){ return "callout" }
+  static className(){ return "callout circle" }
   drawConnector({ context }) { return connectorLine(context)}
+  drawSubject({ context }) { return subjectCircle(context)}
   drawTextBox({ context }) { return textBoxUnderline(context)}
 }
 

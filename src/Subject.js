@@ -1,9 +1,9 @@
 
-import { line, curveLinear } from "d3-shape"
+import { lineBuilder, arcBuilder } from './Builder'
 const CLASS = "subject"
 
 export const subjectLine = ({ annotation, offset=annotation.position, context, 
-    curve=curveLinear, bbox}) => {
+    curve, bbox}) => {
 
   const td = annotation.typeData
 
@@ -12,27 +12,11 @@ export const subjectLine = ({ annotation, offset=annotation.position, context,
     y1 = (td.y1 !== undefined ? td.y1 : annotation.y) - offset.y,
     y2 = (td.y2 !== undefined ? td.y2 : annotation.y) - offset.y
 
-
   const data = [[x1, y1], [x2, y2]]
+  return lineBuilder({ data, curve, context, className : CLASS })
+}
 
-  const lineGen = line()
-    .curve(curve)
-
-  const builder = {
-    type: 'path',
-    className: CLASS,
-    data
-  }
-
-  if (context) {
-    lineGen.context(context)
-    builder.pathMethods = lineGen
-
-  } else {
-    builder.attrs = {
-      d: lineGen(data)
-    }
-  }
-
-  return builder
+export const subjectCircle = ({ annotation, offset=annotation.position, context }) => {
+  const data = annotation.typeData || {}
+  return arcBuilder({ data, context, className: CLASS })
 }
