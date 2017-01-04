@@ -17,11 +17,12 @@ export const connectorLine = ({ annotation, offset=annotation.position, context,
     x2 += bbox.width
   }
 
-  if (annotation.typeData.outerRadius || annotation.typeData.radius){
+  const td = annotation.typeData
+  if (td.outerRadius || td.radius){
 
     const h =  Math.sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2))
     const angle = Math.asin(-y2/h)
-    const r = annotation.typeData.outerRadius || annotation.typeData.radius
+    const r = td.outerRadius || td.radius + (td.radiusPadding || 0)
 
     x1 = Math.abs(Math.cos(angle)*r)*(x2 < 0 ? -1 : 1)
     y1 = Math.abs(Math.sin(angle)*r)*(y2 < 0 ? -1 : 1)

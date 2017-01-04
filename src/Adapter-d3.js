@@ -27,7 +27,7 @@ export default function annotation(){
     })
 
     const annotationG = selection.selectAll('g').data([collection])
-    annotationG.enter().append('g').attr('class', 'annotations')
+    annotationG.enter().append('g').attr('class', `annotations ${editMode ? "editable" : ""}`)
     
     const group = selection.select('g.annotations')
     newWithClass(group, collection.annotations, 'g', 'annotation')

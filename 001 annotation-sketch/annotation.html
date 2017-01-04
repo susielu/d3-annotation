@@ -14,6 +14,10 @@
         font-family: 'Lato';
      }
 
+     .editable .annotation-subject, .editable .annotation-textbox {
+       cursor: move;
+     }
+
      .line {
         fill: none;
         stroke: black;
@@ -22,16 +26,11 @@
 
       .annotation path {
         stroke: #e91e56;
-        fill: none;
-      }
-
-      .annotation.xythreshold .annotation-connector {
-        stroke-dasharray: 5;
+        fill: rgba(0,0,0,0);
       }
 
       .annotation text {
         fill: #e91e56;
-        cursor: move;
       }
 
       .annotation-title {
@@ -93,9 +92,9 @@
 
         const labels = [
           {
-            text: "Hellooooooooo",
+            text: "Hellooooooooo testing out a larger text box",
             data: {date: "18-Sep-09",	close: 185.02},
-            dy: 67,
+            dy: 37,
             dx: 42,
             type: d3.annotationCallout
           },
@@ -103,11 +102,12 @@
             text: "Hii there",
             title: "I HAZ A TITLE",
             data: {date: "13-Oct-11",	close: 408.43},
-            dy: -113,
+            dy: -93,
             dx: -176,
             type: d3.annotationCalloutCircle,
             typeData: {
-              radius: 50
+              radius: 50,
+              radiusPadding: 5
             }
           },
           {
@@ -115,8 +115,7 @@
             text: "Here I am",
             type: d3.annotationXYThreshold,
             y: 20,
-            dy: 30,
-            dx: 20,
+            dx: 50,
             typeData: {
               y1: 0,
               y2: height
@@ -130,7 +129,7 @@
             dy: -80,
             dx: -100,
             typeData: {
-              y1: 310,
+              y1: 0,
               y2: height
             }
           }
@@ -140,6 +139,9 @@
           .annotations(labels)
           .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
           .editMode(true)
+          //.text(d => )
+          //Add in a way to access annotation data for
+          //functional text
 
         svg.append("g")
           .attr("class", "annotation-test")
@@ -149,15 +151,10 @@
 
 
         //pseudo code example
-        // var makeAnnotations = d3.annotation()//should this be the annotation type? that makes more sense?
-        //  .annotations(labels)
         // below think of better word for translating data to point? Scales? positionTranslators
         //also requires some more thought around making accessors more generic
-        //  .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
-        //  instead of data and accessors can also just pass x and y coordinates, those would trump using scales
-        //  .type(d3.annotationCallout)
+
         //  .design('d3.') ?? or is this part of type?
-        //  .editMode(true)
         //makes all annotations draggable, creates global variable
         //then in the console you can say JSON.stringify(Annotations.json())
         //to get the updated positions for your annotations
