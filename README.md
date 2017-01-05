@@ -20,3 +20,5 @@ This wants to be a series of examples of how to do annotations on a chart. The i
 - [Micah Stubbs](http://bl.ocks.org/micahstubbs/fa129089b7989975e96b166077f74de4#annotations.json) has a nice VR chart based on swoopy drag 
 
 - [Scott Logic](http://blog.scottlogic.com/2014/08/26/two-line-components-for-d3-charts.html) evokes “line annotation” in a graph (different concept).
+
+- [Seven Features You’ll Want In Your Next Charting Tool](http://vis4.net/blog/posts/seven-features-youll-wantin-your-next-charting-tool/) shows how the NYT does annotations
