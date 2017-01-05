@@ -48,7 +48,7 @@ const wrap = (text, width) => {
   });
 }
 
-class TypeBase {
+class Type {
   constructor({ a, annotation, editMode }) {
     this.a = a
     this.textBox = a.select('g.annotation-textbox')
@@ -58,38 +58,14 @@ class TypeBase {
     this.editMode = editMode
   }
 
-  getBBox() {
-    return this.textBox.selectAll('.annotation-text, .annotation-title').nodes()
-      .reduce((p, c) => {
-        const bbox = c.getBBox()
-        p.x = Math.min(p.x, bbox.x)
-        p.y = Math.min(p.y, bbox.y)
-        p.width = Math.max(p.width, bbox.width)
-        p.height += bbox.height
-        return p
-      }, { x: 0, y: 0, width: 0, height: 0});
-  }
-
-  drawText() {
-    let titleBBox = { height: 0 }
-    const text = this.a.select('text.annotation-text')
-
-    if (this.annotation.title){
-      const title = this.a.select('text.annotation-title')
-      title.text(this.annotation.title)
-        .attr('dy', '1.1em')
-      title.call(wrap, 100)
-      titleBBox = title.node().getBBox()
+  static init(annotation, accessors) {
+    if (!annotation.x && annotation.data && accessors.x){
+      annotation.x = accessors.x(annotation.data)
     }
-
-    text.text(this.annotation.text)
-      .attr('dy', '1em')
-    text.call(wrap, 100)
-
-    const textBBox = text.node().getBBox()
-    text.attr('y', titleBBox.height * 1.1 || 3)
-
-    return this.getBBox()
+    if (!annotation.y && annotation.data && accessors.y){
+      annotation.y = accessors.y(annotation.data)
+    }
+    return annotation
   }
 
   drawOnSVG (a, builders) {
@@ -110,23 +86,43 @@ class TypeBase {
       })
   }
 
-  draw() {
-    const bbox = this.drawText()
-    if (this.editMode) this.editable()
-    return bbox
+    drawText() {
+    let titleBBox = { height: 0 }
+    const text = this.a.select('text.annotation-text')
+
+    if (this.annotation.title){
+      const title = this.a.select('text.annotation-title')
+      title.text(this.annotation.title)
+        .attr('dy', '1.1em')
+      title.call(wrap, 100)
+      titleBBox = title.node().getBBox()
+    }
+
+    text.text(this.annotation.text)
+      .attr('dy', '1em')
+    text.call(wrap, 100)
+
+    const textBBox = text.node().getBBox()
+    text.attr('y', titleBBox.height * 1.1 || 3)
   }
 
-  update() {
-    const offset = this.annotation.offset
-    offset.x += event.dx
-    offset.y += event.dy
-    this.annotation.offset = offset
-    return this.getBBox()
+  customization(bbox=this.getTextBBox()) {
+    const annotation = this.annotation
+    const context = { annotation, bbox }
 
+    //should be overwritten with custom annotation components
+    this.drawSubject && this.drawOnSVG( this.subject, this.drawSubject({ context }))
+    this.drawConnector && this.drawOnSVG( this.connector, this.drawConnector({ context }))
+    this.drawTextBox && this.drawOnSVG( this.textBox, this.drawTextBox({ context}))
+  }  
+  
+  draw() {
+    this.drawText()
+    if (this.editMode) this.editable()
+    this.customization()
   }
 
   dragstarted() { event.sourceEvent.stopPropagation(); this.a.classed("dragging", true) }
-  dragged() { this.update() }
   dragended() { this.a.classed("dragging", false)}
 
   dragSubject() {
@@ -135,57 +131,34 @@ class TypeBase {
     position.y += event.dy
     this.annotation.position = position
     this.a.attr('transform', `translate(${position.x}, ${position.y})`)
-    this.customization(this.getBBox())
+    this.customization()
   }
 
+  dragText() {
+    const offset = this.annotation.offset
+    offset.x += event.dx
+    offset.y += event.dy
+    this.annotation.offset = offset
+    this.customization()
+  }
 
   editable() {
     this.subject.call(drag()
       .container(select('g.annotations').node())
       .on('start', this.dragstarted.bind(this))
-      .on('drag', this.dragSubject && this.dragSubject.bind(this) || this.dragged.bind(this))
+      .on('drag', this.dragSubject.bind(this))
       .on('end', this.dragended.bind(this))
     )
 
     this.textBox.call(drag()
       .on('start', this.dragstarted.bind(this))
-      .on('drag', this.dragTextBox && this.dragTextBox.bind(this) || this.dragged.bind(this))
+      .on('drag', this.dragTextBox.bind(this))
       .on('end', this.dragended.bind(this))
     )
   }
 
-  static init(annotation, accessors) {
-    if (!annotation.x && annotation.data && accessors.x){
-      annotation.x = accessors.x(annotation.data)
-    }
-    if (!annotation.y && annotation.data && accessors.y){
-      annotation.y = accessors.y(annotation.data)
-    }
-    return annotation
-  }
 
-  drawConnector() {}
-  drawSubject() {}
-  drawTextBox() {}
-  
 }
-
-class Type extends TypeBase {
-  customization(bbox) {
-    const annotation = this.annotation
-    const context = { annotation, bbox }
-
-    //should be overwritten with custom annotation components
-    this.drawOnSVG( this.subject, this.drawSubject({ context }))
-    this.drawOnSVG( this.connector, this.drawConnector({ context }))
-    this.drawOnSVG( this.textBox, this.drawTextBox({ context}))
-  }  
-
-  //super.draw and super.update return textbox bbox 
-  draw() { this.customization(super.draw()) }
-  update() { this.customization(super.update()) }
-}
-
 
 // Custom annotation types
 export class d3Callout extends Type {
