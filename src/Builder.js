@@ -1,4 +1,4 @@
-import { line, arc, curveLinear } from "d3-shape"
+import { line, arc, curveLinear, symbol, symbolTriangle } from "d3-shape"
 
 export const lineBuilder = ({ data, curve=curveLinear, context, className }) => { 
   const lineGen = line()
@@ -45,6 +45,31 @@ export const arcBuilder = ({ data, context, className }) => {
     
     builder.attrs = {
       d: arcShape()
+    }
+  }
+
+  return builder
+}
+
+export const triangleBuilder = ({ data, context, className }) => {
+   const builder = {
+    type: 'path',
+    className,
+    data
+  }
+
+  const triangle = symbol().type(symbolTriangle).size(data.size || 10)
+
+  if (context) {
+    arcShape.context(context)
+    builder.pathMethods = lineGen
+    builder.transform = data.transform
+
+  } else {
+    
+    builder.attrs = {
+      d: triangle(),
+      transform: data.transform
     }
   }
 

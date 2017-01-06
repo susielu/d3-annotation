@@ -1,7 +1,7 @@
 import { select, event } from 'd3-selection'
 import { drag } from 'd3-drag'
 import { Annotation } from './Annotation'
-import { connectorLine } from './Connector'
+import { connectorLine, connectorArrow } from './Connector'
 import { textBoxLine, textBoxUnderline } from './TextBox'
 import { subjectLine, subjectCircle } from './Subject'
 
@@ -86,7 +86,19 @@ class Type {
       })
   }
 
-    drawText() {
+  getTextBBox() {
+    return this.textBox.selectAll('.annotation-text, .annotation-title').nodes()
+      .reduce((p, c) => {
+        const bbox = c.getBBox()
+        p.x = Math.min(p.x, bbox.x)
+        p.y = Math.min(p.y, bbox.y)
+        p.width = Math.max(p.width, bbox.width)
+        p.height += bbox.height
+        return p
+      }, { x: 0, y: 0, width: 0, height: 0});
+  }
+
+  drawText() {
     let titleBBox = { height: 0 }
     const text = this.a.select('text.annotation-text')
 
@@ -134,7 +146,7 @@ class Type {
     this.customization()
   }
 
-  dragText() {
+  dragTextBox() {
     const offset = this.annotation.offset
     offset.x += event.dx
     offset.y += event.dy
@@ -164,6 +176,16 @@ class Type {
 export class d3Callout extends Type {
   static className(){ return "callout" }
   drawConnector({ context }) { return connectorLine(context)}
+  drawTextBox({ context }) {
+    const offset = this.annotation.offset
+    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    return textBoxLine(context)
+  }
+}
+
+export class d3CalloutArrow extends Type {
+  static className(){ return "callout" }
+  drawConnector({ context }) { return [connectorLine(context), connectorArrow(context)]}
   drawTextBox({ context }) {
     const offset = this.annotation.offset
     this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
@@ -210,6 +232,7 @@ export class d3XYThreshold extends d3Callout {
 
 export default {
   d3Callout,
+  d3CalloutArrow,
   d3CalloutCircle,
   d3XYThreshold
 }

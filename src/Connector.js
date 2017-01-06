@@ -32,3 +32,35 @@ export const connectorLine = ({ annotation, offset=annotation.position, context,
   const data = [[x1, y1], [x2, y2]]
   return lineBuilder({ data, curve, context, className : CLASS })
 }
+
+
+export const connectorArrow = ({ annotation, offset=annotation.position, context, bbox}) => {
+
+  let x1 = annotation.x - offset.x,
+    y1 = annotation.y - offset.y;
+
+  let dx = annotation.dx
+
+  //Think about how to deal with this properly
+  if (annotation.dx && bbox && bbox.width && annotation.dx < 0 
+      && Math.abs(annotation.dx) > bbox.width/2) {
+    
+    dx += bbox.width
+  }
+
+  let size = 10;
+  let angleOffset = 16/180*Math.PI
+  let angle = Math.atan(annotation.dy/dx)
+
+  if (dx < 0 ) {
+    angle += Math.PI
+  }
+
+  const data = [[x1, y1], 
+    [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
+    [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
+    [x1, y1]
+    ]
+
+  return lineBuilder({ data, context, className : CLASS + '-arrow' })
+}
