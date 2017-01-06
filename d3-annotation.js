@@ -3596,7 +3596,9 @@ var connectorLine = exports.connectorLine = function connectorLine(_ref) {
       offset = _ref$offset === undefined ? annotation.position : _ref$offset,
       context = _ref.context,
       curve = _ref.curve,
-      bbox = _ref.bbox;
+      bbox = _ref.bbox,
+      _ref$elbow = _ref.elbow,
+      elbow = _ref$elbow === undefined ? true : _ref$elbow;
 
 
   var x1 = annotation.x - offset.x,
@@ -3621,6 +3623,21 @@ var connectorLine = exports.connectorLine = function connectorLine(_ref) {
   }
 
   var data = [[x1, y1], [x2, y2]];
+
+  if (elbow) {
+    var _angle = 45 / 180 * Math.PI;
+    var diff = -(y1 - y2) / Math.cos(_angle);
+    var xe = x1;
+
+    if (y2 < 0 && x2 < 0) {
+      xe += diff;
+    } else {
+      xe -= diff;
+    }
+
+    data.splice(1, 0, [xe, y2]);
+  }
+
   return (0, _Builder.lineBuilder)({ data: data, curve: curve, context: context, className: CLASS });
 };
 

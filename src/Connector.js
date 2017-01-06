@@ -3,7 +3,7 @@ import { lineBuilder } from './Builder'
 const CLASS = "connector"
 
 export const connectorLine = ({ annotation, offset=annotation.position, context, 
-    curve, bbox}) => {
+    curve, bbox, elbow=true }) => {
 
   let x1 = annotation.x - offset.x,
     x2 = x1 + annotation.dx,
@@ -30,9 +30,23 @@ export const connectorLine = ({ annotation, offset=annotation.position, context,
   }
 
   const data = [[x1, y1], [x2, y2]]
+
+  if (elbow) {
+    const angle = 45/180*Math.PI
+    let diff = - (y1 - y2)/Math.cos(angle)
+    let xe = x1 
+
+    if (y2 < 0 && x2 < 0) {
+      xe += diff
+    } else {
+      xe -= diff
+    }
+
+    data.splice(1, 0, [xe , y2 ])
+  }
+
   return lineBuilder({ data, curve, context, className : CLASS })
 }
-
 
 export const connectorArrow = ({ annotation, offset=annotation.position, context, bbox}) => {
 
