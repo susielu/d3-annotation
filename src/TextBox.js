@@ -3,12 +3,17 @@ import { lineBuilder } from './Builder'
 const CLASS = "connector"
 
 export const textBoxLine = ({ annotation, offset={x: 0, y: 0}, context, 
-    curve, bbox}) => {
+    curve, bbox, position="top", padding=5}) => {
 
   let x1 = offset.x,
     x2 = x1 + bbox.width,
     y1 = offset.y,
     y2 = offset.y
+
+  if (position == "bottom") {
+    y1 += bbox.height + padding
+    y2 += bbox.height + padding
+  }
 
   const data = [[x1, y1], [x2, y2]]
   return lineBuilder({ data, curve, context, className : CLASS })

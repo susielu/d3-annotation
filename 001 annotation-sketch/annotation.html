@@ -94,77 +94,62 @@
       svg.append("g")
         .call(d3.axisLeft(y));
 
-        const labels = [
-          {
-            text: "Hellooooooooo testing out a larger text box",
-            data: {date: "18-Sep-09",	close: 185.02},
-            dy: 37,
-            dx: 42,
-            type: d3.annotationCalloutArrow
-          },
-          {
-            text: "Hii there",
-            title: "I HAZ A TITLE",
-            data: {date: "13-Oct-11",	close: 408.43},
-            dy: -93,
-            dx: -176,
-            type: d3.annotationCalloutCircle,
-            typeData: {
-              radius: 50,
-              radiusPadding: 5
-            }
-          },
-          {
-            data: {date: "28-Nov-08"},
-            text: "Here I am",
-            type: d3.annotationXYThreshold,
-            y: 20,
-            dx: 50,
-            typeData: {
-              y1: 0,
-              y2: height
-            }
-          },
-          {
-            data: {date: "2-Jan-08", close: 194.84},
-            text: "Yo 2008",
-            title: "Ohai",
-            type: d3.annotationXYThreshold,
-            dy: -80,
-            dx: -100,
-            typeData: {
-              y1: 0,
-              y2: height
-            }
+      const labels = [
+        {
+          text: "Hellooooooooo testing out a larger text box",
+          data: {date: "18-Sep-09",	close: 185.02},
+          dy: 37,
+          dx: 42,
+          type: d3.annotationCalloutDynamic
+        },
+        {
+          text: "Hii there",
+          title: "I HAZ A TITLE",
+          data: {date: "13-Oct-11",	close: 408.43},
+          dy: -93,
+          dx: -176,
+          type: d3.annotationCalloutCircle,
+          typeData: {
+            radius: 50,
+            radiusPadding: 5
           }
-        ]
+        },
+        {
+          data: {date: "28-Nov-08"},
+          text: "Here I am",
+          type: d3.annotationXYThreshold,
+          y: 20,
+          dx: 50,
+          typeData: {
+            y1: 0,
+            y2: height
+          }
+        },
+        {
+          data: {date: "2-Jan-08", close: 194.84},
+          text: "Yo 2008",
+          title: "Ohai",
+          type: d3.annotationXYThreshold,
+          dy: -80,
+          dx: -100,
+          typeData: {
+            y1: 0,
+            y2: height
+          }
+        }
+      ]
 
-        const makeAnnotations = d3.annotation()
-          .annotations(labels)
-          .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
-          .editMode(true)
-          //.text(d => )
-          //Add in a way to access annotation data for
-          //functional text
+      const makeAnnotations = d3.annotation()
+        .annotations(labels)
+        .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
+        .editMode(true)
 
-        svg.append("g")
-          .attr("class", "annotation-test")
-          .call(makeAnnotations)
+      svg.append("g")
+        .attr("class", "annotation-test")
+        .call(makeAnnotations)
 
     })
 
-
-        //pseudo code example
-        // below think of better word for translating data to point? Scales? positionTranslators
-        //also requires some more thought around making accessors more generic
-
-        //  .design('d3.') ?? or is this part of type?
-        //makes all annotations draggable, creates global variable
-        //then in the console you can say JSON.stringify(Annotations.json())
-        //to get the updated positions for your annotations
-
-
     </script>
-
 </body>
 </html>

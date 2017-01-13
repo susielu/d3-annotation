@@ -183,9 +183,35 @@ export class d3Callout extends Type {
   }
 }
 
+export class d3CalloutDynamic extends Type {
+  static className(){ return "callout-dynamic" }
+  drawConnector({ context }) { context.elbow = true; return connectorLine(context)}
+  drawTextBox({ context }) {
+    const offset = this.annotation.offset
+
+    if (offset.y < 0) {
+      const padding = 5
+      const transform = this.textBox.attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
+      context.position = "bottom"
+      context.padding = padding
+    } else {
+      
+      this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    }
+    return textBoxLine(context)
+  }
+}
+
 export class d3CalloutArrow extends Type {
   static className(){ return "callout" }
-  drawConnector({ context }) { return [connectorLine(context), connectorArrow(context)]}
+  drawConnector({ context }) { 
+    const line = connectorLine(context)
+    const dataLength = line.data.length
+
+    context.start = line.data[dataLength - 2]
+    contenxt.end = line.data[dataLength - 1]
+    return [line, connectorArrow(context)]
+  }
   drawTextBox({ context }) {
     const offset = this.annotation.offset
     this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
@@ -195,7 +221,7 @@ export class d3CalloutArrow extends Type {
 
 export class d3CalloutCircle extends Type {
   static className(){ return "callout circle" }
-  drawConnector({ context }) { return connectorLine(context)}
+  drawConnector({ context }) { context.elbow = true; return connectorLine(context) }
   drawSubject({ context }) { return subjectCircle(context)}
   drawTextBox({ context }) { 
     const offset = this.annotation.offset
@@ -232,6 +258,7 @@ export class d3XYThreshold extends d3Callout {
 
 export default {
   d3Callout,
+  d3CalloutDynamic,
   d3CalloutArrow,
   d3CalloutCircle,
   d3XYThreshold

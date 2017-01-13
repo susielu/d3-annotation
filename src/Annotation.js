@@ -33,13 +33,19 @@ export default class Annotation {
     y: this.y + this.dy
   }}
 
-  get json() { return {
+  get json() { 
+    const json = {
       x: this.x,
       y: this.y,
       dx: this.dx,
       dy: this.dy,
-      text: this.text,
-      title: this.title,
-      data: this.data
-   }}
+    }
+
+    if (this.text) json.text = this.text 
+    if (this.title) json.title = this.title
+    if (this.data) json.data = this.data
+    if (this.typeData) json.typeData = this.typeData
+    
+    return json
+  }
 }
