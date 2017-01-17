@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link href='https://fonts.googleapis.com/css?family=Lato:300,900' rel='stylesheet' type='text/css'>
+
+    <style>
+     body{
+        background-color: whitesmoke;
+     }
+
+     svg {
+        background-color: white;
+        font-family: 'Lato';
+     }
+
+     line {
+       stroke:#e3e3e3;
+     }
+
+     .editable .annotation-subject, .editable .annotation-textbox {
+       cursor: move;
+     }
+
+     .line {
+        fill: none;
+        stroke: black;
+        stroke-width: 1px;
+      }
+
+      .annotation path {
+        stroke: #e91e56;
+        fill: rgba(0,0,0,0);
+      }
+
+      .annotation path.connector-arrow{
+        fill: #e91e56;
+      }
+
+      .annotation text {
+        fill: #e91e56;
+      }
+
+      .annotation-title {
+        font-weight: bold;
+      }
+
+    </style>
+</head>
+<body>
+    <svg width=960 height=500></svg>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.4.1/d3.min.js"></script>
+    <script src="/d3-annotation.js"></script>
+
+    <script>
+    // network code: https://bl.ocks.org/mbostock/4062045
+    var svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height");
+    var color = d3.scaleOrdinal(d3.schemeCategory20);
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function(d) { return d.id; }))
+        .force("charge", d3.forceManyBody())
+        .force("center", d3.forceCenter(width / 2, height / 2));
+    d3.json("miserables.json", function(error, graph) {
+      if (error) throw error;
+      var link = svg.append("g")
+          .attr("class", "links")
+        .selectAll("line")
+        .data(graph.links)
+        .enter().append("line")
+          .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+      var node = svg.append("g")
+          .attr("class", "nodes")
+        .selectAll("circle")
+        .data(graph.nodes)
+        .enter().append("circle")
+          .attr("r", 5)
+          .attr("fill", function(d) { return color(d.group); })
+          .call(d3.drag()
+              .on("start", dragstarted)
+              .on("drag", dragged)
+              .on("end", dragended));
+      node.append("title")
+          .text(function(d) { return d.id; });
+      simulation
+          .nodes(graph.nodes)
+          .on("tick", ticked);
+      simulation.force("link")
+          .links(graph.links);
+      function ticked() {
+        link
+            .attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
+        node
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; });
+      }
+    });
+    function dragstarted(d) {
+      if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+    function dragged(d) {
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+    }
+    function dragended(d) {
+      if (!d3.event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
+
+    const labels = [
+        {
+          text: "Hellooooooooo testing out a larger text box",
+          data: {date: "18-Sep-09",	close: 185.02},
+          dy: 37,
+          dx: 42,
+          type: d3.annotationCalloutDynamic
+        },
+        {
+          text: "Hii there",
+          title: "I HAZ A TITLE",
+          data: {date: "13-Oct-11",	close: 408.43},
+          dy: -93,
+          dx: -176,
+          type: d3.annotationCalloutCircle,
+          typeData: {
+            radius: 50,
+            radiusPadding: 5
+          }
+        }
+      ]
+
+      const makeAnnotations = d3.annotation()
+        .annotations(labels)
+        .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
+        .editMode(true)
+
+      // svg.append("g")
+      //   .attr("class", "annotation-test")
+      //   .call(makeAnnotations)
+
+   // })
+
+    </script>
+</body>
+</html>
