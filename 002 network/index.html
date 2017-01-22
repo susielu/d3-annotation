@@ -59,7 +59,7 @@
         height = +svg.attr("height");
     var color = d3.scaleOrdinal(d3.schemeCategory20);
     var simulation = d3.forceSimulation()
-        .force("link", d3.forceLink().id(function(d) { return d.id; }))
+        .force("link", d3.forceLink().id( d => d.id ))
         .force("charge", d3.forceManyBody())
         .force("center", d3.forceCenter(width / 2, height / 2));
     d3.json("miserables.json", function(error, graph) {
@@ -69,20 +69,20 @@
         .selectAll("line")
         .data(graph.links)
         .enter().append("line")
-          .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+          .attr("stroke-width", d => Math.sqrt(d.value));
       var node = svg.append("g")
           .attr("class", "nodes")
         .selectAll("circle")
         .data(graph.nodes)
         .enter().append("circle")
           .attr("r", 5)
-          .attr("fill", function(d) { return color(d.group); })
+          .attr("fill", d => color(d.group))
           .call(d3.drag()
               .on("start", dragstarted)
               .on("drag", dragged)
               .on("end", dragended));
       node.append("title")
-          .text(function(d) { return d.id; });
+          .text(d => d.id);
       simulation
           .nodes(graph.nodes)
           .on("tick", ticked);
@@ -90,14 +90,36 @@
           .links(graph.links);
       function ticked() {
         link
-            .attr("x1", function(d) { return d.source.x; })
-            .attr("y1", function(d) { return d.source.y; })
-            .attr("x2", function(d) { return d.target.x; })
-            .attr("y2", function(d) { return d.target.y; });
+            .attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
         node
-            .attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; });
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y);
+
+        makeAnnotations.annotations()
+          .forEach((d, i) => {
+            d.position = graph.nodes[i]
+          })
+
+        makeAnnotations.update()
       }
+
+      window.makeAnnotations = d3.annotation()
+        .annotations(graph.nodes.map(d => {
+          return {
+            data: {x: d.x, y: d.y},
+            text: d.id,
+            type: d3.annotationLabel
+          }
+        }))
+        .accessors({ x: d => d.x , y: d => d.y})
+
+      svg.append("g")
+        .attr("class", "annotation-test")
+        .call(makeAnnotations)
+
     });
     function dragstarted(d) {
       if (!d3.event.active) simulation.alphaTarget(0.3).restart();
@@ -113,37 +135,29 @@
       d.fx = null;
       d.fy = null;
     }
+    // const labels = [
+    //     {
+    //       text: "Hellooooooooo testing out a larger text box",
+    //       data: {date: "18-Sep-09",	close: 185.02},
+    //       dy: 37,
+    //       dx: 42,
+    //       type: d3.annotationCalloutDynamic
+    //     },
+    //     {
+    //       text: "Hii there",
+    //       title: "I HAZ A TITLE",
+    //       data: {date: "13-Oct-11",	close: 408.43},
+    //       dy: -93,
+    //       dx: -176,
+    //       type: d3.annotationCalloutCircle,
+    //       typeData: {
+    //         radius: 50,
+    //         radiusPadding: 5
+    //       }
+    //     }
+    //   ]
 
-    const labels = [
-        {
-          text: "Hellooooooooo testing out a larger text box",
-          data: {date: "18-Sep-09",	close: 185.02},
-          dy: 37,
-          dx: 42,
-          type: d3.annotationCalloutDynamic
-        },
-        {
-          text: "Hii there",
-          title: "I HAZ A TITLE",
-          data: {date: "13-Oct-11",	close: 408.43},
-          dy: -93,
-          dx: -176,
-          type: d3.annotationCalloutCircle,
-          typeData: {
-            radius: 50,
-            radiusPadding: 5
-          }
-        }
-      ]
 
-      const makeAnnotations = d3.annotation()
-        .annotations(labels)
-        .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
-        .editMode(true)
-
-      // svg.append("g")
-      //   .attr("class", "annotation-test")
-      //   .call(makeAnnotations)
 
    // })
 

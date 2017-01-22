@@ -131,6 +131,12 @@ class Type {
   
   draw() {
     this.drawText()
+    this.update()
+  }
+
+  update() {
+    const position = this.annotation.position 
+    this.a.attr('transform', `translate(${position.x}, ${position.y})`)
     this.customization()
   }
 
@@ -157,21 +163,6 @@ class Type {
     this.customization()
   }
 
-  editable() {
-    // this.subject.call(drag()
-    //   .container(select('g.annotations').node())
-    //   .on('start', this.dragstarted.bind(this))
-    //   .on('drag', this.dragSubject.bind(this))
-    //   .on('end', this.dragended.bind(this))
-    // )
-
-    // this.textBox.call(drag()
-    //   .on('start', this.dragstarted.bind(this))
-    //   .on('drag', this.dragTextBox.bind(this))
-    //   .on('end', this.dragended.bind(this))
-    // )
-  }
-
   mapHandles(handles) {
     return handles
     .filter(h => h.x !== undefined && h.y !== undefined)
@@ -181,6 +172,10 @@ class Type {
       return h
     })
   }
+}
+
+export class d3Label extends Type {
+  static className(){ return "label" }
 }
 
 export class d3CalloutCircle extends Type {
@@ -252,12 +247,9 @@ export class d3Callout extends Type {
   static className(){ return "callout" }
   drawConnector({ context }) { return connectorLine(context)}
   drawTextBox({ context }) {
-    const offset = this.annotation.offset
-    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
-    return textBoxLine(context)
+
   }
 }
-
 
 
 export class d3CalloutDynamic extends Type {
@@ -325,5 +317,6 @@ export default {
   d3CalloutDynamic,
   d3CalloutArrow,
   d3CalloutCircle,
-  d3XYThreshold
+  d3XYThreshold,
+  d3Label
 }

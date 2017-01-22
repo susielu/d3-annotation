@@ -5,5 +5,6 @@ export default {
   annotation,
   annotationCallout : types.d3Callout,
   annotationCalloutCircle : types.d3CalloutCircle,
-  annotationXYThreshold : types.d3XYThreshold
+  annotationXYThreshold : types.d3XYThreshold,
+  annotationLabel: types.d3Label
 }

@@ -44,7 +44,6 @@ export default function annotation(){
           a.attr('class', `annotation ${className}`)
         }
 
-        a.attr('transform', `translate(${position.x}, ${position.y})`)
         newWithClass(a, [d], 'g', 'annotation-connector')
         newWithClass(a, [d], 'g', 'annotation-subject')
         newWithClass(a, [d], 'g', 'annotation-textbox')
@@ -55,14 +54,20 @@ export default function annotation(){
         newWithClass(textbox, [d], 'text', 'annotation-text')
         newWithClass(textbox, [d], 'text', 'annotation-title')
 
-        const type = new d.type({ a, annotation: d, editMode})
+        d.type = new d.type({ a, annotation: d, editMode})
         
-        type.draw()
+       // console.log('type', d.type, d.type.draw)
+        d.type.draw()
       })
   }
 
   annotation.json = function() {
     return annotation
+  }
+
+  annotation.update = function(){
+    collection.annotations.forEach(d => d.type.update()
+    )
   }
 
   //TODO: add in classprefix functionality

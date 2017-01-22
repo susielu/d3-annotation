@@ -3307,7 +3307,6 @@ function annotation() {
         a.attr('class', 'annotation ' + className);
       }
 
-      a.attr('transform', 'translate(' + position.x + ', ' + position.y + ')');
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-connector');
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-subject');
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-textbox');
@@ -3318,14 +3317,21 @@ function annotation() {
       (0, _TypesD.newWithClass)(textbox, [d], 'text', 'annotation-text');
       (0, _TypesD.newWithClass)(textbox, [d], 'text', 'annotation-title');
 
-      var type = new d.type({ a: a, annotation: d, editMode: editMode });
+      d.type = new d.type({ a: a, annotation: d, editMode: editMode });
 
-      type.draw();
+      // console.log('type', d.type, d.type.draw)
+      d.type.draw();
     });
   };
 
   annotation.json = function () {
     return annotation;
+  };
+
+  annotation.update = function () {
+    collection.annotations.forEach(function (d) {
+      return d.type.update();
+    });
   };
 
   //TODO: add in classprefix functionality
@@ -3933,7 +3939,7 @@ var textBoxSideline = exports.textBoxSideline = function textBoxSideline(_ref3) 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.d3XYThreshold = exports.d3CalloutArrow = exports.d3CalloutDynamic = exports.d3Callout = exports.d3CalloutCircle = exports.newWithClass = undefined;
+exports.d3XYThreshold = exports.d3CalloutArrow = exports.d3CalloutDynamic = exports.d3Callout = exports.d3CalloutCircle = exports.d3Label = exports.newWithClass = undefined;
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
@@ -4086,6 +4092,13 @@ var Type = function () {
     key: 'draw',
     value: function draw() {
       this.drawText();
+      this.update();
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      var position = this.annotation.position;
+      this.a.attr('transform', 'translate(' + position.x + ', ' + position.y + ')');
       this.customization();
     }
   }, {
@@ -4119,22 +4132,6 @@ var Type = function () {
       this.customization();
     }
   }, {
-    key: 'editable',
-    value: function editable() {
-      // this.subject.call(drag()
-      //   .container(select('g.annotations').node())
-      //   .on('start', this.dragstarted.bind(this))
-      //   .on('drag', this.dragSubject.bind(this))
-      //   .on('end', this.dragended.bind(this))
-      // )
-
-      // this.textBox.call(drag()
-      //   .on('start', this.dragstarted.bind(this))
-      //   .on('drag', this.dragTextBox.bind(this))
-      //   .on('end', this.dragended.bind(this))
-      // )
-    }
-  }, {
     key: 'mapHandles',
     value: function mapHandles(handles) {
       var _this2 = this;
@@ -4163,8 +4160,27 @@ var Type = function () {
   return Type;
 }();
 
-var d3CalloutCircle = exports.d3CalloutCircle = function (_Type) {
-  _inherits(d3CalloutCircle, _Type);
+var d3Label = exports.d3Label = function (_Type) {
+  _inherits(d3Label, _Type);
+
+  function d3Label() {
+    _classCallCheck(this, d3Label);
+
+    return _possibleConstructorReturn(this, (d3Label.__proto__ || Object.getPrototypeOf(d3Label)).apply(this, arguments));
+  }
+
+  _createClass(d3Label, null, [{
+    key: 'className',
+    value: function className() {
+      return "label";
+    }
+  }]);
+
+  return d3Label;
+}(Type);
+
+var d3CalloutCircle = exports.d3CalloutCircle = function (_Type2) {
+  _inherits(d3CalloutCircle, _Type2);
 
   function d3CalloutCircle() {
     _classCallCheck(this, d3CalloutCircle);
@@ -4181,7 +4197,7 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_Type) {
   }, {
     key: 'drawSubject',
     value: function drawSubject(_ref4) {
-      var _this4 = this;
+      var _this5 = this;
 
       var context = _ref4.context;
 
@@ -4194,17 +4210,17 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_Type) {
         });
 
         var updateRadius = function updateRadius() {
-          var r = _this4.annotation.typeData.radius + _d3Selection.event.dx * Math.sqrt(2);
+          var r = _this5.annotation.typeData.radius + _d3Selection.event.dx * Math.sqrt(2);
 
-          _this4.annotation.typeData.radius = r;
-          _this4.customization();
+          _this5.annotation.typeData.radius = r;
+          _this5.customization();
         };
 
         var updateRadiusPadding = function updateRadiusPadding() {
-          var rpad = _this4.annotation.typeData.radiusPadding + _d3Selection.event.dx;
+          var rpad = _this5.annotation.typeData.radiusPadding + _d3Selection.event.dx;
 
-          _this4.annotation.typeData.radiusPadding = rpad;
-          _this4.customization();
+          _this5.annotation.typeData.radiusPadding = rpad;
+          _this5.customization();
         };
 
         (0, _Handles.addHandles)({
@@ -4257,8 +4273,8 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_Type) {
 // Custom annotation types
 
 
-var d3Callout = exports.d3Callout = function (_Type2) {
-  _inherits(d3Callout, _Type2);
+var d3Callout = exports.d3Callout = function (_Type3) {
+  _inherits(d3Callout, _Type3);
 
   function d3Callout() {
     _classCallCheck(this, d3Callout);
@@ -4276,10 +4292,6 @@ var d3Callout = exports.d3Callout = function (_Type2) {
     key: 'drawTextBox',
     value: function drawTextBox(_ref7) {
       var context = _ref7.context;
-
-      var offset = this.annotation.offset;
-      this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
-      return (0, _TextBox.textBoxLine)(context);
     }
   }], [{
     key: 'className',
@@ -4291,8 +4303,8 @@ var d3Callout = exports.d3Callout = function (_Type2) {
   return d3Callout;
 }(Type);
 
-var d3CalloutDynamic = exports.d3CalloutDynamic = function (_Type3) {
-  _inherits(d3CalloutDynamic, _Type3);
+var d3CalloutDynamic = exports.d3CalloutDynamic = function (_Type4) {
+  _inherits(d3CalloutDynamic, _Type4);
 
   function d3CalloutDynamic() {
     _classCallCheck(this, d3CalloutDynamic);
@@ -4334,8 +4346,8 @@ var d3CalloutDynamic = exports.d3CalloutDynamic = function (_Type3) {
   return d3CalloutDynamic;
 }(Type);
 
-var d3CalloutArrow = exports.d3CalloutArrow = function (_Type4) {
-  _inherits(d3CalloutArrow, _Type4);
+var d3CalloutArrow = exports.d3CalloutArrow = function (_Type5) {
+  _inherits(d3CalloutArrow, _Type5);
 
   function d3CalloutArrow() {
     _classCallCheck(this, d3CalloutArrow);
@@ -4424,7 +4436,8 @@ exports.default = {
   d3CalloutDynamic: d3CalloutDynamic,
   d3CalloutArrow: d3CalloutArrow,
   d3CalloutCircle: d3CalloutCircle,
-  d3XYThreshold: d3XYThreshold
+  d3XYThreshold: d3XYThreshold,
+  d3Label: d3Label
 };
 
 },{"./Annotation":7,"./Connector":10,"./Handles":11,"./Subject":12,"./TextBox":13,"d3-drag":2,"d3-selection":4}],15:[function(require,module,exports){
@@ -4446,5 +4459,6 @@ d3.annotationCalloutDynamic = _TypesD2.default.d3CalloutDynamic;
 d3.annotationCalloutArrow = _TypesD2.default.d3CalloutArrow;
 d3.annotationCalloutCircle = _TypesD2.default.d3CalloutCircle;
 d3.annotationXYThreshold = _TypesD2.default.d3XYThreshold;
+d3.annotationLabel = _TypesD2.default.d3Label;
 
 },{"./src/Adapter-d3":6,"./src/Types-d3":14}]},{},[15]);

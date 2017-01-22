@@ -7,3 +7,4 @@ d3.annotationCalloutDynamic = types.d3CalloutDynamic
 d3.annotationCalloutArrow = types.d3CalloutArrow
 d3.annotationCalloutCircle = types.d3CalloutCircle
 d3.annotationXYThreshold = types.d3XYThreshold
+d3.annotationLabel = types.d3Label
