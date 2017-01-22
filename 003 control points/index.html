@@ -14,9 +14,9 @@
         font-family: 'Lato';
      }
 
-     .editable .annotation-subject, .editable .annotation-textbox {
+     /*.editable .annotation-subject, .editable .annotation-textbox {
        cursor: move;
-     }
+     }*/
 
      .line {
         fill: none;
@@ -26,7 +26,7 @@
 
       .annotation path {
         stroke: #e91e56;
-        fill: rgba(0,0,0,0);
+        fill: none;
       }
 
       .annotation path.connector-arrow{
@@ -39,6 +39,12 @@
 
       .annotation-title {
         font-weight: bold;
+      }
+
+      circle.handle {
+        stroke-dasharray: 5;
+        stroke: #e91e56;
+        fill: rgba(255, 255, 255, .5)
       }
 
     </style>
@@ -58,7 +64,7 @@
 
     const parseTime = d3.timeParse("%d-%b-%y");
     const x = d3.scaleLinear().range([0, width]).domain([0, 100]);
-    const y = d3.scaleLinear().range([height, 0]).range([0, 50]);
+    const y = d3.scaleLinear().range([0, height]).domain([0, 100]);
 
 
     const svg = d3.select("svg")
@@ -69,17 +75,17 @@
           "translate(" + margin.left + "," + margin.top + ")");
 
     const labels = [ 
-      {
-        text: "Hellooooooooo testing out a larger text box",
-        data: {date: 10,	close: 25},
-        dy: 37,
-        dx: 42,
-        type: d3.annotationCalloutDynamic
-      },
+      // {
+      //   text: "Hellooooooooo testing out a larger text box",
+      //   data: {date: 50,	close: 25},
+      //   dy: 37,
+      //   dx: 42,
+      //   type: d3.annotationCalloutDynamic
+      // },
       {
         text: "Hii there",
         title: "I HAZ A TITLE",
-        data: {date: 3,	close: 10},
+        data: {date: 25,	close: 60},
         dy: -93,
         dx: -176,
         type: d3.annotationCalloutCircle,
@@ -87,7 +93,7 @@
           radius: 50,
           radiusPadding: 5
         }
-      },
+      }//,
       // {
       //   data: {date: "28-Nov-08"},
       //   text: "Here I am",
@@ -99,29 +105,28 @@
       //     y2: height
       //   }
       // },
-      {
-        data: {date:40, close: 30},
-        text: "Yo 2008",
-        title: "Ohai",
-        type: d3.annotationXYThreshold,
-        dy: -80,
-        dx: -100,
-        typeData: {
-          y1: 0,
-          y2: height
-        }
-      }
+      // {
+      //   data: {date:40, close: 30},
+      //   text: "Yo 2008",
+      //   title: "Ohai",
+      //   type: d3.annotationXYThreshold,
+      //   dy: -80,
+      //   dx: -100,
+      //   typeData: {
+      //     y1: 0,
+      //     y2: height
+      //   }
+      // }
     ]
 
     const makeAnnotations = d3.annotation()
       .annotations(labels)
-      .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
+      .accessors({ x: d => x(d.date) , y: d => y(d.close)})
       .editMode(true)
 
     svg.append("g")
       .attr("class", "annotation-test")
       .call(makeAnnotations)
-
 
     </script>
 </body>
