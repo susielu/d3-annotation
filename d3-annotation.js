@@ -3726,35 +3726,35 @@ var _d3Selection = require('d3-selection');
 var _d3Drag = require('d3-drag');
 
 var circleHandles = exports.circleHandles = function circleHandles(_ref) {
-  var cx = _ref.cx,
-      cy = _ref.cy,
+  var _ref$cx = _ref.cx,
+      cx = _ref$cx === undefined ? 0 : _ref$cx,
+      _ref$cy = _ref.cy,
+      cy = _ref$cy === undefined ? 0 : _ref$cy,
       r = _ref.r,
       padding = _ref.padding;
 
-  var h = {};
+  var h = { move: { x: cx, y: cy } };
 
-  if (cx !== undefined && cy !== undefined) {
-    h.move = { x: cx, y: cy };
-
-    if (r !== undefined) {
-      h.radius = { x: cx + r / Math.sqrt(2), y: cy + r / Math.sqrt(2) };
-    }
-
-    if (padding !== undefined) {
-      h.padding = { x: cx + r + padding, y: cy };
-    }
+  if (r !== undefined) {
+    h.radius = { x: cx + r / Math.sqrt(2), y: cy + r / Math.sqrt(2) };
   }
-  console.log('in circle handles', h);
+
+  if (padding !== undefined) {
+    h.padding = { x: cx + r + padding, y: cy };
+  }
+
   return h;
 };
 
 var rectHandles = exports.rectHandles = function rectHandles(_ref2) {
-  var x1 = _ref2.x1,
-      _ref2$x = _ref2.x2,
-      x2 = _ref2$x === undefined ? x1 : _ref2$x,
-      y1 = _ref2.y1,
-      _ref2$y = _ref2.y2,
-      y2 = _ref2$y === undefined ? y1 : _ref2$y,
+  var _ref2$x = _ref2.x1,
+      x1 = _ref2$x === undefined ? 0 : _ref2$x,
+      _ref2$y = _ref2.y1,
+      y1 = _ref2$y === undefined ? 0 : _ref2$y,
+      _ref2$x2 = _ref2.x2,
+      x2 = _ref2$x2 === undefined ? x1 : _ref2$x2,
+      _ref2$y2 = _ref2.y2,
+      y2 = _ref2$y2 === undefined ? y1 : _ref2$y2,
       width = _ref2.width,
       height = _ref2.height;
 
@@ -3789,7 +3789,6 @@ var addHandles = exports.addHandles = function addHandles(_ref3) {
 
   //then give it x,y where to draw handles
   //then give it instructions on what the handles would change 
-  console.log('group', group, handles);
   group.selectAll('circle.handle').data(handles).enter().append('circle').attr('class', 'handle').call((0, _d3Drag.drag)().container((0, _d3Selection.select)('g.annotations').node()).on('start', function (d) {
     return d.start && d.start(d);
   }).on('drag', function (d) {
@@ -4087,7 +4086,6 @@ var Type = function () {
     key: 'draw',
     value: function draw() {
       this.drawText();
-      // if (this.editMode) this.editable()
       this.customization();
     }
   }, {
@@ -4141,7 +4139,9 @@ var Type = function () {
     value: function mapHandles(handles) {
       var _this2 = this;
 
-      return handles.map(function (h) {
+      return handles.filter(function (h) {
+        return h.x !== undefined && h.y !== undefined;
+      }).map(function (h) {
         h.start = _this2.dragstarted.bind(_this2);
         h.end = _this2.dragended.bind(_this2);
         return h;
@@ -4187,37 +4187,36 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_Type) {
 
       var c = (0, _Subject.subjectCircle)(context);
 
-      var h = (0, _Handles.circleHandles)({ cx: 0,
-        cy: 0,
-        r: c.data.outerRadius || c.data.radius,
-        padding: this.annotation.typeData.radiusPadding
-      });
+      if (this.editMode) {
+        var h = (0, _Handles.circleHandles)({
+          r: c.data.outerRadius || c.data.radius,
+          padding: this.annotation.typeData.radiusPadding
+        });
 
-      var updateRadius = function updateRadius() {
-        var r = _this4.annotation.typeData.radius + _d3Selection.event.dx * Math.sqrt(2);
+        var updateRadius = function updateRadius() {
+          var r = _this4.annotation.typeData.radius + _d3Selection.event.dx * Math.sqrt(2);
 
-        _this4.annotation.typeData.radius = r;
-        _this4.customization();
-      };
+          _this4.annotation.typeData.radius = r;
+          _this4.customization();
+        };
 
-      console.log('annotation', this);
-      var updateRadiusPadding = function updateRadiusPadding() {
-        var rpad = _this4.annotation.typeData.radiusPadding + _d3Selection.event.dx;
+        var updateRadiusPadding = function updateRadiusPadding() {
+          var rpad = _this4.annotation.typeData.radiusPadding + _d3Selection.event.dx;
 
-        _this4.annotation.typeData.radiusPadding = rpad;
-        _this4.customization();
-      };
-      console.log('handles', h);
-      (0, _Handles.addHandles)({
-        group: this.subject,
-        handles: this.mapHandles([_extends({}, h.move, {
-          drag: this.dragSubject.bind(this) }), _extends({}, h.radius, {
-          drag: updateRadius.bind(this)
-        }), _extends({}, h.padding, {
-          drag: updateRadiusPadding.bind(this)
-        })])
-      });
+          _this4.annotation.typeData.radiusPadding = rpad;
+          _this4.customization();
+        };
 
+        (0, _Handles.addHandles)({
+          group: this.subject,
+          handles: this.mapHandles([_extends({}, h.move, {
+            drag: this.dragSubject.bind(this) }), _extends({}, h.radius, {
+            drag: updateRadius.bind(this)
+          }), _extends({}, h.padding, {
+            drag: updateRadiusPadding.bind(this)
+          })])
+        });
+      }
       return c;
     }
   }, {
@@ -4229,19 +4228,19 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_Type) {
       var padding = 5;
       var transform = this.textBox.attr('transform', 'translate(' + offset.x + ', ' + (offset.y - context.bbox.height - padding) + ')');
 
-      var h = (0, _Handles.rectHandles)({
-        x1: 0,
-        y1: 0,
-        width: context.bbox.width,
-        height: context.bbox.height
-      });
+      if (this.editMode) {
+        var h = (0, _Handles.rectHandles)({
+          width: context.bbox.width,
+          height: context.bbox.height
+        });
 
-      (0, _Handles.addHandles)({
-        group: this.textBox,
-        handles: this.mapHandles([_extends({}, h.move, {
-          drag: this.dragTextBox.bind(this)
-        })])
-      });
+        (0, _Handles.addHandles)({
+          group: this.textBox,
+          handles: this.mapHandles([_extends({}, h.move, {
+            drag: this.dragTextBox.bind(this)
+          })])
+        });
+      }
 
       return (0, _TextBox.textBoxUnderline)(_extends({}, context, { padding: padding }));
     }

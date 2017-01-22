@@ -131,7 +131,6 @@ class Type {
   
   draw() {
     this.drawText()
-   // if (this.editMode) this.editable()
     this.customization()
   }
 
@@ -174,16 +173,15 @@ class Type {
   }
 
   mapHandles(handles) {
-    return handles.map(h => {
+    return handles
+    .filter(h => h.x !== undefined && h.y !== undefined)
+    .map(h => {
       h.start = this.dragstarted.bind(this)
       h.end = this.dragended.bind(this)
       return h
     })
   }
-
-
 }
-
 
 export class d3CalloutCircle extends Type {
   static className(){ return "callout circle" }
@@ -191,59 +189,58 @@ export class d3CalloutCircle extends Type {
   drawSubject({ context }) { 
     const c = subjectCircle(context);
 
-    const h = circleHandles({ cx: 0,
-      cy: 0,
-      r: c.data.outerRadius || c.data.radius,
-      padding: this.annotation.typeData.radiusPadding
-    })
+    if (this.editMode){
+      const h = circleHandles({
+        r: c.data.outerRadius || c.data.radius,
+        padding: this.annotation.typeData.radiusPadding
+      })
 
-    const updateRadius = () => {      
-      const r = this.annotation.typeData.radius + event.dx*Math.sqrt(2)
+      const updateRadius = () => {      
+        const r = this.annotation.typeData.radius + event.dx*Math.sqrt(2)
 
-      this.annotation.typeData.radius = r
-      this.customization()
+        this.annotation.typeData.radius = r
+        this.customization()
+      }
+
+      const updateRadiusPadding = () => {
+        const rpad = this.annotation.typeData.radiusPadding + event.dx
+
+        this.annotation.typeData.radiusPadding = rpad
+        this.customization()
+      }
+
+      addHandles({
+        group: this.subject,
+        handles: this.mapHandles([{ ...h.move, 
+          drag: this.dragSubject.bind(this) }, 
+        { ...h.radius,
+          drag: updateRadius.bind(this)
+        },
+        {
+          ...h.padding,
+          drag : updateRadiusPadding.bind(this)
+        }])
+      })
     }
-
-    console.log('annotation', this)
-    const updateRadiusPadding = () => {
-      const rpad = this.annotation.typeData.radiusPadding + event.dx
-
-      this.annotation.typeData.radiusPadding = rpad
-      this.customization()
-    }
-    console.log('handles', h)
-    addHandles({
-      group: this.subject,
-      handles: this.mapHandles([{ ...h.move, 
-        drag: this.dragSubject.bind(this) }, 
-      { ...h.radius,
-        drag: updateRadius.bind(this)
-      },
-      {
-        ...h.padding,
-        drag : updateRadiusPadding.bind(this)
-      }])
-    })
-
     return c}
   drawTextBox({ context }) { 
     const offset = this.annotation.offset
     const padding = 5
     const transform = this.textBox.attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
 
-    const h = rectHandles({
-      x1: 0,
-      y1: 0,
-      width: context.bbox.width,
-      height: context.bbox.height
-    })
-    
-    addHandles({
-      group: this.textBox,
-      handles: this.mapHandles([{...h.move,
-        drag: this.dragTextBox.bind(this),
-      }])
-    })
+    if (this.editMode) {
+      const h = rectHandles({
+        width: context.bbox.width,
+        height: context.bbox.height
+      })
+      
+      addHandles({
+        group: this.textBox,
+        handles: this.mapHandles([{...h.move,
+          drag: this.dragTextBox.bind(this),
+        }])
+      })
+    }
 
     return textBoxUnderline({ ...context, padding })
   }
