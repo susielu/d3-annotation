@@ -3319,7 +3319,6 @@ function annotation() {
 
       d.type = new d.type({ a: a, annotation: d, editMode: editMode });
 
-      // console.log('type', d.type, d.type.draw)
       d.type.draw();
     });
   };
@@ -3972,7 +3971,6 @@ var newWithClass = exports.newWithClass = function newWithClass(a, d, type, clas
   group.enter().append(type).merge(group).attr('class', className);
 
   group.exit().remove();
-
   return a;
 };
 
@@ -3985,7 +3983,7 @@ var wrap = function wrap(text, width) {
         line = [],
         lineNumber = 0,
         lineHeight = .2,
-        // ems
+        //ems
     y = text.attr("y"),
         dy = parseFloat(text.attr("dy")) || 0,
         tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", dy + "em");
@@ -4083,7 +4081,7 @@ var Type = function () {
       var annotation = this.annotation;
       var context = { annotation: annotation, bbox: bbox };
 
-      //should be overwritten with custom annotation components
+      //Extend with custom annotation components
       this.drawSubject && this.drawOnSVG(this.subject, this.drawSubject({ context: context }));
       this.drawConnector && this.drawOnSVG(this.connector, this.drawConnector({ context: context }));
       this.drawTextBox && this.drawOnSVG(this.textBox, this.drawTextBox({ context: context }));
@@ -4099,6 +4097,7 @@ var Type = function () {
     value: function update() {
       var position = this.annotation.position;
       this.a.attr('transform', 'translate(' + position.x + ', ' + position.y + ')');
+
       this.customization();
     }
   }, {
@@ -4109,7 +4108,6 @@ var Type = function () {
   }, {
     key: 'dragended',
     value: function dragended() {
-      console.log('ended');
       this.a.classed("dragging", false);
     }
   }, {
@@ -4118,9 +4116,7 @@ var Type = function () {
       var position = this.annotation.position;
       position.x += _d3Selection.event.dx;
       position.y += _d3Selection.event.dy;
-      this.annotation.position = position;
-      this.a.attr('transform', 'translate(' + position.x + ', ' + position.y + ')');
-      this.customization();
+      this.update();
     }
   }, {
     key: 'dragTextBox',
@@ -4139,9 +4135,8 @@ var Type = function () {
       return handles.filter(function (h) {
         return h.x !== undefined && h.y !== undefined;
       }).map(function (h) {
-        h.start = _this2.dragstarted.bind(_this2);
-        h.end = _this2.dragended.bind(_this2);
-        return h;
+        return _extends({}, h, {
+          start: _this2.dragstarted.bind(_this2), end: _this2.dragended.bind(_this2) });
       });
     }
   }], [{
@@ -4211,26 +4206,19 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_Type2) {
 
         var updateRadius = function updateRadius() {
           var r = _this5.annotation.typeData.radius + _d3Selection.event.dx * Math.sqrt(2);
-
           _this5.annotation.typeData.radius = r;
           _this5.customization();
         };
 
         var updateRadiusPadding = function updateRadiusPadding() {
           var rpad = _this5.annotation.typeData.radiusPadding + _d3Selection.event.dx;
-
           _this5.annotation.typeData.radiusPadding = rpad;
           _this5.customization();
         };
 
         (0, _Handles.addHandles)({
           group: this.subject,
-          handles: this.mapHandles([_extends({}, h.move, {
-            drag: this.dragSubject.bind(this) }), _extends({}, h.radius, {
-            drag: updateRadius.bind(this)
-          }), _extends({}, h.padding, {
-            drag: updateRadiusPadding.bind(this)
-          })])
+          handles: this.mapHandles([_extends({}, h.move, { drag: this.dragSubject.bind(this) }), _extends({}, h.radius, { drag: updateRadius.bind(this) }), _extends({}, h.padding, { drag: updateRadiusPadding.bind(this) })])
         });
       }
       return c;
@@ -4245,16 +4233,11 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_Type2) {
       var transform = this.textBox.attr('transform', 'translate(' + offset.x + ', ' + (offset.y - context.bbox.height - padding) + ')');
 
       if (this.editMode) {
-        var h = (0, _Handles.rectHandles)({
-          width: context.bbox.width,
-          height: context.bbox.height
-        });
+        var h = (0, _Handles.rectHandles)({ width: context.bbox.width, height: context.bbox.height });
 
         (0, _Handles.addHandles)({
           group: this.textBox,
-          handles: this.mapHandles([_extends({}, h.move, {
-            drag: this.dragTextBox.bind(this)
-          })])
+          handles: this.mapHandles([_extends({}, h.move, { drag: this.dragTextBox.bind(this) })])
         });
       }
 
@@ -4292,6 +4275,10 @@ var d3Callout = exports.d3Callout = function (_Type3) {
     key: 'drawTextBox',
     value: function drawTextBox(_ref7) {
       var context = _ref7.context;
+
+      var offset = this.annotation.offset;
+      this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
+      return (0, _TextBox.textBoxLine)(context);
     }
   }], [{
     key: 'className',

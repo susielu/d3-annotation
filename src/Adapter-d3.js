@@ -56,7 +56,6 @@ export default function annotation(){
 
         d.type = new d.type({ a, annotation: d, editMode})
         
-       // console.log('type', d.type, d.type.draw)
         d.type.draw()
       })
   }

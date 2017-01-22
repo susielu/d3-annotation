@@ -14,7 +14,6 @@ export const newWithClass = (a, d, type, className) => {
     .attr('class', className)
 
   group.exit().remove()
-    
   return a
 }
 
@@ -26,7 +25,7 @@ const wrap = (text, width) => {
         word,
         line = [],
         lineNumber = 0,
-        lineHeight = .2, // ems
+        lineHeight = .2, //ems
         y = text.attr("y"),
         dy = parseFloat(text.attr("dy")) || 0,
         tspan = text.text(null)
@@ -123,7 +122,7 @@ class Type {
     const annotation = this.annotation
     const context = { annotation, bbox }
 
-    //should be overwritten with custom annotation components
+    //Extend with custom annotation components
     this.drawSubject && this.drawOnSVG( this.subject, this.drawSubject({ context }))
     this.drawConnector && this.drawOnSVG( this.connector, this.drawConnector({ context }))
     this.drawTextBox && this.drawOnSVG( this.textBox, this.drawTextBox({ context}))
@@ -137,22 +136,19 @@ class Type {
   update() {
     const position = this.annotation.position 
     this.a.attr('transform', `translate(${position.x}, ${position.y})`)
+
+    
     this.customization()
   }
 
-  dragstarted() { 
-    event.sourceEvent.stopPropagation(); this.a.classed("dragging", true) }
-  dragended() { 
-    console.log('ended')
-    this.a.classed("dragging", false)}
+  dragstarted() { event.sourceEvent.stopPropagation(); this.a.classed("dragging", true) }
+  dragended() { this.a.classed("dragging", false)}
 
   dragSubject() {
     const position = this.annotation.position
     position.x += event.dx
     position.y += event.dy
-    this.annotation.position = position
-    this.a.attr('transform', `translate(${position.x}, ${position.y})`)
-    this.customization()
+    this.update()
   }
 
   dragTextBox() {
@@ -164,13 +160,9 @@ class Type {
   }
 
   mapHandles(handles) {
-    return handles
-    .filter(h => h.x !== undefined && h.y !== undefined)
-    .map(h => {
-      h.start = this.dragstarted.bind(this)
-      h.end = this.dragended.bind(this)
-      return h
-    })
+    return handles.filter(h => h.x !== undefined && h.y !== undefined)
+    .map(h => ({ ...h, 
+      start: this.dragstarted.bind(this), end: this.dragended.bind(this) }))
   }
 }
 
@@ -192,48 +184,38 @@ export class d3CalloutCircle extends Type {
 
       const updateRadius = () => {      
         const r = this.annotation.typeData.radius + event.dx*Math.sqrt(2)
-
         this.annotation.typeData.radius = r
         this.customization()
       }
 
       const updateRadiusPadding = () => {
         const rpad = this.annotation.typeData.radiusPadding + event.dx
-
         this.annotation.typeData.radiusPadding = rpad
         this.customization()
       }
 
       addHandles({
         group: this.subject,
-        handles: this.mapHandles([{ ...h.move, 
-          drag: this.dragSubject.bind(this) }, 
-        { ...h.radius,
-          drag: updateRadius.bind(this)
-        },
-        {
-          ...h.padding,
-          drag : updateRadiusPadding.bind(this)
-        }])
+        handles: this.mapHandles([{ ...h.move, drag: this.dragSubject.bind(this)}, 
+        { ...h.radius, drag: updateRadius.bind(this)},
+        { ...h.padding, drag : updateRadiusPadding.bind(this)}
+        ])
       })
     }
-    return c}
+    return c
+  }
   drawTextBox({ context }) { 
     const offset = this.annotation.offset
     const padding = 5
-    const transform = this.textBox.attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
+    const transform = this.textBox
+    .attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
 
     if (this.editMode) {
-      const h = rectHandles({
-        width: context.bbox.width,
-        height: context.bbox.height
-      })
+      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
       
       addHandles({
         group: this.textBox,
-        handles: this.mapHandles([{...h.move,
-          drag: this.dragTextBox.bind(this),
-        }])
+        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
       })
     }
 
@@ -247,7 +229,9 @@ export class d3Callout extends Type {
   static className(){ return "callout" }
   drawConnector({ context }) { return connectorLine(context)}
   drawTextBox({ context }) {
-
+    const offset = this.annotation.offset
+    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    return textBoxLine(context)
   }
 }
 
