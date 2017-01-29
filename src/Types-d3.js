@@ -4,7 +4,7 @@ import { Annotation } from './Annotation'
 import { connectorLine, connectorArrow } from './Connector'
 import { textBoxLine, textBoxUnderline } from './TextBox'
 import { subjectLine, subjectCircle } from './Subject'
-import { circleHandles, rectHandles, addHandles } from './Handles'
+import { pointHandle, circleHandles, rectHandles, addHandles } from './Handles'
 
 export const newWithClass = (a, d, type, className) => {
   const group = a.selectAll(`${type}.${className}`).data(d)
@@ -136,8 +136,6 @@ class Type {
   update() {
     const position = this.annotation.position 
     this.a.attr('transform', `translate(${position.x}, ${position.y})`)
-
-    
     this.customization()
   }
 
@@ -148,6 +146,8 @@ class Type {
     const position = this.annotation.position
     position.x += event.dx
     position.y += event.dy
+
+    this.annotation.position = position
     this.update()
   }
 
@@ -251,7 +251,29 @@ export class d3CalloutDynamic extends Type {
       
       this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
     }
+
+    if (this.editMode) {
+      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
+      
+      addHandles({
+        group: this.textBox,
+        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
+      })
+    }
+
     return textBoxLine(context)
+  }
+
+  drawSubject({ context }) { 
+
+    if (this.editMode){
+      const h = pointHandle({})
+
+      addHandles({
+        group: this.subject,
+        handles: this.mapHandles([{ ...h.move, drag: this.dragSubject.bind(this)}])
+      })
+    }
   }
 }
 
@@ -262,18 +284,56 @@ export class d3CalloutArrow extends Type {
     const dataLength = line.data.length
 
     context.start = line.data[dataLength - 2]
-    contenxt.end = line.data[dataLength - 1]
+    context.end = line.data[dataLength - 1]
     return [line, connectorArrow(context)]
   }
   drawTextBox({ context }) {
     const offset = this.annotation.offset
     this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+
+    if (this.editMode) {
+      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
+      
+      addHandles({
+        group: this.textBox,
+        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
+      })
+    }
+
     return textBoxLine(context)
+  }
+
+  drawSubject({ context }) { 
+
+    if (this.editMode){
+      const h = pointHandle({})
+
+      addHandles({
+        group: this.subject,
+        handles: this.mapHandles([{ ...h.move, drag: this.dragSubject.bind(this)}])
+      })
+    }
   }
 }
 
 export class d3XYThreshold extends d3Callout {
   static className(){ return "xythreshold" }
+
+  drawTextBox({ context }) {
+    const offset = this.annotation.offset
+    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+
+    if (this.editMode) {
+      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
+      
+      addHandles({
+        group: this.textBox,
+        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
+      })
+    }
+
+    return textBoxLine(context)
+  }
   drawSubject({ context }) { return subjectLine(context)}
 
   static init(annotation, accessors) {

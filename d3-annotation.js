@@ -3724,19 +3724,28 @@ var connectorArrow = exports.connectorArrow = function connectorArrow(_ref2) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addHandles = exports.rectHandles = exports.circleHandles = undefined;
+exports.addHandles = exports.lineHandles = exports.rectHandles = exports.circleHandles = exports.pointHandle = undefined;
 
 var _d3Selection = require('d3-selection');
 
 var _d3Drag = require('d3-drag');
 
-var circleHandles = exports.circleHandles = function circleHandles(_ref) {
+var pointHandle = exports.pointHandle = function pointHandle(_ref) {
   var _ref$cx = _ref.cx,
       cx = _ref$cx === undefined ? 0 : _ref$cx,
       _ref$cy = _ref.cy,
-      cy = _ref$cy === undefined ? 0 : _ref$cy,
-      r = _ref.r,
-      padding = _ref.padding;
+      cy = _ref$cy === undefined ? 0 : _ref$cy;
+
+  return { move: { x: cx, y: cy } };
+};
+
+var circleHandles = exports.circleHandles = function circleHandles(_ref2) {
+  var _ref2$cx = _ref2.cx,
+      cx = _ref2$cx === undefined ? 0 : _ref2$cx,
+      _ref2$cy = _ref2.cy,
+      cy = _ref2$cy === undefined ? 0 : _ref2$cy,
+      r = _ref2.r,
+      padding = _ref2.padding;
 
   var h = { move: { x: cx, y: cy } };
 
@@ -3751,17 +3760,17 @@ var circleHandles = exports.circleHandles = function circleHandles(_ref) {
   return h;
 };
 
-var rectHandles = exports.rectHandles = function rectHandles(_ref2) {
-  var _ref2$x = _ref2.x1,
-      x1 = _ref2$x === undefined ? 0 : _ref2$x,
-      _ref2$y = _ref2.y1,
-      y1 = _ref2$y === undefined ? 0 : _ref2$y,
-      _ref2$x2 = _ref2.x2,
-      x2 = _ref2$x2 === undefined ? x1 : _ref2$x2,
-      _ref2$y2 = _ref2.y2,
-      y2 = _ref2$y2 === undefined ? y1 : _ref2$y2,
-      width = _ref2.width,
-      height = _ref2.height;
+var rectHandles = exports.rectHandles = function rectHandles(_ref3) {
+  var _ref3$x = _ref3.x1,
+      x1 = _ref3$x === undefined ? 0 : _ref3$x,
+      _ref3$y = _ref3.y1,
+      y1 = _ref3$y === undefined ? 0 : _ref3$y,
+      _ref3$x2 = _ref3.x2,
+      x2 = _ref3$x2 === undefined ? x1 : _ref3$x2,
+      _ref3$y2 = _ref3.y2,
+      y2 = _ref3$y2 === undefined ? y1 : _ref3$y2,
+      width = _ref3.width,
+      height = _ref3.height;
 
 
   var w = width || Math.abs(x2 - x1);
@@ -3770,7 +3779,7 @@ var rectHandles = exports.rectHandles = function rectHandles(_ref2) {
   return {
     move: {
       x: Math.min(x1, x2) + w / 2,
-      y: Math.min(y1, y2) + h / 2
+      y: Math.min(y1, y2) - 10
     },
     width: {
       x: Math.max(x1, x2),
@@ -3783,17 +3792,36 @@ var rectHandles = exports.rectHandles = function rectHandles(_ref2) {
   };
 };
 
+var lineHandles = exports.lineHandles = function lineHandles(_ref4) {
+  var x1 = _ref4.x1,
+      y1 = _ref4.y1,
+      x2 = _ref4.x2,
+      y2 = _ref4.y2,
+      x = _ref4.x,
+      y = _ref4.y;
+
+
+  return {
+    move: {
+      x: x1 - x2,
+      y: y1 - y2
+    },
+    point: {
+      x: x,
+      y: y
+    }
+  };
+};
+
 //arc handles
-var addHandles = exports.addHandles = function addHandles(_ref3) {
-  var group = _ref3.group,
-      handles = _ref3.handles,
-      _ref3$r = _ref3.r,
-      r = _ref3$r === undefined ? 10 : _ref3$r;
+var addHandles = exports.addHandles = function addHandles(_ref5) {
+  var group = _ref5.group,
+      handles = _ref5.handles,
+      _ref5$r = _ref5.r,
+      r = _ref5$r === undefined ? 10 : _ref5$r;
 
-  //give it a group
-
-  //then give it x,y where to draw handles
-  //then give it instructions on what the handles would change 
+  //give it a group and x,y to draw handles
+  //then give it instructions on what the handles change 
   group.selectAll('circle.handle').data(handles).enter().append('circle').attr('class', 'handle').call((0, _d3Drag.drag)().container((0, _d3Selection.select)('g.annotations').node()).on('start', function (d) {
     return d.start && d.start(d);
   }).on('drag', function (d) {
@@ -4097,7 +4125,6 @@ var Type = function () {
     value: function update() {
       var position = this.annotation.position;
       this.a.attr('transform', 'translate(' + position.x + ', ' + position.y + ')');
-
       this.customization();
     }
   }, {
@@ -4116,6 +4143,8 @@ var Type = function () {
       var position = this.annotation.position;
       position.x += _d3Selection.event.dx;
       position.y += _d3Selection.event.dy;
+
+      this.annotation.position = position;
       this.update();
     }
   }, {
@@ -4321,7 +4350,32 @@ var d3CalloutDynamic = exports.d3CalloutDynamic = function (_Type4) {
 
         this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
       }
+
+      if (this.editMode) {
+        var h = (0, _Handles.rectHandles)({ width: context.bbox.width, height: context.bbox.height });
+
+        (0, _Handles.addHandles)({
+          group: this.textBox,
+          handles: this.mapHandles([_extends({}, h.move, { drag: this.dragTextBox.bind(this) })])
+        });
+      }
+
       return (0, _TextBox.textBoxLine)(context);
+    }
+  }, {
+    key: 'drawSubject',
+    value: function drawSubject(_ref10) {
+      var context = _ref10.context;
+
+
+      if (this.editMode) {
+        var h = (0, _Handles.pointHandle)({});
+
+        (0, _Handles.addHandles)({
+          group: this.subject,
+          handles: this.mapHandles([_extends({}, h.move, { drag: this.dragSubject.bind(this) })])
+        });
+      }
     }
   }], [{
     key: 'className',
@@ -4344,24 +4398,49 @@ var d3CalloutArrow = exports.d3CalloutArrow = function (_Type5) {
 
   _createClass(d3CalloutArrow, [{
     key: 'drawConnector',
-    value: function drawConnector(_ref10) {
-      var context = _ref10.context;
+    value: function drawConnector(_ref11) {
+      var context = _ref11.context;
 
       var line = (0, _Connector.connectorLine)(context);
       var dataLength = line.data.length;
 
       context.start = line.data[dataLength - 2];
-      contenxt.end = line.data[dataLength - 1];
+      context.end = line.data[dataLength - 1];
       return [line, (0, _Connector.connectorArrow)(context)];
     }
   }, {
     key: 'drawTextBox',
-    value: function drawTextBox(_ref11) {
-      var context = _ref11.context;
+    value: function drawTextBox(_ref12) {
+      var context = _ref12.context;
 
       var offset = this.annotation.offset;
       this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
+
+      if (this.editMode) {
+        var h = (0, _Handles.rectHandles)({ width: context.bbox.width, height: context.bbox.height });
+
+        (0, _Handles.addHandles)({
+          group: this.textBox,
+          handles: this.mapHandles([_extends({}, h.move, { drag: this.dragTextBox.bind(this) })])
+        });
+      }
+
       return (0, _TextBox.textBoxLine)(context);
+    }
+  }, {
+    key: 'drawSubject',
+    value: function drawSubject(_ref13) {
+      var context = _ref13.context;
+
+
+      if (this.editMode) {
+        var h = (0, _Handles.pointHandle)({});
+
+        (0, _Handles.addHandles)({
+          group: this.subject,
+          handles: this.mapHandles([_extends({}, h.move, { drag: this.dragSubject.bind(this) })])
+        });
+      }
     }
   }], [{
     key: 'className',
@@ -4383,9 +4462,28 @@ var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout) {
   }
 
   _createClass(d3XYThreshold, [{
+    key: 'drawTextBox',
+    value: function drawTextBox(_ref14) {
+      var context = _ref14.context;
+
+      var offset = this.annotation.offset;
+      this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
+
+      if (this.editMode) {
+        var h = (0, _Handles.rectHandles)({ width: context.bbox.width, height: context.bbox.height });
+
+        (0, _Handles.addHandles)({
+          group: this.textBox,
+          handles: this.mapHandles([_extends({}, h.move, { drag: this.dragTextBox.bind(this) })])
+        });
+      }
+
+      return (0, _TextBox.textBoxLine)(context);
+    }
+  }, {
     key: 'drawSubject',
-    value: function drawSubject(_ref12) {
-      var context = _ref12.context;
+    value: function drawSubject(_ref15) {
+      var context = _ref15.context;
       return (0, _Subject.subjectLine)(context);
     }
   }], [{

@@ -40,14 +40,22 @@
       circle.handle {
         stroke-dasharray: 5;
         stroke: #e91e56;
-        fill: rgba(255, 255, 255, .5)
+        fill: rgba(255, 255, 255, .5);
+        cursor: move;
+
+        stroke-opacity: .4;
+      }
+
+      circle.handle.highlight {
+        stroke-opacity: 1;
       }
 
     </style>
 </head>
 <body>
     <svg width=960 height=500></svg>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.4.1/d3.min.js"></script>
+
+    <script src="/001 basics/d3.js"></script>
     <script src="/d3-annotation.js"></script>
 
     <script>
@@ -71,13 +79,13 @@
           "translate(" + margin.left + "," + margin.top + ")");
 
     const labels = [ 
-      // {
-      //   text: "Hellooooooooo testing out a larger text box",
-      //   data: {date: 50,	close: 25},
-      //   dy: 37,
-      //   dx: 42,
-      //   type: d3.annotationCalloutDynamic
-      // },
+      {
+        text: "Hellooooooooo testing out a larger text box",
+        data: {date: 50,	close: 25},
+        dy: 37,
+        dx: 42,
+        type: d3.annotationCalloutArrow
+      },
       {
         text: "Hii there",
         title: "I HAZ A TITLE",
@@ -89,18 +97,18 @@
           radius: 50,
           radiusPadding: 5
         }
+      },
+      {
+        data: {date: "28-Nov-08"},
+        text: "Here I am",
+        type: d3.annotationXYThreshold,
+        y: 20,
+        dx: 50,
+        typeData: {
+          y1: 0,
+          y2: height
+        }
       }//,
-      // {
-      //   data: {date: "28-Nov-08"},
-      //   text: "Here I am",
-      //   type: d3.annotationXYThreshold,
-      //   y: 20,
-      //   dx: 50,
-      //   typeData: {
-      //     y1: 0,
-      //     y2: height
-      //   }
-      // },
       // {
       //   data: {date:40, close: 30},
       //   text: "Yo 2008",
