@@ -3834,14 +3834,16 @@ var lineHandles = exports.lineHandles = function lineHandles(_ref4) {
       y = _ref4.y;
 
 
+  var minY = Math.min(y1, y2);
+  var minX = Math.min(x1, x2);
+
+  var height = Math.abs(y2 - y1);
+  var width = Math.abs(x2 - x1);
+
   return {
     move: {
-      x: x1 - x2,
-      y: y1 - y2
-    },
-    point: {
-      x: x,
-      y: y
+      x: x || minX + width / 2,
+      y: y || minY + height / 2
     }
   };
 };
@@ -3981,15 +3983,20 @@ var textBoxSideline = exports.textBoxSideline = function textBoxSideline(_ref3) 
       curve = _ref3.curve,
       bbox = _ref3.bbox,
       _ref3$padding = _ref3.padding,
-      padding = _ref3$padding === undefined ? 5 : _ref3$padding;
+      padding = _ref3$padding === undefined ? 5 : _ref3$padding,
+      _ref3$position = _ref3.position,
+      position = _ref3$position === undefined ? "left" : _ref3$position;
 
 
-  var x1 = offset.x,
-      x2 = x1 + bbox.width,
-      y1 = offset.y + bbox.height + padding,
+  var x = offset.x,
+      y1 = offset.y,
       y2 = offset.y + bbox.height + padding;
 
-  var data = [[x1, y1], [x2, y2]];
+  if (position == "right") {
+    x += bbox.width + padding;
+  }
+
+  var data = [[x, y1], [x, y2]];
   return (0, _Builder.lineBuilder)({ data: data, curve: curve, context: context, className: CLASS });
 };
 
@@ -3999,7 +4006,7 @@ var textBoxSideline = exports.textBoxSideline = function textBoxSideline(_ref3) 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.d3XYThreshold = exports.d3CalloutArrow = exports.d3CalloutCurve = exports.d3CalloutDynamic = exports.d3Callout = exports.d3CalloutCircle = exports.d3Label = exports.newWithClass = undefined;
+exports.d3XYThreshold = exports.d3CalloutArrow = exports.d3CalloutLeftRight = exports.d3CalloutCurve = exports.d3CalloutDynamic = exports.d3Callout = exports.d3CalloutCircle = exports.d3Label = exports.newWithClass = undefined;
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
@@ -4495,13 +4502,62 @@ var d3CalloutCurve = exports.d3CalloutCurve = function (_d3CalloutDynamic) {
       return (0, _Connector.connectorLine)(context);
     }
   }], [{
-    key: 'classname',
-    value: function classname() {
+    key: 'className',
+    value: function className() {
       return "callout-curve";
     }
   }]);
 
   return d3CalloutCurve;
+}(d3CalloutDynamic);
+
+var d3CalloutLeftRight = exports.d3CalloutLeftRight = function (_d3CalloutDynamic2) {
+  _inherits(d3CalloutLeftRight, _d3CalloutDynamic2);
+
+  function d3CalloutLeftRight() {
+    _classCallCheck(this, d3CalloutLeftRight);
+
+    return _possibleConstructorReturn(this, (d3CalloutLeftRight.__proto__ || Object.getPrototypeOf(d3CalloutLeftRight)).apply(this, arguments));
+  }
+
+  _createClass(d3CalloutLeftRight, [{
+    key: 'drawTextBox',
+    value: function drawTextBox(_ref14) {
+      var context = _ref14.context;
+
+
+      var offset = this.annotation.offset;
+      var padding = 5;
+
+      var y = offset.y > 0 ? offset.y - context.bbox.height : offset.y;
+
+      if (offset.x < 0) {
+        var transform = this.textBox.attr('transform', 'translate(' + Math.min(offset.x - padding, -context.bbox.width - padding) + ', \n        ' + y + ')');
+        // context.position = "left"
+        context.padding = padding;
+      } else {
+        this.textBox.attr('transform', 'translate(' + Math.max(offset.x + padding, padding) + ', ' + y + ')');
+      }
+
+      if (this.editMode) {
+        var h = (0, _Handles.rectHandles)({ width: context.bbox.width, height: context.bbox.height });
+
+        (0, _Handles.addHandles)({
+          group: this.textBox,
+          handles: this.mapHandles([_extends({}, h.move, { drag: this.dragTextBox.bind(this) })])
+        });
+      }
+
+      return; //textBoxSideline(context)
+    }
+  }], [{
+    key: 'className',
+    value: function className() {
+      return "callout-leftright";
+    }
+  }]);
+
+  return d3CalloutLeftRight;
 }(d3CalloutDynamic);
 
 var d3CalloutArrow = exports.d3CalloutArrow = function (_Type5) {
@@ -4515,8 +4571,8 @@ var d3CalloutArrow = exports.d3CalloutArrow = function (_Type5) {
 
   _createClass(d3CalloutArrow, [{
     key: 'drawConnector',
-    value: function drawConnector(_ref14) {
-      var context = _ref14.context;
+    value: function drawConnector(_ref15) {
+      var context = _ref15.context;
 
       var line = (0, _Connector.connectorLine)(context);
       var dataLength = line.data.length;
@@ -4527,8 +4583,8 @@ var d3CalloutArrow = exports.d3CalloutArrow = function (_Type5) {
     }
   }, {
     key: 'drawTextBox',
-    value: function drawTextBox(_ref15) {
-      var context = _ref15.context;
+    value: function drawTextBox(_ref16) {
+      var context = _ref16.context;
 
       var offset = this.annotation.offset;
       this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
@@ -4546,8 +4602,8 @@ var d3CalloutArrow = exports.d3CalloutArrow = function (_Type5) {
     }
   }, {
     key: 'drawSubject',
-    value: function drawSubject(_ref16) {
-      var context = _ref16.context;
+    value: function drawSubject(_ref17) {
+      var context = _ref17.context;
 
 
       if (this.editMode) {
@@ -4580,8 +4636,8 @@ var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout) {
 
   _createClass(d3XYThreshold, [{
     key: 'drawTextBox',
-    value: function drawTextBox(_ref17) {
-      var context = _ref17.context;
+    value: function drawTextBox(_ref18) {
+      var context = _ref18.context;
 
       var offset = this.annotation.offset;
       this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
@@ -4599,9 +4655,20 @@ var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout) {
     }
   }, {
     key: 'drawSubject',
-    value: function drawSubject(_ref18) {
-      var context = _ref18.context;
-      return (0, _Subject.subjectLine)(context);
+    value: function drawSubject(_ref19) {
+      var context = _ref19.context;
+
+      var line = (0, _Subject.subjectLine)(context);
+      if (this.editMode) {
+        var d = line.data;
+        var h = (0, _Handles.pointHandle)({});
+
+        (0, _Handles.addHandles)({
+          group: this.subject,
+          handles: this.mapHandles([_extends({}, h.move, { drag: this.dragSubject.bind(this) })])
+        });
+      }
+      return line;
     }
   }], [{
     key: 'className',
@@ -4637,6 +4704,7 @@ exports.default = {
   d3Callout: d3Callout,
   d3CalloutCurve: d3CalloutCurve,
   d3CalloutDynamic: d3CalloutDynamic,
+  d3CalloutLeftRight: d3CalloutLeftRight,
   d3CalloutArrow: d3CalloutArrow,
   d3CalloutCircle: d3CalloutCircle,
   d3XYThreshold: d3XYThreshold,
@@ -4658,6 +4726,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 d3.annotation = _AdapterD2.default;
 d3.annotationCallout = _TypesD2.default.d3Callout;
+d3.annotationCalloutCurve = _TypesD2.default.d3CalloutCurve;
+d3.annotationCalloutLeftRight = _TypesD2.default.d3CalloutLeftRight;
 d3.annotationCalloutCurve = _TypesD2.default.d3CalloutCurve;
 d3.annotationCalloutDynamic = _TypesD2.default.d3CalloutDynamic;
 d3.annotationCalloutArrow = _TypesD2.default.d3CalloutArrow;

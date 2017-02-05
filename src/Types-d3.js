@@ -3,9 +3,9 @@ import { drag } from 'd3-drag'
 import { curveCatmullRom } from 'd3-shape'
 import { Annotation } from './Annotation'
 import { connectorLine, connectorArrow } from './Connector'
-import { textBoxLine, textBoxUnderline } from './TextBox'
+import { textBoxLine, textBoxUnderline, textBoxSideline } from './TextBox'
 import { subjectLine, subjectCircle } from './Subject'
-import { pointHandle, circleHandles, rectHandles, addHandles } from './Handles'
+import { pointHandle, circleHandles, rectHandles, lineHandles, addHandles } from './Handles'
 
 export const newWithClass = (a, d, type, className) => {
   const group = a.selectAll(`${type}.${className}`).data(d)
@@ -300,7 +300,7 @@ export class d3CalloutDynamic extends Type {
 }
 
 export class d3CalloutCurve extends d3CalloutDynamic { 
-  static classname(){ return "callout-curve" }
+  static className(){ return "callout-curve" }
   drawConnector({ context }) { 
 
      context.points = this.annotation.typeData.points 
@@ -324,6 +324,39 @@ export class d3CalloutCurve extends d3CalloutDynamic {
      }
 
      return connectorLine(context)
+  }
+}
+
+export class d3CalloutLeftRight extends d3CalloutDynamic {
+  static className() { return "callout-leftright"}
+
+  drawTextBox({ context }) {
+
+    const offset = this.annotation.offset
+    const padding = 5
+
+    const y =  offset.y > 0 ? offset.y - context.bbox.height : offset.y
+
+    if (offset.x < 0) {
+      const transform = this.textBox
+        .attr('transform', `translate(${Math.min(offset.x - padding, -context.bbox.width - padding)}, 
+        ${y})`)
+     // context.position = "left"
+      context.padding = padding
+    } else {      
+      this.textBox.attr('transform', `translate(${Math.max(offset.x + padding, padding)}, ${y})`)
+    }
+
+    if (this.editMode) {
+      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
+      
+      addHandles({
+        group: this.textBox,
+        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
+      })
+    }
+
+    return //textBoxSideline(context)
   }
 }
 
@@ -385,7 +418,19 @@ export class d3XYThreshold extends d3Callout {
 
     return textBoxLine(context)
   }
-  drawSubject({ context }) { return subjectLine(context)}
+  drawSubject({ context }) { 
+    const line = subjectLine(context)
+    if (this.editMode){
+      const d = line.data
+      const h = pointHandle({})
+          
+      addHandles({
+        group: this.subject,
+        handles: this.mapHandles([{...h.move, drag: this.dragSubject.bind(this)}])
+      })
+    }
+    return line
+  }
 
   static init(annotation, accessors) {
     super.init(annotation, accessors)
@@ -411,6 +456,7 @@ export default {
   d3Callout,
   d3CalloutCurve,
   d3CalloutDynamic,
+  d3CalloutLeftRight,
   d3CalloutArrow,
   d3CalloutCircle,
   d3XYThreshold,

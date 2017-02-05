@@ -32,13 +32,16 @@ export const textBoxUnderline = ({ annotation, offset={x: 0, y: 0}, context,
 }
 
 export const textBoxSideline = ({ annotation, offset={x: 0, y: 0}, context, 
-    curve, bbox, padding = 5}) => {
+    curve, bbox, padding = 5, position="left"}) => {
 
-  let x1 = offset.x,
-    x2 = x1 + bbox.width,
-    y1 = offset.y + bbox.height + padding,
+  let x = offset.x,
+    y1 = offset.y,
     y2 = offset.y + bbox.height + padding
 
-  const data = [[x1, y1], [x2, y2]]
+  if (position == "right") {
+    x += bbox.width + padding
+  }
+
+  const data = [[x, y1], [x, y2]]
   return lineBuilder({ data, curve, context, className : CLASS })
 }

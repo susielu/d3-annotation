@@ -43,14 +43,16 @@ export const rectHandles = ({ x1=0, y1=0, x2=x1, y2=y1, width, height }) => {
 
 export const lineHandles = ({ x1, y1, x2, y2, x, y}) => {
 
+  const minY = Math.min(y1, y2)
+  const minX = Math.min(x1, x2)
+
+  const height = Math.abs(y2 - y1)
+  const width = Math.abs(x2 - x1)
+  
   return {
     move: {
-      x: x1 - x2,
-      y: y1 - y2
-    },
-    point: {
-      x: x,
-      y: y
+      x: x || minX + width/2,
+      y: y || minY + height/2
     }
   }
 }
