@@ -100,6 +100,10 @@ export default function annotation(){
     return annotation
   }
 
+  annotation.collection = function() {
+    return collection
+  }
+
   return annotation;
 
 };

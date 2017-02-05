@@ -41,7 +41,7 @@ export const rectHandles = ({ x1=0, y1=0, x2=x1, y2=y1, width, height }) => {
   }
 }
 
-export const lineHandles = ({ x1, y1, x2, y2, x , y}) => {
+export const lineHandles = ({ x1, y1, x2, y2, x, y}) => {
 
   return {
     move: {
@@ -53,7 +53,6 @@ export const lineHandles = ({ x1, y1, x2, y2, x , y}) => {
       y: y
     }
   }
-
 }
 
 //arc handles

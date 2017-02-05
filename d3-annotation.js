@@ -3364,6 +3364,10 @@ function annotation() {
     return annotation;
   };
 
+  annotation.collection = function () {
+    return collection;
+  };
+
   return annotation;
 };
 
@@ -3466,6 +3470,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -3482,10 +3488,32 @@ var AnnotationCollection = function () {
   }
 
   _createClass(AnnotationCollection, [{
+    key: "placement",
+    value: function placement() {
+      //placement along a long
+      //placement along a circle
+      //collision detection
+      //run in a series of functions
+    }
+  }, {
     key: "json",
     get: function get() {
       return this.annotations.map(function (a) {
         return a.json;
+      });
+    }
+  }, {
+    key: "textNodes",
+    get: function get() {
+      return this.annotations.map(function (a) {
+        return a.type.getTextBBox();
+      });
+    }
+  }, {
+    key: "textNodesWithOrigins",
+    get: function get() {
+      return this.annotations.map(function (a) {
+        return _extends({}, a.type.getTextBBox(), { startX: a.x, startY: a.y });
       });
     }
   }]);
@@ -3597,6 +3625,8 @@ exports.connectorArrow = exports.connectorLine = undefined;
 
 var _Builder = require('./Builder');
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 var CLASS = "connector";
 
 var connectorLine = exports.connectorLine = function connectorLine(_ref) {
@@ -3607,7 +3637,8 @@ var connectorLine = exports.connectorLine = function connectorLine(_ref) {
       curve = _ref.curve,
       bbox = _ref.bbox,
       _ref$elbow = _ref.elbow,
-      elbow = _ref$elbow === undefined ? false : _ref$elbow;
+      elbow = _ref$elbow === undefined ? false : _ref$elbow,
+      points = _ref.points;
 
 
   var x1 = annotation.x - offset.x,
@@ -3681,6 +3712,8 @@ var connectorLine = exports.connectorLine = function connectorLine(_ref) {
         data = [[x1, y1], [xe, ye], [x2, y2]];
       }
     }
+  } else if (points) {
+    data = [[x1, y1]].concat(_toConsumableArray(points), [[x2, y2]]);
   }
 
   return (0, _Builder.lineBuilder)({ data: data, curve: curve, context: context, className: CLASS });
@@ -3966,7 +3999,7 @@ var textBoxSideline = exports.textBoxSideline = function textBoxSideline(_ref3) 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.d3XYThreshold = exports.d3CalloutArrow = exports.d3CalloutDynamic = exports.d3Callout = exports.d3CalloutCircle = exports.d3Label = exports.newWithClass = undefined;
+exports.d3XYThreshold = exports.d3CalloutArrow = exports.d3CalloutCurve = exports.d3CalloutDynamic = exports.d3Callout = exports.d3CalloutCircle = exports.d3Label = exports.newWithClass = undefined;
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
@@ -3977,6 +4010,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 var _d3Selection = require('d3-selection');
 
 var _d3Drag = require('d3-drag');
+
+var _d3Shape = require('d3-shape');
 
 var _Annotation = require('./Annotation');
 
@@ -4143,7 +4178,7 @@ var Type = function () {
       var position = this.annotation.position;
       position.x += _d3Selection.event.dx;
       position.y += _d3Selection.event.dy;
-
+      console.log();
       this.annotation.position = position;
       this.update();
     }
@@ -4193,7 +4228,36 @@ var d3Label = exports.d3Label = function (_Type) {
     return _possibleConstructorReturn(this, (d3Label.__proto__ || Object.getPrototypeOf(d3Label)).apply(this, arguments));
   }
 
-  _createClass(d3Label, null, [{
+  _createClass(d3Label, [{
+    key: 'drawConnector',
+    value: function drawConnector(_ref3) {
+      var context = _ref3.context;
+      context.elbow = true;return (0, _Connector.connectorLine)(context);
+    }
+  }, {
+    key: 'drawTextBox',
+    value: function drawTextBox(_ref4) {
+      var context = _ref4.context;
+
+      var offset = this.annotation.offset;
+
+      if (offset.y < 0) {
+        var padding = 5;
+        var transform = this.textBox.attr('transform', 'translate(' + offset.x + ', ' + (offset.y - context.bbox.height - padding) + ')');
+      } else {
+        this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
+      }
+
+      if (this.editMode) {
+        var h = (0, _Handles.rectHandles)({ width: context.bbox.width, height: context.bbox.height });
+
+        (0, _Handles.addHandles)({
+          group: this.textBox,
+          handles: this.mapHandles([_extends({}, h.move, { drag: this.dragTextBox.bind(this) })])
+        });
+      }
+    }
+  }], [{
     key: 'className',
     value: function className() {
       return "label";
@@ -4214,16 +4278,16 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_Type2) {
 
   _createClass(d3CalloutCircle, [{
     key: 'drawConnector',
-    value: function drawConnector(_ref3) {
-      var context = _ref3.context;
+    value: function drawConnector(_ref5) {
+      var context = _ref5.context;
       context.elbow = true;return (0, _Connector.connectorLine)(context);
     }
   }, {
     key: 'drawSubject',
-    value: function drawSubject(_ref4) {
+    value: function drawSubject(_ref6) {
       var _this5 = this;
 
-      var context = _ref4.context;
+      var context = _ref6.context;
 
       var c = (0, _Subject.subjectCircle)(context);
 
@@ -4254,8 +4318,8 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_Type2) {
     }
   }, {
     key: 'drawTextBox',
-    value: function drawTextBox(_ref5) {
-      var context = _ref5.context;
+    value: function drawTextBox(_ref7) {
+      var context = _ref7.context;
 
       var offset = this.annotation.offset;
       var padding = 5;
@@ -4296,14 +4360,14 @@ var d3Callout = exports.d3Callout = function (_Type3) {
 
   _createClass(d3Callout, [{
     key: 'drawConnector',
-    value: function drawConnector(_ref6) {
-      var context = _ref6.context;
+    value: function drawConnector(_ref8) {
+      var context = _ref8.context;
       return (0, _Connector.connectorLine)(context);
     }
   }, {
     key: 'drawTextBox',
-    value: function drawTextBox(_ref7) {
-      var context = _ref7.context;
+    value: function drawTextBox(_ref9) {
+      var context = _ref9.context;
 
       var offset = this.annotation.offset;
       this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
@@ -4330,14 +4394,14 @@ var d3CalloutDynamic = exports.d3CalloutDynamic = function (_Type4) {
 
   _createClass(d3CalloutDynamic, [{
     key: 'drawConnector',
-    value: function drawConnector(_ref8) {
-      var context = _ref8.context;
+    value: function drawConnector(_ref10) {
+      var context = _ref10.context;
       context.elbow = true;return (0, _Connector.connectorLine)(context);
     }
   }, {
     key: 'drawTextBox',
-    value: function drawTextBox(_ref9) {
-      var context = _ref9.context;
+    value: function drawTextBox(_ref11) {
+      var context = _ref11.context;
 
       var offset = this.annotation.offset;
 
@@ -4364,8 +4428,8 @@ var d3CalloutDynamic = exports.d3CalloutDynamic = function (_Type4) {
     }
   }, {
     key: 'drawSubject',
-    value: function drawSubject(_ref10) {
-      var context = _ref10.context;
+    value: function drawSubject(_ref12) {
+      var context = _ref12.context;
 
 
       if (this.editMode) {
@@ -4387,6 +4451,59 @@ var d3CalloutDynamic = exports.d3CalloutDynamic = function (_Type4) {
   return d3CalloutDynamic;
 }(Type);
 
+var d3CalloutCurve = exports.d3CalloutCurve = function (_d3CalloutDynamic) {
+  _inherits(d3CalloutCurve, _d3CalloutDynamic);
+
+  function d3CalloutCurve() {
+    _classCallCheck(this, d3CalloutCurve);
+
+    return _possibleConstructorReturn(this, (d3CalloutCurve.__proto__ || Object.getPrototypeOf(d3CalloutCurve)).apply(this, arguments));
+  }
+
+  _createClass(d3CalloutCurve, [{
+    key: 'drawConnector',
+    value: function drawConnector(_ref13) {
+      var _this9 = this;
+
+      var context = _ref13.context;
+
+
+      context.points = this.annotation.typeData.points;
+      context.curve = this.annotation.typeData.curve || _d3Shape.curveCatmullRom;
+
+      if (this.editMode) {
+        (function () {
+          var handles = context.points.map(function (c, i) {
+            return _extends({}, (0, _Handles.pointHandle)({ cx: c[0], cy: c[1] }), { index: i });
+          });
+
+          var updatePoint = function updatePoint(index) {
+            _this9.annotation.typeData.points[index][0] += _d3Selection.event.dx;
+            _this9.annotation.typeData.points[index][1] += _d3Selection.event.dy;
+            _this9.customization();
+          };
+
+          (0, _Handles.addHandles)({
+            group: _this9.connector,
+            handles: _this9.mapHandles(handles.map(function (h) {
+              return _extends({}, h.move, { drag: updatePoint.bind(_this9, h.index) });
+            }))
+          });
+        })();
+      }
+
+      return (0, _Connector.connectorLine)(context);
+    }
+  }], [{
+    key: 'classname',
+    value: function classname() {
+      return "callout-curve";
+    }
+  }]);
+
+  return d3CalloutCurve;
+}(d3CalloutDynamic);
+
 var d3CalloutArrow = exports.d3CalloutArrow = function (_Type5) {
   _inherits(d3CalloutArrow, _Type5);
 
@@ -4398,8 +4515,8 @@ var d3CalloutArrow = exports.d3CalloutArrow = function (_Type5) {
 
   _createClass(d3CalloutArrow, [{
     key: 'drawConnector',
-    value: function drawConnector(_ref11) {
-      var context = _ref11.context;
+    value: function drawConnector(_ref14) {
+      var context = _ref14.context;
 
       var line = (0, _Connector.connectorLine)(context);
       var dataLength = line.data.length;
@@ -4410,8 +4527,8 @@ var d3CalloutArrow = exports.d3CalloutArrow = function (_Type5) {
     }
   }, {
     key: 'drawTextBox',
-    value: function drawTextBox(_ref12) {
-      var context = _ref12.context;
+    value: function drawTextBox(_ref15) {
+      var context = _ref15.context;
 
       var offset = this.annotation.offset;
       this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
@@ -4429,8 +4546,8 @@ var d3CalloutArrow = exports.d3CalloutArrow = function (_Type5) {
     }
   }, {
     key: 'drawSubject',
-    value: function drawSubject(_ref13) {
-      var context = _ref13.context;
+    value: function drawSubject(_ref16) {
+      var context = _ref16.context;
 
 
       if (this.editMode) {
@@ -4463,8 +4580,8 @@ var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout) {
 
   _createClass(d3XYThreshold, [{
     key: 'drawTextBox',
-    value: function drawTextBox(_ref14) {
-      var context = _ref14.context;
+    value: function drawTextBox(_ref17) {
+      var context = _ref17.context;
 
       var offset = this.annotation.offset;
       this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
@@ -4482,8 +4599,8 @@ var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout) {
     }
   }, {
     key: 'drawSubject',
-    value: function drawSubject(_ref15) {
-      var context = _ref15.context;
+    value: function drawSubject(_ref18) {
+      var context = _ref18.context;
       return (0, _Subject.subjectLine)(context);
     }
   }], [{
@@ -4518,6 +4635,7 @@ var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout) {
 
 exports.default = {
   d3Callout: d3Callout,
+  d3CalloutCurve: d3CalloutCurve,
   d3CalloutDynamic: d3CalloutDynamic,
   d3CalloutArrow: d3CalloutArrow,
   d3CalloutCircle: d3CalloutCircle,
@@ -4525,7 +4643,7 @@ exports.default = {
   d3Label: d3Label
 };
 
-},{"./Annotation":7,"./Connector":10,"./Handles":11,"./Subject":12,"./TextBox":13,"d3-drag":2,"d3-selection":4}],15:[function(require,module,exports){
+},{"./Annotation":7,"./Connector":10,"./Handles":11,"./Subject":12,"./TextBox":13,"d3-drag":2,"d3-selection":4,"d3-shape":5}],15:[function(require,module,exports){
 'use strict';
 
 var _AdapterD = require('./src/Adapter-d3');
@@ -4540,6 +4658,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 d3.annotation = _AdapterD2.default;
 d3.annotationCallout = _TypesD2.default.d3Callout;
+d3.annotationCalloutCurve = _TypesD2.default.d3CalloutCurve;
 d3.annotationCalloutDynamic = _TypesD2.default.d3CalloutDynamic;
 d3.annotationCalloutArrow = _TypesD2.default.d3CalloutArrow;
 d3.annotationCalloutCircle = _TypesD2.default.d3CalloutCircle;

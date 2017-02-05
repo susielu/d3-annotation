@@ -1,5 +1,6 @@
 import { select, event } from 'd3-selection'
 import { drag } from 'd3-drag'
+import { curveCatmullRom } from 'd3-shape'
 import { Annotation } from './Annotation'
 import { connectorLine, connectorArrow } from './Connector'
 import { textBoxLine, textBoxUnderline } from './TextBox'
@@ -146,7 +147,7 @@ class Type {
     const position = this.annotation.position
     position.x += event.dx
     position.y += event.dy
-
+    console.log()
     this.annotation.position = position
     this.update()
   }
@@ -168,6 +169,27 @@ class Type {
 
 export class d3Label extends Type {
   static className(){ return "label" }
+  drawConnector({ context }) { context.elbow = true; return connectorLine(context)}
+
+  drawTextBox({ context }) { 
+    const offset = this.annotation.offset
+
+    if (offset.y < 0) {
+      const padding = 5
+      const transform = this.textBox.attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
+    } else {
+      this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    }
+
+    if (this.editMode) {
+      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
+      
+      addHandles({
+        group: this.textBox,
+        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
+      })
+    }
+  }
 }
 
 export class d3CalloutCircle extends Type {
@@ -204,6 +226,7 @@ export class d3CalloutCircle extends Type {
     }
     return c
   }
+
   drawTextBox({ context }) { 
     const offset = this.annotation.offset
     const padding = 5
@@ -234,7 +257,6 @@ export class d3Callout extends Type {
     return textBoxLine(context)
   }
 }
-
 
 export class d3CalloutDynamic extends Type {
   static className(){ return "callout-dynamic" }
@@ -276,6 +298,35 @@ export class d3CalloutDynamic extends Type {
     }
   }
 }
+
+export class d3CalloutCurve extends d3CalloutDynamic { 
+  static classname(){ return "callout-curve" }
+  drawConnector({ context }) { 
+
+     context.points = this.annotation.typeData.points 
+     context.curve = this.annotation.typeData.curve || curveCatmullRom
+
+     if (this.editMode) {
+      let handles = context.points
+        .map((c,i) => ({...pointHandle({cx: c[0], cy: c[1]}), index: i}))
+
+      const updatePoint = (index) => {      
+        this.annotation.typeData.points[index][0] += event.dx
+        this.annotation.typeData.points[index][1] += event.dy
+        this.customization()
+      }
+
+      addHandles({
+        group: this.connector,
+        handles: this.mapHandles(handles
+          .map(h => ({ ...h.move, drag: updatePoint.bind(this, h.index)})))
+      })
+     }
+
+     return connectorLine(context)
+  }
+}
+
 
 export class d3CalloutArrow extends Type {
   static className(){ return "callout" }
@@ -358,6 +409,7 @@ export class d3XYThreshold extends d3Callout {
 
 export default {
   d3Callout,
+  d3CalloutCurve,
   d3CalloutDynamic,
   d3CalloutArrow,
   d3CalloutCircle,

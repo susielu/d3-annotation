@@ -26,7 +26,7 @@
 
       .annotation path {
         stroke: #e91e56;
-        fill: rgba(0,0,0,0);
+        fill: none;
       }
 
       .annotation path.connector-arrow{
@@ -39,6 +39,15 @@
 
       .annotation-title {
         font-weight: bold;
+      }
+
+      circle.handle {
+        stroke-dasharray: 5;
+        stroke: #e91e56;
+        fill: rgba(255, 255, 255, .5);
+        cursor: move;
+
+        stroke-opacity: .4;
       }
 
     </style>
@@ -103,6 +112,17 @@
           type: d3.annotationCalloutDynamic
         },
         {
+          text: "Curves",
+          data: {date: "18-Sep-09",	close: 185.02},
+          dy: -137,
+          dx: -142,
+          type: d3.annotationCalloutCurve,
+          typeData: {
+            points: [[ -50, -50 ], [-25, -95]],
+            curve: d3.curveBasis
+          }
+        },
+        {
           text: "Hii there",
           title: "I HAZ A TITLE",
           data: {date: "13-Oct-11",	close: 408.43},
@@ -114,17 +134,6 @@
             radiusPadding: 5
           }
         },
-        // {
-        //   data: {date: "28-Nov-08"},
-        //   text: "Here I am",
-        //   type: d3.annotationXYThreshold,
-        //   y: 20,
-        //   dx: 50,
-        //   typeData: {
-        //     y1: 0,
-        //     y2: height
-        //   }
-        // },
         {
           data: {date: "2-Jan-08", close: 194.84},
           text: "Yo 2008",
