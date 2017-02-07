@@ -63,7 +63,7 @@
 <body>
     <svg width=960 height=500></svg>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.4.1/d3.min.js"></script>
-    <script src="bboxCollide.js"></script>
+    <script src="smallest-circle.js"></script>
     <script src="/d3-annotation.js"></script>
 
     <script>
@@ -71,7 +71,6 @@
     var svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height");
-        
     var color = d3.scaleOrdinal(d3.schemeCategory20);
     var simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id( d => d.id ))
@@ -85,7 +84,6 @@
         .data(graph.links)
         .enter().append("line")
           .attr("stroke-width", d => Math.sqrt(d.value));
-
       var node = svg.append("g")
           .attr("class", "nodes")
         .selectAll("circle")
@@ -115,53 +113,73 @@
             .attr("cy", d => d.y);
 
         makeAnnotations.annotations()
-          .forEach((d, i) => {
-            d.position = graph.nodes[i]
+        .forEach((d, i) => {
+            let points = graph.nodes
+              .filter(d => d.group === groups[i])
+              .map(d => ({ x: d.x, y: d.y}))
+            circle = makeCircle(points)
+            d.position = { x: circle.x, y: circle.y }
+            d.typeData.radius = circle.r + 20
           })
-
         makeAnnotations.update()
       }
 
+    let groups = [3, 1, 8]
+    let points = groups.map(p => graph.nodes
+      .filter(d => d.group === p)
+      .map(d => ({ x: d.x, y: d.y})))
 
-      window.makeAnnotations = d3.annotation()
-        .editMode(true)
-        .annotations(graph.nodes.map(d => {
-          return {
-            data: {x: d.x, y: d.y},
-            text: d.id,
-            type: d3.annotationLabel
-          }
-        }))
+
+    let circle = points.map( p => makeCircle(p))
+    const annotations = [{
+        text: "Group 3",
+        title: "Les Mis",
+        dy: 93,
+        dx: -176,
+        x: circle[0].x,
+        y: circle[0].y,
+        type: d3.annotationCalloutCircle,
+        typeData: {
+          radius: circle[0].r + 20,
+          radiusPadding: 10
+        }
+    },
+    {
+        text: "Group 1",
+        title: "Les Mis",
+        dy: 93,
+        dx: -176,
+        x: circle[1].x,
+        y: circle[1].y,
+        type: d3.annotationCalloutCircle,
+        typeData: {
+          radius: circle[1].r + 20,
+          radiusPadding: 10
+        }
+    },
+    {
+        text: "Group 8",
+        title: "Les Mis",
+        dy: 93,
+        dx: 176,
+        x: circle[2].x,
+        y: circle[2].y,
+        type: d3.annotationCalloutCircle,
+        typeData: {
+          radius: circle[2].r + 20,
+          radiusPadding: 10
+        }
+    }
+    ]
+
+     window.makeAnnotations = d3.annotation()
+      //  .editMode(true)
+        .annotations(annotations)
         .accessors({ x: d => d.x , y: d => d.y})
 
       svg.append("g")
         .attr("class", "annotation-test")
         .call(makeAnnotations)
-
-      
-
-      window.collide = rectCollide((a) => {
-        return [[0, 0], [a.width, a.height]]
-      })
-
-      window.yScale = d3.scaleLinear()
-        
-
-      // window.labelForce = d3.forceSimulation(window.textBoxes)
-      //         .force("x", d3.forceX(a => 0))
-      //         .force("y", d3.forceY(a => 0))
-      //         .force("collide", collide)
-      //         .on('tick', d => {
-      // // console.log(d)
-      //           makeAnnotations.annotations()
-      //           .forEach((d, i) => {
-      //       const match = window.textBoxes[i]	
-      //             d.dx = match.x + match.vx
-      //             d.dy = match.y + match.vy
-      //           })
-      //       makeAnnotations.update()
-      //         })
-            
 
     });
     function dragstarted(d) {
@@ -178,34 +196,6 @@
       d.fx = null;
       d.fy = null;
     }
-
-
-
-    // const labels = [
-    //     {
-    //       text: "Hellooooooooo testing out a larger text box",
-    //       data: {date: "18-Sep-09",	close: 185.02},
-    //       dy: 37,
-    //       dx: 42,
-    //       type: d3.annotationCalloutDynamic
-    //     },
-    //     {
-    //       text: "Hii there",
-    //       title: "I HAZ A TITLE",
-    //       data: {date: "13-Oct-11",	close: 408.43},
-    //       dy: -93,
-    //       dx: -176,
-    //       type: d3.annotationCalloutCircle,
-    //       typeData: {
-    //         radius: 50,
-    //         radiusPadding: 5
-    //       }
-    //     }
-    //   ]
-
-
-
-   // })
 
     </script>
 </body>
