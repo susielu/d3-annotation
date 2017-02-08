@@ -156,7 +156,7 @@
         }
       ]
 
-      const makeAnnotations = d3.annotation()
+      window.makeAnnotations = d3.annotation()
         .annotations(labels)
         .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
         .editMode(true)

@@ -116,3 +116,21 @@ export const connectorArrow = ({ annotation, offset=annotation.position, context
 
   return lineBuilder({ data, context, className : CLASS + '-arrow' })
 }
+
+export default function connector(){
+
+  let elbow = true,
+  type = connectorLine 
+
+  const connector = function(selection){
+    
+  }
+
+  connector.elbow = function(_) {
+    if (!arguments.length) return elbow;
+    elbow = _
+    return connector
+  }
+
+  return connector
+}

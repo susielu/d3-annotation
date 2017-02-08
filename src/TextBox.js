@@ -45,3 +45,21 @@ export const textBoxSideline = ({ annotation, offset={x: 0, y: 0}, context,
   const data = [[x, y1], [x, y2]]
   return lineBuilder({ data, curve, context, className : CLASS })
 }
+
+export default function textBox(){
+
+  let padding = 5,
+  type = textBoxLine 
+
+  const textBox = function(selection){
+    
+  }
+
+  textBox.padding = function(_) {
+    if (!arguments.length) return padding;
+    padding = _
+    return textBox
+  }
+
+  return textBox
+}

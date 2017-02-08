@@ -49,6 +49,17 @@ const wrap = (text, width) => {
   });
 }
 
+const bboxWithoutHandles = (selection) => {
+  return selection.selectAll(':not(.handle)').nodes().reduce((p, c) => {
+        const bbox = c.getBBox()
+        p.x = Math.min(p.x, bbox.x)
+        p.y = Math.min(p.y, bbox.y)
+        p.width = Math.max(p.width, bbox.width)
+        p.height += bbox.height
+        return p
+      }, { x: 0, y: 0, width: 0, height: 0});
+}
+
 class Type {
   constructor({ a, annotation, editMode }) {
     this.a = a
@@ -87,17 +98,10 @@ class Type {
       })
   }
 
-  getTextBBox() {
-    return this.textBox.selectAll('.annotation-text, .annotation-title').nodes()
-      .reduce((p, c) => {
-        const bbox = c.getBBox()
-        p.x = Math.min(p.x, bbox.x)
-        p.y = Math.min(p.y, bbox.y)
-        p.width = Math.max(p.width, bbox.width)
-        p.height += bbox.height
-        return p
-      }, { x: 0, y: 0, width: 0, height: 0});
-  }
+  getTextBBox() { return bboxWithoutHandles(this.textBox)}
+  getConnectorBBox() { return bboxWithoutHandles(this.connector)}
+  getSubjectBBox() { return bboxWithoutHandles(this.connector)}
+  getAnnotationBBox() { return bboxWithoutHandles(this.a)}
 
   drawText() {
     let titleBBox = { height: 0 }
@@ -117,6 +121,30 @@ class Type {
 
     const textBBox = text.node().getBBox()
     text.attr('y', titleBBox.height * 1.1 || 3)
+  }
+
+  drawSubject () {
+    if (this.editMode){
+      const h = pointHandle({})
+
+      addHandles({
+        group: this.subject,
+        handles: this.mapHandles([{ ...h.move, drag: this.dragSubject.bind(this)}])
+      })
+    }
+  }
+
+  drawTextBox ({ context }) {
+    const offset = this.annotation.offset
+    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    if (this.editMode) {
+      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
+      
+      addHandles({
+        group: this.textBox,
+        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
+      })
+    }
   }
 
   customization(bbox=this.getTextBBox()) {
@@ -147,7 +175,6 @@ class Type {
     const position = this.annotation.position
     position.x += event.dx
     position.y += event.dy
-    console.log()
     this.annotation.position = position
     this.update()
   }
@@ -164,31 +191,6 @@ class Type {
     return handles.filter(h => h.x !== undefined && h.y !== undefined)
     .map(h => ({ ...h, 
       start: this.dragstarted.bind(this), end: this.dragended.bind(this) }))
-  }
-}
-
-export class d3Label extends Type {
-  static className(){ return "label" }
-  drawConnector({ context }) { context.elbow = true; return connectorLine(context)}
-
-  drawTextBox({ context }) { 
-    const offset = this.annotation.offset
-
-    if (offset.y < 0) {
-      const padding = 5
-      const transform = this.textBox.attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
-    } else {
-      this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
-    }
-
-    if (this.editMode) {
-      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
-      
-      addHandles({
-        group: this.textBox,
-        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
-      })
-    }
   }
 }
 
@@ -228,20 +230,12 @@ export class d3CalloutCircle extends Type {
   }
 
   drawTextBox({ context }) { 
+    super.drawTextBox({ context })
+
     const offset = this.annotation.offset
     const padding = 5
     const transform = this.textBox
     .attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
-
-    if (this.editMode) {
-      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
-      
-      addHandles({
-        group: this.textBox,
-        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
-      })
-    }
-
     return textBoxUnderline({ ...context, padding })
   }
 }
@@ -251,10 +245,23 @@ export class d3CalloutCircle extends Type {
 export class d3Callout extends Type {
   static className(){ return "callout" }
   drawConnector({ context }) { return connectorLine(context)}
-  drawTextBox({ context }) {
+  drawTextBox({ context }) { return textBoxLine(context) }
+}
+
+export class d3Label extends Type {
+  static className(){ return "label" }
+  drawConnector({ context }) { context.elbow = true; return connectorLine(context)}
+
+  drawTextBox({ context }) { 
     const offset = this.annotation.offset
-    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
-    return textBoxLine(context)
+    super.drawTextBox({ context })
+
+    if (offset.y < 0) {
+      const padding = 5
+      const transform = this.textBox.attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
+      // context.position = "bottom"
+      // context.padding = padding
+    }
   }
 }
 
@@ -263,39 +270,16 @@ export class d3CalloutDynamic extends Type {
   drawConnector({ context }) { context.elbow = true; return connectorLine(context)}
   drawTextBox({ context }) {
     const offset = this.annotation.offset
+    super.drawTextBox({ context })
 
     if (offset.y < 0) {
       const padding = 5
       const transform = this.textBox.attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
       context.position = "bottom"
       context.padding = padding
-    } else {
-      
-      this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
-    }
-
-    if (this.editMode) {
-      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
-      
-      addHandles({
-        group: this.textBox,
-        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
-      })
-    }
+    } 
 
     return textBoxLine(context)
-  }
-
-  drawSubject({ context }) { 
-
-    if (this.editMode){
-      const h = pointHandle({})
-
-      addHandles({
-        group: this.subject,
-        handles: this.mapHandles([{ ...h.move, drag: this.dragSubject.bind(this)}])
-      })
-    }
   }
 }
 
@@ -331,6 +315,7 @@ export class d3CalloutLeftRight extends d3CalloutDynamic {
   static className() { return "callout-leftright"}
 
   drawTextBox({ context }) {
+    super.drawTextBox({ context })
 
     const offset = this.annotation.offset
     const padding = 5
@@ -345,15 +330,6 @@ export class d3CalloutLeftRight extends d3CalloutDynamic {
       context.padding = padding
     } else {      
       this.textBox.attr('transform', `translate(${Math.max(offset.x + padding, padding)}, ${y})`)
-    }
-
-    if (this.editMode) {
-      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
-      
-      addHandles({
-        group: this.textBox,
-        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
-      })
     }
 
     return //textBoxSideline(context)
@@ -371,65 +347,16 @@ export class d3CalloutArrow extends Type {
     context.end = line.data[dataLength - 1]
     return [line, connectorArrow(context)]
   }
-  drawTextBox({ context }) {
-    const offset = this.annotation.offset
-    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
-
-    if (this.editMode) {
-      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
-      
-      addHandles({
-        group: this.textBox,
-        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
-      })
-    }
-
-    return textBoxLine(context)
-  }
-
-  drawSubject({ context }) { 
-
-    if (this.editMode){
-      const h = pointHandle({})
-
-      addHandles({
-        group: this.subject,
-        handles: this.mapHandles([{ ...h.move, drag: this.dragSubject.bind(this)}])
-      })
-    }
-  }
+  drawTextBox({ context }) { return textBoxLine(context)}
 }
 
 export class d3XYThreshold extends d3Callout {
   static className(){ return "xythreshold" }
 
-  drawTextBox({ context }) {
-    const offset = this.annotation.offset
-    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
-
-    if (this.editMode) {
-      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
-      
-      addHandles({
-        group: this.textBox,
-        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
-      })
-    }
-
-    return textBoxLine(context)
-  }
+  drawTextBox({ context }) { return textBoxLine(context)}
   drawSubject({ context }) { 
-    const line = subjectLine(context)
-    if (this.editMode){
-      const d = line.data
-      const h = pointHandle({})
-          
-      addHandles({
-        group: this.subject,
-        handles: this.mapHandles([{...h.move, drag: this.dragSubject.bind(this)}])
-      })
-    }
-    return line
+    super.drawSubject()
+    return subjectLine(context)
   }
 
   static init(annotation, accessors) {
@@ -448,8 +375,6 @@ export class d3XYThreshold extends d3Callout {
 }
 
 //TODO
-//const drawConnectorElbow = () => {}
-//Add text wraping option
 //Example to use with divided line
 
 export default {
