@@ -3,62 +3,9 @@ import { drag } from 'd3-drag'
 import { curveCatmullRom } from 'd3-shape'
 import { Annotation } from './Annotation'
 import { connectorLine, connectorArrow } from './Connector'
-import { textBoxLine, textBoxUnderline, textBoxSideline } from './TextBox'
+import { textBoxLine, textBoxSideline } from './TextBox'
 import { subjectLine, subjectCircle } from './Subject'
 import { pointHandle, circleHandles, rectHandles, lineHandles, addHandles } from './Handles'
-
-export const newWithClass = (a, d, type, className) => {
-  const group = a.selectAll(`${type}.${className}`).data(d)
-  group.enter()
-    .append(type)
-    .merge(group)
-    .attr('class', className)
-
-  group.exit().remove()
-  return a
-}
-
-//Text wrapping code adapted from Mike Bostock
-const wrap = (text, width) => {
-  text.each(function() {
-    var text = d3.select(this),
-        words = text.text().split(/\s+/).reverse(),
-        word,
-        line = [],
-        lineNumber = 0,
-        lineHeight = .2, //ems
-        y = text.attr("y"),
-        dy = parseFloat(text.attr("dy")) || 0,
-        tspan = text.text(null)
-          .append("tspan")
-          .attr("x", 0)
-          .attr("dy", dy + "em");
-
-    while (word = words.pop()) {
-      line.push(word);
-      tspan.text(line.join(" "));
-      if (tspan.node().getComputedTextLength() > width && line.length > 1) {
-        line.pop();
-        tspan.text(line.join(" "));
-        line = [word];
-        tspan = text.append("tspan")
-          .attr("x", 0)
-          .attr("dy", lineHeight + dy + "em").text(word);
-      }
-    }
-  });
-}
-
-const bboxWithoutHandles = (selection) => {
-  return selection.selectAll(':not(.handle)').nodes().reduce((p, c) => {
-        const bbox = c.getBBox()
-        p.x = Math.min(p.x, bbox.x)
-        p.y = Math.min(p.y, bbox.y)
-        p.width = Math.max(p.width, bbox.width)
-        p.height += bbox.height
-        return p
-      }, { x: 0, y: 0, width: 0, height: 0});
-}
 
 class Type {
   constructor({ a, annotation, editMode }) {
@@ -98,7 +45,7 @@ class Type {
       })
   }
 
-  getTextBBox() { return bboxWithoutHandles(this.textBox)}
+  getTextBBox() { return bboxWithoutHandles(this.textBox, '.annotation-text, .annotation-title')}
   getConnectorBBox() { return bboxWithoutHandles(this.connector)}
   getSubjectBBox() { return bboxWithoutHandles(this.connector)}
   getAnnotationBBox() { return bboxWithoutHandles(this.a)}
@@ -134,9 +81,51 @@ class Type {
     }
   }
 
+  drawConnector () {
+    const line = connectorLine(context)
+
+    if (context.arrow){
+      const dataLength = line.data.length
+    
+      context.start = context.arrowTextBox ? line.data[1] : line.data[dataLength - 2]
+      context.end = context.arrowTextBox ?  lind.data[0] : line.data[dataLength - 1]
+
+      return [line, connectorArrow(context)]
+    }
+
+    return line;
+  }
+
   drawTextBox ({ context }) {
     const offset = this.annotation.offset
-    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    const padding = context.padding || 5
+    const orientation = context.orientation || 'topBottom'
+    const align = context.align || 'left'
+
+
+    let x = offset.x
+    let y = offset.y
+
+
+    if (orientation === 'topBottom' && offset.y < 0){
+        y = offset.y - context.bbox.height - padding
+    }  //else if (o) //add left right orientation
+
+    if (align === "middle") {
+
+      if (offset.x < -context.bbox.width){
+        x = offset.x + context.bbox.width/2
+      } else if (offset.x > -context.bbox.width){
+        x = offset.x - context.bbox.width/2
+      } else {
+        console.log(offset.x)
+      }
+      // else if (offset.x > 0) {
+      //   x = offset.x - context.bbox.width/2
+      // }
+    }
+    this.textBox.attr('transform', `translate(${x}, ${y})`)
+
     if (this.editMode) {
       const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
       
@@ -152,9 +141,9 @@ class Type {
     const context = { annotation, bbox }
 
     //Extend with custom annotation components
-    this.drawSubject && this.drawOnSVG( this.subject, this.drawSubject({ context }))
-    this.drawConnector && this.drawOnSVG( this.connector, this.drawConnector({ context }))
-    this.drawTextBox && this.drawOnSVG( this.textBox, this.drawTextBox({ context}))
+    this.drawOnSVG( this.subject, this.drawSubject({ context }))
+    this.drawOnSVG( this.connector, this.drawConnector({ context }))
+    this.drawOnSVG( this.textBox, this.drawTextBox({ context}))
   }  
   
   draw() {
@@ -194,9 +183,24 @@ class Type {
   }
 }
 
-export class d3CalloutCircle extends Type {
+// Custom annotation types
+export class d3Callout extends Type {
+  static className(){ return "callout" }
+
+  drawTextBox({ context }) { 
+    super.drawTextBox({ context })
+    if (this.annotation.offset.y < 0) { context.position = "bottom" } 
+    return textBoxLine(context) 
+  }
+}
+
+export class d3CalloutElbow extends Type {
+    drawConnector({ context }) { context.elbow = true; return super.drawConnector({ context })}
+}
+
+export class d3CalloutCircle extends d3CalloutElbow {
   static className(){ return "callout circle" }
-  drawConnector({ context }) { context.elbow = true; return connectorLine(context) }
+  
   drawSubject({ context }) { 
     const c = subjectCircle(context);
 
@@ -230,60 +234,21 @@ export class d3CalloutCircle extends Type {
   }
 
   drawTextBox({ context }) { 
-    super.drawTextBox({ context })
-
-    const offset = this.annotation.offset
-    const padding = 5
-    const transform = this.textBox
-    .attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
-    return textBoxUnderline({ ...context, padding })
+    context.align = "middle"
+    return super.drawTextBox({ context })
   }
 }
 
 
-// Custom annotation types
-export class d3Callout extends Type {
-  static className(){ return "callout" }
-  drawConnector({ context }) { return connectorLine(context)}
-  drawTextBox({ context }) { return textBoxLine(context) }
-}
-
+//This is callout except without textbox underline
 export class d3Label extends Type {
   static className(){ return "label" }
-  drawConnector({ context }) { context.elbow = true; return connectorLine(context)}
-
-  drawTextBox({ context }) { 
-    const offset = this.annotation.offset
-    super.drawTextBox({ context })
-
-    if (offset.y < 0) {
-      const padding = 5
-      const transform = this.textBox.attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
-      // context.position = "bottom"
-      // context.padding = padding
-    }
-  }
+  drawTextBox({ context }) { super.drawTextBox({ context })}
+  // drawConnector({ context }) { context.elbow = true; return connectorLine(context)}
 }
 
-export class d3CalloutDynamic extends Type {
-  static className(){ return "callout-dynamic" }
-  drawConnector({ context }) { context.elbow = true; return connectorLine(context)}
-  drawTextBox({ context }) {
-    const offset = this.annotation.offset
-    super.drawTextBox({ context })
 
-    if (offset.y < 0) {
-      const padding = 5
-      const transform = this.textBox.attr('transform', `translate(${offset.x}, ${offset.y - context.bbox.height - padding })`)
-      context.position = "bottom"
-      context.padding = padding
-    } 
-
-    return textBoxLine(context)
-  }
-}
-
-export class d3CalloutCurve extends d3CalloutDynamic { 
+export class d3CalloutCurve extends d3CalloutElbow { 
   static className(){ return "callout-curve" }
   drawConnector({ context }) { 
 
@@ -336,24 +301,9 @@ export class d3CalloutLeftRight extends d3CalloutDynamic {
   }
 }
 
-
-export class d3CalloutArrow extends Type {
-  static className(){ return "callout" }
-  drawConnector({ context }) { 
-    const line = connectorLine(context)
-    const dataLength = line.data.length
-
-    context.start = line.data[dataLength - 2]
-    context.end = line.data[dataLength - 1]
-    return [line, connectorArrow(context)]
-  }
-  drawTextBox({ context }) { return textBoxLine(context)}
-}
-
 export class d3XYThreshold extends d3Callout {
   static className(){ return "xythreshold" }
 
-  drawTextBox({ context }) { return textBoxLine(context)}
   drawSubject({ context }) { 
     super.drawSubject()
     return subjectLine(context)
@@ -374,15 +324,67 @@ export class d3XYThreshold extends d3Callout {
   }
 }
 
+
+export const newWithClass = (a, d, type, className) => {
+  const group = a.selectAll(`${type}.${className}`).data(d)
+  group.enter()
+    .append(type)
+    .merge(group)
+    .attr('class', className)
+
+  group.exit().remove()
+  return a
+}
+
+//Text wrapping code adapted from Mike Bostock
+const wrap = (text, width) => {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = .2, //ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")) || 0,
+        tspan = text.text(null)
+          .append("tspan")
+          .attr("x", 0)
+          .attr("dy", dy + "em");
+
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width && line.length > 1) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan")
+          .attr("x", 0)
+          .attr("dy", lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
+
+const bboxWithoutHandles = (selection, selector=':not(.handle)') => {
+  return selection.selectAll(selector).nodes().reduce((p, c) => {
+        const bbox = c.getBBox()
+        p.x = Math.min(p.x, bbox.x)
+        p.y = Math.min(p.y, bbox.y)
+        p.width = Math.max(p.width, bbox.width)
+        p.height += bbox.height
+        return p
+      }, { x: 0, y: 0, width: 0, height: 0});
+}
+
 //TODO
 //Example to use with divided line
 
 export default {
   d3Callout,
   d3CalloutCurve,
-  d3CalloutDynamic,
   d3CalloutLeftRight,
-  d3CalloutArrow,
   d3CalloutCircle,
   d3XYThreshold,
   d3Label

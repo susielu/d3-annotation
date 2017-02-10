@@ -61,12 +61,13 @@ export default function annotation(){
   }
 
   annotation.json = function() {
+    //TODO figure out what to do here
     return annotation
   }
 
   annotation.update = function(){
-    collection.annotations.forEach(d => d.type.update()
-    )
+    collection.annotations.forEach(d => d.type.update())
+    return annotation
   }
 
   //TODO: add in classprefix functionality
@@ -107,3 +108,9 @@ export default function annotation(){
   return annotation;
 
 };
+
+
+//Type adapter
+//takes a prototype
+//updates one of the functions with the desired properties
+//returns the updated prototype that has extended the base prototype

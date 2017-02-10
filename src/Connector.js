@@ -108,29 +108,23 @@ export const connectorArrow = ({ annotation, offset=annotation.position, context
     angle += Math.PI
   }
 
-  const data = [[x1, y1], 
+  let data
+  
+  //TODO add in reverse
+  if (context.arrowReverse){
+    data = [[x1, y1], 
     [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
     [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
     [x1, y1]
     ]
+  } else {
+    data = [[x1, y1], 
+    [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
+    [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
+    [x1, y1]
+    ]
+  }
+
 
   return lineBuilder({ data, context, className : CLASS + '-arrow' })
-}
-
-export default function connector(){
-
-  let elbow = true,
-  type = connectorLine 
-
-  const connector = function(selection){
-    
-  }
-
-  connector.elbow = function(_) {
-    if (!arguments.length) return elbow;
-    elbow = _
-    return connector
-  }
-
-  return connector
 }
