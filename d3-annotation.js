@@ -3747,37 +3747,51 @@ var connectorArrow = exports.connectorArrow = function connectorArrow(_ref2) {
   var annotation = _ref2.annotation,
       _ref2$offset = _ref2.offset,
       offset = _ref2$offset === undefined ? annotation.position : _ref2$offset,
-      context = _ref2.context,
-      bbox = _ref2.bbox;
+      start = _ref2.start,
+      end = _ref2.end,
+      bbox = _ref2.bbox,
+      context = _ref2.context;
 
 
-  var x1 = annotation.x - offset.x,
-      y1 = annotation.y - offset.y;
-
-  var dx = annotation.dx;
-
-  //Think about how to deal with this properly
-  if (annotation.dx && bbox && bbox.width && annotation.dx < 0 && Math.abs(annotation.dx) > bbox.width / 2) {
-
-    dx += bbox.width;
+  if (!start) {
+    start = [annotation.dx, annotation.dy];
+  } else {
+    start = [-end[0] + start[0], -end[1] + start[1]];
   }
+  if (!end) {
+    end = [annotation.x - offset.x, annotation.y - offset.y];
+  }
+
+  var x1 = end[0],
+      y1 = end[1];
+
+  var dx = start[0];
+  var dy = start[1];
 
   var size = 10;
   var angleOffset = 16 / 180 * Math.PI;
-  var angle = Math.atan(annotation.dy / dx);
+  var angle = Math.atan(dy / dx);
 
   if (dx < 0) {
     angle += Math.PI;
   }
 
-  var data = void 0;
+  var data = [[x1, y1], [Math.cos(angle + angleOffset) * size + x1, Math.sin(angle + angleOffset) * size + y1], [Math.cos(angle - angleOffset) * size + x1, Math.sin(angle - angleOffset) * size + y1], [x1, y1]];
 
   //TODO add in reverse
-  if (context.arrowReverse) {
-    data = [[x1, y1], [Math.cos(angle + angleOffset) * size, Math.sin(angle + angleOffset) * size], [Math.cos(angle - angleOffset) * size, Math.sin(angle - angleOffset) * size], [x1, y1]];
-  } else {
-    data = [[x1, y1], [Math.cos(angle + angleOffset) * size, Math.sin(angle + angleOffset) * size], [Math.cos(angle - angleOffset) * size, Math.sin(angle - angleOffset) * size], [x1, y1]];
-  }
+  // if (context.arrowReverse){
+  //   data = [[x1, y1], 
+  //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
+  //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
+  //   [x1, y1]
+  //   ]
+  // } else {
+  //   data = [[x1, y1], 
+  //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
+  //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
+  //   [x1, y1]
+  //   ]
+  // }
 
   return (0, _Builder.lineBuilder)({ data: data, context: context, className: CLASS + '-arrow' });
 };
@@ -4143,14 +4157,14 @@ var Type = function () {
     }
   }, {
     key: 'drawConnector',
-    value: function drawConnector() {
+    value: function drawConnector(context) {
       var line = (0, _Connector.connectorLine)(context);
 
       if (context.arrow) {
         var dataLength = line.data.length;
 
-        context.start = context.arrowTextBox ? line.data[1] : line.data[dataLength - 2];
-        context.end = context.arrowTextBox ? lind.data[0] : line.data[dataLength - 1];
+        context.start = context.arrowTextBox ? line.data[dataLength - 2] : line.data[1];
+        context.end = context.arrowTextBox ? lind.data[dataLength - 1] : line.data[0];
 
         return [line, (0, _Connector.connectorArrow)(context)];
       }
@@ -4159,9 +4173,7 @@ var Type = function () {
     }
   }, {
     key: 'drawTextBox',
-    value: function drawTextBox(_ref3) {
-      var context = _ref3.context;
-
+    value: function drawTextBox(context) {
       var offset = this.annotation.offset;
       var padding = context.padding || 5;
       var orientation = context.orientation || 'topBottom';
@@ -4207,9 +4219,9 @@ var Type = function () {
       var context = { annotation: annotation, bbox: bbox };
 
       //Extend with custom annotation components
-      this.drawOnSVG(this.subject, this.drawSubject({ context: context }));
-      this.drawOnSVG(this.connector, this.drawConnector({ context: context }));
-      this.drawOnSVG(this.textBox, this.drawTextBox({ context: context }));
+      this.drawOnSVG(this.subject, this.drawSubject(context));
+      this.drawOnSVG(this.connector, this.drawConnector(context));
+      this.drawOnSVG(this.textBox, this.drawTextBox(context));
     }
   }, {
     key: 'draw',
@@ -4294,10 +4306,8 @@ var d3Callout = exports.d3Callout = function (_Type) {
 
   _createClass(d3Callout, [{
     key: 'drawTextBox',
-    value: function drawTextBox(_ref4) {
-      var context = _ref4.context;
-
-      _get(d3Callout.prototype.__proto__ || Object.getPrototypeOf(d3Callout.prototype), 'drawTextBox', this).call(this, { context: context });
+    value: function drawTextBox(context) {
+      _get(d3Callout.prototype.__proto__ || Object.getPrototypeOf(d3Callout.prototype), 'drawTextBox', this).call(this, context);
       if (this.annotation.offset.y < 0) {
         context.position = "bottom";
       }
@@ -4313,8 +4323,8 @@ var d3Callout = exports.d3Callout = function (_Type) {
   return d3Callout;
 }(Type);
 
-var d3CalloutElbow = exports.d3CalloutElbow = function (_Type2) {
-  _inherits(d3CalloutElbow, _Type2);
+var d3CalloutElbow = exports.d3CalloutElbow = function (_d3Callout) {
+  _inherits(d3CalloutElbow, _d3Callout);
 
   function d3CalloutElbow() {
     _classCallCheck(this, d3CalloutElbow);
@@ -4324,14 +4334,14 @@ var d3CalloutElbow = exports.d3CalloutElbow = function (_Type2) {
 
   _createClass(d3CalloutElbow, [{
     key: 'drawConnector',
-    value: function drawConnector(_ref5) {
-      var context = _ref5.context;
-      context.elbow = true;return _get(d3CalloutElbow.prototype.__proto__ || Object.getPrototypeOf(d3CalloutElbow.prototype), 'drawConnector', this).call(this, { context: context });
+    value: function drawConnector(context) {
+      context.elbow = true;
+      return _get(d3CalloutElbow.prototype.__proto__ || Object.getPrototypeOf(d3CalloutElbow.prototype), 'drawConnector', this).call(this, context);
     }
   }]);
 
   return d3CalloutElbow;
-}(Type);
+}(d3Callout);
 
 var d3CalloutCircle = exports.d3CalloutCircle = function (_d3CalloutElbow) {
   _inherits(d3CalloutCircle, _d3CalloutElbow);
@@ -4344,10 +4354,8 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_d3CalloutElbow) {
 
   _createClass(d3CalloutCircle, [{
     key: 'drawSubject',
-    value: function drawSubject(_ref6) {
+    value: function drawSubject(context) {
       var _this6 = this;
-
-      var context = _ref6.context;
 
       var c = (0, _Subject.subjectCircle)(context);
 
@@ -4378,11 +4386,9 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_d3CalloutElbow) {
     }
   }, {
     key: 'drawTextBox',
-    value: function drawTextBox(_ref7) {
-      var context = _ref7.context;
-
+    value: function drawTextBox(context) {
       context.align = "middle";
-      return _get(d3CalloutCircle.prototype.__proto__ || Object.getPrototypeOf(d3CalloutCircle.prototype), 'drawTextBox', this).call(this, { context: context });
+      return _get(d3CalloutCircle.prototype.__proto__ || Object.getPrototypeOf(d3CalloutCircle.prototype), 'drawTextBox', this).call(this, context);
     }
   }], [{
     key: 'className',
@@ -4394,11 +4400,11 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_d3CalloutElbow) {
   return d3CalloutCircle;
 }(d3CalloutElbow);
 
-//This is callout except without textbox underline
+//This is callout except without textbox underline, and centered text
 
 
-var d3Label = exports.d3Label = function (_Type3) {
-  _inherits(d3Label, _Type3);
+var d3Label = exports.d3Label = function (_Type2) {
+  _inherits(d3Label, _Type2);
 
   function d3Label() {
     _classCallCheck(this, d3Label);
@@ -4408,9 +4414,8 @@ var d3Label = exports.d3Label = function (_Type3) {
 
   _createClass(d3Label, [{
     key: 'drawTextBox',
-    value: function drawTextBox(_ref8) {
-      var context = _ref8.context;
-      _get(d3Label.prototype.__proto__ || Object.getPrototypeOf(d3Label.prototype), 'drawTextBox', this).call(this, { context: context });
+    value: function drawTextBox(context) {
+      _get(d3Label.prototype.__proto__ || Object.getPrototypeOf(d3Label.prototype), 'drawTextBox', this).call(this, context);
     }
     // drawConnector({ context }) { context.elbow = true; return connectorLine(context)}
 
@@ -4424,8 +4429,8 @@ var d3Label = exports.d3Label = function (_Type3) {
   return d3Label;
 }(Type);
 
-var d3CalloutCurve = exports.d3CalloutCurve = function (_d3CalloutElbow2) {
-  _inherits(d3CalloutCurve, _d3CalloutElbow2);
+var d3CalloutCurve = exports.d3CalloutCurve = function (_d3Callout2) {
+  _inherits(d3CalloutCurve, _d3Callout2);
 
   function d3CalloutCurve() {
     _classCallCheck(this, d3CalloutCurve);
@@ -4435,11 +4440,8 @@ var d3CalloutCurve = exports.d3CalloutCurve = function (_d3CalloutElbow2) {
 
   _createClass(d3CalloutCurve, [{
     key: 'drawConnector',
-    value: function drawConnector(_ref9) {
+    value: function drawConnector(context) {
       var _this9 = this;
-
-      var context = _ref9.context;
-
 
       context.points = this.annotation.typeData.points;
       context.curve = this.annotation.typeData.curve || _d3Shape.curveCatmullRom;
@@ -4475,10 +4477,10 @@ var d3CalloutCurve = exports.d3CalloutCurve = function (_d3CalloutElbow2) {
   }]);
 
   return d3CalloutCurve;
-}(d3CalloutElbow);
+}(d3Callout);
 
-var d3CalloutLeftRight = exports.d3CalloutLeftRight = function (_d3CalloutDynamic) {
-  _inherits(d3CalloutLeftRight, _d3CalloutDynamic);
+var d3CalloutLeftRight = exports.d3CalloutLeftRight = function (_d3CalloutElbow2) {
+  _inherits(d3CalloutLeftRight, _d3CalloutElbow2);
 
   function d3CalloutLeftRight() {
     _classCallCheck(this, d3CalloutLeftRight);
@@ -4488,10 +4490,8 @@ var d3CalloutLeftRight = exports.d3CalloutLeftRight = function (_d3CalloutDynami
 
   _createClass(d3CalloutLeftRight, [{
     key: 'drawTextBox',
-    value: function drawTextBox(_ref10) {
-      var context = _ref10.context;
-
-      _get(d3CalloutLeftRight.prototype.__proto__ || Object.getPrototypeOf(d3CalloutLeftRight.prototype), 'drawTextBox', this).call(this, { context: context });
+    value: function drawTextBox(context) {
+      _get(d3CalloutLeftRight.prototype.__proto__ || Object.getPrototypeOf(d3CalloutLeftRight.prototype), 'drawTextBox', this).call(this, context);
 
       var offset = this.annotation.offset;
       var padding = 5;
@@ -4516,10 +4516,10 @@ var d3CalloutLeftRight = exports.d3CalloutLeftRight = function (_d3CalloutDynami
   }]);
 
   return d3CalloutLeftRight;
-}(d3CalloutDynamic);
+}(d3CalloutElbow);
 
-var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout) {
-  _inherits(d3XYThreshold, _d3Callout);
+var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout3) {
+  _inherits(d3XYThreshold, _d3Callout3);
 
   function d3XYThreshold() {
     _classCallCheck(this, d3XYThreshold);
@@ -4529,9 +4529,7 @@ var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout) {
 
   _createClass(d3XYThreshold, [{
     key: 'drawSubject',
-    value: function drawSubject(_ref11) {
-      var context = _ref11.context;
-
+    value: function drawSubject(context) {
       _get(d3XYThreshold.prototype.__proto__ || Object.getPrototypeOf(d3XYThreshold.prototype), 'drawSubject', this).call(this);
       return (0, _Subject.subjectLine)(context);
     }
@@ -4613,6 +4611,7 @@ var bboxWithoutHandles = function bboxWithoutHandles(selection) {
 
 exports.default = {
   d3Callout: d3Callout,
+  d3CalloutElbow: d3CalloutElbow,
   d3CalloutCurve: d3CalloutCurve,
   d3CalloutLeftRight: d3CalloutLeftRight,
   d3CalloutCircle: d3CalloutCircle,
@@ -4638,8 +4637,7 @@ d3.annotationCallout = _TypesD2.default.d3Callout;
 d3.annotationCalloutCurve = _TypesD2.default.d3CalloutCurve;
 d3.annotationCalloutLeftRight = _TypesD2.default.d3CalloutLeftRight;
 d3.annotationCalloutCurve = _TypesD2.default.d3CalloutCurve;
-d3.annotationCalloutDynamic = _TypesD2.default.d3CalloutDynamic;
-d3.annotationCalloutArrow = _TypesD2.default.d3CalloutArrow;
+d3.annotationCalloutElbow = _TypesD2.default.d3CalloutElbow;
 d3.annotationCalloutCircle = _TypesD2.default.d3CalloutCircle;
 d3.annotationXYThreshold = _TypesD2.default.d3XYThreshold;
 d3.annotationLabel = _TypesD2.default.d3Label;

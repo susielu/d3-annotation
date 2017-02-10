@@ -86,45 +86,48 @@ export const connectorLine = ({ annotation, offset=annotation.position, context,
   return lineBuilder({ data, curve, context, className : CLASS })
 }
 
-export const connectorArrow = ({ annotation, offset=annotation.position, context, bbox}) => {
 
-  let x1 = annotation.x - offset.x,
-    y1 = annotation.y - offset.y;
+export const connectorArrow = ({ annotation, offset=annotation.position, start, end, bbox, context}) => {
 
-  let dx = annotation.dx
+  if (!start) { start = [annotation.dx, annotation.dy]} 
+  else { start = [-end[0] + start[0], - end[1] + start[1]]}
+  if (!end) { end = [annotation.x - offset.x, annotation.y - offset.y]}
 
-  //Think about how to deal with this properly
-  if (annotation.dx && bbox && bbox.width && annotation.dx < 0 
-      && Math.abs(annotation.dx) > bbox.width/2) {
-    
-    dx += bbox.width
-  }
+  let x1 = end[0],
+    y1 = end[1];
+
+  let dx = start[0] 
+  let dy = start[1] 
 
   let size = 10;
   let angleOffset = 16/180*Math.PI
-  let angle = Math.atan(annotation.dy/dx)
+  let angle = Math.atan(dy/dx) 
 
   if (dx < 0 ) {
     angle += Math.PI
   }
 
-  let data
+  const data = [[x1, y1], 
+    [Math.cos(angle + angleOffset)*size + x1, Math.sin(angle + angleOffset)*size + y1],
+    [Math.cos(angle - angleOffset)*size + x1, Math.sin(angle - angleOffset)*size + y1],
+    [x1, y1]
+    ]
+
   
   //TODO add in reverse
-  if (context.arrowReverse){
-    data = [[x1, y1], 
-    [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
-    [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
-    [x1, y1]
-    ]
-  } else {
-    data = [[x1, y1], 
-    [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
-    [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
-    [x1, y1]
-    ]
-  }
-
+  // if (context.arrowReverse){
+  //   data = [[x1, y1], 
+  //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
+  //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
+  //   [x1, y1]
+  //   ]
+  // } else {
+  //   data = [[x1, y1], 
+  //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
+  //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
+  //   [x1, y1]
+  //   ]
+  // }
 
   return lineBuilder({ data, context, className : CLASS + '-arrow' })
 }

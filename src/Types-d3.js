@@ -81,14 +81,14 @@ class Type {
     }
   }
 
-  drawConnector () {
+  drawConnector (context) {
     const line = connectorLine(context)
 
     if (context.arrow){
       const dataLength = line.data.length
     
-      context.start = context.arrowTextBox ? line.data[1] : line.data[dataLength - 2]
-      context.end = context.arrowTextBox ?  lind.data[0] : line.data[dataLength - 1]
+      context.start = context.arrowTextBox ? line.data[dataLength - 2] : line.data[1]
+      context.end = context.arrowTextBox ?  lind.data[dataLength - 1] : line.data[0]
 
       return [line, connectorArrow(context)]
     }
@@ -96,7 +96,7 @@ class Type {
     return line;
   }
 
-  drawTextBox ({ context }) {
+  drawTextBox (context) {
     const offset = this.annotation.offset
     const padding = context.padding || 5
     const orientation = context.orientation || 'topBottom'
@@ -141,9 +141,9 @@ class Type {
     const context = { annotation, bbox }
 
     //Extend with custom annotation components
-    this.drawOnSVG( this.subject, this.drawSubject({ context }))
-    this.drawOnSVG( this.connector, this.drawConnector({ context }))
-    this.drawOnSVG( this.textBox, this.drawTextBox({ context}))
+    this.drawOnSVG( this.subject, this.drawSubject(context))
+    this.drawOnSVG( this.connector, this.drawConnector(context))
+    this.drawOnSVG( this.textBox, this.drawTextBox(context))
   }  
   
   draw() {
@@ -187,21 +187,24 @@ class Type {
 export class d3Callout extends Type {
   static className(){ return "callout" }
 
-  drawTextBox({ context }) { 
-    super.drawTextBox({ context })
+  drawTextBox(context) { 
+    super.drawTextBox(context)
     if (this.annotation.offset.y < 0) { context.position = "bottom" } 
     return textBoxLine(context) 
   }
 }
 
-export class d3CalloutElbow extends Type {
-    drawConnector({ context }) { context.elbow = true; return super.drawConnector({ context })}
+export class d3CalloutElbow extends d3Callout {
+  drawConnector(context) { 
+    context.elbow = true
+    return super.drawConnector(context)
+  }
 }
 
 export class d3CalloutCircle extends d3CalloutElbow {
   static className(){ return "callout circle" }
   
-  drawSubject({ context }) { 
+  drawSubject(context) { 
     const c = subjectCircle(context);
 
     if (this.editMode){
@@ -233,24 +236,24 @@ export class d3CalloutCircle extends d3CalloutElbow {
     return c
   }
 
-  drawTextBox({ context }) { 
+  drawTextBox(context) { 
     context.align = "middle"
-    return super.drawTextBox({ context })
+    return super.drawTextBox(context)
   }
 }
 
 
-//This is callout except without textbox underline
+//This is callout except without textbox underline, and centered text
 export class d3Label extends Type {
   static className(){ return "label" }
-  drawTextBox({ context }) { super.drawTextBox({ context })}
+  drawTextBox(context) { super.drawTextBox(context)}
   // drawConnector({ context }) { context.elbow = true; return connectorLine(context)}
 }
 
 
-export class d3CalloutCurve extends d3CalloutElbow { 
+export class d3CalloutCurve extends d3Callout{ 
   static className(){ return "callout-curve" }
-  drawConnector({ context }) { 
+  drawConnector(context) { 
 
      context.points = this.annotation.typeData.points 
      context.curve = this.annotation.typeData.curve || curveCatmullRom
@@ -276,11 +279,11 @@ export class d3CalloutCurve extends d3CalloutElbow {
   }
 }
 
-export class d3CalloutLeftRight extends d3CalloutDynamic {
+export class d3CalloutLeftRight extends d3CalloutElbow {
   static className() { return "callout-leftright"}
 
-  drawTextBox({ context }) {
-    super.drawTextBox({ context })
+  drawTextBox(context) {
+    super.drawTextBox(context)
 
     const offset = this.annotation.offset
     const padding = 5
@@ -304,7 +307,7 @@ export class d3CalloutLeftRight extends d3CalloutDynamic {
 export class d3XYThreshold extends d3Callout {
   static className(){ return "xythreshold" }
 
-  drawSubject({ context }) { 
+  drawSubject(context) { 
     super.drawSubject()
     return subjectLine(context)
   }
@@ -383,6 +386,7 @@ const bboxWithoutHandles = (selection, selector=':not(.handle)') => {
 
 export default {
   d3Callout,
+  d3CalloutElbow,
   d3CalloutCurve,
   d3CalloutLeftRight,
   d3CalloutCircle,
