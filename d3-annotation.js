@@ -3639,7 +3639,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.connectorArrow = exports.connectorLine = undefined;
-exports.default = connector;
 
 var _Builder = require('./Builder');
 
@@ -3741,49 +3740,39 @@ var connectorArrow = exports.connectorArrow = function connectorArrow(_ref2) {
   var annotation = _ref2.annotation,
       _ref2$offset = _ref2.offset,
       offset = _ref2$offset === undefined ? annotation.position : _ref2$offset,
-      context = _ref2.context,
-      bbox = _ref2.bbox;
+      start = _ref2.start,
+      end = _ref2.end,
+      bbox = _ref2.bbox,
+      context = _ref2.context;
 
 
-  var x1 = annotation.x - offset.x,
-      y1 = annotation.y - offset.y;
-
-  var dx = annotation.dx;
-
-  //Think about how to deal with this properly
-  if (annotation.dx && bbox && bbox.width && annotation.dx < 0 && Math.abs(annotation.dx) > bbox.width / 2) {
-
-    dx += bbox.width;
+  if (!start) {
+    start = [annotation.dx, annotation.dy];
+  } else {
+    start = [-end[0] + start[0], -end[1] + start[1]];
   }
+  if (!end) {
+    end = [annotation.x - offset.x, annotation.y - offset.y];
+  }
+
+  var x1 = end[0],
+      y1 = end[1];
+
+  var dx = start[0];
+  var dy = start[1];
 
   var size = 10;
   var angleOffset = 16 / 180 * Math.PI;
-  var angle = Math.atan(annotation.dy / dx);
+  var angle = Math.atan(dy / dx);
 
   if (dx < 0) {
     angle += Math.PI;
   }
 
-  var data = [[x1, y1], [Math.cos(angle + angleOffset) * size, Math.sin(angle + angleOffset) * size], [Math.cos(angle - angleOffset) * size, Math.sin(angle - angleOffset) * size], [x1, y1]];
+  var data = [[x1, y1], [Math.cos(angle + angleOffset) * size + x1, Math.sin(angle + angleOffset) * size + y1], [Math.cos(angle - angleOffset) * size + x1, Math.sin(angle - angleOffset) * size + y1], [x1, y1]];
 
   return (0, _Builder.lineBuilder)({ data: data, context: context, className: CLASS + '-arrow' });
 };
-
-function connector() {
-
-  var elbow = true,
-      type = connectorLine;
-
-  var connector = function connector(selection) {};
-
-  connector.elbow = function (_) {
-    if (!arguments.length) return elbow;
-    elbow = _;
-    return connector;
-  };
-
-  return connector;
-}
 
 },{"./Builder":9}],11:[function(require,module,exports){
 'use strict';
@@ -4123,7 +4112,9 @@ var wrap = function wrap(text, width) {
 };
 
 var bboxWithoutHandles = function bboxWithoutHandles(selection) {
-  return selection.selectAll(':not(.handle)').nodes().reduce(function (p, c) {
+  var selector = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ':not(.handle)';
+
+  return selection.selectAll(selector).nodes().reduce(function (p, c) {
     var bbox = c.getBBox();
     p.x = Math.min(p.x, bbox.x);
     p.y = Math.min(p.y, bbox.y);
@@ -4177,7 +4168,7 @@ var Type = function () {
   }, {
     key: 'getTextBBox',
     value: function getTextBBox() {
-      return bboxWithoutHandles(this.textBox);
+      return bboxWithoutHandles(this.textBox, 'text.annotation-text, text.annotation-title');
     }
   }, {
     key: 'getConnectorBBox',
@@ -4336,7 +4327,14 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_Type) {
     key: 'drawConnector',
     value: function drawConnector(_ref4) {
       var context = _ref4.context;
-      context.elbow = true;return (0, _Connector.connectorLine)(context);
+
+      context.elbow = true;
+      var line = (0, _Connector.connectorLine)(context);
+      var dataLength = line.data.length;
+      console.log('in callout arrow', line.data);
+      context.start = line.data[1];
+      context.end = line.data[0];
+      return [line, (0, _Connector.connectorArrow)(context)];
     }
   }, {
     key: 'drawSubject',
@@ -4618,23 +4616,23 @@ var d3CalloutArrow = exports.d3CalloutArrow = function (_Type5) {
     value: function drawConnector(_ref15) {
       var context = _ref15.context;
 
+      context.elbow = true;
       var line = (0, _Connector.connectorLine)(context);
       var dataLength = line.data.length;
-
-      context.start = line.data[dataLength - 2];
-      context.end = line.data[dataLength - 1];
+      context.start = line.data[1];
+      context.end = line.data[0];
       return [line, (0, _Connector.connectorArrow)(context)];
     }
   }, {
     key: 'drawTextBox',
     value: function drawTextBox(_ref16) {
       var context = _ref16.context;
-      return (0, _TextBox.textBoxLine)(context);
+      return _get(d3CalloutArrow.prototype.__proto__ || Object.getPrototypeOf(d3CalloutArrow.prototype), 'drawTextBox', this).call(this, { context: context });
     }
   }], [{
     key: 'className',
     value: function className() {
-      return "callout";
+      return "callout arrow";
     }
   }]);
 

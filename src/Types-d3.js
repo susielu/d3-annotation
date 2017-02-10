@@ -49,8 +49,8 @@ const wrap = (text, width) => {
   });
 }
 
-const bboxWithoutHandles = (selection) => {
-  return selection.selectAll(':not(.handle)').nodes().reduce((p, c) => {
+const bboxWithoutHandles = (selection, selector=':not(.handle)') => {
+  return selection.selectAll(selector).nodes().reduce((p, c) => {
         const bbox = c.getBBox()
         p.x = Math.min(p.x, bbox.x)
         p.y = Math.min(p.y, bbox.y)
@@ -98,7 +98,7 @@ class Type {
       })
   }
 
-  getTextBBox() { return bboxWithoutHandles(this.textBox)}
+  getTextBBox() { return bboxWithoutHandles(this.textBox, 'text.annotation-text, text.annotation-title')}
   getConnectorBBox() { return bboxWithoutHandles(this.connector)}
   getSubjectBBox() { return bboxWithoutHandles(this.connector)}
   getAnnotationBBox() { return bboxWithoutHandles(this.a)}
@@ -196,7 +196,15 @@ class Type {
 
 export class d3CalloutCircle extends Type {
   static className(){ return "callout circle" }
-  drawConnector({ context }) { context.elbow = true; return connectorLine(context) }
+  drawConnector({ context }) {
+     context.elbow = true
+    const line = connectorLine(context)
+    const dataLength = line.data.length
+    console.log('in callout arrow', line.data)
+    context.start = line.data[1]
+    context.end = line.data[0]
+    return [line, connectorArrow(context)]
+  }
   drawSubject({ context }) { 
     const c = subjectCircle(context);
 
@@ -338,16 +346,16 @@ export class d3CalloutLeftRight extends d3CalloutDynamic {
 
 
 export class d3CalloutArrow extends Type {
-  static className(){ return "callout" }
+  static className(){ return "callout arrow" }
   drawConnector({ context }) { 
+    context.elbow = true
     const line = connectorLine(context)
     const dataLength = line.data.length
-
-    context.start = line.data[dataLength - 2]
-    context.end = line.data[dataLength - 1]
+    context.start = line.data[1]
+    context.end = line.data[0]
     return [line, connectorArrow(context)]
   }
-  drawTextBox({ context }) { return textBoxLine(context)}
+  drawTextBox({ context }) { return super.drawTextBox({ context }) }
 }
 
 export class d3XYThreshold extends d3Callout {
