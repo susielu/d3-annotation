@@ -112,5 +112,21 @@ export const connectorArrow = ({ annotation, offset=annotation.position, start, 
     [x1, y1]
     ]
 
+  
+  //TODO add in reverse
+  // if (context.arrowReverse){
+  //   data = [[x1, y1], 
+  //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
+  //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
+  //   [x1, y1]
+  //   ]
+  // } else {
+  //   data = [[x1, y1], 
+  //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
+  //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
+  //   [x1, y1]
+  //   ]
+  // }
+
   return lineBuilder({ data, context, className : CLASS + '-arrow' })
 }

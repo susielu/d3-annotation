@@ -3,7 +3,7 @@ import { lineBuilder } from './Builder'
 const CLASS = "connector"
 
 export const textBoxLine = ({ annotation, offset={x: 0, y: 0}, context, 
-    curve, bbox, position="top", padding=5}) => {
+    curve, bbox, position="top", align="left", padding=5}) => {
 
   let x1 = offset.x,
     x2 = x1 + bbox.width,
@@ -14,18 +14,6 @@ export const textBoxLine = ({ annotation, offset={x: 0, y: 0}, context,
     y1 += bbox.height + padding
     y2 += bbox.height + padding
   }
-
-  const data = [[x1, y1], [x2, y2]]
-  return lineBuilder({ data, curve, context, className : CLASS })
-}
-
-export const textBoxUnderline = ({ annotation, offset={x: 0, y: 0}, context, 
-    curve, bbox, padding = 5}) => {
-
-  let x1 = offset.x,
-    x2 = x1 + bbox.width,
-    y1 = offset.y + bbox.height + padding,
-    y2 = offset.y + bbox.height + padding
 
   const data = [[x1, y1], [x2, y2]]
   return lineBuilder({ data, curve, context, className : CLASS })
@@ -44,22 +32,4 @@ export const textBoxSideline = ({ annotation, offset={x: 0, y: 0}, context,
 
   const data = [[x, y1], [x, y2]]
   return lineBuilder({ data, curve, context, className : CLASS })
-}
-
-export default function textBox(){
-
-  let padding = 5,
-  type = textBoxLine 
-
-  const textBox = function(selection){
-    
-  }
-
-  textBox.padding = function(_) {
-    if (!arguments.length) return padding;
-    padding = _
-    return textBox
-  }
-
-  return textBox
 }
