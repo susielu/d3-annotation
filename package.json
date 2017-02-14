@@ -19,6 +19,8 @@
     "babelrc-rollup": "3.0.0",
     "browserify": "13.1.1",
     "http-server": "0.9.0",
+    "marked": "0.3.6",
+    "markedify": "0.0.2",
     "npm-watch": "0.1.6",
     "rollup": "0.34.7",
     "rollup-plugin-babel": "2.6.1"
@@ -27,10 +29,17 @@
     "start": "npm run server & npm run watch",
     "server": "http-server",
     "browserify": "browserify web.js -o d3-annotation.js -t [ babelify --presets [ es2015 ] ]",
+    "docs-min": "browserify web.js -o docs/d3-annotation.min.js -t [ babelify --presets [ es2015 ] ]",
+    "docs": "browserify docs/docs.js -o docs/docs.min.js -t [ markedify babelify --presets [ es2015 ] ]",
     "watch": "npm-watch"
   },
   "watch": {
-    "browserify": "src/*.js"
+    "browserify": "src/*.js",
+    "docs": {
+      "patterns": ["docs/docs.js", "docs/content/*.md"],
+      "extensions": "js,md"
+    },
+    "docs-min": "src/*.js"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+
+
+  <meta name="author" content="Susie Lu">
+  <meta name="description" content="Let's annotation all the things. This is a component for d3 that allows you add annotations to your visualizations.">
+  <link rel="canonical" href="http://d3-annotation.susielu.com">
+
+  <link href="https://fonts.googleapis.com/css?family=Bungee" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,700" rel="stylesheet">
+  <link rel="stylesheet" href="materialize.min.css">
+  <link rel="stylesheet" href="prism.css">
+  <style>
+
+
+    :root {
+      --font-color: #695B5B;
+      --accent-color: #E8336D;
+    }
+    h1, h2, .brand-logo {
+      font-family: 'Bungee';
+      color: var(--font-color);
+    }
+
+    h2 {
+      font-size: 2em;
+    }
+    body {
+      font-family: 'Nunito';
+      font-weight: 300;
+      font-size: 1.2em;
+      line-height: 1.8em;
+            min-width: 340px;
+
+      color: var(--font-color);
+    }
+
+    strong {
+      font-weight: 700;
+    }
+
+    a {
+      color: var(--accent-color);
+    }
+
+    nav {
+      background: white;
+      color: var(--font-color);
+      box-shadow: none;
+      border-bottom: 1px dotted var(--font-color );
+    }
+
+    nav .brand-logo {
+      color: var(--font-color);
+      margin-top: 12px;
+    }
+    
+    nav .button-collapse img{
+      vertical-align: middle;
+    }
+
+    .navbar-fixed nav {
+      top: 0;
+      left: 0;
+      min-width: 390px;
+    }
+    
+    .table-of-contents a.active {
+        border-left: 2px solid var(--accent-color);
+    }
+
+  </style>
+<!-- bungee and muli -->
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col s12 hide-on-small-only">
+        <h1>d3-annotation</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 m3 l3 hide-on-small-only">
+          <ul class="col toc table-of-contents m2" id="toc1">
+          </ul>
+          
+      </div>
+
+      <div>
+        <ul id="slide-out" class="side-nav" >
+
+        </ul>
+      </div>
+
+      <div class='hide-on-med-and-up navbar-fixed'>
+
+          <nav>
+            <div class="nav-wrapper">
+              <h1 class="brand-logo">d3-annotation</h1>
+              <ul id="nav-mobile">
+                <li><a href="#" data-activates="slide-out" class="button-collapse"><img src="img/menu.png"/></a></li>
+              </ul>
+            </div>
+          </nav>
+      </div>
+
+      <div class="col s12 m7 l6"> 
+          <div class="section scrollspy" id="introduction"></div>          
+          <div class="section scrollspy" id="anatomy"></div>
+          <div class="section scrollspy" id="start"></div>
+          <div class="section scrollspy" id="types"></div>
+          <div class="section scrollspy" id="layout"></div>
+          <div class="section scrollspy" id="extend"></div>
+          <div class="section scrollspy" id="thanks"></div>
+      </div>
+    </div>
+
+
+  </div>
+<!-- TODO change this to minified version when deploying -->
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="materialize.min.js"></script>
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="d3-annotation.min.js"></script>
+<script src="docs.min.js"></script>
+<script src="ga.js"></script>
+</body>

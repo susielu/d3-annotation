@@ -1,0 +1,7 @@
+- [Introduction](#introduction)
+- [Anatomy](#anatomy)
+- [Let's Start](#start)
+- [Customizing Types](#settings)
+- [Layout](#layout)
+- [Extending Types](#extending)
+- [Thanks](#thanks)

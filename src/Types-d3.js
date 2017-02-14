@@ -39,6 +39,7 @@ class Type {
         const el = a.select(`${type}.${className}`) 
         const attrKeys = Object.keys(attrs)
 
+
         attrKeys.forEach(attr => {
           el.attr(attr, attrs[attr])
         })
