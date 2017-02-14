@@ -1,1 +1,6 @@
 ## Layout Algorithms
+
+
+### Overlapping
+
+### Encircling 

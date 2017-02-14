@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css?family=Bungee" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,700" rel="stylesheet">
   <link rel="stylesheet" href="materialize.min.css">
-  <link rel="stylesheet" href="prism.css">
+  <link rel="stylesheet" href="highlight.css">
   <style>
 
 
@@ -18,7 +18,7 @@
       --font-color: #695B5B;
       --accent-color: #E8336D;
     }
-    h1, h2, .brand-logo {
+    h1, h2, h3, .brand-logo {
       font-family: 'Bungee';
       color: var(--font-color);
     }
@@ -26,6 +26,11 @@
     h2 {
       font-size: 2em;
     }
+
+    h3 {
+      font-size: 1em;
+    }
+
     body {
       font-family: 'Nunito';
       font-weight: 300;
@@ -70,6 +75,15 @@
         border-left: 2px solid var(--accent-color);
     }
 
+    .section {
+      border-bottom: 1px solid var(--accent-color);
+    }
+
+    .section ul li {
+      list-style-type: square;
+      margin-left: 40px;
+    }
+
   </style>
 <!-- bungee and muli -->
 </head>
@@ -78,6 +92,7 @@
     <div class="row">
       <div class="col s12 hide-on-small-only">
         <h1>d3-annotation</h1>
+        <p>Made with <img src="img/heart.png"/> by <a href="http://www.susielu.com">Susie Lu</a></p>
       </div>
     </div>
     <div class="row">
@@ -113,9 +128,12 @@
           <div class="section scrollspy" id="layout"></div>
           <div class="section scrollspy" id="extend"></div>
           <div class="section scrollspy" id="thanks"></div>
+          <footer>
+            <small>Made by <a href="http://www.susiel.com">Susie Lu</a></small>
+          </footer>
       </div>
     </div>
-
+    
 
   </div>
 <!-- TODO change this to minified version when deploying -->
