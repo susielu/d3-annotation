@@ -2,6 +2,8 @@
 import { lineBuilder } from './Builder'
 const CLASS = "connector"
 
+
+//TODO: think of how to rename context to make it clear that it is canvas context
 export const connectorLine = ({ annotation, offset=annotation.position, context,
     curve, bbox, elbow=false, points }) => {
 

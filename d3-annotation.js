@@ -3399,7 +3399,8 @@ var Annotation = function () {
         title = _ref.title,
         data = _ref.data,
         type = _ref.type,
-        typeData = _ref.typeData;
+        typeData = _ref.typeData,
+        disable = _ref.disable;
 
     _classCallCheck(this, Annotation);
 
@@ -3412,6 +3413,7 @@ var Annotation = function () {
     this.type = type;
     this.data = data || {};
     this.typeData = typeData || {};
+    this.disable = disable || [];
   }
 
   _createClass(Annotation, [{
@@ -3653,6 +3655,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var CLASS = "connector";
 
+//TODO: think of how to rename context to make it clear that it is canvas context
 var connectorLine = exports.connectorLine = function connectorLine(_ref) {
   var annotation = _ref.annotation,
       _ref$offset = _ref.offset,
@@ -4072,9 +4075,9 @@ var Type = function () {
     _classCallCheck(this, Type);
 
     this.a = a;
-    this.textBox = a.select('g.annotation-textbox');
-    this.connector = a.select('g.annotation-connector');
-    this.subject = a.select('g.annotation-subject');
+    this.textBox = annotation.disable.indexOf("textBox") === -1 && a.select('g.annotation-textbox');
+    this.connector = annotation.disable.indexOf("connector") === -1 && a.select('g.annotation-connector');
+    this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject');
     this.annotation = annotation;
     this.editMode = editMode;
   }
@@ -4117,7 +4120,7 @@ var Type = function () {
   }, {
     key: 'getSubjectBBox',
     value: function getSubjectBBox() {
-      return bboxWithoutHandles(this.connector);
+      return bboxWithoutHandles(this.subject);
     }
   }, {
     key: 'getAnnotationBBox',
@@ -4127,21 +4130,24 @@ var Type = function () {
   }, {
     key: 'drawText',
     value: function drawText() {
-      var titleBBox = { height: 0 };
-      var text = this.a.select('text.annotation-text');
+      if (this.textBox) {
 
-      if (this.annotation.title) {
-        var title = this.a.select('text.annotation-title');
-        title.text(this.annotation.title).attr('dy', '1.1em');
-        title.call(wrap, 100);
-        titleBBox = title.node().getBBox();
+        var titleBBox = { height: 0 };
+        var text = this.a.select('text.annotation-text');
+
+        if (this.annotation.title) {
+          var title = this.a.select('text.annotation-title');
+          title.text(this.annotation.title).attr('dy', '1.1em');
+          title.call(wrap, 100);
+          titleBBox = title.node().getBBox();
+        }
+
+        text.text(this.annotation.text).attr('dy', '1em');
+        text.call(wrap, 100);
+
+        var textBBox = text.node().getBBox();
+        text.attr('y', titleBBox.height * 1.1 || 3);
       }
-
-      text.text(this.annotation.text).attr('dy', '1em');
-      text.call(wrap, 100);
-
-      var textBBox = text.node().getBBox();
-      text.attr('y', titleBBox.height * 1.1 || 3);
     }
   }, {
     key: 'drawSubject',
@@ -4159,7 +4165,6 @@ var Type = function () {
     key: 'drawConnector',
     value: function drawConnector(context) {
       var line = (0, _Connector.connectorLine)(context);
-
       if (context.arrow) {
         var dataLength = line.data.length;
 
@@ -4219,9 +4224,9 @@ var Type = function () {
       var context = { annotation: annotation, bbox: bbox };
 
       //Extend with custom annotation components
-      this.drawOnSVG(this.subject, this.drawSubject(context));
-      this.drawOnSVG(this.connector, this.drawConnector(context));
-      this.drawOnSVG(this.textBox, this.drawTextBox(context));
+      this.subject && this.drawOnSVG(this.subject, this.drawSubject(context));
+      this.connector && this.drawOnSVG(this.connector, this.drawConnector(context));
+      this.textBox && this.drawOnSVG(this.textBox, this.drawTextBox(context));
     }
   }, {
     key: 'draw',
@@ -4335,6 +4340,7 @@ var d3CalloutElbow = exports.d3CalloutElbow = function (_d3Callout) {
   _createClass(d3CalloutElbow, [{
     key: 'drawConnector',
     value: function drawConnector(context) {
+      console.log('in elbow', this.annotation, context);
       context.elbow = true;
       return _get(d3CalloutElbow.prototype.__proto__ || Object.getPrototypeOf(d3CalloutElbow.prototype), 'drawConnector', this).call(this, context);
     }
@@ -4443,8 +4449,32 @@ var d3CalloutCurve = exports.d3CalloutCurve = function (_d3Callout2) {
     value: function drawConnector(context) {
       var _this9 = this;
 
+      var createPoints = function () {
+        var anchors = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2;
+
+        var offset = this.annotation.offset;
+        var diff = { x: offset.x / (anchors + 1), y: offset.y / (anchors + 1) };
+        var p = [];
+
+        var i = 1;
+        for (; i <= anchors; i++) {
+          p.push([diff.x * i, diff.y * i]);
+        }
+        return p;
+      }.bind(this);
+
+      if (!this.annotation.typeData) {
+        this.annotation.typeData = {};
+      }
+      if (!this.annotation.typeData.points || typeof this.annotation.typeData.points === "number") {
+        this.annotation.typeData.points = createPoints(this.annotation.typeData.points);
+      }
+      if (!this.annotation.typeData.curve) {
+        this.annotation.typeData.curve = _d3Shape.curveCatmullRom;
+      }
+
       context.points = this.annotation.typeData.points;
-      context.curve = this.annotation.typeData.curve || _d3Shape.curveCatmullRom;
+      context.curve = this.annotation.typeData.curve;
 
       if (this.editMode) {
         (function () {
@@ -4558,6 +4588,42 @@ var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout3) {
   return d3XYThreshold;
 }(d3Callout);
 
+var customType = function customType(initialType, typeSettings) {
+  return function (_initialType) {
+    _inherits(customType, _initialType);
+
+    function customType() {
+      _classCallCheck(this, customType);
+
+      return _possibleConstructorReturn(this, (customType.__proto__ || Object.getPrototypeOf(customType)).apply(this, arguments));
+    }
+
+    _createClass(customType, [{
+      key: 'drawSubject',
+      value: function drawSubject(context) {
+        return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawSubject', this).call(this, _extends({}, context, typeSettings.subject));
+      }
+    }, {
+      key: 'drawConnector',
+      value: function drawConnector(context) {
+        return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawConnector', this).call(this, _extends({}, context, typeSettings.connector));
+      }
+    }, {
+      key: 'drawTextBox',
+      value: function drawTextBox(context) {
+        return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawTextBox', this).call(this, _extends({}, context, typeSettings.connector));
+      }
+    }], [{
+      key: 'className',
+      value: function className() {
+        return typeSettings.className || initialType.className();
+      }
+    }]);
+
+    return customType;
+  }(initialType);
+};
+
 var newWithClass = exports.newWithClass = function newWithClass(a, d, type, className) {
   var group = a.selectAll(type + '.' + className).data(d);
   group.enter().append(type).merge(group).attr('class', className);
@@ -4596,6 +4662,10 @@ var wrap = function wrap(text, width) {
 var bboxWithoutHandles = function bboxWithoutHandles(selection) {
   var selector = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ':not(.handle)';
 
+  if (!selection) {
+    return { x: 0, y: 0, width: 0, height: 0 };
+  }
+
   return selection.selectAll(selector).nodes().reduce(function (p, c) {
     var bbox = c.getBBox();
     p.x = Math.min(p.x, bbox.x);
@@ -4616,7 +4686,8 @@ exports.default = {
   d3CalloutLeftRight: d3CalloutLeftRight,
   d3CalloutCircle: d3CalloutCircle,
   d3XYThreshold: d3XYThreshold,
-  d3Label: d3Label
+  d3Label: d3Label,
+  customType: customType
 };
 
 },{"./Annotation":7,"./Connector":10,"./Handles":11,"./Subject":12,"./TextBox":13,"d3-drag":2,"d3-selection":4,"d3-shape":5}],15:[function(require,module,exports){
@@ -4641,5 +4712,6 @@ d3.annotationCalloutElbow = _TypesD2.default.d3CalloutElbow;
 d3.annotationCalloutCircle = _TypesD2.default.d3CalloutCircle;
 d3.annotationXYThreshold = _TypesD2.default.d3XYThreshold;
 d3.annotationLabel = _TypesD2.default.d3Label;
+d3.annotationCustomType = _TypesD2.default.customType;
 
 },{"./src/Adapter-d3":6,"./src/Types-d3":14}]},{},[15]);

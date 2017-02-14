@@ -10,3 +10,4 @@ d3.annotationCalloutElbow = types.d3CalloutElbow
 d3.annotationCalloutCircle = types.d3CalloutCircle
 d3.annotationXYThreshold = types.d3XYThreshold
 d3.annotationLabel = types.d3Label
+d3.annotationCustomType = types.customType

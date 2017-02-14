@@ -103,13 +103,31 @@
       svg.append("g")
         .call(d3.axisLeft(y));
 
+
+      const typeSettings = {
+      connector: { 
+        // elbow: true,
+        arrow: true
+      // arrowTypes: true 
+      }
+      // textBox: { align: middle } 
+      }
+
+      //Example: send type settings
+      const calloutWithArrow = d3.annotationCustomType(d3.annotationCalloutElbow, typeSettings)
+
+
+      //Example fully extend a type to add additional functionality
+
+      console.log('cusomt type', calloutWithArrow)
+
       const labels = [
         {
           text: "Hellooooooooo testing out a larger text box",
           data: {date: "18-Sep-09",	close: 185.02},
           dy: 37,
           dx: 42,
-          type: d3.annotationCalloutElbow
+          type:  calloutWithArrow //d3.annotationCalloutElbow
         },
         {
           text: "Curves",
@@ -117,10 +135,7 @@
           dy: -137,
           dx: -142,
           type: d3.annotationCalloutCurve,
-          typeData: {
-            points: [[ -50, -50 ], [-25, -95]],
-            curve: d3.curveBasis
-          }
+          typeData: { points: 3 }
         },
         {
           text: "Adaptor",
@@ -137,6 +152,7 @@
           dy: -93,
           dx: -176,
           type: d3.annotationCalloutCircle,
+          disable: ['connector'],
           typeData: {
             radius: 50,
             radiusPadding: 5
@@ -155,6 +171,10 @@
           }
         }
       ]
+
+      //set of basic type data
+      //set of type data specitic to certain annotation types
+      //that's how you would change elbow, etc. 
 
       window.makeAnnotations = d3.annotation()
         .annotations(labels)

@@ -10,9 +10,9 @@ import { pointHandle, circleHandles, rectHandles, lineHandles, addHandles } from
 class Type {
   constructor({ a, annotation, editMode }) {
     this.a = a
-    this.textBox = a.select('g.annotation-textbox')
-    this.connector = a.select('g.annotation-connector')
-    this.subject = a.select('g.annotation-subject')
+    this.textBox = annotation.disable.indexOf("textBox") === -1 && a.select('g.annotation-textbox')
+    this.connector = annotation.disable.indexOf("connector") === -1 && a.select('g.annotation-connector')
+    this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject')
     this.annotation = annotation
     this.editMode = editMode
   }
@@ -47,27 +47,30 @@ class Type {
 
   getTextBBox() { return bboxWithoutHandles(this.textBox, '.annotation-text, .annotation-title')}
   getConnectorBBox() { return bboxWithoutHandles(this.connector)}
-  getSubjectBBox() { return bboxWithoutHandles(this.connector)}
+  getSubjectBBox() { return bboxWithoutHandles(this.subject)}
   getAnnotationBBox() { return bboxWithoutHandles(this.a)}
 
   drawText() {
-    let titleBBox = { height: 0 }
-    const text = this.a.select('text.annotation-text')
+    if (this.textBox){
 
-    if (this.annotation.title){
-      const title = this.a.select('text.annotation-title')
-      title.text(this.annotation.title)
-        .attr('dy', '1.1em')
-      title.call(wrap, 100)
-      titleBBox = title.node().getBBox()
+      let titleBBox = { height: 0 }
+      const text = this.a.select('text.annotation-text')
+
+      if (this.annotation.title){
+        const title = this.a.select('text.annotation-title')
+        title.text(this.annotation.title)
+          .attr('dy', '1.1em')
+        title.call(wrap, 100)
+        titleBBox = title.node().getBBox()
+      }
+
+      text.text(this.annotation.text)
+        .attr('dy', '1em')
+      text.call(wrap, 100)
+
+      const textBBox = text.node().getBBox()
+      text.attr('y', titleBBox.height * 1.1 || 3)
     }
-
-    text.text(this.annotation.text)
-      .attr('dy', '1em')
-    text.call(wrap, 100)
-
-    const textBBox = text.node().getBBox()
-    text.attr('y', titleBBox.height * 1.1 || 3)
   }
 
   drawSubject () {
@@ -83,13 +86,12 @@ class Type {
 
   drawConnector (context) {
     const line = connectorLine(context)
-
     if (context.arrow){
       const dataLength = line.data.length
     
       context.start = context.arrowTextBox ? line.data[dataLength - 2] : line.data[1]
       context.end = context.arrowTextBox ?  lind.data[dataLength - 1] : line.data[0]
-
+      
       return [line, connectorArrow(context)]
     }
 
@@ -141,9 +143,9 @@ class Type {
     const context = { annotation, bbox }
 
     //Extend with custom annotation components
-    this.drawOnSVG( this.subject, this.drawSubject(context))
-    this.drawOnSVG( this.connector, this.drawConnector(context))
-    this.drawOnSVG( this.textBox, this.drawTextBox(context))
+    this.subject && this.drawOnSVG( this.subject, this.drawSubject(context))
+    this.connector && this.drawOnSVG( this.connector, this.drawConnector(context))
+    this.textBox && this.drawOnSVG( this.textBox, this.drawTextBox(context))
   }  
   
   draw() {
@@ -196,6 +198,7 @@ export class d3Callout extends Type {
 
 export class d3CalloutElbow extends d3Callout {
   drawConnector(context) { 
+    console.log('in elbow', this.annotation, context)
     context.elbow = true
     return super.drawConnector(context)
   }
@@ -255,20 +258,38 @@ export class d3CalloutCurve extends d3Callout{
   static className(){ return "callout-curve" }
   drawConnector(context) { 
 
-     context.points = this.annotation.typeData.points 
-     context.curve = this.annotation.typeData.curve || curveCatmullRom
+    const createPoints = function(anchors=2){
+          const offset = this.annotation.offset
+          const diff = { x: offset.x/(anchors + 1), y: offset.y/(anchors + 1) }
+          const p = []
 
-     if (this.editMode) {
+          let i = 1 
+          for (; i <= anchors; i++){
+            p.push([diff.x*i, diff.y*i])
+          }
+          return p
+    }.bind(this)
+
+    if (!this.annotation.typeData){ this.annotation.typeData = {} }
+    if (!this.annotation.typeData.points || typeof this.annotation.typeData.points === "number"){ 
+      this.annotation.typeData.points = createPoints(this.annotation.typeData.points) 
+    }
+    if (!this.annotation.typeData.curve){ this.annotation.typeData.curve = curveCatmullRom }
+
+    context.points = this.annotation.typeData.points 
+    context.curve = this.annotation.typeData.curve
+
+    if (this.editMode) {
       let handles = context.points
         .map((c,i) => ({...pointHandle({cx: c[0], cy: c[1]}), index: i}))
 
-      const updatePoint = (index) => {      
+    const updatePoint = (index) => {      
         this.annotation.typeData.points[index][0] += event.dx
         this.annotation.typeData.points[index][1] += event.dy
         this.customization()
-      }
+    }
 
-      addHandles({
+    addHandles({
         group: this.connector,
         handles: this.mapHandles(handles
           .map(h => ({ ...h.move, drag: updatePoint.bind(this, h.index)})))
@@ -328,6 +349,26 @@ export class d3XYThreshold extends d3Callout {
 }
 
 
+
+const customType = (initialType, typeSettings) => {
+  return class customType extends initialType {
+    static className(){ return typeSettings.className || initialType.className()}
+
+    drawSubject(context){
+       return super.drawSubject({ ...context, ...typeSettings.subject })
+    }
+
+    drawConnector(context){
+      return super.drawConnector({ ...context, ...typeSettings.connector })
+    }
+
+    drawTextBox(context){
+      return super.drawTextBox({ ...context, ...typeSettings.connector })
+    }
+  }
+}
+
+
 export const newWithClass = (a, d, type, className) => {
   const group = a.selectAll(`${type}.${className}`).data(d)
   group.enter()
@@ -371,6 +412,10 @@ const wrap = (text, width) => {
 }
 
 const bboxWithoutHandles = (selection, selector=':not(.handle)') => {
+  if (!selection){
+    return { x: 0, y: 0, width: 0, height: 0}
+  }
+
   return selection.selectAll(selector).nodes().reduce((p, c) => {
         const bbox = c.getBBox()
         p.x = Math.min(p.x, bbox.x)
@@ -391,5 +436,6 @@ export default {
   d3CalloutLeftRight,
   d3CalloutCircle,
   d3XYThreshold,
-  d3Label
+  d3Label,
+  customType
 }
