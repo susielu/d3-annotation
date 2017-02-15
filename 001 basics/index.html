@@ -44,10 +44,10 @@
       circle.handle {
         stroke-dasharray: 5;
         stroke: #e91e56;
-        fill: rgba(255, 255, 255, .5);
+        fill: rgba(255, 255, 255, 0);
         cursor: move;
 
-        stroke-opacity: .4;
+        stroke-opacity: 0;
       }
 
     </style>
@@ -123,36 +123,53 @@
 
       const labels = [
         {
-          text: "Hellooooooooo testing out a larger text box",
+          text: "Annotation JSON attributes",
           data: {date: "18-Sep-09",	close: 185.02},
           dy: 37,
           dx: 42,
           type:  calloutWithArrow //d3.annotationCalloutElbow
         },
         {
-          text: "Curves",
+          title: "dx = 37, dy = 42, relative to x,y",
           data: {date: "18-Sep-09",	close: 185.02},
           dy: -137,
           dx: -142,
           type: d3.annotationCalloutCurve,
           typeData: { points: 3 }
+          
         },
-        {
-          text: "Adaptor",
-          title: "Left Right",
+       {
+          text: "x, y",
+          // title: "Left Right",
           data: {date: "18-Sep-09",	close: 185.02},
           dy: -237,
           dx: 80,
-          type: d3.annotationCalloutArrow
+          type: calloutWithArrow
         },
         {
-          text: "Hii there",
-          title: "I HAZ A TITLE",
+          title: "connector",
+          // title: "Left Right",
+          data: {date: "18-Sep-09",	close: 185.02},
+          dy: -237,
+          dx: 80,
+          type: calloutWithArrow
+        },
+     /*   {
+          title: "textBox",
+          // title: "Left Right",
+          data: {date: "18-Sep-09",	close: 185.02},
+          dy: -237,
+          dx: 80,
+          type: calloutWithArrow
+        },*/
+        {
+          //text: "Textbox",
+          text: "dx = 37, dy = 42, relative to x,y",
           data: {date: "13-Oct-11",	close: 408.43},
           dy: -93,
           dx: -176,
           type: d3.annotationCalloutCircle,
-          disable: ['connector'],
+         // disable: ['connector'],
           typeData: {
             radius: 50,
             radiusPadding: 5

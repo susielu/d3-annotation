@@ -40,19 +40,19 @@
 .hljs-symbol,
 .hljs-bullet,
 .hljs-addition {
-  color: #8959a8;
+  color: #00897b;
 }
 
 /* Tomorrow Blue */
 .hljs-title,
 .hljs-section {
-  color: #695B5B;
+  color: #00897b;
 }
 
 /* Tomorrow Purple */
 .hljs-keyword,
 .hljs-selector-tag {
-  color: #8959a8;
+  color: #00897b;
 }
 
 .hljs {
@@ -63,6 +63,8 @@
   border-bottom: 1px dotted #aaa;  
   color: #695B5B;
   padding: 0.5em;
+  font-size: .9em;
+  line-height: 1.4em;
 }
 
 .hljs-emphasis {

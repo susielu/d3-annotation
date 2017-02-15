@@ -61,12 +61,12 @@ export default function annotation(){
   }
 
   annotation.json = function() {
-    //TODO figure out what to do here
+    console.log('Annotations JSON', collection.json())
     return annotation
   }
 
   annotation.update = function(){
-    collection.annotations.forEach(d => d.type.update())
+    collection.update()
     return annotation
   }
 
@@ -98,11 +98,14 @@ export default function annotation(){
   annotation.editMode = function(_) {
     if (!arguments.length) return editMode;
     editMode = _
+    collection.editMode(editMode)
     return annotation
   }
 
-  annotation.collection = function() {
-    return collection
+  annotation.collection = function(_) {
+    if (!arguments.length) return collection;
+    collection = _
+    return annotation
   }
 
   return annotation;

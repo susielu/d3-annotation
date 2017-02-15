@@ -5,9 +5,11 @@ export default class AnnotationCollection {
     this.accessors = accessors
   }
 
-  get json() {
-    return this.annotations.map(a => a.json)
-  }
+  update() { this.annotations.forEach(d => d.type.update())}
+
+  editMode() { this.annotations.forEach(a => a.type.editMode = editMode)}
+
+  get json() { return this.annotations.map(a => a.json)}
 
   get textNodes(){
     return this.annotations.map(a => ({ ...a.type.getTextBBox(), startX: a.x, startY: a.y }))
@@ -24,12 +26,5 @@ export default class AnnotationCollection {
 
   get annotationNodes() {
     return this.annotations.map(a => ({ ...a.type.getAnnotationBBox(), startX: a.x, startY: a.y}))
-  }
-
-  placement() {
-    //placement along a long
-    //placement along a circle
-    //collision detection
-    //run in a series of functions
   }
 }

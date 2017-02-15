@@ -13,3 +13,19 @@ A class that return a string for the class name you want to give your custom typ
 **drawConnector**
 
 **drawSubject**
+
+### Overall Code structure
+
+**Types Class**
+
+**Annotation Class**
+
+**Annotation Collection Class**
+
+**Helpers**
+
+- Builder
+- Handles
+- TextBox
+- Connector
+- Subject

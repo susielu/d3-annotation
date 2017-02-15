@@ -3324,14 +3324,12 @@ function annotation() {
   };
 
   annotation.json = function () {
-    //TODO figure out what to do here
+    console.log('Annotations JSON', collection.json());
     return annotation;
   };
 
   annotation.update = function () {
-    collection.annotations.forEach(function (d) {
-      return d.type.update();
-    });
+    collection.update();
     return annotation;
   };
 
@@ -3363,11 +3361,14 @@ function annotation() {
   annotation.editMode = function (_) {
     if (!arguments.length) return editMode;
     editMode = _;
+    collection.editMode(editMode);
     return annotation;
   };
 
-  annotation.collection = function () {
-    return collection;
+  annotation.collection = function (_) {
+    if (!arguments.length) return collection;
+    collection = _;
+    return annotation;
   };
 
   return annotation;
@@ -3497,13 +3498,29 @@ var AnnotationCollection = function () {
   }
 
   _createClass(AnnotationCollection, [{
-    key: "placement",
-    value: function placement() {
-      //placement along a long
-      //placement along a circle
-      //collision detection
-      //run in a series of functions
+    key: "update",
+    value: function update() {
+      this.annotations.forEach(function (d) {
+        return d.type.update();
+      });
     }
+  }, {
+    key: "editMode",
+    value: function (_editMode) {
+      function editMode() {
+        return _editMode.apply(this, arguments);
+      }
+
+      editMode.toString = function () {
+        return _editMode.toString();
+      };
+
+      return editMode;
+    }(function () {
+      this.annotations.forEach(function (a) {
+        return a.type.editMode = editMode;
+      });
+    })
   }, {
     key: "json",
     get: function get() {
@@ -4707,7 +4724,6 @@ d3.annotation = _AdapterD2.default;
 d3.annotationCallout = _TypesD2.default.d3Callout;
 d3.annotationCalloutCurve = _TypesD2.default.d3CalloutCurve;
 d3.annotationCalloutLeftRight = _TypesD2.default.d3CalloutLeftRight;
-d3.annotationCalloutCurve = _TypesD2.default.d3CalloutCurve;
 d3.annotationCalloutElbow = _TypesD2.default.d3CalloutElbow;
 d3.annotationCalloutCircle = _TypesD2.default.d3CalloutCircle;
 d3.annotationXYThreshold = _TypesD2.default.d3XYThreshold;

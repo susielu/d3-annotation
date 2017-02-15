@@ -1,10 +1,10 @@
 ## Introduction
-Can you imagine Google Maps without any city labels, street names, highway badges? Then why are annotations so few and far between in visualizations on the web? 
 
-**Implementing annotations is difficult.**
+Annotations **establish context, and direct our users to insights and anomalies**. So why are annotations so few and far between in visualizations on the web? Because **implementing annotations is difficult.**
 
-d3-annotation is made for [d3-v4](https://github.com/d3/d3/blob/master/CHANGES.md) and **only** supports SVG annotations, the plan is to also make them accessible in canvas.
+**But they shouldn't be.** 
 
-Let's break down the barrier that limits our ability to **establish context, and direct users to insights and anomalies**.
+Use d3-annotation with built-in annotation types, or extend it to make completely custom annotations. It is made for [d3-v4](https://github.com/d3/d3/blob/master/CHANGES.md) in SVG (Canvas is on the list of future features. TODO add future features list). 
 
-I would love your help in making more annotation types and layout algorithms.
+
+I would love your help making more examples of [annotation types](#annotation-types) and [layout algorithms](#layout). Contact me through [github](https://www.github.com/susielu/d3-annotation) or [twitter](https://www.twitter.com/DataToViz) if you want to collaborate.
