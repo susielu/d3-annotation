@@ -1,6 +1,6 @@
 
 export default class Annotation {
-  constructor({ x, y, dy, dx, text, title, data, type, typeData, disable }) {
+  constructor({ x, y, dy, dx, text, title, data, type, align, orientation, typeData, disable }) {
 
     this.dx = dx || 0
     this.dy = dy || 0
@@ -8,6 +8,9 @@ export default class Annotation {
     this.y = y || 0
     this.text = text
     this.title = title
+    //TODO come and see if this makes sense for align and orientation
+    this.align = align
+    this.orientation = orientation
     this.type = type
     this.data = data || {}
     this.typeData = typeData || {}

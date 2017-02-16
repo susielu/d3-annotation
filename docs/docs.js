@@ -21,7 +21,6 @@ document.getElementById('introduction').innerHTML = md(introduction);
 document.getElementById('anatomy').innerHTML = md(anatomy);
 document.getElementById('start').innerHTML = md(start);
 
-console.log('start', md(start))
 document.getElementById('types').innerHTML = md(types);
 document.getElementById('layout').innerHTML = md(layout);
 document.getElementById('extend').innerHTML = md(extend);
@@ -36,4 +35,68 @@ $(document).ready(function(){
     });
 
     highlight.initHighlightingOnLoad();
+
+    d3.select("#annotation-label-example")
+      .append("g")
+      .attr("class", "annotation-label")
+      .call(d3.annotation()
+        .editMode(true)
+        .annotations([
+          {
+            text: "Annotation Label d3.annotationLabel",
+            x: 150,
+            y: 150,
+            dy: 37,
+            dx: 42,
+            type:  d3.annotationLabel
+          }])
+      )
+
+    d3.select("#annotation-labeldots-example")
+      .append("g")
+      .attr("class", "annotation-labeldots")
+      .call(d3.annotation()
+        .editMode(true)
+        .annotations([
+          {
+            text: "Annotation Label Dots d3.annotationLabelDots",
+            x: 150,
+            y: 150,
+            dy: 37,
+            dx: 42,
+            type:  d3.annotationLabelDots
+          }])
+      )
+
+    d3.select("#annotation-callout-example")
+      .append("g")
+      .attr("class", "annotation-callout")
+      .call(d3.annotation()
+        .editMode(true)
+        .annotations([
+          {
+            text: "Annotation Label Dots d3.annotationCallout",
+            x: 150,
+            y: 150,
+            dy: 37,
+            dx: 42,
+            type:  d3.annotationCallout
+          }])
+      )
+
+    d3.select("#annotation-calloutelbow-example")
+      .append("g")
+      .attr("class", "annotation-calloutelbow")
+      .call(d3.annotation()
+        .editMode(true)
+        .annotations([
+          {
+            text: "Annotation Label Dots d3.annotationElbow",
+            x: 150,
+            y: 150,
+            dy: 37,
+            dx: 42,
+            type:  d3.annotationCalloutElbow
+          }])
+      )
 });

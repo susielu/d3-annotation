@@ -103,38 +103,43 @@ class Type {
     const offset = this.annotation.offset
     const padding = context.padding || 5
     const orientation = context.orientation || 'topBottom'
-    const align = context.align || 'left'
+    const align = context.align
 
+    console.log('bbox', context.bbox)
+    let x = -context.bbox.x
+    let y = 0 //context.bbox.y
 
-    let x = offset.x
-    let y = offset.y
+    if (orientation === 'topBottom' ){
+      if (offset.y < 0){ y = -context.bbox.height - padding }
 
+      if (align === "middle") {
+        x -= context.bbox.width/2
+      } else if (align === "right" ) {
+        x -= context.bbox.width - padding
+      } 
 
-    if (orientation === 'topBottom' && offset.y < 0){
-        y = offset.y - context.bbox.height - padding
-    }  //else if (o) //add left right orientation
-
-    if (align === "middle") {
-
-      if (offset.x < -context.bbox.width){
-        x = offset.x + context.bbox.width/2
-      } else if (offset.x > -context.bbox.width){
-        x = offset.x - context.bbox.width/2
+    } else if (orientation === 'leftRight'){
+      if (offset.x < 0){ 
+        x -= context.bbox.width - padding 
       } else {
-        console.log(offset.x)
+        x += padding
       }
-      // else if (offset.x > 0) {
-      //   x = offset.x - context.bbox.width/2
-      // }
-    }
-    this.textBox.attr('transform', `translate(${x}, ${y})`)
+
+       if (align === "middle") {
+          y -= context.bbox.height/2
+       } else if (align === "bottom" ){
+          y -= context.bbox.height - padding
+       }
+    } 
+
+    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    this.textBox.select('g.annotation-textwrapper').attr('transform', `translate(${x}, ${y})`)
 
     if (this.editMode) {
-      const h = rectHandles({ width: context.bbox.width, height: context.bbox.height })
-      
+
       addHandles({
         group: this.textBox,
-        handles: this.mapHandles([{...h.move, drag: this.dragTextBox.bind(this)}])
+        handles: this.mapHandles([{ x: 0, y: 0, drag: this.dragTextBox.bind(this)}])
       })
     }
   }
@@ -186,22 +191,56 @@ class Type {
   }
 }
 
+
+//This is callout except without textbox underline, and centered text
+export class d3Label extends Type {
+  static className(){ return "label" }
+  drawTextBox(context) { 
+    //TODO come back and see if this makes sense 
+    // context.align = "middle"
+    super.drawTextBox(context)
+  }
+}
+export class d3LabelDots extends d3Label {
+  static className(){ return "label dots" }
+  drawTextBox(context) { 
+    super.drawTextBox(context)
+    return subjectCircle(context)
+  }
+
+  drawSubject(context) {
+    super.drawSubject()
+    return subjectCircle(context)
+  }
+}
+
+
 // Custom annotation types
 export class d3Callout extends Type {
   static className(){ return "callout" }
 
   drawTextBox(context) { 
     super.drawTextBox(context)
-    if (this.annotation.offset.y < 0) { context.position = "bottom" } 
     return textBoxLine(context) 
   }
 }
 
 export class d3CalloutElbow extends d3Callout {
-  drawConnector(context) { 
-    console.log('in elbow', this.annotation, context)
+  static className(){ return "callout elbow" }
+
+  drawConnector(context) {
     context.elbow = true
     return super.drawConnector(context)
+  }
+
+  drawTextBox(context) {
+    const offset = this.annotation.offset
+    console.log('bbox', context.bbox)
+    if (offset.x < 0 && (!context.orientation || context.orientation == "topBottom")){
+      context.align = "right"
+    }
+    // context.align = "middle"
+    return super.drawTextBox(context)
   }
 }
 
@@ -245,15 +284,6 @@ export class d3CalloutCircle extends d3CalloutElbow {
     return super.drawTextBox(context)
   }
 }
-
-
-//This is callout except without textbox underline, and centered text
-export class d3Label extends Type {
-  static className(){ return "label" }
-  drawTextBox(context) { super.drawTextBox(context)}
-  // drawConnector({ context }) { context.elbow = true; return connectorLine(context)}
-}
-
 
 export class d3CalloutCurve extends d3Callout{ 
   static className(){ return "callout-curve" }
@@ -312,6 +342,7 @@ export class d3CalloutLeftRight extends d3CalloutElbow {
 
     const y =  offset.y > 0 ? offset.y - context.bbox.height : offset.y
 
+    //TODO come back and fix these transformations
     if (offset.x < 0) {
       const transform = this.textBox
         .attr('transform', `translate(${Math.min(offset.x - padding, -context.bbox.width - padding)}, 
@@ -427,16 +458,14 @@ const bboxWithoutHandles = (selection, selector=':not(.handle)') => {
       }, { x: 0, y: 0, width: 0, height: 0});
 }
 
-//TODO
-//Example to use with divided line
-
 export default {
+  d3Label,
+  d3LabelDots,
   d3Callout,
   d3CalloutElbow,
   d3CalloutCurve,
   d3CalloutLeftRight,
   d3CalloutCircle,
   d3XYThreshold,
-  d3Label,
   customType
 }

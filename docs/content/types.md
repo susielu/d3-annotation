@@ -45,9 +45,22 @@ You can pass it a new annotation collection class. If there are not arguments it
 
 <svg class="example" id="annotation-label-example"></svg>
 
+<p id="annotation-labeldots">**d3.annotationLabelDots**</p>
+
+<svg class="example" id="annotation-labeldots-example"></svg>
+
+<p id="annotation-labelelbow">**d3.annotationLabelElbow**</p>
+
+<svg class="example" id="annotation-labelelbow-example"></svg>
+
 <p id="annotation-callout">**d3.annotationCallout**</p>
 
-**d3.annotationCalloutElbow**
+<svg class="example" id="annotation-callout-example"></svg>
+
+<p id="annotation-calloutelbow">**d3.annotationCalloutElbow**</p>
+
+<svg class="example" id="annotation-calloutelbow-example"></svg>
+
 
 **d3.annotationCalloutCurve**
 
@@ -57,6 +70,17 @@ You can pass it a new annotation collection class. If there are not arguments it
 
 **d3.annotationCalloutRect**
 
+### Style helpers
+
+This is the hierarchy of each annotation:
+
+- g: class annotations, adds editable class if editMode is true
+  - per annotation, g: class annotation, and classes listed above per type //TODO: make sure dragging class is removed when not dragging
+  - g: class annotation-connector
+  - g: class annotation-subject
+  - g: class annotation-textbox, contains a g: class annotation-textwrapper, within that there are two text elements, a text with class annotation-text, and a text with class annotation-title
+
+- handles for dragging are circle: class handle
 
 ### Customizing Types
 

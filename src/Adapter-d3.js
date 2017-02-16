@@ -51,8 +51,13 @@ export default function annotation(){
         const textbox = a.select('g.annotation-textbox')
         const offset = d.offset
         textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
-        newWithClass(textbox, [d], 'text', 'annotation-text')
-        newWithClass(textbox, [d], 'text', 'annotation-title')
+        
+        newWithClass(textbox, [d], 'g', 'annotation-textwrapper')
+
+        const textWrapper = textbox.select('g.annotation-textwrapper')
+
+        newWithClass(textWrapper, [d], 'text', 'annotation-text')
+        newWithClass(textWrapper, [d], 'text', 'annotation-title')
 
         d.type = new d.type({ a, annotation: d, editMode})
         
@@ -98,7 +103,7 @@ export default function annotation(){
   annotation.editMode = function(_) {
     if (!arguments.length) return editMode;
     editMode = _
-    collection.editMode(editMode)
+    if (collection) collection.editMode(editMode)
     return annotation
   }
 

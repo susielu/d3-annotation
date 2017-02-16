@@ -16,6 +16,8 @@
 
     :root {
       --font-color: #695B5B;
+      --font-color-light: #eae4e4;
+      --font-color-lightest: #f9f7f7;
       --accent-color: #E8336D;
     }
     h1, h2, h3, .brand-logo {
@@ -86,6 +88,62 @@
 
     .section img {
       max-width: 100%;
+    }
+
+    /*Annotation related classes */
+
+    svg {
+      border: 1px solid var(--font-color-light);
+      background: var(--font-color-lightest);
+    }
+
+    svg.example {
+      width: 100%;
+      height: 300px;
+    }
+    
+    /*.annotation.label text {
+      text-anchor: middle;
+    }*/
+
+    .editable .annotation-subject, .editable .annotation-textbox {
+      cursor: move;
+    }
+
+    .annotation.label.dots .annotation-textbox, .annotation.callout.elbow .annotation-textbox {
+      text-anchor: middle;
+    }
+
+    .line {
+      fill: none;
+      stroke: var(--font-color);
+      stroke-width: 1px;
+    }
+
+    .annotation path {
+      stroke: var(--accent-color);
+      fill: none;
+    }
+
+    .annotation path.connector-arrow{
+      fill: var(--accent-color);
+    }
+
+    .annotation text {
+      fill: var(--accent-color);
+    }
+
+    .annotation-title {
+      font-weight: bold;
+    }
+
+    circle.handle {
+      stroke-dasharray: 5;
+      stroke: var(--accent-color);
+      fill: rgba(255, 255, 255, .2);
+      cursor: move;
+
+      stroke-opacity: .4;
     }
 
   </style>
