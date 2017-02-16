@@ -61,12 +61,16 @@ You can pass it a new annotation collection class. If there are not arguments it
 
 <svg class="example" id="annotation-calloutelbow-example"></svg>
 
+<p id="annotation-calloutcurve">**d3.annotationCalloutCurve**</p>
 
-**d3.annotationCalloutCurve**
+<svg class="example" id="annotation-calloutcurve-example"></svg>
+
 
 **d3.annotationXYThreshold**
 
-**d3.annotationCalloutCircle**
+<p id="annotation-calloutcircle">**d3.annotationCalloutCircle**</p>
+
+<svg class="example" id="annotation-calloutcircle-example"></svg>
 
 **d3.annotationCalloutRect**
 

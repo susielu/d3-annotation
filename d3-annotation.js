@@ -4181,9 +4181,8 @@ var Type = function () {
       var orientation = context.orientation || 'topBottom';
       var align = context.align;
 
-      console.log('bbox', context.bbox);
       var x = -context.bbox.x;
-      var y = 0; //context.bbox.y
+      var y = -context.bbox.y;
 
       if (orientation === 'topBottom') {
         if (offset.y < 0) {
@@ -4197,15 +4196,15 @@ var Type = function () {
         }
       } else if (orientation === 'leftRight') {
         if (offset.x < 0) {
-          x -= context.bbox.width - padding;
+          x -= context.bbox.width + padding;
         } else {
           x += padding;
         }
 
         if (align === "middle") {
           y -= context.bbox.height / 2;
-        } else if (align === "bottom") {
-          y -= context.bbox.height - padding;
+        } else if (align === "top") {
+          y -= context.bbox.height + padding;
         }
       }
 
@@ -4317,8 +4316,7 @@ var d3Label = exports.d3Label = function (_Type) {
   _createClass(d3Label, [{
     key: 'drawTextBox',
     value: function drawTextBox(context) {
-      //TODO come back and see if this makes sense 
-      // context.align = "middle"
+      context.aligm = "middle";
       _get(d3Label.prototype.__proto__ || Object.getPrototypeOf(d3Label.prototype), 'drawTextBox', this).call(this, context);
     }
   }], [{
@@ -4377,7 +4375,13 @@ var d3Callout = exports.d3Callout = function (_Type2) {
   _createClass(d3Callout, [{
     key: 'drawTextBox',
     value: function drawTextBox(context) {
+      var offset = this.annotation.offset;
       _get(d3Callout.prototype.__proto__ || Object.getPrototypeOf(d3Callout.prototype), 'drawTextBox', this).call(this, context);
+
+      if (context.orientation == "leftRight" && offset.x < 0) {
+        context.align = "right";
+      }
+
       return (0, _TextBox.textBoxLine)(context);
     }
   }], [{
@@ -4409,11 +4413,10 @@ var d3CalloutElbow = exports.d3CalloutElbow = function (_d3Callout) {
     key: 'drawTextBox',
     value: function drawTextBox(context) {
       var offset = this.annotation.offset;
-      console.log('bbox', context.bbox);
+
       if (offset.x < 0 && (!context.orientation || context.orientation == "topBottom")) {
         context.align = "right";
       }
-      // context.align = "middle"
       return _get(d3CalloutElbow.prototype.__proto__ || Object.getPrototypeOf(d3CalloutElbow.prototype), 'drawTextBox', this).call(this, context);
     }
   }], [{
@@ -4470,7 +4473,7 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_d3CalloutElbow) {
   }, {
     key: 'drawTextBox',
     value: function drawTextBox(context) {
-      context.align = "middle";
+      //context.align = "middle"
       return _get(d3CalloutCircle.prototype.__proto__ || Object.getPrototypeOf(d3CalloutCircle.prototype), 'drawTextBox', this).call(this, context);
     }
   }], [{
@@ -4550,7 +4553,7 @@ var d3CalloutCurve = exports.d3CalloutCurve = function (_d3Callout2) {
   }], [{
     key: 'className',
     value: function className() {
-      return "callout-curve";
+      return "callout curve";
     }
   }]);
 

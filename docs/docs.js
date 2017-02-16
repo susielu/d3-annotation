@@ -99,4 +99,40 @@ $(document).ready(function(){
             type:  d3.annotationCalloutElbow
           }])
       )
+
+    d3.select("#annotation-calloutcurve-example")
+      .append("g")
+      .attr("class", "annotation-calloutcurve")
+      .call(d3.annotation()
+        .editMode(true)
+        .annotations([
+          {
+            text: "Annotation Label Dots d3.annotationcurve",
+            x: 150,
+            y: 150,
+            dy: 37,
+            dx: 42,
+            type:  d3.annotationCalloutCurve
+          }])
+      )
+
+    d3.select("#annotation-calloutcircle-example")
+      .append("g")
+      .attr("class", "annotation-calloutcircle")
+      .call(d3.annotation()
+        .editMode(true)
+        .annotations([
+          {
+            text: "Annotation Label Dots d3.annotationcircle",
+            x: 150,
+            y: 150,
+            dy: 57,
+            dx: 132,
+            type:  d3.annotationCalloutCircle,
+            typeData: {
+              radius: 50,
+              radiusPadding: 5
+            }
+          }])
+      )
 });

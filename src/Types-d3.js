@@ -105,9 +105,8 @@ class Type {
     const orientation = context.orientation || 'topBottom'
     const align = context.align
 
-    console.log('bbox', context.bbox)
     let x = -context.bbox.x
-    let y = 0 //context.bbox.y
+    let y = -context.bbox.y
 
     if (orientation === 'topBottom' ){
       if (offset.y < 0){ y = -context.bbox.height - padding }
@@ -120,15 +119,15 @@ class Type {
 
     } else if (orientation === 'leftRight'){
       if (offset.x < 0){ 
-        x -= context.bbox.width - padding 
+        x -= (context.bbox.width + padding) 
       } else {
         x += padding
       }
 
        if (align === "middle") {
           y -= context.bbox.height/2
-       } else if (align === "bottom" ){
-          y -= context.bbox.height - padding
+       } else if (align === "top" ){
+          y -= (context.bbox.height + padding)
        }
     } 
 
@@ -196,8 +195,7 @@ class Type {
 export class d3Label extends Type {
   static className(){ return "label" }
   drawTextBox(context) { 
-    //TODO come back and see if this makes sense 
-    // context.align = "middle"
+    context.aligm = "middle"
     super.drawTextBox(context)
   }
 }
@@ -220,7 +218,13 @@ export class d3Callout extends Type {
   static className(){ return "callout" }
 
   drawTextBox(context) { 
+    const offset = this.annotation.offset
     super.drawTextBox(context)
+    
+    if (context.orientation == "leftRight" && offset.x < 0) {
+      context.align = "right"
+    }
+
     return textBoxLine(context) 
   }
 }
@@ -235,11 +239,10 @@ export class d3CalloutElbow extends d3Callout {
 
   drawTextBox(context) {
     const offset = this.annotation.offset
-    console.log('bbox', context.bbox)
+
     if (offset.x < 0 && (!context.orientation || context.orientation == "topBottom")){
       context.align = "right"
     }
-    // context.align = "middle"
     return super.drawTextBox(context)
   }
 }
@@ -280,13 +283,13 @@ export class d3CalloutCircle extends d3CalloutElbow {
   }
 
   drawTextBox(context) { 
-    context.align = "middle"
+    //context.align = "middle"
     return super.drawTextBox(context)
   }
 }
 
 export class d3CalloutCurve extends d3Callout{ 
-  static className(){ return "callout-curve" }
+  static className(){ return "callout curve" }
   drawConnector(context) { 
 
     const createPoints = function(anchors=2){
