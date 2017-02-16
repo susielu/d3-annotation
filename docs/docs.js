@@ -3,10 +3,13 @@ const contents = require('./content/contents.md')
 const introduction = require('./content/introduction.md')
 const anatomy = require('./content/anatomy.md')
 const start = require('./content/start.md')
+const annotation = require('./content/annotation.md')
 const types = require('./content/types.md')
+const styles = require('./content/styles.md')
+const custom = require('./content/custom.md')
 const layout = require('./content/layout.md')
 const extend = require('./content/extend.md')
-const thanks = require('./content/thanks.md')
+const notes = require('./content/notes.md')
 const highlight = require('highlight.js')
 // md.setOptions({
 //   highlight: function (code) {
@@ -21,10 +24,13 @@ document.getElementById('introduction').innerHTML = md(introduction);
 document.getElementById('anatomy').innerHTML = md(anatomy);
 document.getElementById('start').innerHTML = md(start);
 
+document.getElementById('annotation').innerHTML = md(annotation);
 document.getElementById('types').innerHTML = md(types);
+document.getElementById('styles').innerHTML = md(styles);
+document.getElementById('custom').innerHTML = md(custom);
 document.getElementById('layout').innerHTML = md(layout);
 document.getElementById('extend').innerHTML = md(extend);
-document.getElementById('thanks').innerHTML = md(thanks);
+document.getElementById('notes').innerHTML = md(notes);
 
 $(document).ready(function(){
     $('.scrollspy').scrollSpy();
@@ -111,7 +117,7 @@ $(document).ready(function(){
             x: 150,
             y: 150,
             dy: 37,
-            dx: 42,
+            dx: 122,
             type:  d3.annotationCalloutCurve
           }])
       )
@@ -130,7 +136,8 @@ $(document).ready(function(){
             dx: 132,
             type:  d3.annotationCalloutCircle,
             typeData: {
-              radius: 50,
+              innerRadius: 20,
+              outerRadius: 50,
               radiusPadding: 5
             }
           }])

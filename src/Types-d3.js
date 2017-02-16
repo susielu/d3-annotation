@@ -271,6 +271,7 @@ export class d3CalloutCircle extends d3CalloutElbow {
         this.customization()
       }
 
+      //TODO add handles when there is an inner radius and outer radius
       addHandles({
         group: this.subject,
         handles: this.mapHandles([{ ...h.move, drag: this.dragSubject.bind(this)}, 
@@ -282,10 +283,6 @@ export class d3CalloutCircle extends d3CalloutElbow {
     return c
   }
 
-  drawTextBox(context) { 
-    //context.align = "middle"
-    return super.drawTextBox(context)
-  }
 }
 
 export class d3CalloutCurve extends d3Callout{ 
@@ -299,7 +296,7 @@ export class d3CalloutCurve extends d3Callout{
 
           let i = 1 
           for (; i <= anchors; i++){
-            p.push([diff.x*i, diff.y*i])
+            p.push([diff.x*i + i%2*20, diff.y*i - i%2*20])
           }
           return p
     }.bind(this)

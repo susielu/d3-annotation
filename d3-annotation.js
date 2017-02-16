@@ -4463,18 +4463,13 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_d3CalloutElbow) {
           _this8.customization();
         };
 
+        //TODO add handles when there is an inner radius and outer radius
         (0, _Handles.addHandles)({
           group: this.subject,
           handles: this.mapHandles([_extends({}, h.move, { drag: this.dragSubject.bind(this) }), _extends({}, h.radius, { drag: updateRadius.bind(this) }), _extends({}, h.padding, { drag: updateRadiusPadding.bind(this) })])
         });
       }
       return c;
-    }
-  }, {
-    key: 'drawTextBox',
-    value: function drawTextBox(context) {
-      //context.align = "middle"
-      return _get(d3CalloutCircle.prototype.__proto__ || Object.getPrototypeOf(d3CalloutCircle.prototype), 'drawTextBox', this).call(this, context);
     }
   }], [{
     key: 'className',
@@ -4509,7 +4504,7 @@ var d3CalloutCurve = exports.d3CalloutCurve = function (_d3Callout2) {
 
         var i = 1;
         for (; i <= anchors; i++) {
-          p.push([diff.x * i, diff.y * i]);
+          p.push([diff.x * i + i % 2 * 20, diff.y * i - i % 2 * 20]);
         }
         return p;
       }.bind(this);
