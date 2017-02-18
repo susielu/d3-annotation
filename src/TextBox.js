@@ -20,15 +20,19 @@ export const textBoxLine = ({ annotation, offset={x: 0, y: 0}, context,
   return lineBuilder({ data, curve, context, className : CLASS })
 }
 
+export const textBoxTitleline = () => {
+
+}
+
 export const textBoxSideline = ({ annotation, offset={x: 0, y: 0}, context, 
     curve, bbox, padding = 5, position="left"}) => {
 
   let x = offset.x,
     y1 = offset.y,
-    y2 = offset.y + bbox.height + padding
+    y2 = offset.y + bbox.height 
 
-  if (position == "right") {
-    x += bbox.width + padding
+  if (position == "top") {
+    y2 = offset.y - bbox.height
   }
 
   const data = [[x, y1], [x, y2]]

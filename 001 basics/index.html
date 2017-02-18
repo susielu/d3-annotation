@@ -135,8 +135,7 @@
           dy: -137,
           dx: -142,
           type: d3.annotationCalloutCurve,
-          typeData: { points: 3 }
-          
+          connector: { points: 2 }
         },
        {
           text: "x, y",
@@ -170,7 +169,7 @@
           dx: -176,
           type: d3.annotationCalloutCircle,
          // disable: ['connector'],
-          typeData: {
+          subject: {
             radius: 50,
             radiusPadding: 5
           }
@@ -182,21 +181,26 @@
           type: d3.annotationXYThreshold,
           dy: -80,
           dx: -100,
-          typeData: {
+          subject: {
             y1: 0,
             y2: height
           }
         }
       ]
 
-      //set of basic type data
-      //set of type data specitic to certain annotation types
-      //that's how you would change elbow, etc. 
-
+      const timeFormat = d3.timeFormat("%d-%b-%y")
+      
       window.makeAnnotations = d3.annotation()
         .annotations(labels)
-        .accessors({ x: d => x(parseTime(d.date)) , y: d => y(d.close)})
+        .accessors({ x: d => x(parseTime(d.date)), 
+          y: d => y(d.close)
+        })
+        .accessorsInverse({
+          date: d => timeFormat(x.invert(d.x)),
+          close: d => y.invert(d.y) 
+        })
         .editMode(true)
+
 
       svg.append("g")
         .attr("class", "annotation-test")

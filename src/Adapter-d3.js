@@ -7,9 +7,11 @@ export default function annotation(){
   let annotations = [],
     collection,
     context,
-    accessors= {},
+    accessors = {},
+    accessorsInverse = {},
     editMode = false,
-    type= d3Callout;
+    ids,
+    type = d3Callout;
 
   const annotation = function(selection){
     const translatedAnnotations = annotations
@@ -23,7 +25,9 @@ export default function annotation(){
 
     collection = new AnnotationCollection ({
       annotations: translatedAnnotations,
-      accessors
+      accessors,
+      accessorsInverse,
+      ids
     })
 
     const annotationG = selection.selectAll('g').data([collection])
@@ -66,7 +70,8 @@ export default function annotation(){
   }
 
   annotation.json = function() {
-    console.log('Annotations JSON', collection.json())
+    console.log('Annotations JSON has been copied to your clipboard', collection.json)
+    window.copy(collection.json)
     return annotation
   }
 
@@ -97,6 +102,18 @@ export default function annotation(){
   annotation.accessors = function(_) {
     if (!arguments.length) return accessors;
     accessors = _;
+    return annotation
+  }
+
+  annotation.accessorsInverse = function(_) {
+    if (!arguments.length) return accessorsInverse;
+    accessorsInverse = _;
+    return annotation
+  }
+
+  annotation.ids = function(_) {
+    if (!arguments.length) return ids;
+    ids = _;
     return annotation
   }
 

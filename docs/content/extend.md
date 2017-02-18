@@ -8,6 +8,8 @@ The underlying structure for the annotations and types are built with es6 JavaSc
 
 A class that return a string for the class name you want to give your custom type.
 
+**STATIC init**
+
 **drawTextBox**
 
 **drawConnector**

@@ -86,7 +86,7 @@ $(document).ready(function(){
             y: 150,
             dy: 37,
             dx: 42,
-            type:  d3.annotationCallout
+            type:  d3.annotationCalloutLeftRight
           }])
       )
 
@@ -135,7 +135,7 @@ $(document).ready(function(){
             dy: 57,
             dx: 132,
             type:  d3.annotationCalloutCircle,
-            typeData: {
+            subject: {
               innerRadius: 20,
               outerRadius: 50,
               radiusPadding: 5

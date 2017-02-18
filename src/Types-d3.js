@@ -105,7 +105,7 @@ class Type {
     const orientation = context.orientation || 'topBottom'
     const align = context.align
 
-    let x = -context.bbox.x
+    let x = -context.bbox.x + padding
     let y = -context.bbox.y
 
     if (orientation === 'topBottom' ){
@@ -114,7 +114,7 @@ class Type {
       if (align === "middle") {
         x -= context.bbox.width/2
       } else if (align === "right" ) {
-        x -= context.bbox.width - padding
+        x -= (context.bbox.width + padding*2)
       } 
 
     } else if (orientation === 'leftRight'){
@@ -247,6 +247,21 @@ export class d3CalloutElbow extends d3Callout {
   }
 }
 
+export class d3CalloutLeftRight extends d3CalloutElbow {
+  static className() { return "callout leftright"}
+
+  drawTextBox(context) {
+    super.drawTextBox(context)
+
+    const offset = this.annotation.offset
+    if (offset.y < 0){
+      context.position = "top"
+    }
+
+    return textBoxSideline(context)
+  }
+}
+
 export class d3CalloutCircle extends d3CalloutElbow {
   static className(){ return "callout circle" }
   
@@ -254,30 +269,38 @@ export class d3CalloutCircle extends d3CalloutElbow {
     const c = subjectCircle(context);
 
     if (this.editMode){
+      const subjectData = this.annotation.subject
       const h = circleHandles({
-        r: c.data.outerRadius || c.data.radius,
-        padding: this.annotation.typeData.radiusPadding
+        r1: c.data.outerRadius || c.data.radius,
+        r2: c.data.innerRadius,
+        padding: this.annotation.subject.radiusPadding
       })
 
-      const updateRadius = () => {      
-        const r = this.annotation.typeData.radius + event.dx*Math.sqrt(2)
-        this.annotation.typeData.radius = r
+      const updateRadius = (type) => {      
+        const r = subjectData[type] + event.dx*Math.sqrt(2)
+        subjectData[type] = r
         this.customization()
       }
 
       const updateRadiusPadding = () => {
-        const rpad = this.annotation.typeData.radiusPadding + event.dx
-        this.annotation.typeData.radiusPadding = rpad
+        const rpad = subjectData.radiusPadding + event.dx
+        subjectData.radiusPadding = rpad
         this.customization()
+      }
+
+      const handles = [{ ...h.move, drag: this.dragSubject.bind(this)}, 
+        { ...h.r1, drag: updateRadius.bind(this, subjectData.outerRadius !== undefined ? 'outerRadius': 'radius')},
+        { ...h.padding, drag : updateRadiusPadding.bind(this)}
+        ]
+
+      if (subjectData.innerRadius){
+        handles.push({ ...h.r2, drag: updateRadius.bind(this, 'innerRadius')})
       }
 
       //TODO add handles when there is an inner radius and outer radius
       addHandles({
         group: this.subject,
-        handles: this.mapHandles([{ ...h.move, drag: this.dragSubject.bind(this)}, 
-        { ...h.radius, drag: updateRadius.bind(this)},
-        { ...h.padding, drag : updateRadiusPadding.bind(this)}
-        ])
+        handles: this.mapHandles(handles)
       })
     }
     return c
@@ -301,22 +324,22 @@ export class d3CalloutCurve extends d3Callout{
           return p
     }.bind(this)
 
-    if (!this.annotation.typeData){ this.annotation.typeData = {} }
-    if (!this.annotation.typeData.points || typeof this.annotation.typeData.points === "number"){ 
-      this.annotation.typeData.points = createPoints(this.annotation.typeData.points) 
+    if (!this.annotation.connector){ this.annotation.connector = {} }
+    if (!this.annotation.connector.points || typeof this.annotation.connector.points === "number"){ 
+      this.annotation.connector.points = createPoints(this.annotation.connector.points) 
     }
-    if (!this.annotation.typeData.curve){ this.annotation.typeData.curve = curveCatmullRom }
+    if (!this.annotation.connector.curve){ this.annotation.connector.curve = curveCatmullRom }
 
-    context.points = this.annotation.typeData.points 
-    context.curve = this.annotation.typeData.curve
+    context.points = this.annotation.connector.points 
+    context.curve = this.annotation.connector.curve
 
     if (this.editMode) {
       let handles = context.points
         .map((c,i) => ({...pointHandle({cx: c[0], cy: c[1]}), index: i}))
 
     const updatePoint = (index) => {      
-        this.annotation.typeData.points[index][0] += event.dx
-        this.annotation.typeData.points[index][1] += event.dy
+        this.annotation.connector.points[index][0] += event.dx
+        this.annotation.connector.points[index][1] += event.dy
         this.customization()
     }
 
@@ -331,31 +354,6 @@ export class d3CalloutCurve extends d3Callout{
   }
 }
 
-export class d3CalloutLeftRight extends d3CalloutElbow {
-  static className() { return "callout-leftright"}
-
-  drawTextBox(context) {
-    super.drawTextBox(context)
-
-    const offset = this.annotation.offset
-    const padding = 5
-
-    const y =  offset.y > 0 ? offset.y - context.bbox.height : offset.y
-
-    //TODO come back and fix these transformations
-    if (offset.x < 0) {
-      const transform = this.textBox
-        .attr('transform', `translate(${Math.min(offset.x - padding, -context.bbox.width - padding)}, 
-        ${y})`)
-     // context.position = "left"
-      context.padding = padding
-    } else {      
-      this.textBox.attr('transform', `translate(${Math.max(offset.x + padding, padding)}, ${y})`)
-    }
-
-    return //textBoxSideline(context)
-  }
-}
 
 export class d3XYThreshold extends d3Callout {
   static className(){ return "xythreshold" }
@@ -368,11 +366,12 @@ export class d3XYThreshold extends d3Callout {
   static init(annotation, accessors) {
     super.init(annotation, accessors)
 
-    if (!annotation.x && (annotation.typeData.y1 || annotation.typeData.y2) && annotation.data && accessors.x){
+    //TODO: come back to here to check assumptions being made
+    if (!annotation.x && (annotation.subject.y1 || annotation.subject.y2) && annotation.data && accessors.x){
       annotation.x = accessors.x(annotation.data)
     }
 
-    if (!annotation.y && (annotation.typeData.x1 || annotation.typeData.x2) && annotation.data && accessors.y){
+    if (!annotation.y && (annotation.subject.x1 || annotation.subject.x2) && annotation.data && accessors.y){
       annotation.y = accessors.y(annotation.data)
     }
 

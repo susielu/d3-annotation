@@ -6,15 +6,19 @@ export const pointHandle = ({ cx=0, cy=0 }) => {
   return { move: { x: cx, y: cy} }
 }
 
-export const circleHandles = ({ cx=0, cy =0, r, padding }) => {
+export const circleHandles = ({ cx=0, cy =0, r1, r2, padding }) => {
   const h = { move: { x: cx, y: cy}}
        
-  if (r !== undefined) {
-    h.radius = { x: cx + r/Math.sqrt(2), y: cy + r/Math.sqrt(2) }
+  if (r1 !== undefined) {
+    h.r1 = { x: cx + r1/Math.sqrt(2), y: cy + r1/Math.sqrt(2) }
+  }
+  
+  if (r2 !== undefined) {
+    h.r2 = { x: cx + r2/Math.sqrt(2), y: cy + r2/Math.sqrt(2) }
   }
 
   if (padding !== undefined) {
-    h.padding = { x: cx + r + padding, y: cy}
+    h.padding = { x: cx + r1 + padding, y: cy}
   }
 
   return h

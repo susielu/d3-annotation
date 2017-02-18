@@ -1,15 +1,40 @@
 export default class AnnotationCollection {
 
-  constructor({ annotations, accessors }) {
-    this.annotations = annotations
+  constructor({ annotations, accessors, accessorsInverse, ids }) {
     this.accessors = accessors
+    this.accessorsInverse = accessorsInverse
+
+    if (ids) {
+      this.annotations = annotations.map((d, i) => {
+        d.id = ids(d, i)
+        return d
+      })
+    } else {
+      this.annotations = annotations
+    }
+
   }
 
   update() { this.annotations.forEach(d => d.type.update())}
 
   editMode() { this.annotations.forEach(a => a.type.editMode = editMode)}
 
-  get json() { return this.annotations.map(a => a.json)}
+  get json() { 
+    return this.annotations.map(a => {      
+      const json = a.json
+      if (this.accessorsInverse){
+        json.data = {}
+        Object.keys(this.accessorsInverse).forEach(k => {
+          json.data[k] = this.accessorsInverse[k]({ x: a.x, y: a.y})
+        })
+      }
+      return json
+    })
+  }
+
+  //TODO: should all annotations have a key?
+  //If so what would that help? could that map to priority? 
+  //
 
   get textNodes(){
     return this.annotations.map(a => ({ ...a.type.getTextBBox(), startX: a.x, startY: a.y }))

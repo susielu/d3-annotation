@@ -16,7 +16,7 @@ Pass an array of JSON objects with annotation properties:
 - **dy (number)**: pixels, to place the textBox and one end of the connector
 - **dx (number)**: pixels, to place the textBox and one end of the connector
 - **type ([annotation type](#annotation-types))**: defaults to [d3.annotationCallout](#annotation-callout) 
-- **disable ([string])**: takes the values 'connector', 'subject', and 'textBox' pass them in this array if you want to disable those annotation components from rendering
+- **disable ([string])**: takes the values 'connector', 'subject', and 'textBox' pass them in this array if you want to disable those parts from rendering
 - **typeData (object)**: specific settings that certain TODO come back and specify types types will require for rendering
 
 

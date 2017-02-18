@@ -1,15 +1,20 @@
 ## Let's Start
 
+### CDN
+Link to come.
 
 ### Include the file directly
 
-You must include the [d3 library]("http://d3js.org/") before including the legend file. Then you can simply add the compiled js file to your website
+You must include the [d3 library]("http://d3js.org/") before including the annotation file. Then you can add the compiled js file to your website
+
+- [All annotations](https://github.com/susielu/d3-annotation/blob/master/d3-annotation.js)
+- TODO: create minified version
 
 ### Using NPM
 
-Already using d3? You can add d3-annotation as a node module by running
+You can add d3-annotation as a node module by running
 
-<pre><code>npm i d3-svg-annotation -S</cod></pre>
+<pre><code>npm i d3-svg-annotation -S</code></pre>
 
 ### Setup
 
@@ -36,8 +41,12 @@ This is the basic usage pattern for using this library.
 
 d3.annotation() 
   .annotations(labels)
-  //Adds handles to annotations so you
-  //can drag them around
+  .accessors({ 
+    x: d => x(parseTime(d.date)), 
+    y: d => y(d.close) })
+  .accessorsInverse({
+    date: d => timeFormat(x.invert(d.x)),
+    close: d => y.invert(d.y) })
   .editMode(true)
 
 svg.append("g")

@@ -11,12 +11,12 @@ export const connectorLine = ({ annotation, offset=annotation.position, context,
     y1 = annotation.y - offset.y,
     y2 = y1 + annotation.dy
 
- const td = annotation.typeData
+ const subjectData = annotation.subject
 
-  if ((td.outerRadius || td.radius) && !elbow){
+  if ((subjectData.outerRadius || subjectData.radius) && !elbow){
     const h =  Math.sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2))
     const angle = Math.asin(-y2/h)
-    const r = td.outerRadius || td.radius + (td.radiusPadding || 0)
+    const r = subjectData.outerRadius || subjectData.radius + (subjectData.radiusPadding || 0)
 
     x1 = Math.abs(Math.cos(angle)*r)*(x2 < 0 ? -1 : 1)
     y1 = Math.abs(Math.sin(angle)*r)*(y2 < 0 ? -1 : 1)
@@ -26,7 +26,7 @@ export const connectorLine = ({ annotation, offset=annotation.position, context,
   let data = [[x1, y1], [x2, y2]]
 
   if (elbow) {
-    data = makeElbow(x1, x2, y1, y2, td, data, align)
+    data = makeElbow(x1, x2, y1, y2, subjectData, data, align)
   } else if (points) {
     data = [ [x1, y1], ...points, [x2, y2] ] 
   }
@@ -34,11 +34,11 @@ export const connectorLine = ({ annotation, offset=annotation.position, context,
   return lineBuilder({ data, curve, context, className : CLASS })
 }
 
-const makeElbow = (x1, x2, y1, y2, td, data, align) => {
+const makeElbow = (x1, x2, y1, y2, subjectData, data, align) => {
 
     // if (false ){//x2 < 0 /*&& Math.abs(x2) < width*/ ){
-    //    if ((td.outerRadius || td.radius) ){
-    //       const r = td.outerRadius || td.radius + (td.radiusPadding || 0)
+    //    if ((subjectData.outerRadius || subjectData.radius) ){
+    //       const r = subjectData.outerRadius || subjectData.radius + (subjectData.radiusPadding || 0)
     //       y1 += r*(y2 < 0 ? -1: 1)
     //    }
     //   data = [[x1, y1], [x1, y2]]
@@ -58,8 +58,8 @@ const makeElbow = (x1, x2, y1, y2, td, data, align) => {
       xe = x1 + diffY*opposite
     }
     
-    if (td.outerRadius || td.radius ){
-      const r = td.outerRadius || td.radius + (td.radiusPadding || 0)
+    if (subjectData.outerRadius || subjectData.radius ){
+      const r = (subjectData.outerRadius || subjectData.radius) + (subjectData.radiusPadding || 0)
       const length = r/Math.sqrt(2)
 
       if (Math.abs(diffX) > length && Math.abs(diffY) > length){
