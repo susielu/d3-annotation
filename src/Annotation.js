@@ -63,7 +63,8 @@ export default class Annotation {
     if (this.text) json.text = this.text 
     if (this.title) json.title = this.title
     if (this.data) json.data = this.data
-    // if (this.typeData) json.typeData = this.typeData
+    if (this.type) json.type = this.type
+
     if (Object.keys(this.connector).length > 0) json.connector = this.connector
     if (Object.keys(this.subject).length > 0) json.subject = this.subject
     if (Object.keys(this.textBox).length > 0) json.textBox = this.textBox

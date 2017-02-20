@@ -3504,7 +3504,8 @@ var Annotation = function () {
       if (this.text) json.text = this.text;
       if (this.title) json.title = this.title;
       if (this.data) json.data = this.data;
-      // if (this.typeData) json.typeData = this.typeData
+      if (this.type) json.type = this.type;
+
       if (Object.keys(this.connector).length > 0) json.connector = this.connector;
       if (Object.keys(this.subject).length > 0) json.subject = this.subject;
       if (Object.keys(this.textBox).length > 0) json.textBox = this.textBox;
@@ -4228,7 +4229,60 @@ var Type = function () {
   }, {
     key: 'drawConnector',
     value: function drawConnector(context) {
+      var _this2 = this;
+
+      if (context.curve) {
+        var createPoints = function () {
+          var anchors = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2;
+
+          var offset = this.annotation.offset;
+          var diff = { x: offset.x / (anchors + 1), y: offset.y / (anchors + 1) };
+          var p = [];
+
+          var i = 1;
+          for (; i <= anchors; i++) {
+            p.push([diff.x * i + i % 2 * 20, diff.y * i - i % 2 * 20]);
+          }
+          return p;
+        }.bind(this);
+
+        if (!this.annotation.connector) {
+          this.annotation.connector = {};
+        }
+        if (!this.annotation.connector.points || typeof this.annotation.connector.points === "number") {
+          this.annotation.connector.points = createPoints(this.annotation.connector.points);
+        }
+        if (!this.annotation.connector.curve) {
+          this.annotation.connector.curve = _d3Shape.curveCatmullRom;
+        }
+
+        context.points = this.annotation.connector.points;
+        context.curve = this.annotation.connector.curve;
+
+        if (this.editMode) {
+          (function () {
+            var handles = context.points.map(function (c, i) {
+              return _extends({}, (0, _Handles.pointHandle)({ cx: c[0], cy: c[1] }), { index: i });
+            });
+
+            var updatePoint = function updatePoint(index) {
+              _this2.annotation.connector.points[index][0] += _d3Selection.event.dx;
+              _this2.annotation.connector.points[index][1] += _d3Selection.event.dy;
+              _this2.customization();
+            };
+
+            (0, _Handles.addHandles)({
+              group: _this2.connector,
+              handles: _this2.mapHandles(handles.map(function (h) {
+                return _extends({}, h.move, { drag: updatePoint.bind(_this2, h.index) });
+              }))
+            });
+          })();
+        }
+      }
+
       var line = (0, _Connector.connectorLine)(context);
+
       if (context.arrow) {
         var dataLength = line.data.length;
 
@@ -4244,9 +4298,10 @@ var Type = function () {
     key: 'drawTextBox',
     value: function drawTextBox(context) {
       var offset = this.annotation.offset;
-      var padding = context.padding || 5;
-      var orientation = context.orientation || 'topBottom';
-      var align = context.align;
+      var tData = this.annotation.textBox;
+      var padding = tData.padding || context.padding || 5;
+      var orientation = tData.orientation || context.orientation || 'topBottom';
+      var align = tData.align || context.align;
 
       var x = -context.bbox.x + padding;
       var y = -context.bbox.y;
@@ -4343,13 +4398,13 @@ var Type = function () {
   }, {
     key: 'mapHandles',
     value: function mapHandles(handles) {
-      var _this2 = this;
+      var _this3 = this;
 
       return handles.filter(function (h) {
         return h.x !== undefined && h.y !== undefined;
       }).map(function (h) {
         return _extends({}, h, {
-          start: _this2.dragstarted.bind(_this2), end: _this2.dragended.bind(_this2) });
+          start: _this3.dragstarted.bind(_this3), end: _this3.dragended.bind(_this3) });
       });
     }
   }], [{
@@ -4368,8 +4423,50 @@ var Type = function () {
   return Type;
 }();
 
-//This is callout except without textbox underline, and centered text
+var subjectTypes = {
+  circle: function circle(context) {
+    var c = (0, _Subject.subjectCircle)(context);
 
+    if (undefined.editMode) {
+      (function () {
+        var subjectData = undefined.annotation.subject;
+        var h = (0, _Handles.circleHandles)({
+          r1: c.data.outerRadius || c.data.radius,
+          r2: c.data.innerRadius,
+          padding: undefined.annotation.subject.radiusPadding
+        });
+
+        var updateRadius = function updateRadius(type) {
+          var r = subjectData[type] + _d3Selection.event.dx * Math.sqrt(2);
+          subjectData[type] = r;
+          undefined.customization();
+        };
+
+        var updateRadiusPadding = function updateRadiusPadding() {
+          var rpad = subjectData.radiusPadding + _d3Selection.event.dx;
+          subjectData.radiusPadding = rpad;
+          undefined.customization();
+        };
+
+        var handles = [_extends({}, h.move, { drag: undefined.dragSubject.bind(undefined) }), _extends({}, h.r1, { drag: updateRadius.bind(undefined, subjectData.outerRadius !== undefined ? 'outerRadius' : 'radius') }), _extends({}, h.padding, { drag: updateRadiusPadding.bind(undefined) })];
+
+        if (subjectData.innerRadius) {
+          handles.push(_extends({}, h.r2, { drag: updateRadius.bind(undefined, 'innerRadius') }));
+        }
+
+        //TODO add handles when there is an inner radius and outer radius
+        (0, _Handles.addHandles)({
+          group: undefined.subject,
+          handles: undefined.mapHandles(handles)
+        });
+      })();
+    }
+    return c;
+  }
+
+};
+
+//This is callout except without textbox underline, and centered text
 
 var d3Label = exports.d3Label = function (_Type) {
   _inherits(d3Label, _Type);
@@ -4383,7 +4480,7 @@ var d3Label = exports.d3Label = function (_Type) {
   _createClass(d3Label, [{
     key: 'drawTextBox',
     value: function drawTextBox(context) {
-      context.aligm = "middle";
+      context.align = this.annotation.textBox.align || "middle";
       _get(d3Label.prototype.__proto__ || Object.getPrototypeOf(d3Label.prototype), 'drawTextBox', this).call(this, context);
     }
   }], [{
@@ -4539,41 +4636,41 @@ var d3CalloutCircle = exports.d3CalloutCircle = function (_d3CalloutElbow2) {
   _createClass(d3CalloutCircle, [{
     key: 'drawSubject',
     value: function drawSubject(context) {
-      var _this9 = this;
+      var _this10 = this;
 
       var c = (0, _Subject.subjectCircle)(context);
 
       if (this.editMode) {
         (function () {
-          var subjectData = _this9.annotation.subject;
+          var subjectData = _this10.annotation.subject;
           var h = (0, _Handles.circleHandles)({
             r1: c.data.outerRadius || c.data.radius,
             r2: c.data.innerRadius,
-            padding: _this9.annotation.subject.radiusPadding
+            padding: _this10.annotation.subject.radiusPadding
           });
 
           var updateRadius = function updateRadius(type) {
             var r = subjectData[type] + _d3Selection.event.dx * Math.sqrt(2);
             subjectData[type] = r;
-            _this9.customization();
+            _this10.customization();
           };
 
           var updateRadiusPadding = function updateRadiusPadding() {
             var rpad = subjectData.radiusPadding + _d3Selection.event.dx;
             subjectData.radiusPadding = rpad;
-            _this9.customization();
+            _this10.customization();
           };
 
-          var handles = [_extends({}, h.move, { drag: _this9.dragSubject.bind(_this9) }), _extends({}, h.r1, { drag: updateRadius.bind(_this9, subjectData.outerRadius !== undefined ? 'outerRadius' : 'radius') }), _extends({}, h.padding, { drag: updateRadiusPadding.bind(_this9) })];
+          var handles = [_extends({}, h.move, { drag: _this10.dragSubject.bind(_this10) }), _extends({}, h.r1, { drag: updateRadius.bind(_this10, subjectData.outerRadius !== undefined ? 'outerRadius' : 'radius') }), _extends({}, h.padding, { drag: updateRadiusPadding.bind(_this10) })];
 
           if (subjectData.innerRadius) {
-            handles.push(_extends({}, h.r2, { drag: updateRadius.bind(_this9, 'innerRadius') }));
+            handles.push(_extends({}, h.r2, { drag: updateRadius.bind(_this10, 'innerRadius') }));
           }
 
           //TODO add handles when there is an inner radius and outer radius
           (0, _Handles.addHandles)({
-            group: _this9.subject,
-            handles: _this9.mapHandles(handles)
+            group: _this10.subject,
+            handles: _this10.mapHandles(handles)
           });
         })();
       }
@@ -4601,57 +4698,8 @@ var d3CalloutCurve = exports.d3CalloutCurve = function (_d3Callout2) {
   _createClass(d3CalloutCurve, [{
     key: 'drawConnector',
     value: function drawConnector(context) {
-      var _this11 = this;
-
-      var createPoints = function () {
-        var anchors = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2;
-
-        var offset = this.annotation.offset;
-        var diff = { x: offset.x / (anchors + 1), y: offset.y / (anchors + 1) };
-        var p = [];
-
-        var i = 1;
-        for (; i <= anchors; i++) {
-          p.push([diff.x * i + i % 2 * 20, diff.y * i - i % 2 * 20]);
-        }
-        return p;
-      }.bind(this);
-
-      if (!this.annotation.connector) {
-        this.annotation.connector = {};
-      }
-      if (!this.annotation.connector.points || typeof this.annotation.connector.points === "number") {
-        this.annotation.connector.points = createPoints(this.annotation.connector.points);
-      }
-      if (!this.annotation.connector.curve) {
-        this.annotation.connector.curve = _d3Shape.curveCatmullRom;
-      }
-
-      context.points = this.annotation.connector.points;
-      context.curve = this.annotation.connector.curve;
-
-      if (this.editMode) {
-        (function () {
-          var handles = context.points.map(function (c, i) {
-            return _extends({}, (0, _Handles.pointHandle)({ cx: c[0], cy: c[1] }), { index: i });
-          });
-
-          var updatePoint = function updatePoint(index) {
-            _this11.annotation.connector.points[index][0] += _d3Selection.event.dx;
-            _this11.annotation.connector.points[index][1] += _d3Selection.event.dy;
-            _this11.customization();
-          };
-
-          (0, _Handles.addHandles)({
-            group: _this11.connector,
-            handles: _this11.mapHandles(handles.map(function (h) {
-              return _extends({}, h.move, { drag: updatePoint.bind(_this11, h.index) });
-            }))
-          });
-        })();
-      }
-
-      return (0, _Connector.connectorLine)(context);
+      context.curve = true;
+      return _get(d3CalloutCurve.prototype.__proto__ || Object.getPrototypeOf(d3CalloutCurve.prototype), 'drawConnector', this).call(this, context);
     }
   }], [{
     key: 'className',
@@ -4727,7 +4775,7 @@ var customType = function customType(initialType, typeSettings) {
     }, {
       key: 'drawTextBox',
       value: function drawTextBox(context) {
-        return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawTextBox', this).call(this, _extends({}, context, typeSettings.connector));
+        return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawTextBox', this).call(this, _extends({}, context, typeSettings.textBox));
       }
     }], [{
       key: 'className',
