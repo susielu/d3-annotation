@@ -5,7 +5,6 @@ const CLASS = "connector"
 //TODO: think of how to rename context to make it clear that it is canvas context
 export const connectorLine = ({ annotation, offset=annotation.position, context,
     curve, bbox, elbow=false, points, align }) => {
-
   let x1 = annotation.x - offset.x,
     x2 = x1 + annotation.dx,
     y1 = annotation.y - offset.y,

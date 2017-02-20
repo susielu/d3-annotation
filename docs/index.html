@@ -81,7 +81,7 @@
       border-bottom: 1px solid var(--accent-color);
     }
 
-    .section ul li {
+    .section ul:not(.collapsible) li {
       list-style-type: square;
       margin-left: 40px;
     }
@@ -151,6 +151,10 @@
       stroke-opacity: .4;
     }
 
+    .collapsible-body {
+      overflow: overlay;
+    }
+
   </style>
 <!-- bungee and muli -->
 </head>
@@ -195,7 +199,41 @@
           <div class="section scrollspy" >
             <h2>Annotation Types Test</h2>
             <div>
-              <div class="icons"></div>
+              <div class="icons">
+                 <!-- Dropdown Trigger -->
+
+              <ul class="collapsible" data-collapsible="expandable">
+                <li>
+                  <div class="collapsible-header active">Presets</div>
+                  <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                </li>
+                <li>
+                  <div class="collapsible-header active">Options</div>
+                  <div class="collapsible-body">
+                    <div class"row">
+                      <div class="col m4">
+                        <p>Textbox</p>
+                         <a class='dropdown-button btn' href='#' data-activates='dropdown1'>Drop Me!</a>
+
+                        <!-- Dropdown Structure -->
+                        <ul id='dropdown1' class='dropdown-content'>
+                          <li><a href="#!">one</a></li>
+                          <li><a href="#!">two</a></li>
+                          <li class="divider"></li>
+                          <li><a href="#!">three</a></li>
+                        </ul>
+                      </div>
+                      <div class="col m4">
+                        <p>Connector</p>
+                      </div>
+                      <div class="col m4">
+                        <p>Subject</p>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+              </div>
             </div>
             <svg class="sandbox"></svg>
           </div>

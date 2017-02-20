@@ -74,7 +74,8 @@ class Type {
     }
   }
 
-  drawSubject () {
+  drawSubject (context) {
+
     if (this.editMode){
       const h = pointHandle({})
 
@@ -83,59 +84,126 @@ class Type {
         handles: this.mapHandles([{ ...h.move, drag: this.dragSubject.bind(this)}])
       })
     }
-  }
+
+    const type = context.type
+
+    switch (type) {
+      case "circle":
+        
+        const subjectData = this.annotation.subject
+
+        if (!subjectData.radius && !subjectData.outerRadius ){
+          this.annotation.subject.radius = 20
+        }
+        const c = subjectCircle(context);
+
+        if (this.editMode){
+          const h = circleHandles({
+            r1: c.data.outerRadius || c.data.radius,
+            r2: c.data.innerRadius,
+            padding: this.annotation.subject.radiusPadding
+          })
+
+          const updateRadius = (type) => {      
+            const r = subjectData[type] + event.dx*Math.sqrt(2)
+            subjectData[type] = r
+            this.customization()
+          }
+
+          const updateRadiusPadding = () => {
+            const rpad = subjectData.radiusPadding + event.dx
+            subjectData.radiusPadding = rpad
+            this.customization()
+          }
+
+          const handles = [{ ...h.move, drag: this.dragSubject.bind(this)},
+            {...h.padding, drag : updateRadiusPadding.bind(this)},
+            { ...h.r1, drag: updateRadius.bind(this, subjectData.outerRadius !== undefined ? 'outerRadius': 'radius')}
+            ]
+
+          if (subjectData.innerRadius){
+            handles.push({ ...h.r2, drag: updateRadius.bind(this, 'innerRadius')})
+          }
+
+          //TODO add handles when there is an inner radius and outer radius
+          addHandles({
+            group: this.subject,
+            handles: this.mapHandles(handles)
+          })
+        }
+        return c
+    case "threshold":
+      return subjectLine(context)
+    }
+ }
 
   drawConnector (context) {
     
-    if (context.curve){
-      const createPoints = function(anchors=2){
-            const offset = this.annotation.offset
-            const diff = { x: offset.x/(anchors + 1), y: offset.y/(anchors + 1) }
-            const p = []
+    // connector types 
+    // can send, elbow, curve, or nothing defaults to straight line
+    const type = context.type
+    switch (type) {
+      case "elbow":
+        context.elbow = true
+        break;
+      case "curve": 
+        const createPoints = function(anchors=2){
+              const offset = this.annotation.offset
+              const diff = { x: offset.x/(anchors + 1), y: offset.y/(anchors + 1) }
+              const p = []
 
-            let i = 1 
-            for (; i <= anchors; i++){
-              p.push([diff.x*i + i%2*20, diff.y*i - i%2*20])
-            }
-            return p
-      }.bind(this)
+              let i = 1 
+              for (; i <= anchors; i++){
+                p.push([diff.x*i + i%2*20, diff.y*i - i%2*20])
+              }
+              return p
+        }.bind(this)
 
-      if (!this.annotation.connector){ this.annotation.connector = {} }
-      if (!this.annotation.connector.points || typeof this.annotation.connector.points === "number"){ 
-        this.annotation.connector.points = createPoints(this.annotation.connector.points) 
-      }
-      if (!this.annotation.connector.curve){ this.annotation.connector.curve = curveCatmullRom }
+        if (!this.annotation.connector){ this.annotation.connector = {} }
+        if (!this.annotation.connector.points || typeof this.annotation.connector.points === "number"){ 
+          this.annotation.connector.points = createPoints(this.annotation.connector.points) 
+        }
+        if (!this.annotation.connector.curve){ this.annotation.connector.curve = curveCatmullRom }
 
-      context.points = this.annotation.connector.points 
-      context.curve = this.annotation.connector.curve
+        context.points = this.annotation.connector.points 
+        context.curve = this.annotation.connector.curve
 
-      if (this.editMode) {
-        let handles = context.points
-          .map((c,i) => ({...pointHandle({cx: c[0], cy: c[1]}), index: i}))
+        if (this.editMode) {
+          let handles = context.points
+            .map((c,i) => ({...pointHandle({cx: c[0], cy: c[1]}), index: i}))
 
-      const updatePoint = (index) => {      
-          this.annotation.connector.points[index][0] += event.dx
-          this.annotation.connector.points[index][1] += event.dy
-          this.customization()
-      }
+        const updatePoint = (index) => {      
+            this.annotation.connector.points[index][0] += event.dx
+            this.annotation.connector.points[index][1] += event.dy
+            this.customization()
+        }
 
-      addHandles({
-          group: this.connector,
-          handles: this.mapHandles(handles
-            .map(h => ({ ...h.move, drag: updatePoint.bind(this, h.index)})))
+        addHandles({
+            group: this.connector,
+            handles: this.mapHandles(handles
+              .map(h => ({ ...h.move, drag: updatePoint.bind(this, h.index)})))
         })
+        break;
       }
-    }
-    
-    const line = connectorLine(context)
 
-    if (context.arrow){
-      const dataLength = line.data.length
-    
-      context.start = context.arrowTextBox ? line.data[dataLength - 2] : line.data[1]
-      context.end = context.arrowTextBox ?  lind.data[dataLength - 1] : line.data[0]
+    }
+
+    const line = [connectorLine(context)]
+
+    // connector end 
+    const endType = context.end
+    switch (endType){
+      case "arrow":
+        const dataLength = line.data.length
       
-      return [line, connectorArrow(context)]
+        context.start = line.data[1]
+        context.end = line.data[0]
+        
+        line.push(connectorArrow(context))
+        break;
+      case "dot":
+        line.push(subjectCircle(context))
+        break;
     }
 
     return line;
@@ -146,10 +214,32 @@ class Type {
     const tData = this.annotation.textBox
     const padding = tData.padding || context.padding || 5
     const orientation = tData.orientation || context.orientation || 'topBottom'
-    const align = tData.align || context.align
+    let align = tData.align || context.align
 
     let x = -context.bbox.x + padding
     let y = -context.bbox.y
+
+    let decorators = []
+        
+    const lineType = context.lineType
+    if(lineType){
+      if (offset.x < 0 ) {
+        
+        // if (!context.orientation || context.orientation == "topBottom")){
+        //   context.align = "right"
+        // }
+
+        //           if (context.orientation == "leftRight" && offset.x < 0) {
+          align = "right"
+        // }
+      }
+      if (lineType == "vertical") {
+        if (offset.y < 0){ context.position = "top" }
+        decorators.push(textBoxSideline(context))
+       } else if (lineType == "horizontal") {
+        decorators.push(textBoxLine({ ...context, align }) )
+       }
+    }
 
     if (orientation === 'topBottom' ){
       if (offset.y < 0){ y = -context.bbox.height - padding }
@@ -184,6 +274,8 @@ class Type {
         handles: this.mapHandles([{ x: 0, y: 0, drag: this.dragTextBox.bind(this)}])
       })
     }
+
+    return decorators
   }
 
   customization(bbox=this.getTextBBox()) {
@@ -233,225 +325,87 @@ class Type {
   }
 }
 
-
-const subjectTypes = {
-  circle: (context) => { 
-    const c = subjectCircle(context);
-
-    if (this.editMode){
-      const subjectData = this.annotation.subject
-      const h = circleHandles({
-        r1: c.data.outerRadius || c.data.radius,
-        r2: c.data.innerRadius,
-        padding: this.annotation.subject.radiusPadding
-      })
-
-      const updateRadius = (type) => {      
-        const r = subjectData[type] + event.dx*Math.sqrt(2)
-        subjectData[type] = r
-        this.customization()
-      }
-
-      const updateRadiusPadding = () => {
-        const rpad = subjectData.radiusPadding + event.dx
-        subjectData.radiusPadding = rpad
-        this.customization()
-      }
-
-      const handles = [{ ...h.move, drag: this.dragSubject.bind(this)}, 
-        { ...h.r1, drag: updateRadius.bind(this, subjectData.outerRadius !== undefined ? 'outerRadius': 'radius')},
-        { ...h.padding, drag : updateRadiusPadding.bind(this)}
-        ]
-
-      if (subjectData.innerRadius){
-        handles.push({ ...h.r2, drag: updateRadius.bind(this, 'innerRadius')})
-      }
-
-      //TODO add handles when there is an inner radius and outer radius
-      addHandles({
-        group: this.subject,
-        handles: this.mapHandles(handles)
-      })
-    }
-    return c
-  },
-
-}
-
-
-//This is callout except without textbox underline, and centered text
-export class d3Label extends Type {
-  static className(){ return "label" }
-  drawTextBox(context) { 
-    context.align = this.annotation.textBox.align || "middle"
-    super.drawTextBox(context)
-  }
-}
-export class d3LabelDots extends d3Label {
-  static className(){ return "label dots" }
-  drawTextBox(context) { 
-    super.drawTextBox(context)
-    return subjectCircle(context)
-  }
-
-  drawSubject(context) {
-    super.drawSubject()
-    return subjectCircle(context)
-  }
-}
-
-
-
-
-// Custom annotation types
-export class d3Callout extends Type {
-  static className(){ return "callout" }
-
-  drawTextBox(context) { 
-    const offset = this.annotation.offset
-    super.drawTextBox(context)
-    
-    if (context.orientation == "leftRight" && offset.x < 0) {
-      context.align = "right"
-    }
-
-    return textBoxLine(context) 
-  }
-}
-
-export class d3CalloutElbow extends d3Callout {
-  static className(){ return "callout elbow" }
-
-  drawConnector(context) {
-    context.elbow = true
-    return super.drawConnector(context)
-  }
-
-  drawTextBox(context) {
-    const offset = this.annotation.offset
-
-    if (offset.x < 0 && (!context.orientation || context.orientation == "topBottom")){
-      context.align = "right"
-    }
-    return super.drawTextBox(context)
-  }
-}
-
-export class d3CalloutLeftRight extends d3CalloutElbow {
-  static className() { return "callout leftright"}
-
-  drawTextBox(context) {
-    super.drawTextBox(context)
-
-    const offset = this.annotation.offset
-    if (offset.y < 0){
-      context.position = "top"
-    }
-
-    return textBoxSideline(context)
-  }
-}
-
-export class d3CalloutCircle extends d3CalloutElbow {
-  static className(){ return "callout circle" }
-  
-  drawSubject(context) { 
-    const c = subjectCircle(context);
-
-    if (this.editMode){
-      const subjectData = this.annotation.subject
-      const h = circleHandles({
-        r1: c.data.outerRadius || c.data.radius,
-        r2: c.data.innerRadius,
-        padding: this.annotation.subject.radiusPadding
-      })
-
-      const updateRadius = (type) => {      
-        const r = subjectData[type] + event.dx*Math.sqrt(2)
-        subjectData[type] = r
-        this.customization()
-      }
-
-      const updateRadiusPadding = () => {
-        const rpad = subjectData.radiusPadding + event.dx
-        subjectData.radiusPadding = rpad
-        this.customization()
-      }
-
-      const handles = [{ ...h.move, drag: this.dragSubject.bind(this)}, 
-        { ...h.r1, drag: updateRadius.bind(this, subjectData.outerRadius !== undefined ? 'outerRadius': 'radius')},
-        { ...h.padding, drag : updateRadiusPadding.bind(this)}
-        ]
-
-      if (subjectData.innerRadius){
-        handles.push({ ...h.r2, drag: updateRadius.bind(this, 'innerRadius')})
-      }
-
-      //TODO add handles when there is an inner radius and outer radius
-      addHandles({
-        group: this.subject,
-        handles: this.mapHandles(handles)
-      })
-    }
-    return c
-  }
-
-}
-
-
-export class d3CalloutCurve extends d3Callout{ 
-  static className(){ return "callout curve" }
-  drawConnector(context) { 
-     context.curve = true
-     return super.drawConnector(context)
-  }
-}
-
-
-export class d3XYThreshold extends d3Callout {
-  static className(){ return "xythreshold" }
-
-  drawSubject(context) { 
-    super.drawSubject()
-    return subjectLine(context)
-  }
-
-  static init(annotation, accessors) {
-    super.init(annotation, accessors)
-
-    //TODO: come back to here to check assumptions being made
-    if (!annotation.x && (annotation.subject.y1 || annotation.subject.y2) && annotation.data && accessors.x){
-      annotation.x = accessors.x(annotation.data)
-    }
-
-    if (!annotation.y && (annotation.subject.x1 || annotation.subject.x2) && annotation.data && accessors.y){
-      annotation.y = accessors.y(annotation.data)
-    }
-
-    return annotation
-  }
-}
-
-
-
-const customType = (initialType, typeSettings) => {
+export const customType = (initialType, typeSettings, init) => {
   return class customType extends initialType {
+    constructor ({ a, annotation, editMode }) {
+      super({a, annotation, editMode})
+      this.typeSettings = typeSettings
+    }
+
+    static init(annotation, accessors){ 
+      super.init(annotation, accessors); 
+      if (init) {
+        annotation = init(annotation, accessors) 
+      }
+      return annotation
+    }
+
     static className(){ return typeSettings.className || initialType.className()}
 
     drawSubject(context){
-       return super.drawSubject({ ...context, ...typeSettings.subject })
+       return super.drawSubject({ ...context, ...typeSettings.subject, ...this.typeSettings.subject })
     }
 
     drawConnector(context){
-      return super.drawConnector({ ...context, ...typeSettings.connector })
+      return super.drawConnector({ ...context, ...typeSettings.connector, ...this.typeSettings.connector })
     }
 
     drawTextBox(context){
-      return super.drawTextBox({ ...context, ...typeSettings.textBox })
+      return super.drawTextBox({ ...context, ...typeSettings.textBox, ...this.typeSettings.textBox })
     }
   }
 }
 
+export const d3Label = customType(Type, {
+  className: "label", 
+  textBox: { align: "middle"}
+})
+
+export const d3LabelDots = customType(Type, {
+  className: "label dots",
+  connector: { start: "dot", end: "dot" }
+})
+
+export const d3Callout = customType(Type, {
+  className: "callout",
+  textBox: { lineType: "horizontal" }
+})
+
+export const d3CalloutElbow = customType(d3Callout, {
+  className: "callout elbow",
+  connector: { type: "elbow" }
+})
+
+export const d3CalloutLeftRight = customType(d3CalloutElbow, {
+  textBox: { lineType: "vertical"}
+})
+
+export const d3CalloutCircle = customType(d3CalloutElbow, {
+  className: "callout circle",
+  subject: { type: "circle"}
+})
+
+export const d3CalloutCurve = customType(d3Callout, {
+  className: "callout curve",
+  connector: { type: "curve" }
+})
+
+export const d3XYThreshold = customType(d3Callout, {
+  className: "xythreshold",
+  subject: { type: "threshold" }
+  }, (annotation, accessors) => {
+      //TODO: come back to here to check assumptions being made
+      if (!annotation.x && (annotation.subject.y1 || annotation.subject.y2) && annotation.data && accessors.x){
+        annotation.x = accessors.x(annotation.data)
+      }
+
+      if (!annotation.y && (annotation.subject.x1 || annotation.subject.x2) && annotation.data && accessors.y){
+        annotation.y = accessors.y(annotation.data)
+      }
+
+      return annotation
+    }
+  )
 
 export const newWithClass = (a, d, type, className) => {
   const group = a.selectAll(`${type}.${className}`).data(d)

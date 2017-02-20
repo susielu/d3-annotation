@@ -3,8 +3,7 @@ import { lineBuilder } from './Builder'
 const CLASS = "connector"
 
 export const textBoxLine = ({ annotation, offset={x: 0, y: 0}, context, 
-    curve, bbox, position="top", align, padding=5}) => {
-  
+    curve, bbox, align, padding=5}) => {
   if (align == "right") {
     offset.x -= bbox.width
   } else if (align == "middle"){
