@@ -153,6 +153,7 @@
 
     .collapsible-body {
       overflow: overlay;
+      width: 100%;
     }
 
     .collapsible-body p {
@@ -172,6 +173,10 @@
 
     .icons .presets img {
       width: 50px;
+    }
+
+    .icons .presets img.active {
+      border: 1px solid var(--accent-color);
     }
 
   </style>
@@ -213,7 +218,7 @@
       <div class="col s12 m9 l9"> 
           <div class="section scrollspy" id="introduction"></div>          
           <div class="section scrollspy" id="anatomy"></div>
-          <div class="section scrollspy" id="start"></div>
+          <div class="section scrollspy" id="setup"></div>
           <div class="section scrollspy" id="annotation"></div>
           <div class="section scrollspy" id="types" >
             <h2>Annotation Types</h2>
@@ -223,56 +228,70 @@
 
               <ul class="collapsible presets" data-collapsible="expandable">
                 <li>
-                  <div class="collapsible-header active">Presets</div>
-                  <div class="collapsible-body">
-                    <img data-type="d3Label" src="img/a-label.png" />
-                    <img data-type="d3Callout" src="img/a-dots.png" />
-                    <img data-type="d3Callout"  src="img/a-callout.png" />
-                    <img data-type="d3CalloutElbow" src="img/a-elbow.png" />
-                    <img data-type="d3CalloutCurve" src="img/a-curve.png" />
-                    <img data-type="d3CalloutCircle" src="img/a-circle.png" />
+                  <div class="collapsible-header active">
+                    <b>Presets</b>
+                    <div style="float:right;">
+                      <div class="switch">
+                          <label>
+                            <b style="padding-right: 10px;">Edit Mode </b> Off
+                            <input id="editmode" type="checkbox" checked>
+                            <span class="lever"></span>
+                            On
+                          </label>
+                        </div>
+                      
+                      </div>
 
+                  </div>
+                  <div class="collapsible-body">
+                    <img class="active" data-type="annotationLabel" src="img/a-label.png" />
+                    <img data-type="annotationCallout" src="img/a-dots.png" />
+                    <img data-type="annotationCallout"  src="img/a-callout.png" />
+                    <img data-type="annotationCalloutElbow" src="img/a-elbow.png" />
+                    <img data-type="annotationCalloutCurve" src="img/a-curve.png" />
+                    <img data-type="annotationCalloutCircle" src="img/a-circle.png" />
+                    <img data-type="annotationCalloutXYThreshold" src="img/a-threshold.png" />
                   </div>
                 </li>
                 <li>
-                  <div class="collapsible-header active">Options</div>
+                  <div class="collapsible-header active"><b>Options</b></div>
                   <div class="collapsible-body">
                     <div class"row">
-                      <div class="col m4 textbox">
+                      <div class="col m3 textbox">
                         <p><b>Textbox</b></p>
                         <p>Align</p>
                          <a class="waves-effect btn grey lighten-1" data-section="textBox:align" data-setting="left">Left</a>
                          <a class="waves-effect btn" data-section="textBox:align" data-setting="middle">Middle</a>
                          <a class="waves-effect btn grey lighten-1" data-section="textBox:align" data-setting="right">Right</a>
-<p>Orientation</p>
+                        <p>Orientation</p>
                          <a class="waves-effect btn" data-section="textBox:orientation" data-setting="topBottom">Top/Bottom</a>
                          <a class="waves-effect btn grey lighten-1" data-section="textBox:orientation" data-setting="leftRight">Left/Right</a>
-<p>Line Type</p>
+                       
+                      </div>
+                      <div class="col m3 textbox">
+                          <br/>
+                          <p>Line Type</p>
                          <a class="waves-effect btn  grey lighten-1" data-section="textBox:lineType" data-setting="vertical">Vertical</a>
                          <a class="waves-effect btn  grey lighten-1" data-section="textBox:lineType" data-setting="horizontal">Horizontal</a>
                        
                          <a class="waves-effect btn" data-section="textBox:lineType" data-setting="None">None</a>
-                       
                       </div>
-                      <div class="col m4 connector">
+                      <div class="col m3 connector">
                         <p><b>Connector</b></p>
                         <p>Type</p>
                         <a class="waves-effect btn grey lighten-1" data-section="connector:type" data-setting="none">None</a>
                         <a class="waves-effect btn" data-section="connector:type"data-setting="line">Line</a>
                         <a class="waves-effect btn grey lighten-1" data-section="connector:type" data-setting="elbow">Elbow</a>
                         <a class="waves-effect btn  grey lighten-1" data-section="connector:type" data-setting="curve">Curve</a>
+
+                      </div>
+                      <div class="col m3 connector">
+                        <br/>
+
                         <p>End</p>
                         <a class="waves-effect btn " data-section="connector:end" data-setting="none">None</a>
                         <a class="waves-effect btn grey lighten-1" data-section="connector:end" data-setting="arrow">Arrow</a>
                         <a class="waves-effect btn grey lighten-1" data-section="connector:end" data-setting="dot">Dot</a>
-                      </div>
-                      <div class="col m4 subject">
-                        <p><b>Subject</b></p>
-                        <div class="type">
-                        <a class="waves-effect btn" data-section="subject:type" data-setting="none">None</a>
-                        <a class="waves-effect btn grey lighten-1" data-section="subject:type" data-setting="circle">Circle</a>
-                        <a class="waves-effect btn  grey lighten-1" data-section="subject:type" data-setting="threshold">Threshold</a>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -282,14 +301,18 @@
             </div>
             <svg class="sandbox"></svg>
 
-            <p>Use this annotation:</p>
+            <h3>Use dat jam:</h3p>
             <pre id="sandbox-code">
               <code>
               </code>
             </pre>
+
+            <h3>Position with scales</h3>
+
+
           </div>
-          <div class="section scrollspy" id="styles"></div>
           <div class="section scrollspy" id="custom"></div>
+          <div class="section scrollspy" id="styles"></div>
           <div class="section scrollspy" id="layout"></div>
           <div class="section scrollspy" id="extend"></div>
           <div class="section scrollspy" id="notes"></div>

@@ -21,7 +21,7 @@ document.getElementById('toc1').innerHTML = md(contents);
 document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + md(contents)
 document.getElementById('introduction').innerHTML = md(introduction);
 document.getElementById('anatomy').innerHTML = md(anatomy);
-document.getElementById('start').innerHTML = md(start);
+document.getElementById('setup').innerHTML = md(start);
 
 document.getElementById('annotation').innerHTML = md(annotation);
 document.getElementById('styles').innerHTML = md(styles);
@@ -42,60 +42,66 @@ $(document).ready(function(){
 
     highlight.initHighlightingOnLoad();
 
-    let typeSettings = {
+    const defaultSettings = {
       className: "custom",
       subject: {},
       connector: {},
       textBox: {}
     }
 
+    let typeSettings = JSON.parse(JSON.stringify(defaultSettings))
+
     let currentType = d3.annotationLabel
+    let typeKey = "annotationLabel"
 
+  
     const types = {
-      d3Label: { 
-        type: d3.annotationLabel,
+      annotationLabel: { 
         typeSettings: {
 
         }
       },
-      d3Callout: { 
-        type: d3.annotationCallout,
+      annotationCallout: { 
         typeSettings: {
 
         }
       },
-      d3CalloutElbow: { 
-        type: d3.annotationCalloutElbow,
+      annotationCalloutElbow: { 
         typeSettings: {
 
         }
       },
-      d3CalloutLeftRight: { 
-        type: d3.annotationCalloutLeftRight,
+      // d3CalloutLeftRight: { 
+      //   typeSettings: {
+
+      //   }
+      // },
+      annotationCalloutCircle: { 
         typeSettings: {
 
         }
       },
-      d3CalloutCircle: { 
-        type: d3.annotationCalloutCircle,
+      annotationCalloutCurve: { 
         typeSettings: {
 
         }
       },
-      d3CalloutCurve: { 
-        type: d3.annotationCalloutCurve,
+      annotationCalloutXYThreshold: { 
         typeSettings: {
 
         }
       }
     }
 
+    let editMode = true
+
     window.makeAnnotations = d3.annotation()
-    .editMode(true)
+    .editMode(editMode)
     .type(currentType)
     .annotations([
       {
-        text: "Annotation Label d3.annotationLabel",
+        text: "d3.annotationLabel",
+        title: "Annotations :)",
         x: 150,
         y: 150,
         dy: 137,
@@ -115,10 +121,14 @@ $(document).ready(function(){
           .classed('grey lighten-1', false)
 
         type = type.split(':')
-        typeSettings[type[0]][type[1]] = value
 
-        
-        currentType = d3.annotationCustomType(d3.annotationLabel, typeSettings)
+        if (value === "none"){
+          delete typeSettings[type[0]][type[1]]
+        } else {
+          typeSettings[type[0]][type[1]] = value
+        }
+
+        currentType = d3.annotationCustomType(d3[typeKey], typeSettings)
 
         d3.select(".sandbox g.sandbox-annotations")
           .remove()
@@ -128,23 +138,33 @@ $(document).ready(function(){
         d3.select(".sandbox")
           .call(makeAnnotations)
 
-        //makeAnnotations.update()
+        sandboxCode()
     })
 
     d3.selectAll('.icons .presets img')
       .on('click', function(){
-        let type = d3.event.target.attributes['data-type'].value
+        typeKey = d3.event.target.attributes['data-type'].value
 
-        const t = types[type]
-        currentType = t.type
+       // const t = types[typeKey]
+
+        currentType = d3[typeKey]
+
+        d3.selectAll(`.icons .presets img`)
+          .classed('active', false)
+
+        d3.selectAll(`[data-type="${typeKey}"]`)
+          .classed('active', true)
 
         d3.select(".sandbox g.sandbox-annotations")
           .remove()
 
         makeAnnotations.type(currentType)
+        typeSettings = JSON.parse(JSON.stringify(defaultSettings))
 
         d3.select(".sandbox")
           .call(makeAnnotations)
+
+        sandboxCode()
 
       })
 
@@ -153,106 +173,80 @@ $(document).ready(function(){
       .attr("class", "sandbox-annotations")
       .call(makeAnnotations)
 
+    
+    d3.select('#editmode')
+      .on('change', function(){
+        console.log('in on change', d3.event.target.checked, d3.event.target, d3.event)
 
-    d3.select("#sandbox-code code")
-      .text('const labels = [{ ' +
-  'text: "Basic callout elbow ", \n' +
-  '   data: {date: "18-Sep-09",'    
-   )
+        editMode = d3.event.target.checked
 
-    // d3.select("#annotation-label-example")
-    //   .append("g")
-    //   .attr("class", "annotation-label")
-    //   .call(d3.annotation()
-    //     .editMode(true)
-    //     .annotations([
-    //       {
-    //         text: "Annotation Label d3.annotationLabel",
-    //         x: 150,
-    //         y: 150,
-    //         dy: 37,
-    //         dx: 42,
-    //         type:  d3.annotationLabel
-    //       }])
-    //   )
+        makeAnnotations.editMode(editMode)
+        makeAnnotations.update()
 
-    // d3.select("#annotation-labeldots-example")
-    //   .append("g")
-    //   .attr("class", "annotation-labeldots")
-    //   .call(d3.annotation()
-    //     .editMode(true)
-    //     .annotations([
-    //       {
-    //         text: "Annotation Label Dots d3.annotationLabelDots",
-    //         x: 150,
-    //         y: 150,
-    //         dy: 37,
-    //         dx: 42,
-    //         type:  d3.annotationLabelDots
-    //       }])
-    //   )
+        sandboxCode()
+      })
 
-    // d3.select("#annotation-callout-example")
-    //   .append("g")
-    //   .attr("class", "annotation-callout")
-    //   .call(d3.annotation()
-    //     .editMode(true)
-    //     .annotations([
-    //       {
-    //         text: "Annotation Label Dots d3.annotationCallout",
-    //         x: 150,
-    //         y: 150,
-    //         dy: 37,
-    //         dx: 42,
-    //         type:  d3.annotationCallout
-    //       }])
-    //   )
+    //change the text to have the right position for the annotation
 
-    // d3.select("#annotation-calloutelbow-example")
-    //   .append("g")
-    //   .attr("class", "annotation-calloutelbow")
-    //   .call(d3.annotation()
-    //     .editMode(true)
-    //     .annotations([
-    //       {
-    //         text: "Annotation Label Dots d3.annotationElbow",
-    //         x: 150,
-    //         y: 150,
-    //         dy: 37,
-    //         dx: 42,
-    //         type:  d3.annotationCalloutElbow
-    //       }])
-    //   )
+    const sandboxCode = () => { 
+      
+      const editModeText = editMode ? `  .editMode(true)\n` : ''
 
-    // d3.select("#annotation-calloutcurve-example")
-    //   .append("g")
-    //   .attr("class", "annotation-calloutcurve")
-    //   .call(d3.annotation()
-    //     .editMode(true)
-    //     .annotations([
-    //       {
-    //         text: "Annotation Label Dots d3.annotationcurve",
-    //         x: 150,
-    //         y: 150,
-    //         dy: 37,
-    //         dx: 122,
-    //         type:  d3.annotationCalloutCurve
-    //       }])
-    //   )
+      let typeText = 'const type = '
 
-    // d3.select("#annotation-calloutcircle-example")
-    //   .append("g")
-    //   .attr("class", "annotation-calloutcircle")
-    //   .call(d3.annotation()
-    //     .editMode(true)
-    //     .annotations([
-    //       {
-    //         text: "Annotation Label Dots d3.annotationcircle",
-    //         x: 150,
-    //         y: 150,
-    //         dy: 57,
-    //         dx: 132,
-    //         type:  d3.annotationCalloutCircle
-    //       }])
-    //   )
+
+      if (JSON.stringify(typeSettings) == JSON.stringify(defaultSettings)){
+        typeText += `d3.${typeKey}\n`
+      } else {
+        let json = JSON.parse(JSON.stringify(typeSettings))
+
+        if (Object.keys(json.subject).length === 0){
+          delete json.subject
+        }
+
+        if (Object.keys(json.connector).length === 0){
+          delete json.connector
+        }
+
+        if (Object.keys(json.textBox) === 0){
+          delete json.textBox
+        }
+
+        typeText += `d3.annotationCustomType(\n` +
+          `  d3.${typeKey}, \n` +
+          `  ${JSON.stringify(json).replace(/,/g, ',\n    ')}` +
+          `)\n`
+      }
+
+      d3.select("#sandbox-code code")
+      .text(
+      typeText +
+      '\n' +
+      'const makeAnnotations = d3.annotation()\n' +
+      editModeText +
+      `  .type(type)\n` +
+      `  .annotations([\n` +
+      '      {\n' +
+      '        text: "d3.annotationLabel",\n' +
+      '        title: "Annotations :)",\n' +
+      '        x: 150,\n' +
+      '        y: 150,\n' +
+      '        dy: 137,\n' +
+      '        dx: 142,\n' +
+      '      }])\n' +
+      '\n' +
+      'd3.select("svg")\n' +
+      '  .append("g")\n' +
+      '  .attr("class", "annotation-test")\n' +
+      '  .call(makeAnnotations)\n' 
+      )
+
+      $('#sandbox-code code').each(function(i, block) {
+        highlight.highlightBlock(block);
+      });
+    }
+
+    sandboxCode()
+
+  
 });

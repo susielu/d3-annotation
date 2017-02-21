@@ -17,7 +17,7 @@ export default function annotation(){
     console.log('ANNOTATIONS', annotations, type, annotations[0].type)
 
     if (!editMode){
-      selection.selectAll("circle.handles")
+      selection.selectAll("circle.handle")
         .remove()
     }
 
@@ -131,7 +131,15 @@ export default function annotation(){
   annotation.editMode = function(_) {
     if (!arguments.length) return editMode;
     editMode = _
-    if (collection) collection.editMode(editMode)
+    if (collection) { 
+      collection.editMode(editMode)
+      annotations = collection.annotations
+
+    //       if (selection){
+    //   selection.selectAll("circle.handles")
+    //     .remove()
+    // }
+    }
     return annotation
   }
 

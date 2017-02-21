@@ -27,6 +27,12 @@ class Type {
     return annotation
   }
 
+  updateEditMode () {
+    console.log('in update edit mode')
+    this.a.selectAll('circle.handle')
+      .remove()
+  }
+
   drawOnSVG (a, builders) {
     if (!Array.isArray(builders)){
       builders = [ builders ]
@@ -56,18 +62,19 @@ class Type {
 
       let titleBBox = { height: 0 }
       const text = this.a.select('text.annotation-text')
+      const wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || 100
 
       if (this.annotation.title){
         const title = this.a.select('text.annotation-title')
         title.text(this.annotation.title)
           .attr('dy', '1.1em')
-        title.call(wrap, 100)
+        title.call(wrap, wrapLength)
         titleBBox = title.node().getBBox()
       }
 
       text.text(this.annotation.text)
         .attr('dy', '1em')
-      text.call(wrap, 100)
+      text.call(wrap, wrapLength)
 
       const textBBox = text.node().getBBox()
       text.attr('y', titleBBox.height * 1.1 || 3)

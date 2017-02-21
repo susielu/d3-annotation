@@ -3279,7 +3279,7 @@ function annotation() {
     console.log('ANNOTATIONS', annotations, type, annotations[0].type);
 
     if (!editMode) {
-      selection.selectAll("circle.handles").remove();
+      selection.selectAll("circle.handle").remove();
     }
 
     var translatedAnnotations = annotations.map(function (a) {
@@ -3392,7 +3392,15 @@ function annotation() {
   annotation.editMode = function (_) {
     if (!arguments.length) return editMode;
     editMode = _;
-    if (collection) collection.editMode(editMode);
+    if (collection) {
+      collection.editMode(editMode);
+      annotations = collection.annotations;
+
+      //       if (selection){
+      //   selection.selectAll("circle.handles")
+      //     .remove()
+      // }
+    }
     return annotation;
   };
 
@@ -3580,21 +3588,14 @@ var AnnotationCollection = function () {
     }
   }, {
     key: 'editMode',
-    value: function (_editMode) {
-      function editMode() {
-        return _editMode.apply(this, arguments);
-      }
-
-      editMode.toString = function () {
-        return _editMode.toString();
-      };
-
-      return editMode;
-    }(function () {
+    value: function editMode(_editMode) {
       this.annotations.forEach(function (a) {
-        return a.type.editMode = editMode;
+        if (a.type) {
+          a.type.editMode = _editMode;
+          a.type.updateEditMode();
+        }
       });
-    })
+    }
   }, {
     key: 'json',
     get: function get() {
@@ -4167,6 +4168,12 @@ var Type = function () {
   }
 
   _createClass(Type, [{
+    key: 'updateEditMode',
+    value: function updateEditMode() {
+      console.log('in update edit mode');
+      this.a.selectAll('circle.handle').remove();
+    }
+  }, {
     key: 'drawOnSVG',
     value: function drawOnSVG(a, builders) {
       var _this = this;
@@ -4218,16 +4225,17 @@ var Type = function () {
 
         var titleBBox = { height: 0 };
         var text = this.a.select('text.annotation-text');
+        var wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || 100;
 
         if (this.annotation.title) {
           var title = this.a.select('text.annotation-title');
           title.text(this.annotation.title).attr('dy', '1.1em');
-          title.call(wrap, 100);
+          title.call(wrap, wrapLength);
           titleBBox = title.node().getBBox();
         }
 
         text.text(this.annotation.text).attr('dy', '1em');
-        text.call(wrap, 100);
+        text.call(wrap, wrapLength);
 
         var textBBox = text.node().getBBox();
         text.attr('y', titleBBox.height * 1.1 || 3);

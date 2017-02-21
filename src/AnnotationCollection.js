@@ -24,7 +24,13 @@ export default class AnnotationCollection {
 
   update() { this.annotations.forEach(d => d.type.update())}
 
-  editMode() { this.annotations.forEach(a => a.type.editMode = editMode)}
+  editMode(editMode) { this.annotations.forEach(a => {
+    if (a.type) {
+      a.type.editMode = editMode
+      a.type.updateEditMode()
+    }
+  })
+}
 
   get json() { 
     return this.annotations.map(a => {      
