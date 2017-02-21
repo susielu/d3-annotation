@@ -155,6 +155,25 @@
       overflow: overlay;
     }
 
+    .collapsible-body p {
+      margin: 0px;
+    }
+
+    .icons .btn, .icons .btn-flat {
+      width: 100%;
+      text-align: center;
+      padding: 0px;
+      text-transform: none;
+    }
+
+    .icons .btn-flat {
+      border: 1px dotted lightgrey;
+    }
+
+    .icons .presets img {
+      width: 50px;
+    }
+
   </style>
 <!-- bungee and muli -->
 </head>
@@ -196,38 +215,64 @@
           <div class="section scrollspy" id="anatomy"></div>
           <div class="section scrollspy" id="start"></div>
           <div class="section scrollspy" id="annotation"></div>
-          <div class="section scrollspy" >
-            <h2>Annotation Types Test</h2>
+          <div class="section scrollspy" id="types" >
+            <h2>Annotation Types</h2>
             <div>
               <div class="icons">
                  <!-- Dropdown Trigger -->
 
-              <ul class="collapsible" data-collapsible="expandable">
+              <ul class="collapsible presets" data-collapsible="expandable">
                 <li>
                   <div class="collapsible-header active">Presets</div>
-                  <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                  <div class="collapsible-body">
+                    <img data-type="d3Label" src="img/a-label.png" />
+                    <img data-type="d3Callout" src="img/a-dots.png" />
+                    <img data-type="d3Callout"  src="img/a-callout.png" />
+                    <img data-type="d3CalloutElbow" src="img/a-elbow.png" />
+                    <img data-type="d3CalloutCurve" src="img/a-curve.png" />
+                    <img data-type="d3CalloutCircle" src="img/a-circle.png" />
+
+                  </div>
                 </li>
                 <li>
                   <div class="collapsible-header active">Options</div>
                   <div class="collapsible-body">
                     <div class"row">
-                      <div class="col m4">
-                        <p>Textbox</p>
-                         <a class='dropdown-button btn' href='#' data-activates='dropdown1'>Drop Me!</a>
-
-                        <!-- Dropdown Structure -->
-                        <ul id='dropdown1' class='dropdown-content'>
-                          <li><a href="#!">one</a></li>
-                          <li><a href="#!">two</a></li>
-                          <li class="divider"></li>
-                          <li><a href="#!">three</a></li>
-                        </ul>
+                      <div class="col m4 textbox">
+                        <p><b>Textbox</b></p>
+                        <p>Align</p>
+                         <a class="waves-effect btn grey lighten-1" data-section="textBox:align" data-setting="left">Left</a>
+                         <a class="waves-effect btn" data-section="textBox:align" data-setting="middle">Middle</a>
+                         <a class="waves-effect btn grey lighten-1" data-section="textBox:align" data-setting="right">Right</a>
+<p>Orientation</p>
+                         <a class="waves-effect btn" data-section="textBox:orientation" data-setting="topBottom">Top/Bottom</a>
+                         <a class="waves-effect btn grey lighten-1" data-section="textBox:orientation" data-setting="leftRight">Left/Right</a>
+<p>Line Type</p>
+                         <a class="waves-effect btn  grey lighten-1" data-section="textBox:lineType" data-setting="vertical">Vertical</a>
+                         <a class="waves-effect btn  grey lighten-1" data-section="textBox:lineType" data-setting="horizontal">Horizontal</a>
+                       
+                         <a class="waves-effect btn" data-section="textBox:lineType" data-setting="None">None</a>
+                       
                       </div>
-                      <div class="col m4">
-                        <p>Connector</p>
+                      <div class="col m4 connector">
+                        <p><b>Connector</b></p>
+                        <p>Type</p>
+                        <a class="waves-effect btn grey lighten-1" data-section="connector:type" data-setting="none">None</a>
+                        <a class="waves-effect btn" data-section="connector:type"data-setting="line">Line</a>
+                        <a class="waves-effect btn grey lighten-1" data-section="connector:type" data-setting="elbow">Elbow</a>
+                        <a class="waves-effect btn  grey lighten-1" data-section="connector:type" data-setting="curve">Curve</a>
+                        <p>End</p>
+                        <a class="waves-effect btn " data-section="connector:end" data-setting="none">None</a>
+                        <a class="waves-effect btn grey lighten-1" data-section="connector:end" data-setting="arrow">Arrow</a>
+                        <a class="waves-effect btn grey lighten-1" data-section="connector:end" data-setting="dot">Dot</a>
                       </div>
-                      <div class="col m4">
-                        <p>Subject</p>
+                      <div class="col m4 subject">
+                        <p><b>Subject</b></p>
+                        <div class="type">
+                        <a class="waves-effect btn" data-section="subject:type" data-setting="none">None</a>
+                        <a class="waves-effect btn grey lighten-1" data-section="subject:type" data-setting="circle">Circle</a>
+                        <a class="waves-effect btn  grey lighten-1" data-section="subject:type" data-setting="threshold">Threshold</a>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -236,8 +281,13 @@
               </div>
             </div>
             <svg class="sandbox"></svg>
+
+            <p>Use this annotation:</p>
+            <pre id="sandbox-code">
+              <code>
+              </code>
+            </pre>
           </div>
-          <div class="section scrollspy" id="types"></div>
           <div class="section scrollspy" id="styles"></div>
           <div class="section scrollspy" id="custom"></div>
           <div class="section scrollspy" id="layout"></div>

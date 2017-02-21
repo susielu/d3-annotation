@@ -65,9 +65,10 @@ export const lineHandles = ({ x1, y1, x2, y2, x, y}) => {
 export const addHandles = ({ group, handles, r=10}) => { 
    //give it a group and x,y to draw handles
    //then give it instructions on what the handles change 
-   group.selectAll('circle.handle')
+   const h = group.selectAll('circle.handle')
     .data(handles)
-    .enter()
+    
+  h.enter()
     .append('circle')
     .attr('class', 'handle')
     .call(drag()
@@ -81,6 +82,9 @@ export const addHandles = ({ group, handles, r=10}) => {
     .attr('cx', d => d.x)
     .attr('cy', d => d.y)
     .attr('r', d => d.r || r)
+
+  h.exit()
+    .remove()
     
 }
 

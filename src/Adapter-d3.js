@@ -14,6 +14,13 @@ export default function annotation(){
     type = d3Callout;
 
   const annotation = function(selection){
+    console.log('ANNOTATIONS', annotations, type, annotations[0].type)
+
+    if (!editMode){
+      selection.selectAll("circle.handles")
+        .remove()
+    }
+
     const translatedAnnotations = annotations
       .map(a => {
         if (!a.type) { a.type = type }
@@ -29,6 +36,7 @@ export default function annotation(){
       accessorsInverse,
       ids
     })
+    
 
     const annotationG = selection.selectAll('g').data([collection])
     annotationG.enter().append('g').attr('class', `annotations ${editMode ? "editable" : ""}`)
@@ -62,9 +70,8 @@ export default function annotation(){
 
         newWithClass(textWrapper, [d], 'text', 'annotation-text')
         newWithClass(textWrapper, [d], 'text', 'annotation-title')
-
         d.type = new d.type({ a, annotation: d, editMode})
-        
+
         d.type.draw()
       })
   }
@@ -84,6 +91,10 @@ export default function annotation(){
   annotation.type = function(_) {
     if (!arguments.length) return type;
     type = _;
+    if (collection) { 
+      collection.clearTypes()
+      annotations = collection.annotations
+    }
     return annotation;
   }
 

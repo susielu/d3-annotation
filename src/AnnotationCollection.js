@@ -15,6 +15,13 @@ export default class AnnotationCollection {
 
   }
 
+  clearTypes() {
+    this.annotations.forEach(d => {
+      d.type = undefined
+      console.log('in clear types', d)
+    })
+  }
+
   update() { this.annotations.forEach(d => d.type.update())}
 
   editMode() { this.annotations.forEach(a => a.type.editMode = editMode)}

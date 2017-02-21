@@ -143,9 +143,6 @@ class Type {
     // can send, elbow, curve, or nothing defaults to straight line
     const type = context.type
     switch (type) {
-      case "elbow":
-        context.elbow = true
-        break;
       case "curve": 
         const createPoints = function(anchors=2){
               const offset = this.annotation.offset
@@ -185,10 +182,18 @@ class Type {
         })
         break;
       }
+      case "elbow":
+        context.elbow = true
+
+      default: 
+        if (this.editMode){
+          addHandles({ group: this.connector, handles: []})
+        }
 
     }
 
-    const line = [connectorLine(context)]
+
+    let line = connectorLine(context)
 
     // connector end 
     const endType = context.end
@@ -199,10 +204,10 @@ class Type {
         context.start = line.data[1]
         context.end = line.data[0]
         
-        line.push(connectorArrow(context))
+        line = [line, connectorArrow(context)]
         break;
       case "dot":
-        line.push(subjectCircle(context))
+        line = [line, subjectCircle(context)]
         break;
     }
 
@@ -224,14 +229,7 @@ class Type {
     const lineType = context.lineType
     if(lineType){
       if (offset.x < 0 ) {
-        
-        // if (!context.orientation || context.orientation == "topBottom")){
-        //   context.align = "right"
-        // }
-
-        //           if (context.orientation == "leftRight" && offset.x < 0) {
           align = "right"
-        // }
       }
       if (lineType == "vertical") {
         if (offset.y < 0){ context.position = "top" }

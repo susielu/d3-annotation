@@ -3276,6 +3276,12 @@ function annotation() {
       type = _TypesD.d3Callout;
 
   var annotation = function annotation(selection) {
+    console.log('ANNOTATIONS', annotations, type, annotations[0].type);
+
+    if (!editMode) {
+      selection.selectAll("circle.handles").remove();
+    }
+
     var translatedAnnotations = annotations.map(function (a) {
       if (!a.type) {
         a.type = type;
@@ -3325,7 +3331,6 @@ function annotation() {
 
       (0, _TypesD.newWithClass)(textWrapper, [d], 'text', 'annotation-text');
       (0, _TypesD.newWithClass)(textWrapper, [d], 'text', 'annotation-title');
-
       d.type = new d.type({ a: a, annotation: d, editMode: editMode });
 
       d.type.draw();
@@ -3347,6 +3352,10 @@ function annotation() {
   annotation.type = function (_) {
     if (!arguments.length) return type;
     type = _;
+    if (collection) {
+      collection.clearTypes();
+      annotations = collection.annotations;
+    }
     return annotation;
   };
 
@@ -3520,7 +3529,7 @@ var Annotation = function () {
 exports.default = Annotation;
 
 },{}],8:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -3555,14 +3564,22 @@ var AnnotationCollection = function () {
   }
 
   _createClass(AnnotationCollection, [{
-    key: "update",
+    key: 'clearTypes',
+    value: function clearTypes() {
+      this.annotations.forEach(function (d) {
+        d.type = undefined;
+        console.log('in clear types', d);
+      });
+    }
+  }, {
+    key: 'update',
     value: function update() {
       this.annotations.forEach(function (d) {
         return d.type.update();
       });
     }
   }, {
-    key: "editMode",
+    key: 'editMode',
     value: function (_editMode) {
       function editMode() {
         return _editMode.apply(this, arguments);
@@ -3579,7 +3596,7 @@ var AnnotationCollection = function () {
       });
     })
   }, {
-    key: "json",
+    key: 'json',
     get: function get() {
       var _this = this;
 
@@ -3600,7 +3617,7 @@ var AnnotationCollection = function () {
     //
 
   }, {
-    key: "textNodes",
+    key: 'textNodes',
     get: function get() {
       return this.annotations.map(function (a) {
         return _extends({}, a.type.getTextBBox(), { startX: a.x, startY: a.y });
@@ -3610,21 +3627,21 @@ var AnnotationCollection = function () {
     //TODO: come back and rethink if a.x and a.y are applicable in all situations
 
   }, {
-    key: "connectorNodes",
+    key: 'connectorNodes',
     get: function get() {
       return this.annotations.map(function (a) {
         return _extends({}, a.type.getConnectorBBox(), { startX: a.x, startY: a.y });
       });
     }
   }, {
-    key: "subjectNodes",
+    key: 'subjectNodes',
     get: function get() {
       return this.annotations.map(function (a) {
         return _extends({}, a.type.getSubjectBBox(), { startX: a.x, startY: a.y });
       });
     }
   }, {
-    key: "annotationNodes",
+    key: 'annotationNodes',
     get: function get() {
       return this.annotations.map(function (a) {
         return _extends({}, a.type.getAnnotationBBox(), { startX: a.x, startY: a.y });
@@ -3967,7 +3984,9 @@ var addHandles = exports.addHandles = function addHandles(_ref5) {
 
   //give it a group and x,y to draw handles
   //then give it instructions on what the handles change 
-  group.selectAll('circle.handle').data(handles).enter().append('circle').attr('class', 'handle').call((0, _d3Drag.drag)().container((0, _d3Selection.select)('g.annotations').node()).on('start', function (d) {
+  var h = group.selectAll('circle.handle').data(handles);
+
+  h.enter().append('circle').attr('class', 'handle').call((0, _d3Drag.drag)().container((0, _d3Selection.select)('g.annotations').node()).on('start', function (d) {
     return d.start && d.start(d);
   }).on('drag', function (d) {
     return d.drag && d.drag(d);
@@ -3982,6 +4001,8 @@ var addHandles = exports.addHandles = function addHandles(_ref5) {
   }).attr('r', function (d) {
     return d.r || r;
   });
+
+  h.exit().remove();
 };
 
 },{"d3-drag":2,"d3-selection":4}],12:[function(require,module,exports){
@@ -4291,9 +4312,6 @@ var Type = function () {
       // can send, elbow, curve, or nothing defaults to straight line
       var type = context.type;
       switch (type) {
-        case "elbow":
-          context.elbow = true;
-          break;
         case "curve":
           var createPoints = function () {
             var anchors = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2;
@@ -4345,10 +4363,17 @@ var Type = function () {
 
             if (_ret2 === 'break') break;
           }
+        case "elbow":
+          context.elbow = true;
+
+        default:
+          if (this.editMode) {
+            (0, _Handles.addHandles)({ group: this.connector, handles: [] });
+          }
 
       }
 
-      var line = [(0, _Connector.connectorLine)(context)];
+      var line = (0, _Connector.connectorLine)(context);
 
       // connector end 
       var endType = context.end;
@@ -4359,10 +4384,10 @@ var Type = function () {
           context.start = line.data[1];
           context.end = line.data[0];
 
-          line.push((0, _Connector.connectorArrow)(context));
+          line = [line, (0, _Connector.connectorArrow)(context)];
           break;
         case "dot":
-          line.push((0, _Subject.subjectCircle)(context));
+          line = [line, (0, _Subject.subjectCircle)(context)];
           break;
       }
 
@@ -4385,14 +4410,7 @@ var Type = function () {
       var lineType = context.lineType;
       if (lineType) {
         if (offset.x < 0) {
-
-          // if (!context.orientation || context.orientation == "topBottom")){
-          //   context.align = "right"
-          // }
-
-          //           if (context.orientation == "leftRight" && offset.x < 0) {
           align = "right";
-          // }
         }
         if (lineType == "vertical") {
           if (offset.y < 0) {
