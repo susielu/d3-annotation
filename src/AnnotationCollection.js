@@ -18,7 +18,6 @@ export default class AnnotationCollection {
   clearTypes() {
     this.annotations.forEach(d => {
       d.type = undefined
-      console.log('in clear types', d)
     })
   }
 

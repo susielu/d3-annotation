@@ -120,33 +120,50 @@ $(document).ready(function(){
         d3.selectAll(`[data-section="${type}"][data-setting="${value}"]`)
           .classed('grey lighten-1', false)
 
+        if (type === "textBox:lineType") {
+          if (value === "none"){
+          d3.selectAll(".icons .orientation")
+          .classed('hidden', false)
+        } else {
+            d3.selectAll(".icons .orientation")
+          .classed('hidden', true)
+          }
+        }
+
+        if ((type === "textBox:lineType" && value === "vertical") || (type === "textBox:orientation" && value === "leftRight")){
+          d3.selectAll("[data-section='textBox:align'].horizontal")
+          .classed('hidden', true)
+          d3.selectAll("[data-section='textBox:align'].vertical")
+          .classed('hidden', false)
+        } else if ((type === "textBox:lineType" && value === "horizontal") || (type === "textBox:orientation" && value === "topBottom")){
+          d3.selectAll("[data-section='textBox:align'].vertical")
+          .classed('hidden', true)
+          d3.selectAll("[data-section='textBox:align'].horizontal")
+          .classed('hidden', false)
+        }
+
         type = type.split(':')
 
+
         if (value === "none"){
+          //TODO come back to figure out to determin value
+          //maybe none becomes dynamic? 
           delete typeSettings[type[0]][type[1]]
+
+          // typeSettings[type[0][type[1]]] = undefined
         } else {
           typeSettings[type[0]][type[1]] = value
         }
 
         currentType = d3.annotationCustomType(d3[typeKey], typeSettings)
 
-        d3.select(".sandbox g.sandbox-annotations")
-          .remove()
-
-        makeAnnotations.type(currentType)
-
-        d3.select(".sandbox")
-          .call(makeAnnotations)
-
+        updateAnnotations()
         sandboxCode()
     })
 
     d3.selectAll('.icons .presets img')
       .on('click', function(){
         typeKey = d3.event.target.attributes['data-type'].value
-
-       // const t = types[typeKey]
-
         currentType = d3[typeKey]
 
         d3.selectAll(`.icons .presets img`)
@@ -155,25 +172,13 @@ $(document).ready(function(){
         d3.selectAll(`[data-type="${typeKey}"]`)
           .classed('active', true)
 
-        d3.select(".sandbox g.sandbox-annotations")
-          .remove()
-
-        makeAnnotations.type(currentType)
         typeSettings = JSON.parse(JSON.stringify(defaultSettings))
 
-        d3.select(".sandbox")
-          .call(makeAnnotations)
-
+        updateAnnotations()
         sandboxCode()
 
       })
-
-     d3.select(".sandbox")
-      .append("g")
-      .attr("class", "sandbox-annotations")
-      .call(makeAnnotations)
-
-    
+     
     d3.select('#editmode')
       .on('change', function(){
         console.log('in on change', d3.event.target.checked, d3.event.target, d3.event)
@@ -185,6 +190,26 @@ $(document).ready(function(){
 
         sandboxCode()
       })
+
+    d3.select(".sandbox")
+      .append("g")
+      .attr("class", "sandbox-annotations")
+      .call(makeAnnotations)
+
+    const updateAnnotations = () => {
+        d3.select(".sandbox g.sandbox-annotations")
+          .remove()
+
+        makeAnnotations.type(currentType)
+
+        d3.select(".sandbox")
+          .append("g")
+          .attr("class", "sandbox-annotations")
+          .call(makeAnnotations)
+        
+        d3.select(".sandbox .type")
+          .text(`d3.${typeKey}`)
+    }
 
     //change the text to have the right position for the annotation
 

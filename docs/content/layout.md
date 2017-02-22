@@ -1,6 +1,11 @@
-## Layout Algorithms
+## Layout
 
+### Responsive
+
+
+### Responsive with Types
 
 ### Overlapping
 
-### Encircling 
+<h3 id="encircle">Encircling</h3>
+![Annotation encircling]](img/encircle.png)

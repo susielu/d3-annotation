@@ -225,28 +225,51 @@ class Type {
     const offset = this.annotation.offset
     const tData = this.annotation.textBox
     const padding = tData.padding || context.padding || 5
-    const orientation = tData.orientation || context.orientation || 'topBottom'
-    let align = tData.align || context.align
+    
+    const lineType = context.lineType
+
+    let orientation = tData.orientation || context.orientation || 'topBottom'
+    let align = tData.align || context.align || 'dynamic'
 
     let x = -context.bbox.x + padding
     let y = -context.bbox.y
-
     let decorators = []
-        
-    const lineType = context.lineType
-    if(lineType){
-      if (offset.x < 0 ) {
-          align = "right"
+
+    const leftRightDyanmic = () => {
+      if (align == "dynamic" || align == "left" || align == "right"){
+         if (offset.y < 0){ 
+              align = "top" 
+            } else {
+              align = "bottom"
+            } 
       }
+    }
+
+    const topBottomDynamic = () => {
+      if (align == "dynamic" || align == "top" || align == "bottom"){
+        if (offset.x < 0){
+            align = "right"
+          } else {
+            align = "left"
+          }      
+        }
+    }
+        
+    if(lineType){
+
       if (lineType == "vertical") {
-        if (offset.y < 0){ context.position = "top" }
-        decorators.push(textBoxSideline(context))
-       } else if (lineType == "horizontal") {
+        orientation = "leftRight"
+        leftRightDyanmic()
+        decorators.push(textBoxSideline({...context, align }))
+      } else if (lineType == "horizontal") {
+        orientation = "topBottom"        
+        topBottomDynamic()
         decorators.push(textBoxLine({ ...context, align }) )
-       }
+      }
     }
 
     if (orientation === 'topBottom' ){
+      topBottomDynamic()
       if (offset.y < 0){ y = -context.bbox.height - padding }
 
       if (align === "middle") {
@@ -256,8 +279,9 @@ class Type {
       } 
 
     } else if (orientation === 'leftRight'){
+      leftRightDyanmic()
       if (offset.x < 0){ 
-        x -= (context.bbox.width + padding) 
+        x -= (context.bbox.width + padding*2) 
       } else {
         x += padding
       }
@@ -381,10 +405,6 @@ export const d3CalloutElbow = customType(d3Callout, {
   connector: { type: "elbow" }
 })
 
-export const d3CalloutLeftRight = customType(d3CalloutElbow, {
-  textBox: { lineType: "vertical"}
-})
-
 export const d3CalloutCircle = customType(d3CalloutElbow, {
   className: "callout circle",
   subject: { type: "circle"}
@@ -475,7 +495,6 @@ export default {
   d3Callout,
   d3CalloutElbow,
   d3CalloutCurve,
-  d3CalloutLeftRight,
   d3CalloutCircle,
   d3XYThreshold,
   customType

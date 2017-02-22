@@ -24,15 +24,18 @@ export const textBoxTitleline = () => {
 }
 
 export const textBoxSideline = ({ annotation, offset={x: 0, y: 0}, context, 
-    curve, bbox, padding = 5, position="left"}) => {
+    curve, bbox, padding = 5, align}) => {
+ if (align == "top") {
+    offset.y -= bbox.height
+  } else if (align == "middle") {
+    offset.y -= bbox.height/2
+  }
 
   let x = offset.x,
     y1 = offset.y,
     y2 = offset.y + bbox.height 
 
-  if (position == "top") {
-    y2 = offset.y - bbox.height
-  }
+
 
   const data = [[x, y1], [x, y2]]
   return lineBuilder({ data, curve, context, className : CLASS })

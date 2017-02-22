@@ -15,7 +15,7 @@
      }
 
      line {
-       stroke:#e3e3e3;
+       stroke:#eae4e4;
      }
 
      .editable .annotation-subject, .editable .annotation-textbox {
@@ -29,16 +29,16 @@
       }
 
       .annotation path {
-        stroke: #e91e56;
+        stroke: #E8336D;
         fill: rgba(0,0,0,0);
       }
 
       .annotation path.connector-arrow{
-        fill: #e91e56;
+        fill: #E8336D;
       }
 
       .annotation text {
-        fill: #e91e56;
+        fill: #E8336D;
       }
 
       .annotation-title {
@@ -47,7 +47,7 @@
 
        circle.handle {
         stroke-dasharray: 5;
-        stroke: #e91e56;
+        stroke: #E8336D;
         fill: rgba(255, 255, 255, .5);
         cursor: move;
 
@@ -71,7 +71,16 @@
     var svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height");
-    var color = d3.scaleOrdinal(d3.schemeCategory20);
+    var color = d3.scaleOrdinal(d3.schemeCategory20)
+      //.range(["#695B5B", "#eae4e4"])
+    ;
+
+    var color = {
+      "3": "#e4b0b0",
+      "1": "#E8336D",
+      "8": "#00897b"
+    }
+
     var simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id( d => d.id ))
         .force("charge", d3.forceManyBody())
@@ -90,7 +99,10 @@
         .data(graph.nodes)
         .enter().append("circle")
           .attr("r", 5)
-          .attr("fill", d => color(d.group))
+          .attr("fill", d => {
+
+            return color[d.group + ''] || 'lightgrey' 
+          })
           .call(d3.drag()
               .on("start", dragstarted)
               .on("drag", dragged)
@@ -119,7 +131,7 @@
               .map(d => ({ x: d.x, y: d.y}))
             circle = makeCircle(points)
             d.position = { x: circle.x, y: circle.y }
-            d.typeData.radius = circle.r + 20
+            d.subject.radius = circle.r + 20
           })
         makeAnnotations.update()
       }
@@ -139,7 +151,7 @@
         x: circle[0].x,
         y: circle[0].y,
         type: d3.annotationCalloutCircle,
-        typeData: {
+        subject: {
           radius: circle[0].r + 20,
           radiusPadding: 10
         }
@@ -152,7 +164,7 @@
         x: circle[1].x,
         y: circle[1].y,
         type: d3.annotationCalloutCircle,
-        typeData: {
+        subject: {
           radius: circle[1].r + 20,
           radiusPadding: 10
         }
@@ -165,7 +177,7 @@
         x: circle[2].x,
         y: circle[2].y,
         type: d3.annotationCalloutCircle,
-        typeData: {
+        subject: {
           radius: circle[2].r + 20,
           radiusPadding: 10
         }

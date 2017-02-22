@@ -3276,8 +3276,6 @@ function annotation() {
       type = _TypesD.d3Callout;
 
   var annotation = function annotation(selection) {
-    console.log('ANNOTATIONS', annotations, type, annotations[0].type);
-
     if (!editMode) {
       selection.selectAll("circle.handle").remove();
     }
@@ -3537,7 +3535,7 @@ var Annotation = function () {
 exports.default = Annotation;
 
 },{}],8:[function(require,module,exports){
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -3572,22 +3570,21 @@ var AnnotationCollection = function () {
   }
 
   _createClass(AnnotationCollection, [{
-    key: 'clearTypes',
+    key: "clearTypes",
     value: function clearTypes() {
       this.annotations.forEach(function (d) {
         d.type = undefined;
-        console.log('in clear types', d);
       });
     }
   }, {
-    key: 'update',
+    key: "update",
     value: function update() {
       this.annotations.forEach(function (d) {
         return d.type.update();
       });
     }
   }, {
-    key: 'editMode',
+    key: "editMode",
     value: function editMode(_editMode) {
       this.annotations.forEach(function (a) {
         if (a.type) {
@@ -3597,7 +3594,7 @@ var AnnotationCollection = function () {
       });
     }
   }, {
-    key: 'json',
+    key: "json",
     get: function get() {
       var _this = this;
 
@@ -3618,7 +3615,7 @@ var AnnotationCollection = function () {
     //
 
   }, {
-    key: 'textNodes',
+    key: "textNodes",
     get: function get() {
       return this.annotations.map(function (a) {
         return _extends({}, a.type.getTextBBox(), { startX: a.x, startY: a.y });
@@ -3628,21 +3625,21 @@ var AnnotationCollection = function () {
     //TODO: come back and rethink if a.x and a.y are applicable in all situations
 
   }, {
-    key: 'connectorNodes',
+    key: "connectorNodes",
     get: function get() {
       return this.annotations.map(function (a) {
         return _extends({}, a.type.getConnectorBBox(), { startX: a.x, startY: a.y });
       });
     }
   }, {
-    key: 'subjectNodes',
+    key: "subjectNodes",
     get: function get() {
       return this.annotations.map(function (a) {
         return _extends({}, a.type.getSubjectBBox(), { startX: a.x, startY: a.y });
       });
     }
   }, {
-    key: 'annotationNodes',
+    key: "annotationNodes",
     get: function get() {
       return this.annotations.map(function (a) {
         return _extends({}, a.type.getAnnotationBBox(), { startX: a.x, startY: a.y });
@@ -4097,17 +4094,17 @@ var textBoxSideline = exports.textBoxSideline = function textBoxSideline(_ref2) 
       bbox = _ref2.bbox,
       _ref2$padding = _ref2.padding,
       padding = _ref2$padding === undefined ? 5 : _ref2$padding,
-      _ref2$position = _ref2.position,
-      position = _ref2$position === undefined ? "left" : _ref2$position;
+      align = _ref2.align;
 
+  if (align == "top") {
+    offset.y -= bbox.height;
+  } else if (align == "middle") {
+    offset.y -= bbox.height / 2;
+  }
 
   var x = offset.x,
       y1 = offset.y,
       y2 = offset.y + bbox.height;
-
-  if (position == "top") {
-    y2 = offset.y - bbox.height;
-  }
 
   var data = [[x, y1], [x, y2]];
   return (0, _Builder.lineBuilder)({ data: data, curve: curve, context: context, className: CLASS });
@@ -4119,7 +4116,7 @@ var textBoxSideline = exports.textBoxSideline = function textBoxSideline(_ref2) 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.newWithClass = exports.d3XYThreshold = exports.d3CalloutCurve = exports.d3CalloutCircle = exports.d3CalloutLeftRight = exports.d3CalloutElbow = exports.d3Callout = exports.d3LabelDots = exports.d3Label = exports.customType = undefined;
+exports.newWithClass = exports.d3XYThreshold = exports.d3CalloutCurve = exports.d3CalloutCircle = exports.d3CalloutElbow = exports.d3Callout = exports.d3LabelDots = exports.d3Label = exports.customType = undefined;
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
@@ -4407,30 +4404,51 @@ var Type = function () {
       var offset = this.annotation.offset;
       var tData = this.annotation.textBox;
       var padding = tData.padding || context.padding || 5;
+
+      var lineType = context.lineType;
+
       var orientation = tData.orientation || context.orientation || 'topBottom';
-      var align = tData.align || context.align;
+      var align = tData.align || context.align || 'dynamic';
 
       var x = -context.bbox.x + padding;
       var y = -context.bbox.y;
-
       var decorators = [];
 
-      var lineType = context.lineType;
-      if (lineType) {
-        if (offset.x < 0) {
-          align = "right";
-        }
-        if (lineType == "vertical") {
+      var leftRightDyanmic = function leftRightDyanmic() {
+        if (align == "dynamic" || align == "left" || align == "right") {
           if (offset.y < 0) {
-            context.position = "top";
+            align = "top";
+          } else {
+            align = "bottom";
           }
-          decorators.push((0, _TextBox.textBoxSideline)(context));
+        }
+      };
+
+      var topBottomDynamic = function topBottomDynamic() {
+        if (align == "dynamic" || align == "top" || align == "bottom") {
+          if (offset.x < 0) {
+            align = "right";
+          } else {
+            align = "left";
+          }
+        }
+      };
+
+      if (lineType) {
+
+        if (lineType == "vertical") {
+          orientation = "leftRight";
+          leftRightDyanmic();
+          decorators.push((0, _TextBox.textBoxSideline)(_extends({}, context, { align: align })));
         } else if (lineType == "horizontal") {
+          orientation = "topBottom";
+          topBottomDynamic();
           decorators.push((0, _TextBox.textBoxLine)(_extends({}, context, { align: align })));
         }
       }
 
       if (orientation === 'topBottom') {
+        topBottomDynamic();
         if (offset.y < 0) {
           y = -context.bbox.height - padding;
         }
@@ -4441,8 +4459,9 @@ var Type = function () {
           x -= context.bbox.width + padding * 2;
         }
       } else if (orientation === 'leftRight') {
+        leftRightDyanmic();
         if (offset.x < 0) {
-          x -= context.bbox.width + padding;
+          x -= context.bbox.width + padding * 2;
         } else {
           x += padding;
         }
@@ -4621,10 +4640,6 @@ var d3CalloutElbow = exports.d3CalloutElbow = customType(d3Callout, {
   connector: { type: "elbow" }
 });
 
-var d3CalloutLeftRight = exports.d3CalloutLeftRight = customType(d3CalloutElbow, {
-  textBox: { lineType: "vertical" }
-});
-
 var d3CalloutCircle = exports.d3CalloutCircle = customType(d3CalloutElbow, {
   className: "callout circle",
   subject: { type: "circle" }
@@ -4709,7 +4724,6 @@ exports.default = {
   d3Callout: d3Callout,
   d3CalloutElbow: d3CalloutElbow,
   d3CalloutCurve: d3CalloutCurve,
-  d3CalloutLeftRight: d3CalloutLeftRight,
   d3CalloutCircle: d3CalloutCircle,
   d3XYThreshold: d3XYThreshold,
   customType: customType
@@ -4733,7 +4747,6 @@ d3.annotationLabel = _TypesD2.default.d3Label;
 d3.annotationLabelDots = _TypesD2.default.d3LabelDots;
 d3.annotationCallout = _TypesD2.default.d3Callout;
 d3.annotationCalloutCurve = _TypesD2.default.d3CalloutCurve;
-d3.annotationCalloutLeftRight = _TypesD2.default.d3CalloutLeftRight;
 d3.annotationCalloutElbow = _TypesD2.default.d3CalloutElbow;
 d3.annotationCalloutCircle = _TypesD2.default.d3CalloutCircle;
 d3.annotationXYThreshold = _TypesD2.default.d3XYThreshold;

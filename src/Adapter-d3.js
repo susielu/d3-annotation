@@ -14,8 +14,6 @@ export default function annotation(){
     type = d3Callout;
 
   const annotation = function(selection){
-    console.log('ANNOTATIONS', annotations, type, annotations[0].type)
-
     if (!editMode){
       selection.selectAll("circle.handle")
         .remove()
