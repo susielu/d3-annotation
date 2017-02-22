@@ -7,7 +7,7 @@ There are some basic settings you can use with the annotations above to customiz
 
 <pre>
 <code>const typeSettings = {
-  connector: { arrow: true }
+  connector: { type: "arrow" }
 }
 
 const calloutWithArrow = 

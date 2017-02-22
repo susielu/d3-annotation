@@ -46,8 +46,7 @@ $(document).ready(function(){
       className: "custom",
       subject: {},
       connector: {},
-      textBox: {} //,
-      // disable: []
+      textBox: {} 
     }
 
     let typeSettings = JSON.parse(JSON.stringify(defaultSettings))
@@ -60,23 +59,20 @@ $(document).ready(function(){
       annotationLabel: { 
         typeSettings: {
 
-        }
+        },
+        summary: "A centered label annotation"
       },
       annotationCallout: { 
         typeSettings: {
 
-        }
+        },
+        summary: "Adds a line along the textBox"
       },
       annotationCalloutElbow: { 
         typeSettings: {
 
         }
       },
-      // d3CalloutLeftRight: { 
-      //   typeSettings: {
-
-      //   }
-      // },
       annotationCalloutCircle: { 
         typeSettings: {
 
@@ -85,7 +81,8 @@ $(document).ready(function(){
       annotationCalloutCurve: { 
         typeSettings: {
 
-        }
+        },
+        summary: "Can be configured with a points and curve property"
       },
       annotationCalloutXYThreshold: { 
         typeSettings: {
@@ -95,7 +92,8 @@ $(document).ready(function(){
     }
 
     let editMode = true
-
+    let textWrap = 120
+    let textPadding = 5
 
     window.makeAnnotations = d3.annotation()
     .editMode(editMode)
@@ -198,6 +196,19 @@ $(document).ready(function(){
         sandboxCode()
       })
 
+    d3.select('#textWrap')
+      .on('change', function(){
+        console.log('in text wrap change', d3.event)
+
+        textWrap = parseInt(d3.event.target.value)
+      })
+
+    d3.select('#textPadding')
+      .on('change', function(){
+        console.log('in text Padding change', d3.event)
+        textPadding = parseInt(d3.event.target.value)
+      })
+
     d3.select(".sandbox")
       .append("g")
       .attr("class", "sandbox-annotations")
@@ -216,6 +227,10 @@ $(document).ready(function(){
         
         d3.select(".sandbox .type")
           .text(`d3.${typeKey}`)
+
+        console.log('here', types, types[typeKey].summary)
+        d3.select(".sandbox .summary")
+          .text(types[typeKey].summary)
     }
 
     //change the text to have the right position for the annotation
@@ -250,7 +265,8 @@ $(document).ready(function(){
       let disableText = ''
 
       if (makeAnnotations.disable().length !== 0) {
-        disableText = `  .disable(${JSON.stringify(makeAnnotations.disable())})\n`
+        disableText = '  //could also be set in the a disable property\n  //of the annotation JSON\n' +
+        `  .disable(${JSON.stringify(makeAnnotations.disable())})\n`
       }
 
       d3.select("#sandbox-code code")
@@ -263,7 +279,7 @@ $(document).ready(function(){
       '        x: 150,\n' +
       '        y: 150,\n' +
       '        dy: 137,\n' +
-      '        dx: 162,\n' +
+      '        dx: 162\n' +
       '      }]\n' +
       '\n' +
       'const makeAnnotations = d3.annotation()\n' +
@@ -278,7 +294,47 @@ $(document).ready(function(){
       '  .call(makeAnnotations)\n' 
       )
 
-      $('#sandbox-code code').each(function(i, block) {
+      d3.select("#sandbox-code-with-scales code")
+      .text(
+      typeText +
+      '\n' +
+      'const annotations = [{\n' +
+      '        text: "d3.annotationLabel",\n' +
+      '        title: "Annotations :)",\n' +
+      '        data: {date: "18-Sep-09", close: 185.02},\n' +
+      '        dy: 137,\n' +
+      '        dx: 162\n' +
+      '      }]\n' +
+      '\n' +
+      'const parseTime = d3.timeParse("%d-%b-%y")\n' +
+      'const timeFormat = d3.timeFormat("%d-%b-%y")\n' +
+      '\n'+
+      '//Skipping setting domains for sake of example\n' +
+      'const x = d3.scaleTime().range([0, 800])\n' +
+      'const y = d3.scaleLinear().range([300, 0])\n' +
+
+      '\n' +
+      'const makeAnnotations = d3.annotation()\n' +
+      editModeText +
+      disableText +
+      `  .type(type)\n` +
+      '  .accessors({\n' + 
+      '    x: d => x(parseTime(d.date)),\n' + 
+      '    y: d => y(d.close)\n' +
+      '  })\n' +
+      '  .accessorsInverse({\n' + 
+      '     date: d => timeFormat(x.invert(d.x)),\n' +
+      '     close: d => y.invert(d.y)\n' +
+      '  })\n' +
+      `  .annotations(annotations)\n` +
+      '\n' +
+      'd3.select("svg")\n' +
+      '  .append("g")\n' +
+      '  .attr("class", "annotation-test")\n' +
+      '  .call(makeAnnotations)\n' 
+      )
+
+      $('#sandbox-code code, #sandbox-code-with-scales code').each(function(i, block) {
         highlight.highlightBlock(block);
       });
     }
