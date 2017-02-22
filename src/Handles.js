@@ -75,7 +75,7 @@ export const addHandles = ({ group, handles, r=10}) => {
       .container(select('g.annotations').node())
       .on('start', d => d.start && d.start(d))
       .on('drag', d => d.drag && d.drag(d))
-      .on('end', d => d.end && d.drag(d))
+      .on('end', d => d.end && d.end(d))
     )
 
   group.selectAll('circle.handle')

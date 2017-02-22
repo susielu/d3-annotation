@@ -8,22 +8,11 @@ export default class Annotation {
     this.x = x || 0
     this.y = y || 0
     this.id = id
-
-    //TODO come and see if this makes sense for align and orientation
-    // this.textBox
-      this.text = text
-      this.title = title
-      //text padding
-      //alignment
-      //text wrap
-   // this.connector
-    //points
-   // this.subject 
-    //radius
+    this.text = text
+    this.title = title
 
     this.type = type
     this.data = data || {}
-    // this.typeData = typeData || {}
 
     this.textBox = textBox || {}
     this.connector = connector || {}

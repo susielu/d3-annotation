@@ -46,7 +46,8 @@ $(document).ready(function(){
       className: "custom",
       subject: {},
       connector: {},
-      textBox: {}
+      textBox: {} //,
+      // disable: []
     }
 
     let typeSettings = JSON.parse(JSON.stringify(defaultSettings))
@@ -95,6 +96,7 @@ $(document).ready(function(){
 
     let editMode = true
 
+
     window.makeAnnotations = d3.annotation()
     .editMode(editMode)
     .type(currentType)
@@ -105,20 +107,19 @@ $(document).ready(function(){
         x: 150,
         y: 150,
         dy: 137,
-        dx: 142,
+        dx: 162,
       }])
 
-    d3.selectAll('.icons .btn')
+    d3.selectAll('.icons .options a')
       .on('click', function() {
 
         let type = d3.event.target.attributes['data-section'].value
         const value = d3.event.target.attributes['data-setting'].value
-
         d3.selectAll(`[data-section="${type}"]`)
-          .classed('grey lighten-1', true)
+          .classed('active', false)
 
         d3.selectAll(`[data-section="${type}"][data-setting="${value}"]`)
-          .classed('grey lighten-1', false)
+          .classed('active', true)
 
         if (type === "textBox:lineType") {
           if (value === "none"){
@@ -149,10 +150,17 @@ $(document).ready(function(){
           //TODO come back to figure out to determin value
           //maybe none becomes dynamic? 
           delete typeSettings[type[0]][type[1]]
-
-          // typeSettings[type[0][type[1]]] = undefined
+          if (type[0] == "connector" && type[1] == "type"){
+            makeAnnotations.disable(['connector'])
+            makeAnnotations.update()
+          }
         } else {
           typeSettings[type[0]][type[1]] = value
+
+          if (type[0] == "connector" && type[1] == "type"){
+            makeAnnotations.disable([])
+            makeAnnotations.update()
+          }
         }
 
         currentType = d3.annotationCustomType(d3[typeKey], typeSettings)
@@ -181,7 +189,6 @@ $(document).ready(function(){
      
     d3.select('#editmode')
       .on('change', function(){
-        console.log('in on change', d3.event.target.checked, d3.event.target, d3.event)
 
         editMode = d3.event.target.checked
 
@@ -219,7 +226,6 @@ $(document).ready(function(){
 
       let typeText = 'const type = '
 
-
       if (JSON.stringify(typeSettings) == JSON.stringify(defaultSettings)){
         typeText += `d3.${typeKey}\n`
       } else {
@@ -232,33 +238,39 @@ $(document).ready(function(){
         if (Object.keys(json.connector).length === 0){
           delete json.connector
         }
-
-        if (Object.keys(json.textBox) === 0){
+        if (Object.keys(json.textBox).length === 0){
           delete json.textBox
         }
-
         typeText += `d3.annotationCustomType(\n` +
           `  d3.${typeKey}, \n` +
           `  ${JSON.stringify(json).replace(/,/g, ',\n    ')}` +
           `)\n`
       }
 
+      let disableText = ''
+
+      if (makeAnnotations.disable().length !== 0) {
+        disableText = `  .disable(${JSON.stringify(makeAnnotations.disable())})\n`
+      }
+
       d3.select("#sandbox-code code")
       .text(
       typeText +
       '\n' +
-      'const makeAnnotations = d3.annotation()\n' +
-      editModeText +
-      `  .type(type)\n` +
-      `  .annotations([\n` +
-      '      {\n' +
+      'const annotations = [{\n' +
       '        text: "d3.annotationLabel",\n' +
       '        title: "Annotations :)",\n' +
       '        x: 150,\n' +
       '        y: 150,\n' +
       '        dy: 137,\n' +
-      '        dx: 142,\n' +
-      '      }])\n' +
+      '        dx: 162,\n' +
+      '      }]\n' +
+      '\n' +
+      'const makeAnnotations = d3.annotation()\n' +
+      editModeText +
+      disableText +
+      `  .type(type)\n` +
+      `  .annotations(annotations)\n` +
       '\n' +
       'd3.select("svg")\n' +
       '  .append("g")\n' +

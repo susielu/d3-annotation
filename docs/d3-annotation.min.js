@@ -3269,6 +3269,7 @@ function annotation() {
   var annotations = [],
       collection = void 0,
       context = void 0,
+      disable = [],
       accessors = {},
       accessorsInverse = {},
       editMode = false,
@@ -3286,6 +3287,9 @@ function annotation() {
       }
       if (a.type.init) {
         a = a.type.init(a, accessors);
+      }
+      if (!a.disable) {
+        a.disable = disable;
       }
 
       return new _Annotation2.default(a);
@@ -3346,6 +3350,16 @@ function annotation() {
     return annotation;
   };
 
+  annotation.disable = function (_) {
+    if (!arguments.length) return disable;
+    disable = _;
+    if (collection) {
+      collection.updateDisable(disable);
+      annotations = collection.annotations;
+    }
+    return annotation;
+  };
+
   //TODO: add in classprefix functionality
   annotation.type = function (_) {
     if (!arguments.length) return type;
@@ -3393,11 +3407,6 @@ function annotation() {
     if (collection) {
       collection.editMode(editMode);
       annotations = collection.annotations;
-
-      //       if (selection){
-      //   selection.selectAll("circle.handles")
-      //     .remove()
-      // }
     }
     return annotation;
   };
@@ -3450,22 +3459,11 @@ var Annotation = function () {
     this.x = x || 0;
     this.y = y || 0;
     this.id = id;
-
-    //TODO come and see if this makes sense for align and orientation
-    // this.textBox
     this.text = text;
     this.title = title;
-    //text padding
-    //alignment
-    //text wrap
-    // this.connector
-    //points
-    // this.subject 
-    //radius
 
     this.type = type;
     this.data = data || {};
-    // this.typeData = typeData || {}
 
     this.textBox = textBox || {};
     this.connector = connector || {};
@@ -3574,6 +3572,9 @@ var AnnotationCollection = function () {
     value: function clearTypes() {
       this.annotations.forEach(function (d) {
         d.type = undefined;
+        d.subject = {};
+        d.connector = {};
+        d.textBox = {};
       });
     }
   }, {
@@ -3590,6 +3591,21 @@ var AnnotationCollection = function () {
         if (a.type) {
           a.type.editMode = _editMode;
           a.type.updateEditMode();
+        }
+      });
+    }
+  }, {
+    key: "updateDisable",
+    value: function updateDisable(disable) {
+      this.annotations.forEach(function (a) {
+        a.disable = disable;
+        if (a.type) {
+          disable.forEach(function (d) {
+            if (a.type[d]) {
+              a.type[d].remove && a.type[d].remove();
+              a.type[d] = undefined;
+            }
+          });
         }
       });
     }
@@ -3989,7 +4005,7 @@ var addHandles = exports.addHandles = function addHandles(_ref5) {
   }).on('drag', function (d) {
     return d.drag && d.drag(d);
   }).on('end', function (d) {
-    return d.end && d.drag(d);
+    return d.end && d.end(d);
   }));
 
   group.selectAll('circle.handle').attr('cx', function (d) {
@@ -4222,7 +4238,7 @@ var Type = function () {
 
         var titleBBox = { height: 0 };
         var text = this.a.select('text.annotation-text');
-        var wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || 100;
+        var wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || 120;
 
         if (this.annotation.title) {
           var title = this.a.select('text.annotation-title');
@@ -4515,11 +4531,13 @@ var Type = function () {
   }, {
     key: 'dragstarted',
     value: function dragstarted() {
+      console.log('in drag start');
       _d3Selection.event.sourceEvent.stopPropagation();this.a.classed("dragging", true);
     }
   }, {
     key: 'dragended',
     value: function dragended() {
+      console.log('in drag end');
       this.a.classed("dragging", false);
     }
   }, {

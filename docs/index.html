@@ -183,6 +183,22 @@
       display: none;
     }
 
+    .icons .presets .options img {
+      width: 24px;
+      vertical-align: middle;
+      padding: 4px;
+      pointer-events: none;
+      border: 1px solid white;
+    }
+    .icons .presets .options .active img {
+        border: 1px dotted var(--accent-color);
+    }
+
+    .icons .options input {
+      margin-top: -20px;
+      margin-bottom: 0px;
+    }
+
   </style>
 <!-- bungee and muli -->
 </head>
@@ -249,7 +265,6 @@
                   </div>
                   <div class="collapsible-body">
                     <img class="active" data-type="annotationLabel" src="img/a-label.png" />
-                    <img data-type="annotationCallout" src="img/a-dots.png" />
                     <img data-type="annotationCallout"  src="img/a-callout.png" />
                     <img data-type="annotationCalloutElbow" src="img/a-elbow.png" />
                     <img data-type="annotationCalloutCurve" src="img/a-curve.png" />
@@ -257,51 +272,58 @@
                     <img data-type="annotationCalloutXYThreshold" src="img/a-threshold.png" />
                   </div>
                 </li>
-                <li>
-                  <div class="collapsible-header active "><b>Options</b></div>
+                <li class="options">
+                  <div class="collapsible-header  active "><b>Options</b></div>
                   <div class="collapsible-body">
                     <div class"row">
                       <div class="col m3 textbox">
                         <p><b>Textbox</b></p>
-                          <p>Line Type</p>
-                         <a class="waves-effect btn  grey lighten-1" data-section="textBox:lineType" data-setting="vertical">Vertical</a>
-                         <a class="waves-effect btn  grey lighten-1" data-section="textBox:lineType" data-setting="horizontal">Horizontal</a>
+                          <p>Line Type <a class="active" data-section="textBox:lineType" data-setting="none"><img src="img/none.png"/></a></p>
+                         <a class="" data-section="textBox:lineType" data-setting="vertical"><img src="img/vertical.png"/></a>
+                         <a class="" data-section="textBox:lineType" data-setting="horizontal"><img src="img/horizontal.png"/></a>
                        
-                         <a class="waves-effect btn" data-section="textBox:lineType" data-setting="none">None</a>
                         
                         <div class="orientation">
                         <p >Orientation</p>
-                         <a class="waves-effect btn grey lighten-1" data-section="textBox:orientation" data-setting="topBottom">Top/Bottom</a>
-                         <a class="waves-effect btn grey lighten-1" data-section="textBox:orientation" data-setting="leftRight">Left/Right</a>
+                         <a class="" data-section="textBox:orientation" data-setting="topBottom"><img src="img/topBottom.png"/></a>
+                         <a class="" data-section="textBox:orientation" data-setting="leftRight"><img src="img/leftRight.png"/></a>
                          </div>
+                        
                       </div>
                       <div class="col m3 textbox">
                           <br/>
                         <p>Align</p>
-                         <a class="waves-effect btn grey lighten-1" data-section="textBox:align" data-setting="dynamic">Dynamic</a>
-                           <a class="waves-effect btn" data-section="textBox:align" data-setting="middle">Middle</a>
-                         <a class="waves-effect btn grey lighten-1 horizontal" data-section="textBox:align" data-setting="left">Left</a>
+                         <a class="" data-section="textBox:align" data-setting="dynamic"><img src="img/dynamic.png"/></a>
+                           <a class="active" data-section="textBox:align" data-setting="middle"><img src="img/middle.png"/></a>
+                         <a class="horizontal" data-section="textBox:align" data-setting="left"><img src="img/left.png"/></a>
                        
-                         <a class="waves-effect btn grey lighten-1 horizontal" data-section="textBox:align" data-setting="right">Right</a>
-                         <a class="waves-effect btn vertical hidden grey lighten-1 " data-section="textBox:align" data-setting="top">Top</a>
-                         <a class="waves-effect btn grey lighten-1 vertical hidden" data-section="textBox:align" data-setting="bottm">Bottom</a>
+                         <a class="horizontal" data-section="textBox:align" data-setting="right"><img src="img/right.png"/></a>
+                         <a class="vertical hidden" data-section="textBox:align" data-setting="top"><img src="img/top.png"/></a>
+                         <a class="vertical hidden" data-section="textBox:align" data-setting="bottom"><img src="img/down.png"/></a>
                       </div>
                       <div class="col m3 connector">
-                        <p><b>Connector</b></p>
-                        <p>Type</p>
-                        <a class="waves-effect btn grey lighten-1" data-section="connector:type" data-setting="none">None</a>
-                        <a class="waves-effect btn" data-section="connector:type"data-setting="line">Line</a>
-                        <a class="waves-effect btn grey lighten-1" data-section="connector:type" data-setting="elbow">Elbow</a>
-                        <a class="waves-effect btn  grey lighten-1" data-section="connector:type" data-setting="curve">Curve</a>
+                          <br />
+                         <label style="color: #9e9e9e;" for="textWrap">Text Wrap</label>
+                          <input id="textWrap" 
+                          placeholder=120 type="number" >
+                       
+                           <label style="color: #9e9e9e;"  for="textPadding">Text Padding</label>
 
+                          <input id="textPadding" 
+                          placeholder=5 type="number" >
                       </div>
                       <div class="col m3 connector">
-                        <br/>
+ <p><b>Connector</b></p>
+                        <p>Type <a class="" data-section="connector:type" data-setting="none"><img src="img/none.png"/></a></p>
+                        
+                        <a class="active" data-section="connector:type"data-setting="line"><img src="img/line.png"/></a>
+                        <a class="" data-section="connector:type" data-setting="elbow"><img src="img/elbow.png"/></a>
+                        <a class="" data-section="connector:type" data-setting="curve"><img src="img/curve.png"/></a>
 
-                        <p>End</p>
-                        <a class="waves-effect btn " data-section="connector:end" data-setting="none">None</a>
-                        <a class="waves-effect btn grey lighten-1" data-section="connector:end" data-setting="arrow">Arrow</a>
-                        <a class="waves-effect btn grey lighten-1" data-section="connector:end" data-setting="dot">Dot</a>
+                        <p>End  <a class="" data-section="connector:end" data-setting="none"><img src="img/none.png"/></a></p>
+                       
+                        <a class="" data-section="connector:end" data-setting="arrow"><img src="img/arrow.png"/></a>
+                        <a class="" data-section="connector:end" data-setting="dot"><img src="img/dot.png"/></a>
                       </div>
                     </div>
                   </div>

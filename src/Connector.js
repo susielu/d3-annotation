@@ -10,6 +10,7 @@ export const connectorLine = ({ annotation, offset=annotation.position, context,
     y1 = annotation.y - offset.y,
     y2 = y1 + annotation.dy
 
+
  const subjectData = annotation.subject
 
   if ((subjectData.outerRadius || subjectData.radius) && !elbow){

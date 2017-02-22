@@ -18,18 +18,35 @@ export default class AnnotationCollection {
   clearTypes() {
     this.annotations.forEach(d => {
       d.type = undefined
+      d.subject = {}
+      d.connector = {}
+      d.textBox = {}
     })
   }
 
   update() { this.annotations.forEach(d => d.type.update())}
 
   editMode(editMode) { this.annotations.forEach(a => {
-    if (a.type) {
-      a.type.editMode = editMode
-      a.type.updateEditMode()
-    }
-  })
-}
+      if (a.type) {
+        a.type.editMode = editMode
+        a.type.updateEditMode()
+      }
+    })
+  }
+
+  updateDisable(disable) {
+    this.annotations.forEach(a => {
+      a.disable = disable
+      if (a.type){
+        disable.forEach(d => {
+          if (a.type[d]){
+          a.type[d].remove && a.type[d].remove()
+          a.type[d] = undefined
+          }
+        })
+      }
+    })
+  }
 
   get json() { 
     return this.annotations.map(a => {      

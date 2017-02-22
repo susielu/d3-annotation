@@ -62,7 +62,7 @@ class Type {
 
       let titleBBox = { height: 0 }
       const text = this.a.select('text.annotation-text')
-      const wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || 100
+      const wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || 120
 
       if (this.annotation.title){
         const title = this.a.select('text.annotation-title')
@@ -93,7 +93,6 @@ class Type {
     }
 
     const type = context.type
-
     switch (type) {
       case "circle":
         
@@ -328,8 +327,12 @@ class Type {
     this.customization()
   }
 
-  dragstarted() { event.sourceEvent.stopPropagation(); this.a.classed("dragging", true) }
-  dragended() { this.a.classed("dragging", false)}
+  dragstarted() { 
+    console.log('in drag start')
+    event.sourceEvent.stopPropagation(); this.a.classed("dragging", true) }
+  dragended() { 
+    console.log('in drag end')
+    this.a.classed("dragging", false)}
 
   dragSubject() {
     const position = this.annotation.position

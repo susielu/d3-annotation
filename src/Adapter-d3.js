@@ -7,6 +7,7 @@ export default function annotation(){
   let annotations = [],
     collection,
     context,
+    disable = [],
     accessors = {},
     accessorsInverse = {},
     editMode = false,
@@ -23,6 +24,7 @@ export default function annotation(){
       .map(a => {
         if (!a.type) { a.type = type }
         if (a.type.init) { a = a.type.init(a, accessors) }
+        if (!a.disable) {a.disable = disable}
 
         return new Annotation(a)
       });
@@ -85,6 +87,16 @@ export default function annotation(){
     return annotation
   }
 
+  annotation.disable = function(_){
+    if (!arguments.length) return disable;
+    disable = _
+    if (collection) { 
+      collection.updateDisable(disable)
+      annotations = collection.annotations
+    }
+    return annotation;
+  }
+
   //TODO: add in classprefix functionality
   annotation.type = function(_) {
     if (!arguments.length) return type;
@@ -132,11 +144,6 @@ export default function annotation(){
     if (collection) { 
       collection.editMode(editMode)
       annotations = collection.annotations
-
-    //       if (selection){
-    //   selection.selectAll("circle.handles")
-    //     .remove()
-    // }
     }
     return annotation
   }
