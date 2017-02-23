@@ -203,7 +203,7 @@
       font-weight: bold;
     }
 
-    .sandbox .summary {
+    .sandbox .summary, .sandbox .summaryCont {
       font-size: .8em;
     }
 
@@ -227,6 +227,10 @@
 
     .section .fixed-action-btn ul:not(.collapsible)  li {
       margin: 0px;
+    }
+
+    #curveButtons .points a{
+      color: var(--accent-color)
     }
   </style>
 <!-- bungee and muli -->
@@ -366,6 +370,7 @@
               <g transform="translate(30, 60)">
                 <text class="type">d3.annotationLabel</text>
                 <text y=30 class="summary">A centered label annotation </text>
+                <text y=60 class="summaryCont"> </text>
               </g>
             </svg>
             <div style="top: 0px; position: absolute; width: 100%; text-align: right;">
