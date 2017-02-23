@@ -206,6 +206,28 @@
     .sandbox .summary {
       font-size: .8em;
     }
+
+    .fixed-action-btn {
+      position: relative;
+      top: 40px;
+      right: 40px;
+      margin-top: 10px;
+    }
+
+    .fixed-action-btn .red  {
+      text-align: center;
+    }
+
+    .fixed-action-btn .red img {
+      vertical-align: middle;
+      width: 16px;
+      margin-top: -2px;
+      pointer-events: none;
+    }
+
+    .section .fixed-action-btn ul:not(.collapsible)  li {
+      margin: 0px;
+    }
   </style>
 <!-- bungee and muli -->
 </head>
@@ -276,7 +298,7 @@
                     <img data-type="annotationCalloutElbow" src="img/a-elbow.png" />
                     <img data-type="annotationCalloutCurve" src="img/a-curve.png" />
                     <img data-type="annotationCalloutCircle" src="img/a-circle.png" />
-                    <img data-type="annotationCalloutXYThreshold" src="img/a-threshold.png" />
+                    <img data-type="annotationXYThreshold" src="img/a-threshold.png" />
                   </div>
                 </li>
                 <li class="options">
@@ -310,17 +332,17 @@
                       </div>
                       <div class="col m3 connector">
                           <br />
-                         <label style="color: #9e9e9e;" for="textWrap">Text Wrap</label>
+                         <label style="color: #9e9e9e;" for="textWrap">Text Wrap (120)</label>
                           <input id="textWrap" 
                           placeholder=120 type="number" >
                        
-                           <label style="color: #9e9e9e;"  for="textPadding">Text Padding</label>
+                           <label style="color: #9e9e9e;"  for="textPadding">Text Padding (5)</label>
 
                           <input id="textPadding" 
                           placeholder=5 type="number" >
                       </div>
                       <div class="col m3 connector">
- <p><b>Connector</b></p>
+                      <p><b>Connector</b></p>
                         <p>Type <a class="" data-section="connector:type" data-setting="none"><img src="img/none.png"/></a></p>
                         
                         <a class="active" data-section="connector:type"data-setting="line"><img src="img/line.png"/></a>
@@ -330,6 +352,7 @@
                         <p>End  <a class="" data-section="connector:end" data-setting="none"><img src="img/none.png"/></a></p>
                        
                         <a class="" data-section="connector:end" data-setting="arrow"><img src="img/arrow.png"/></a>
+
                         <a class="" data-section="connector:end" data-setting="dot"><img src="img/dot.png"/></a>
                       </div>
                     </div>
@@ -338,21 +361,43 @@
               </ul>
               </div>
             </div>
+            <div style="position:relative;">
             <svg class="sandbox">
               <g transform="translate(30, 60)">
                 <text class="type">d3.annotationLabel</text>
                 <text y=30 class="summary">A centered label annotation </text>
               </g>
             </svg>
-
-            <h3>Use dat jam 🍓🍞</h3>
+            <div style="top: 0px; position: absolute; width: 100%; text-align: right;">
+              <div id="curveButtons" class="hidden">
+               <div class="fixed-action-btn horizontal">
+                  <a class="btn-floating red lighten-4">
+                    <img src="img/curve.png"/>
+                  </a>
+                  <ul class="curves">
+                    <li><a class="btn-floating  red lighten-4" data-curve="curveBasis"><img src="img/basis.png"/></a></li>
+                    <li><a class="btn-floating  red lighten-4" data-curve="curveCatmullRom"><img src="img/cardinal.png"/></a></li>
+                    <li><a class="btn-floating  red lighten-4" data-curve="curveLinear"><img src="img/linear.png"/></a></li>
+                    <li><a class="btn-floating  red lighten-4" data-curve="curveStep"><img src="img/step.png"/></a></li>
+                  </ul>
+                </div>
+        
+               <div class="fixed-action-btn horizontal">
+                  <a class="btn-floating red lighten-4">
+                    <img src="img/dots.png"/>
+                  </a>
+                  <ul class="points">
+                    <li><a class="btn-floating  red lighten-4" data-points="1">1</a></li>
+                    <li><a class="btn-floating  red lighten-4" data-points="2">2</a></li>
+                    <li><a class="btn-floating  red lighten-4" data-points="3">3</a></li>
+                    <li><a class="btn-floating  red lighten-4" data-points="4">4</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            </div>
+            <h3>Use annotation:</h3>
             <pre id="sandbox-code">
-              <code>
-              </code>
-            </pre>
-
-            <h3>Use dat jam with scales:</h3>
-            <pre id="sandbox-code-with-scales">
               <code>
               </code>
             </pre>

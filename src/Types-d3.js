@@ -8,13 +8,15 @@ import { subjectLine, subjectCircle } from './Subject'
 import { pointHandle, circleHandles, rectHandles, lineHandles, addHandles } from './Handles'
 
 class Type {
-  constructor({ a, annotation, editMode }) {
+  constructor({ a, annotation, editMode, textWrap, textPadding }) {
     this.a = a
     this.textBox = annotation.disable.indexOf("textBox") === -1 && a.select('g.annotation-textbox')
     this.connector = annotation.disable.indexOf("connector") === -1 && a.select('g.annotation-connector')
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject')
     this.annotation = annotation
     this.editMode = editMode
+    this.textWrap = textWrap
+    this.textPadding = textPadding
   }
 
   static init(annotation, accessors) {
@@ -28,9 +30,13 @@ class Type {
   }
 
   updateEditMode () {
-    console.log('in update edit mode')
     this.a.selectAll('circle.handle')
       .remove()
+  }
+
+  updateTextWrap (textWrap) {
+    this.textWrap = textWrap
+    this.drawText()
   }
 
   drawOnSVG (a, builders) {
@@ -62,7 +68,7 @@ class Type {
 
       let titleBBox = { height: 0 }
       const text = this.a.select('text.annotation-text')
-      const wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || 120
+      const wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || this.textWrap ||  120
 
       if (this.annotation.title){
         const title = this.a.select('text.annotation-title')
@@ -223,14 +229,14 @@ class Type {
   drawTextBox (context) {
     const offset = this.annotation.offset
     const tData = this.annotation.textBox
-    const padding = tData.padding || context.padding || 5
+    const padding = tData.padding || this.textPadding || 5
     
     const lineType = context.lineType
 
     let orientation = tData.orientation || context.orientation || 'topBottom'
     let align = tData.align || context.align || 'dynamic'
 
-    let x = -context.bbox.x + padding
+    let x = -context.bbox.x 
     let y = -context.bbox.y
     let decorators = []
 
@@ -269,18 +275,23 @@ class Type {
 
     if (orientation === 'topBottom' ){
       topBottomDynamic()
-      if (offset.y < 0){ y = -context.bbox.height - padding }
+      if (offset.y < 0){ 
+        y -= (context.bbox.height + padding)
+     } else {
+       y += padding
+     }
 
       if (align === "middle") {
         x -= context.bbox.width/2
       } else if (align === "right" ) {
-        x -= (context.bbox.width + padding*2)
+        x -= (context.bbox.width)
       } 
 
     } else if (orientation === 'leftRight'){
       leftRightDyanmic()
       if (offset.x < 0){ 
-        x -= (context.bbox.width + padding*2) 
+        console.log('in x left')
+        x -= (context.bbox.width + padding) 
       } else {
         x += padding
       }
@@ -288,7 +299,7 @@ class Type {
        if (align === "middle") {
           y -= context.bbox.height/2
        } else if (align === "top" ){
-          y -= (context.bbox.height + padding)
+          y -= (context.bbox.height )
        }
     } 
 
@@ -327,12 +338,8 @@ class Type {
     this.customization()
   }
 
-  dragstarted() { 
-    console.log('in drag start')
-    event.sourceEvent.stopPropagation(); this.a.classed("dragging", true) }
-  dragended() { 
-    console.log('in drag end')
-    this.a.classed("dragging", false)}
+  dragstarted() { event.sourceEvent.stopPropagation(); this.a.classed("dragging", true) }
+  dragended() { this.a.classed("dragging", false)}
 
   dragSubject() {
     const position = this.annotation.position
@@ -359,8 +366,8 @@ class Type {
 
 export const customType = (initialType, typeSettings, init) => {
   return class customType extends initialType {
-    constructor ({ a, annotation, editMode }) {
-      super({a, annotation, editMode})
+    constructor (settings) {
+      super(settings)
       this.typeSettings = typeSettings
     }
 

@@ -12,7 +12,9 @@ export default function annotation(){
     accessorsInverse = {},
     editMode = false,
     ids,
-    type = d3Callout;
+    type = d3Callout,
+    textWrap,
+    textPadding;
 
   const annotation = function(selection){
     if (!editMode){
@@ -70,7 +72,7 @@ export default function annotation(){
 
         newWithClass(textWrapper, [d], 'text', 'annotation-text')
         newWithClass(textWrapper, [d], 'text', 'annotation-title')
-        d.type = new d.type({ a, annotation: d, editMode})
+        d.type = new d.type({ a, annotation: d, textWrap, textPadding, editMode })
 
         d.type.draw()
       })
@@ -97,12 +99,32 @@ export default function annotation(){
     return annotation;
   }
 
+  annotation.textWrap = function(_){
+    if (!arguments.length) return textWrap;
+    textWrap = _
+    if (collection) { 
+      collection.updateTextWrap(textWrap)
+      annotations = collection.annotations
+    }
+    return annotation;
+  }
+
+  annotation.textPadding = function(_){
+    if (!arguments.length) return textPadding;
+    textPadding = _
+    if (collection) { 
+      collection.updateTextPadding(textPadding)
+      annotations = collection.annotations
+    }
+    return annotation;
+  }
+
   //TODO: add in classprefix functionality
-  annotation.type = function(_) {
+  annotation.type = function(_, settings) {
     if (!arguments.length) return type;
     type = _;
     if (collection) { 
-      collection.clearTypes()
+      collection.clearTypes(settings)
       annotations = collection.annotations
     }
     return annotation;

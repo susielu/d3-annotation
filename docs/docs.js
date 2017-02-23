@@ -10,12 +10,6 @@ const layout = require('./content/layout.md')
 const extend = require('./content/extend.md')
 const notes = require('./content/notes.md')
 const highlight = require('highlight.js')
-// md.setOptions({
-//   highlight: function (code) {
-//     console.log('in highlight')
-//     return require('highlight.js').highlightAuto(code).value;
-//   }
-// })
 
 document.getElementById('toc1').innerHTML = md(contents);
 document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + md(contents)
@@ -53,7 +47,8 @@ $(document).ready(function(){
 
     let currentType = d3.annotationLabel
     let typeKey = "annotationLabel"
-
+    let curve = "curveCatmullRom"
+    let points = 2
   
     const types = {
       annotationLabel: { 
@@ -71,12 +66,14 @@ $(document).ready(function(){
       annotationCalloutElbow: { 
         typeSettings: {
 
-        }
+        },
+        summary: "Keeps connector at 45 and 90 degree angles"
       },
       annotationCalloutCircle: { 
         typeSettings: {
 
-        }
+        },
+        summary: "A circle for the subject"
       },
       annotationCalloutCurve: { 
         typeSettings: {
@@ -84,10 +81,11 @@ $(document).ready(function(){
         },
         summary: "Can be configured with a points and curve property"
       },
-      annotationCalloutXYThreshold: { 
+      annotationXYThreshold: { 
         typeSettings: {
 
-        }
+        },
+        summary: "Mark x, or y thresholds"
       }
     }
 
@@ -100,7 +98,7 @@ $(document).ready(function(){
     .type(currentType)
     .annotations([
       {
-        text: "d3.annotationLabel",
+        text: "Longer text to show text wrapping",
         title: "Annotations :)",
         x: 150,
         y: 150,
@@ -145,19 +143,47 @@ $(document).ready(function(){
 
 
         if (value === "none"){
-          //TODO come back to figure out to determin value
-          //maybe none becomes dynamic? 
+
           delete typeSettings[type[0]][type[1]]
           if (type[0] == "connector" && type[1] == "type"){
             makeAnnotations.disable(['connector'])
             makeAnnotations.update()
           }
         } else {
-          typeSettings[type[0]][type[1]] = value
 
           if (type[0] == "connector" && type[1] == "type"){
+            const connectorTypes = ['annotationCallout', 'annotationCalloutElbow', 'annotationCalloutCurve']
+            if (connectorTypes.indexOf(typeKey) !== -1){
+              if (value == "line"){
+                typeKey = 'annotationCallout'
+              } else if (value == "elbow"){
+                typeKey = 'annotationCalloutElbow'
+              } else if (value == "curve"){
+                typeKey = 'annotationCalloutCurve'
+              }
+
+              d3.selectAll(`.icons .presets img`)
+                .classed('active', false)
+
+              d3.selectAll(`[data-type="${typeKey}"]`)
+                .classed('active', true)
+            } else {
+             typeSettings[type[0]][type[1]] = value
+            }
+
+              if (value == "curve") {
+                d3.select('#curveButtons')
+                  .classed('hidden', false)
+              } else if (typeKey !== 'annotationCalloutCurve'){
+                d3.select('#curveButtons')
+                  .classed('hidden', true)
+              }
+
             makeAnnotations.disable([])
             makeAnnotations.update()
+          } else {
+            typeSettings[type[0]][type[1]] = value
+
           }
         }
 
@@ -180,6 +206,14 @@ $(document).ready(function(){
 
         typeSettings = JSON.parse(JSON.stringify(defaultSettings))
 
+        if (typeKey == "annotationCalloutCurve") {
+          d3.select('#curveButtons')
+            .classed('hidden', false)
+        } else {
+          d3.select('#curveButtons')
+            .classed('hidden', true)
+        }
+
         updateAnnotations()
         sandboxCode()
 
@@ -198,27 +232,45 @@ $(document).ready(function(){
 
     d3.select('#textWrap')
       .on('change', function(){
-        console.log('in text wrap change', d3.event)
-
         textWrap = parseInt(d3.event.target.value)
+        makeAnnotations.textWrap(textWrap)
       })
 
     d3.select('#textPadding')
       .on('change', function(){
-        console.log('in text Padding change', d3.event)
         textPadding = parseInt(d3.event.target.value)
+        makeAnnotations.textPadding(textPadding)
+        makeAnnotations.update()
       })
+
+    d3.selectAll('#curveButtons ul.curves li a')
+      .on('click', function(){
+        curve = d3.event.target.attributes['data-curve'].value
+
+        updateAnnotations({ connector: { curve: d3[curve], points } })
+        sandboxCode()
+
+   })
+
+    d3.selectAll('#curveButtons ul.points li a')
+      .on('click', function(){
+        points = parseInt(d3.event.target.attributes['data-points'].value)
+
+        updateAnnotations({ connector: { curve: d3[curve], points } })
+        sandboxCode()
+
+   })
 
     d3.select(".sandbox")
       .append("g")
       .attr("class", "sandbox-annotations")
       .call(makeAnnotations)
 
-    const updateAnnotations = () => {
+    const updateAnnotations = (newSettings) => {
         d3.select(".sandbox g.sandbox-annotations")
           .remove()
 
-        makeAnnotations.type(currentType)
+        makeAnnotations.type(currentType, newSettings)
 
         d3.select(".sandbox")
           .append("g")
@@ -228,7 +280,6 @@ $(document).ready(function(){
         d3.select(".sandbox .type")
           .text(`d3.${typeKey}`)
 
-        console.log('here', types, types[typeKey].summary)
         d3.select(".sandbox .summary")
           .text(types[typeKey].summary)
     }
@@ -269,41 +320,42 @@ $(document).ready(function(){
         `  .disable(${JSON.stringify(makeAnnotations.disable())})\n`
       }
 
+      let textWrapText = ''
+
+      if (textWrap !== 120) {
+        textWrapText = '  //also can set and override in the textBox.wrap property\n  //of the annotation JSON\n' +
+        `  .textWrap(${textWrap})`
+      }
+
+      let textPaddingText = ''
+
+      if (textPadding !== 5) {
+        textPaddingText = '  //also can set and override in the textBox.padding property\n  //of the annotation JSON\n' +
+        `  .textPadding(${textPadding})`
+      }
+
+      let curveText = ''
+      if ((typeKey == "annotationCalloutCurve" || typeSettings.connector.type == "curve") && (curve !== 'curveCatmullRom' || points !== 2)){
+        curveText = '        connector: {\n' +
+          (curve !== 'curveCatmullRom' ? `          curve: d3.${curve}` : '') +
+          (points !== 2 && curve !== 'curveCatmullRom'? ',\n' : '' ) +
+          (points !== 2 ? `          points: ${points}` : '') +
+          '\n' +
+          '        }\n'
+      }
+
+     
       d3.select("#sandbox-code code")
       .text(
       typeText +
       '\n' +
       'const annotations = [{\n' +
-      '        text: "d3.annotationLabel",\n' +
-      '        title: "Annotations :)",\n' +
-      '        x: 150,\n' +
-      '        y: 150,\n' +
-      '        dy: 137,\n' +
-      '        dx: 162\n' +
-      '      }]\n' +
-      '\n' +
-      'const makeAnnotations = d3.annotation()\n' +
-      editModeText +
-      disableText +
-      `  .type(type)\n` +
-      `  .annotations(annotations)\n` +
-      '\n' +
-      'd3.select("svg")\n' +
-      '  .append("g")\n' +
-      '  .attr("class", "annotation-test")\n' +
-      '  .call(makeAnnotations)\n' 
-      )
-
-      d3.select("#sandbox-code-with-scales code")
-      .text(
-      typeText +
-      '\n' +
-      'const annotations = [{\n' +
-      '        text: "d3.annotationLabel",\n' +
+      '        text: "Longer text to show text wrapping",\n' +
       '        title: "Annotations :)",\n' +
       '        data: {date: "18-Sep-09", close: 185.02},\n' +
       '        dy: 137,\n' +
-      '        dx: 162\n' +
+      `        dx: 162${curveText !== '' ? ',' : ''}\n` +
+      curveText +
       '      }]\n' +
       '\n' +
       'const parseTime = d3.timeParse("%d-%b-%y")\n' +
@@ -317,6 +369,8 @@ $(document).ready(function(){
       'const makeAnnotations = d3.annotation()\n' +
       editModeText +
       disableText +
+      textWrapText +
+      textPaddingText +
       `  .type(type)\n` +
       '  .accessors({\n' + 
       '    x: d => x(parseTime(d.date)),\n' + 

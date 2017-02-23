@@ -3274,7 +3274,9 @@ function annotation() {
       accessorsInverse = {},
       editMode = false,
       ids = void 0,
-      type = _TypesD.d3Callout;
+      type = _TypesD.d3Callout,
+      textWrap = void 0,
+      textPadding = void 0;
 
   var annotation = function annotation(selection) {
     if (!editMode) {
@@ -3333,7 +3335,7 @@ function annotation() {
 
       (0, _TypesD.newWithClass)(textWrapper, [d], 'text', 'annotation-text');
       (0, _TypesD.newWithClass)(textWrapper, [d], 'text', 'annotation-title');
-      d.type = new d.type({ a: a, annotation: d, editMode: editMode });
+      d.type = new d.type({ a: a, annotation: d, textWrap: textWrap, textPadding: textPadding, editMode: editMode });
 
       d.type.draw();
     });
@@ -3360,12 +3362,32 @@ function annotation() {
     return annotation;
   };
 
+  annotation.textWrap = function (_) {
+    if (!arguments.length) return textWrap;
+    textWrap = _;
+    if (collection) {
+      collection.updateTextWrap(textWrap);
+      annotations = collection.annotations;
+    }
+    return annotation;
+  };
+
+  annotation.textPadding = function (_) {
+    if (!arguments.length) return textPadding;
+    textPadding = _;
+    if (collection) {
+      collection.updateTextPadding(textPadding);
+      annotations = collection.annotations;
+    }
+    return annotation;
+  };
+
   //TODO: add in classprefix functionality
-  annotation.type = function (_) {
+  annotation.type = function (_, settings) {
     if (!arguments.length) return type;
     type = _;
     if (collection) {
-      collection.clearTypes();
+      collection.clearTypes(settings);
       annotations = collection.annotations;
     }
     return annotation;
@@ -3569,12 +3591,12 @@ var AnnotationCollection = function () {
 
   _createClass(AnnotationCollection, [{
     key: "clearTypes",
-    value: function clearTypes() {
+    value: function clearTypes(newSettings) {
       this.annotations.forEach(function (d) {
         d.type = undefined;
-        d.subject = {};
-        d.connector = {};
-        d.textBox = {};
+        d.subject = newSettings && newSettings.subject || {};
+        d.connector = newSettings && newSettings.connector || {};
+        d.textBox = newSettings && newSettings.textBox || {};
       });
     }
   }, {
@@ -3606,6 +3628,24 @@ var AnnotationCollection = function () {
               a.type[d] = undefined;
             }
           });
+        }
+      });
+    }
+  }, {
+    key: "updateTextWrap",
+    value: function updateTextWrap(textWrap) {
+      this.annotations.forEach(function (a) {
+        if (a.type) {
+          a.type.updateTextWrap(textWrap);
+        }
+      });
+    }
+  }, {
+    key: "updateTextPadding",
+    value: function updateTextPadding(textPadding) {
+      this.annotations.forEach(function (a) {
+        if (a.type) {
+          a.type.textPadding = textPadding;
         }
       });
     }
@@ -4168,7 +4208,9 @@ var Type = function () {
   function Type(_ref) {
     var a = _ref.a,
         annotation = _ref.annotation,
-        editMode = _ref.editMode;
+        editMode = _ref.editMode,
+        textWrap = _ref.textWrap,
+        textPadding = _ref.textPadding;
 
     _classCallCheck(this, Type);
 
@@ -4178,13 +4220,20 @@ var Type = function () {
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject');
     this.annotation = annotation;
     this.editMode = editMode;
+    this.textWrap = textWrap;
+    this.textPadding = textPadding;
   }
 
   _createClass(Type, [{
     key: 'updateEditMode',
     value: function updateEditMode() {
-      console.log('in update edit mode');
       this.a.selectAll('circle.handle').remove();
+    }
+  }, {
+    key: 'updateTextWrap',
+    value: function updateTextWrap(textWrap) {
+      this.textWrap = textWrap;
+      this.drawText();
     }
   }, {
     key: 'drawOnSVG',
@@ -4238,7 +4287,7 @@ var Type = function () {
 
         var titleBBox = { height: 0 };
         var text = this.a.select('text.annotation-text');
-        var wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || 120;
+        var wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || this.textWrap || 120;
 
         if (this.annotation.title) {
           var title = this.a.select('text.annotation-title');
@@ -4419,14 +4468,14 @@ var Type = function () {
     value: function drawTextBox(context) {
       var offset = this.annotation.offset;
       var tData = this.annotation.textBox;
-      var padding = tData.padding || context.padding || 5;
+      var padding = tData.padding || this.textPadding || 5;
 
       var lineType = context.lineType;
 
       var orientation = tData.orientation || context.orientation || 'topBottom';
       var align = tData.align || context.align || 'dynamic';
 
-      var x = -context.bbox.x + padding;
+      var x = -context.bbox.x;
       var y = -context.bbox.y;
       var decorators = [];
 
@@ -4466,18 +4515,21 @@ var Type = function () {
       if (orientation === 'topBottom') {
         topBottomDynamic();
         if (offset.y < 0) {
-          y = -context.bbox.height - padding;
+          y -= context.bbox.height + padding;
+        } else {
+          y += padding;
         }
 
         if (align === "middle") {
           x -= context.bbox.width / 2;
         } else if (align === "right") {
-          x -= context.bbox.width + padding * 2;
+          x -= context.bbox.width;
         }
       } else if (orientation === 'leftRight') {
         leftRightDyanmic();
         if (offset.x < 0) {
-          x -= context.bbox.width + padding * 2;
+          console.log('in x left');
+          x -= context.bbox.width + padding;
         } else {
           x += padding;
         }
@@ -4485,7 +4537,7 @@ var Type = function () {
         if (align === "middle") {
           y -= context.bbox.height / 2;
         } else if (align === "top") {
-          y -= context.bbox.height + padding;
+          y -= context.bbox.height;
         }
       }
 
@@ -4531,13 +4583,11 @@ var Type = function () {
   }, {
     key: 'dragstarted',
     value: function dragstarted() {
-      console.log('in drag start');
       _d3Selection.event.sourceEvent.stopPropagation();this.a.classed("dragging", true);
     }
   }, {
     key: 'dragended',
     value: function dragended() {
-      console.log('in drag end');
       this.a.classed("dragging", false);
     }
   }, {
@@ -4590,14 +4640,10 @@ var customType = exports.customType = function customType(initialType, typeSetti
   return function (_initialType) {
     _inherits(customType, _initialType);
 
-    function customType(_ref3) {
-      var a = _ref3.a,
-          annotation = _ref3.annotation,
-          editMode = _ref3.editMode;
-
+    function customType(settings) {
       _classCallCheck(this, customType);
 
-      var _this5 = _possibleConstructorReturn(this, (customType.__proto__ || Object.getPrototypeOf(customType)).call(this, { a: a, annotation: annotation, editMode: editMode }));
+      var _this5 = _possibleConstructorReturn(this, (customType.__proto__ || Object.getPrototypeOf(customType)).call(this, settings));
 
       _this5.typeSettings = typeSettings;
       return _this5;

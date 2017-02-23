@@ -15,12 +15,12 @@ export default class AnnotationCollection {
 
   }
 
-  clearTypes() {
+  clearTypes(newSettings) {
     this.annotations.forEach(d => {
       d.type = undefined
-      d.subject = {}
-      d.connector = {}
-      d.textBox = {}
+      d.subject = newSettings && newSettings.subject ||{}
+      d.connector = newSettings && newSettings.connector || {}
+      d.textBox = newSettings && newSettings.textBox || {}
     })
   }
 
@@ -44,6 +44,22 @@ export default class AnnotationCollection {
           a.type[d] = undefined
           }
         })
+      }
+    })
+  }
+
+  updateTextWrap(textWrap) {
+    this.annotations.forEach(a => {
+      if (a.type){
+        a.type.updateTextWrap(textWrap)
+      }
+    })
+  }
+
+  updateTextPadding(textPadding) {
+    this.annotations.forEach(a => {
+      if (a.type){
+        a.type.textPadding = textPadding
       }
     })
   }
