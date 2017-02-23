@@ -3,8 +3,8 @@ import { lineBuilder } from './Builder'
 const CLASS = "connector"
 
 //TODO: think of how to rename context to make it clear that it is canvas context
-export const connectorLine = ({ annotation, offset=annotation.position, context,
-    curve, bbox, elbow=false, points, align }) => {
+export const connectorLine = ({ annotation, offset=annotation.position, canvasContext,
+    curve, bbox, elbow=false, points, align, className }) => {
   let x1 = annotation.x - offset.x,
     x2 = x1 + annotation.dx,
     y1 = annotation.y - offset.y,
@@ -31,7 +31,7 @@ export const connectorLine = ({ annotation, offset=annotation.position, context,
     data = [ [x1, y1], ...points, [x2, y2] ] 
   }
 
-  return lineBuilder({ data, curve, context, className : CLASS })
+  return lineBuilder({ data, curve, canvasContext, className : className || CLASS })
 }
 
 const makeElbow = (x1, x2, y1, y2, subjectData, data, align) => {
@@ -83,7 +83,7 @@ const makeElbow = (x1, x2, y1, y2, subjectData, data, align) => {
     return data
 }
 
-export const connectorArrow = ({ annotation, offset=annotation.position, start, end, bbox, context}) => {
+export const connectorArrow = ({ annotation, offset=annotation.position, start, end, bbox, canvasContext, className}) => {
 
   if (!start) { start = [annotation.dx, annotation.dy]} 
   else { start = [-end[0] + start[0], - end[1] + start[1]]}
@@ -111,7 +111,7 @@ export const connectorArrow = ({ annotation, offset=annotation.position, start, 
 
   
   //TODO add in reverse
-  // if (context.arrowReverse){
+  // if (canvasContext.arrowReverse){
   //   data = [[x1, y1], 
   //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
   //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
@@ -125,5 +125,5 @@ export const connectorArrow = ({ annotation, offset=annotation.position, start, 
   //   ]
   // }
 
-  return lineBuilder({ data, context, className : CLASS + '-arrow' })
+  return lineBuilder({ data, canvasContext, className : (className || CLASS) + '-arrow' })
 }

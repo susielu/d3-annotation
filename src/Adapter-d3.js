@@ -2,11 +2,13 @@ import Annotation from './Annotation'
 import AnnotationCollection from './AnnotationCollection'
 import { newWithClass, d3Callout } from './Types-d3'
 import { select } from 'd3-selection'
+import { dispatch } from 'd3-dispatch';
+
 
 export default function annotation(){
   let annotations = [],
     collection,
-    context,
+    context, //TODO: add canvas functionality
     disable = [],
     accessors = {},
     accessorsInverse = {},
@@ -14,7 +16,8 @@ export default function annotation(){
     ids,
     type = d3Callout,
     textWrap,
-    textPadding;
+    textPadding,
+    annotationDispatcher = dispatch("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "textboxover", "textboxout", "textboxclick");
 
   const annotation = function(selection){
     if (!editMode){
@@ -72,7 +75,7 @@ export default function annotation(){
 
         newWithClass(textWrapper, [d], 'text', 'annotation-text')
         newWithClass(textWrapper, [d], 'text', 'annotation-title')
-        d.type = new d.type({ a, annotation: d, textWrap, textPadding, editMode })
+        d.type = new d.type({ a, annotation: d, textWrap, textPadding, editMode, dispatcher: annotationDispatcher })
 
         d.type.draw()
       })
@@ -119,7 +122,6 @@ export default function annotation(){
     return annotation;
   }
 
-  //TODO: add in classprefix functionality
   annotation.type = function(_, settings) {
     if (!arguments.length) return type;
     type = _;
@@ -176,12 +178,11 @@ export default function annotation(){
     return annotation
   }
 
+  annotation.on = function(){
+    const value = annotationDispatcher.on.apply(annotationDispatcher, arguments)
+    return value === annotationDispatcher ? annotation : value;
+  }
+
   return annotation;
 
 };
-
-
-//Type adapter
-//takes a prototype
-//updates one of the functions with the desired properties
-//returns the updated prototype that has extended the base prototype

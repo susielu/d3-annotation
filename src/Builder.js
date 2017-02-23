@@ -1,6 +1,6 @@
 import { line, arc, curveLinear, symbol, symbolTriangle } from "d3-shape"
 
-export const lineBuilder = ({ data, curve=curveLinear, context, className }) => { 
+export const lineBuilder = ({ data, curve=curveLinear, canvasContext, className }) => { 
   const lineGen = line()
     .curve(curve)
 
@@ -10,8 +10,8 @@ export const lineBuilder = ({ data, curve=curveLinear, context, className }) => 
     data
   }
 
-  if (context) {
-    lineGen.context(context)
+  if (canvasContext) {
+    lineGen.context(canvasContext)
     builder.pathMethods = lineGen
 
   } else {
@@ -23,7 +23,7 @@ export const lineBuilder = ({ data, curve=curveLinear, context, className }) => 
   return builder
 }
 
-export const arcBuilder = ({ data, context, className }) => {
+export const arcBuilder = ({ data, canvasContext, className }) => {
 
   const builder = {
     type: 'path',
@@ -37,8 +37,8 @@ export const arcBuilder = ({ data, context, className }) => {
     .startAngle(data.startAngle || 0)
     .endAngle(data.endAngle || 2*Math.PI)
 
-  if (context) {
-    arcShape.context(context)
+  if (canvasContext) {
+    arcShape.context(canvasContext)
     builder.pathMethods = lineGen
 
   } else {

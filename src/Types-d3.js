@@ -5,14 +5,39 @@ import { Annotation } from './Annotation'
 import { connectorLine, connectorArrow } from './Connector'
 import { textBoxLine, textBoxSideline } from './TextBox'
 import { subjectLine, subjectCircle } from './Subject'
+import { lineBuilder, arcBuilder } from './Builder'
 import { pointHandle, circleHandles, rectHandles, lineHandles, addHandles } from './Handles'
 
 class Type {
-  constructor({ a, annotation, editMode, textWrap, textPadding }) {
+  constructor({ a, annotation, editMode, textWrap, textPadding, dispatcher }) {
     this.a = a
     this.textBox = annotation.disable.indexOf("textBox") === -1 && a.select('g.annotation-textbox')
     this.connector = annotation.disable.indexOf("connector") === -1 && a.select('g.annotation-connector')
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject')
+
+    if (dispatcher){
+      if (this.textBox){
+        this.textBox
+        .on("mouseover.annotations", () => {
+          dispatcher.call("textboxover", this.textBox, annotation)})
+        .on("mouseout.annotations", () => dispatcher.call("textboxout", this.textBox, annotation))
+        .on("click.annotations", () => dispatcher.call("textboxclick", this.textBox, annotation))
+      }
+
+      if (this.connector){
+        this.connector
+        .on("mouseover.annotations", () => dispatcher.call("connectorover", this.connector, annotation))
+        .on("mouseout.annotations", () => dispatcher.call("connectorout", this.connector, annotation))
+        .on("click.annotations", () => dispatcher.call("connectorclick", this.connector, annotation))
+      }
+
+      if (this.subject){
+        this.subject.on("mouseover.annotations", () => dispatcher.call("subjectover", this.subject, annotation))
+        .on("mouseout.annotations", () => dispatcher.call("subjectout", this.subject, annotation))
+        .on("click.annotations", () => dispatcher.call("subjectclick", this.subject, annotation))
+      }
+    }
+  
     this.annotation = annotation
     this.editMode = editMode
     this.textWrap = textWrap
@@ -146,6 +171,27 @@ class Type {
         return c
     case "threshold":
       return subjectLine(context)
+
+    case "badge":
+
+
+      const radius = 18
+      const innerRadius = 13
+      const x = 18
+      const y = 18
+      const transform = `translate(${x}, ${y})`
+      const circlebg = arcBuilder({ ...context, className: 'subject', data: { radius} }) 
+      circlebg.attrs.transform = transform
+
+      const circle = arcBuilder({ ...context, className: 'subject-ring', data: { outerRadius: radius, innerRadius} })
+      circle.attrs.transform = transform
+
+      const pointer = lineBuilder({ ...context, className: 'subject-pointer',
+      data: [[0, 0], [x, 0], [0, y], [0, 0]]
+      })
+    
+    
+      return [pointer, circlebg, circle]
     }
  }
 
@@ -219,7 +265,9 @@ class Type {
         line = [line, connectorArrow(context)]
         break;
       case "dot":
-        line = [line, subjectCircle(context)]
+        const circle = arcBuilder({ ...context, className: 'connector-dot', data: { radius: 3} })
+        circle.attrs.transform = `translate(${line.data[0][0]}, ${line.data[0][1]})`
+        line = [line, circle]
         break;
     }
 
@@ -400,10 +448,6 @@ export const d3Label = customType(Type, {
   textBox: { align: "middle"}
 })
 
-export const d3LabelDots = customType(Type, {
-  className: "label dots",
-  connector: { start: "dot", end: "dot" }
-})
 
 export const d3Callout = customType(Type, {
   className: "callout",
@@ -423,6 +467,11 @@ export const d3CalloutCircle = customType(d3CalloutElbow, {
 export const d3CalloutCurve = customType(d3Callout, {
   className: "callout curve",
   connector: { type: "curve" }
+})
+
+export const d3Badge = customType(d3CalloutElbow, {
+  className: "badge",
+  subject: { type: "badge"}
 })
 
 export const d3XYThreshold = customType(d3Callout, {
@@ -501,11 +550,11 @@ const bboxWithoutHandles = (selection, selector=':not(.handle)') => {
 
 export default {
   d3Label,
-  d3LabelDots,
   d3Callout,
   d3CalloutElbow,
   d3CalloutCurve,
   d3CalloutCircle,
   d3XYThreshold,
+  d3Badge,
   customType
 }

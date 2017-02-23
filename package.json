@@ -36,7 +36,10 @@
   "watch": {
     "browserify": "src/*.js",
     "docs": {
-      "patterns": ["docs/docs.js", "docs/content/*.md"],
+      "patterns": [
+        "docs/docs.js",
+        "docs/content/*.md"
+      ],
       "extensions": "js,md"
     },
     "docs-min": "src/*.js"
@@ -50,6 +53,7 @@
     "url": "https://github.com/susielu/d3-annotation/issues"
   },
   "dependencies": {
+    "d3-dispatch": "1.0.2",
     "d3-drag": "1.0.2",
     "d3-selection": "1.0.2",
     "d3-shape": "1.0.4",

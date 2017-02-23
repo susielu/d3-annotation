@@ -2,8 +2,8 @@
 import { lineBuilder, arcBuilder } from './Builder'
 const CLASS = "subject"
 
-export const subjectLine = ({ annotation, offset=annotation.position, context, 
-    curve, bbox}) => {
+export const subjectLine = ({ annotation, offset=annotation.position, canvasContext, 
+    curve, bbox, className }) => {
 
   const subjectData = annotation.subject
 
@@ -13,10 +13,10 @@ export const subjectLine = ({ annotation, offset=annotation.position, context,
     y2 = (subjectData.y2 !== undefined ? subjectData.y2 : annotation.y) - offset.y
 
   const data = [[x1, y1], [x2, y2]]
-  return lineBuilder({ data, curve, context, className : CLASS })
+  return lineBuilder({ data, curve, canvasContext, className : className ||CLASS })
 }
 
-export const subjectCircle = ({ annotation, offset=annotation.position, context }) => {
-  const data = annotation.subject || {}
-  return arcBuilder({ data, context, className: CLASS })
+export const subjectCircle = ({ annotation, offset=annotation.position, canvasContext, className, data }) => {
+  if (!data) { data = annotation.subject || {}}
+  return arcBuilder({ data, canvasContext, className: className || CLASS })
 }

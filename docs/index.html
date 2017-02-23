@@ -142,6 +142,17 @@
       font-weight: bold;
     }
 
+    .annotation.badge path.subject-pointer, .annotation.badge path.subject {
+      fill: var(--accent-color);
+      stroke-width: 3px;
+      stroke-linecap: round;
+    } 
+
+    .annotation.badge path.subject-ring {
+      fill: white;
+      stroke-width: 3px;
+    }
+
     circle.handle {
       stroke-dasharray: 5;
       stroke: var(--accent-color);
@@ -303,6 +314,7 @@
                     <img data-type="annotationCalloutCurve" src="img/a-curve.png" />
                     <img data-type="annotationCalloutCircle" src="img/a-circle.png" />
                     <img data-type="annotationXYThreshold" src="img/a-threshold.png" />
+                    <img data-type="annotationBadge" src="img/a-badge.png" />
                   </div>
                 </li>
                 <li class="options">
@@ -318,7 +330,7 @@
                         
                         <div class="orientation">
                         <p >Orientation</p>
-                         <a class="" data-section="textBox:orientation" data-setting="topBottom"><img src="img/topBottom.png"/></a>
+                         <a class="active" data-section="textBox:orientation" data-setting="topBottom"><img src="img/topBottom.png"/></a>
                          <a class="" data-section="textBox:orientation" data-setting="leftRight"><img src="img/leftRight.png"/></a>
                          </div>
                         
@@ -353,7 +365,7 @@
                         <a class="" data-section="connector:type" data-setting="elbow"><img src="img/elbow.png"/></a>
                         <a class="" data-section="connector:type" data-setting="curve"><img src="img/curve.png"/></a>
 
-                        <p>End  <a class="" data-section="connector:end" data-setting="none"><img src="img/none.png"/></a></p>
+                        <p>End  <a class="active" data-section="connector:end" data-setting="none"><img src="img/none.png"/></a></p>
                        
                         <a class="" data-section="connector:end" data-setting="arrow"><img src="img/arrow.png"/></a>
 
