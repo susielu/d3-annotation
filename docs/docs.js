@@ -45,7 +45,7 @@ $(document).ready(function(){
 
     let typeSettings = JSON.parse(JSON.stringify(defaultSettings))
 
-    let currentType = d3.annotationBadge//d3.annotationLabel
+    let currentType = d3.annotationLabel
     let typeKey = "annotationLabel"
     let curve = "curveCatmullRom"
     let points = 2
@@ -78,7 +78,11 @@ $(document).ready(function(){
             connector: { type: "elbow"}
         },
         summary: "Subject options: radius, innerRadius, outerRadius, ",
-        summaryCont: "radiusPadding"
+        summaryCont: "radiusPadding",
+        subject: {
+          radius: 50,
+          radiusPadding: 5
+        }
       },
       annotationCalloutCurve: { 
         typeSettings: {
@@ -93,14 +97,22 @@ $(document).ready(function(){
            textBox: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "elbow"}
         },
-        summary: "Subject options: x1, x2 or y1, y2"
+        summary: "Subject options: x1, x2 or y1, y2",
+        subject: {
+          x1: 0,
+          x2: 1000
+        }
       },
       annotationBadge: { 
         typeSettings: {
            textBox: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "elbow"}
         },
-        summary: "Subject options: radius"
+        summary: "Subject options: radius, text",
+        subject: {
+          radius: 14,
+          text: "A"
+        }
       }
     }
 
@@ -108,15 +120,20 @@ $(document).ready(function(){
     let textWrap = 120
     let textPadding = 5
 
-    let circle = {
-      radius: 50,
-      radiusPadding: 5
-    }
+    // let circle = {
+    //   radius: 50,
+    //   radiusPadding: 5
+    // }
 
-    let threshold = {
-      x1: 0,
-      x2: 1000
-    }
+    // let threshold = {
+    //   x1: 0,
+    //   x2: 1000
+    // }
+
+    // let badge = {
+    //   text: "A",
+    //   radius: 14
+    // }
 
     window.makeAnnotations = d3.annotation()
     .editMode(editMode)
@@ -269,10 +286,9 @@ $(document).ready(function(){
             .classed('hidden', true)
         }
 
-        if (typeKey == "annotationCalloutCircle") {
-          updateAnnotations({subject: circle })
-        } else if (typeKey == "annotationXYThreshold") {
-            updateAnnotations({subject: threshold })
+        const subject = types[typeKey].subject
+        if (subject) {
+          updateAnnotations({ subject })
         } else {
           updateAnnotations()
         }
@@ -331,13 +347,7 @@ $(document).ready(function(){
         d3.select(".sandbox g.sandbox-annotations")
           .remove()
 
-        let subject
-
-        if (typeKey === "annotationCalloutCircle") {
-          subject = circle
-        } else if (typeKey === "annotationXYThreshold") {
-          subject = threshold
-        }
+        let subject = types[typeKey].subject
 
         makeAnnotations.type(currentType, Object.assign({}, newSettings, subject ? { subject } : undefined))
 
@@ -426,6 +436,11 @@ $(document).ready(function(){
         subjectText = `        subject: {\n` +
                       '          x1: 0,\n' +
                       '          x2: 500,\n' +
+                      '        }\n'
+      } else if (typeKey == "annotationBadge"){
+        subjectText = `        subject: {\n` +
+                      '          text: "A",\n' +
+                      '          radius: 14,\n' +
                       '        }\n'
       }
 

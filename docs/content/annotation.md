@@ -2,7 +2,7 @@
 
 **d3.annotation()**
 
-annotation.**annotations([JSON])**
+annotation.**annotations([ JSON compatible objects ])**
 
 Pass an array of JSON objects with annotation properties: 
 - **text (string)**

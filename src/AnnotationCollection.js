@@ -1,18 +1,9 @@
 export default class AnnotationCollection {
 
-  constructor({ annotations, accessors, accessorsInverse, ids }) {
+  constructor({ annotations, accessors, accessorsInverse }) {
     this.accessors = accessors
     this.accessorsInverse = accessorsInverse
-
-    if (ids) {
-      this.annotations = annotations.map((d, i) => {
-        d.id = ids(d, i)
-        return d
-      })
-    } else {
-      this.annotations = annotations
-    }
-
+    this.annotations = annotations
   }
 
   clearTypes(newSettings) {

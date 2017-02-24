@@ -11,6 +11,7 @@ import { pointHandle, circleHandles, rectHandles, lineHandles, addHandles } from
 class Type {
   constructor({ a, annotation, editMode, textWrap, textPadding, dispatcher }) {
     this.a = a
+
     this.textBox = annotation.disable.indexOf("textBox") === -1 && a.select('g.annotation-textbox')
     this.connector = annotation.disable.indexOf("connector") === -1 && a.select('g.annotation-connector')
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject')
@@ -78,7 +79,12 @@ class Type {
 
 
         attrKeys.forEach(attr => {
-          el.attr(attr, attrs[attr])
+          if (attr === "text"){
+            console.log('in attribute keys')
+            el.text(attrs[attr])
+          } else {
+            el.attr(attr, attrs[attr])
+          }
         })
       })
   }
@@ -124,11 +130,11 @@ class Type {
     }
 
     const type = context.type
+    const subjectData = this.annotation.subject
+
     switch (type) {
       case "circle":
-        
-        const subjectData = this.annotation.subject
-
+      
         if (!subjectData.radius && !subjectData.outerRadius ){
           this.annotation.subject.radius = 20
         }
@@ -173,12 +179,23 @@ class Type {
       return subjectLine(context)
 
     case "badge":
+      
+      if (!subjectData.radius ){
+        this.annotation.subject.radius = 14
+      }
 
+      if (!subjectData.x){
+        this.annotation.subject.x ="left"
+      }
 
-      const radius = 18
-      const innerRadius = 13
-      const x = 18
-      const y = 18
+      if (!subjectData.y){
+        this.annotation.subject.y = "top"
+      }
+
+      const radius = subjectData.radius
+      const innerRadius = radius*.7
+      const x = subjectData.x == "left" ? -radius : radius
+      const y = subjectData.y == "top" ? -radius : radius
       const transform = `translate(${x}, ${y})`
       const circlebg = arcBuilder({ ...context, className: 'subject', data: { radius} }) 
       circlebg.attrs.transform = transform
@@ -190,8 +207,39 @@ class Type {
       data: [[0, 0], [x, 0], [0, y], [0, 0]]
       })
     
-    
-      return [pointer, circlebg, circle]
+      if (this.editMode){
+
+        const dragBadge = () => {
+          subjectData.x = event.x < 0 ? "left" : "right"
+          subjectData.y = event.y < 0 ? "top" : "bottom"
+          this.customization()
+        }
+
+        const handles = [{ x: 0, y: 0, drag: this.dragSubject.bind(this)},
+            { x: x*2, y: y*2, drag: dragBadge.bind(this)}
+        ]
+
+        addHandles({
+          group: this.subject,
+          handles: this.mapHandles(handles)
+        })
+      }
+
+      let text
+      if (subjectData.text){
+        text = {
+          type: "text",
+          className: "badge-text",
+          attrs: {
+            text: subjectData.text,
+            "text-anchor": "middle",
+            dy: ".25em",
+            x,
+            y
+          }
+        }
+      }
+      return [pointer, circlebg, circle, text]
     }
  }
 
@@ -338,7 +386,6 @@ class Type {
     } else if (orientation === 'leftRight'){
       leftRightDyanmic()
       if (offset.x < 0){ 
-        console.log('in x left')
         x -= (context.bbox.width + padding) 
       } else {
         x += padding
@@ -417,6 +464,11 @@ export const customType = (initialType, typeSettings, init) => {
     constructor (settings) {
       super(settings)
       this.typeSettings = typeSettings
+      if (typeSettings.disable){
+        typeSettings.disable.forEach(d => {
+          this[d] = undefined
+        })
+      }
     }
 
     static init(annotation, accessors){ 
@@ -448,7 +500,6 @@ export const d3Label = customType(Type, {
   textBox: { align: "middle"}
 })
 
-
 export const d3Callout = customType(Type, {
   className: "callout",
   textBox: { lineType: "horizontal" }
@@ -471,7 +522,8 @@ export const d3CalloutCurve = customType(d3Callout, {
 
 export const d3Badge = customType(d3CalloutElbow, {
   className: "badge",
-  subject: { type: "badge"}
+  subject: { type: "badge"},
+  disable: ['connector', 'textBox']
 })
 
 export const d3XYThreshold = customType(d3Callout, {
