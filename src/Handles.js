@@ -67,7 +67,7 @@ export const addHandles = ({ group, handles, r=10}) => {
    //then give it instructions on what the handles change 
    const h = group.selectAll('circle.handle')
     .data(handles)
-    
+
   h.enter()
     .append('circle')
     .attr('class', 'handle')

@@ -1,12 +1,20 @@
 import { select, event } from 'd3-selection'
 import { drag } from 'd3-drag'
-import { curveCatmullRom } from 'd3-shape'
 import { Annotation } from './Annotation'
-import { connectorLine, connectorArrow } from './Connector'
 import { textBoxLine, textBoxSideline } from './TextBox'
-import { subjectLine, subjectCircle } from './Subject'
-import { lineBuilder, arcBuilder } from './Builder'
-import { pointHandle, circleHandles, rectHandles, lineHandles, addHandles } from './Handles'
+import { addHandles } from './Handles'
+
+//Connector options
+import connectorLine from './Connector/type-line'
+import connectorElbow from './Connector/type-elbow'
+import connectorCurve from './Connector/type-curve'
+import connectorArrow from './Connector/end-arrow'
+import connectorDot from './Connector/end-dot'
+
+//Subject options
+import subjectCircle from './Subject/circle'
+import subjectThreshold from './Subject/threshold'
+import subjectBadge from './Subject/badge'
 
 class Type {
   constructor({ a, annotation, editMode, textWrap, textPadding, dispatcher }) {
@@ -65,27 +73,31 @@ class Type {
     this.drawText()
   }
 
-  drawOnSVG (a, builders) {
+  drawOnSVG (component, builders) {
     if (!Array.isArray(builders)){
       builders = [ builders ]
     }
 
     builders
       .filter(b => b)
-      .forEach(({ type, className, attrs}) => {
-        newWithClass(a, [this.annotation], type, className)
-        const el = a.select(`${type}.${className}`) 
-        const attrKeys = Object.keys(attrs)
+      .forEach(({ type, className, attrs, handles}) => {
+        if (type === "handle"){
+          addHandles({ group: component, r: attrs && attrs.r, handles })
+        } else {
+          newWithClass(component, [this.annotation], type, className)
+          const el = component.select(`${type}.${className}`) 
+          const attrKeys = Object.keys(attrs)
 
+          attrKeys.forEach(attr => {
+            if (attr === "text"){
+              el.text(attrs[attr])
+            } else {
+              el.attr(attr, attrs[attr])
+            }
+          })
+        }
 
-        attrKeys.forEach(attr => {
-          if (attr === "text"){
-            console.log('in attribute keys')
-            el.text(attrs[attr])
-          } else {
-            el.attr(attr, attrs[attr])
-          }
-        })
+      
       })
   }
 
@@ -119,207 +131,72 @@ class Type {
   }
 
   drawSubject (context) {
-
-    if (this.editMode){
-      const h = pointHandle({})
-
-      addHandles({
-        group: this.subject,
-        handles: this.mapHandles([{ ...h.move, drag: this.dragSubject.bind(this)}])
-      })
-    }
+    let components = []
+    let handles = []
 
     const type = context.type
     const subjectData = this.annotation.subject
+    if (type === "circle") {
+      const { components: c, handles: h } = subjectCircle({ subjectData, type: this })
+      components = components.concat(c)
+      handles = handles.concat(h)
+       
+     } else if (type === "threshold") {
+      const { components: c } = subjectThreshold({ subjectData, type: this })
+      components.push(c)
 
-    switch (type) {
-      case "circle":
+     } else if (type === "badge") {
+      const { components: c, handles: h } = subjectBadge({ subjectData, type: this })
+      components = components.concat(c)
+      handles = handles.concat(h)
       
-        if (!subjectData.radius && !subjectData.outerRadius ){
-          this.annotation.subject.radius = 20
-        }
-        const c = subjectCircle(context);
-
-        if (this.editMode){
-          const h = circleHandles({
-            r1: c.data.outerRadius || c.data.radius,
-            r2: c.data.innerRadius,
-            padding: this.annotation.subject.radiusPadding
-          })
-
-          const updateRadius = (type) => {      
-            const r = subjectData[type] + event.dx*Math.sqrt(2)
-            subjectData[type] = r
-            this.customization()
-          }
-
-          const updateRadiusPadding = () => {
-            const rpad = subjectData.radiusPadding + event.dx
-            subjectData.radiusPadding = rpad
-            this.customization()
-          }
-
-          const handles = [{ ...h.move, drag: this.dragSubject.bind(this)},
-            {...h.padding, drag : updateRadiusPadding.bind(this)},
-            { ...h.r1, drag: updateRadius.bind(this, subjectData.outerRadius !== undefined ? 'outerRadius': 'radius')}
-            ]
-
-          if (subjectData.innerRadius){
-            handles.push({ ...h.r2, drag: updateRadius.bind(this, 'innerRadius')})
-          }
-
-          //TODO add handles when there is an inner radius and outer radius
-          addHandles({
-            group: this.subject,
-            handles: this.mapHandles(handles)
-          })
-        }
-        return c
-    case "threshold":
-      return subjectLine(context)
-
-    case "badge":
-      
-      if (!subjectData.radius ){
-        this.annotation.subject.radius = 14
-      }
-
-      if (!subjectData.x){
-        this.annotation.subject.x ="left"
-      }
-
-      if (!subjectData.y){
-        this.annotation.subject.y = "top"
-      }
-
-      const radius = subjectData.radius
-      const innerRadius = radius*.7
-      const x = subjectData.x == "left" ? -radius : radius
-      const y = subjectData.y == "top" ? -radius : radius
-      const transform = `translate(${x}, ${y})`
-      const circlebg = arcBuilder({ ...context, className: 'subject', data: { radius} }) 
-      circlebg.attrs.transform = transform
-
-      const circle = arcBuilder({ ...context, className: 'subject-ring', data: { outerRadius: radius, innerRadius} })
-      circle.attrs.transform = transform
-
-      const pointer = lineBuilder({ ...context, className: 'subject-pointer',
-      data: [[0, 0], [x, 0], [0, y], [0, 0]]
-      })
-    
-      if (this.editMode){
-
-        const dragBadge = () => {
-          subjectData.x = event.x < 0 ? "left" : "right"
-          subjectData.y = event.y < 0 ? "top" : "bottom"
-          this.customization()
-        }
-
-        const handles = [{ x: 0, y: 0, drag: this.dragSubject.bind(this)},
-            { x: x*2, y: y*2, drag: dragBadge.bind(this)}
-        ]
-
-        addHandles({
-          group: this.subject,
-          handles: this.mapHandles(handles)
-        })
-      }
-
-      let text
-      if (subjectData.text){
-        text = {
-          type: "text",
-          className: "badge-text",
-          attrs: {
-            text: subjectData.text,
-            "text-anchor": "middle",
-            dy: ".25em",
-            x,
-            y
-          }
-        }
-      }
-      return [pointer, circlebg, circle, text]
     }
+
+    if (this.editMode){
+      handles = handles.concat(this.mapHandles([{ drag: this.dragSubject.bind(this)}]))
+      components.push({ type: "handle", handles })
+    }
+
+    return components
  }
 
   drawConnector (context) {
-    
-    // connector types 
-    // can send, elbow, curve, or nothing defaults to straight line
+    let components = []
+    let handles = []
+
     const type = context.type
-    switch (type) {
-      case "curve": 
-        const createPoints = function(anchors=2){
-              const offset = this.annotation.offset
-              const diff = { x: offset.x/(anchors + 1), y: offset.y/(anchors + 1) }
-              const p = []
-
-              let i = 1 
-              for (; i <= anchors; i++){
-                p.push([diff.x*i + i%2*20, diff.y*i - i%2*20])
-              }
-              return p
-        }.bind(this)
-
-        if (!this.annotation.connector){ this.annotation.connector = {} }
-        if (!this.annotation.connector.points || typeof this.annotation.connector.points === "number"){ 
-          this.annotation.connector.points = createPoints(this.annotation.connector.points) 
-        }
-        if (!this.annotation.connector.curve){ this.annotation.connector.curve = curveCatmullRom }
-
-        context.points = this.annotation.connector.points 
-        context.curve = this.annotation.connector.curve
-
-        if (this.editMode) {
-          let handles = context.points
-            .map((c,i) => ({...pointHandle({cx: c[0], cy: c[1]}), index: i}))
-
-        const updatePoint = (index) => {      
-            this.annotation.connector.points[index][0] += event.dx
-            this.annotation.connector.points[index][1] += event.dy
-            this.customization()
-        }
-
-        addHandles({
-            group: this.connector,
-            handles: this.mapHandles(handles
-              .map(h => ({ ...h.move, drag: updatePoint.bind(this, h.index)})))
-        })
-        break;
-      }
-      case "elbow":
-        context.elbow = true
-
-      default: 
-        if (this.editMode){
-          addHandles({ group: this.connector, handles: []})
-        }
-
+    let connectorData = this.annotation.connector
+    let line
+    if (type === "curve") {
+    
+      const { components: c, handles: h } = connectorCurve({ type: this, connectorData })
+      line = c
+      handles = handles.concat(h)
+    } else if (type === "elbow") {
+      // context.elbow = true
+      const { components: c } = connectorElbow({ type: this })
+      line = c
+    } else {
+      const { components: c } = connectorLine({ type: this })
+      line = c
     }
+    components.push(line)
 
-
-    let line = connectorLine(context)
-
-    // connector end 
     const endType = context.end
-    switch (endType){
-      case "arrow":
-        const dataLength = line.data.length
-      
-        context.start = line.data[1]
-        context.end = line.data[0]
-        
-        line = [line, connectorArrow(context)]
-        break;
-      case "dot":
-        const circle = arcBuilder({ ...context, className: 'connector-dot', data: { radius: 3} })
-        circle.attrs.transform = `translate(${line.data[0][0]}, ${line.data[0][1]})`
-        line = [line, circle]
-        break;
+    if (endType === "arrow"){      
+      const { components: c } = connectorArrow({ annotation: this.annotation, 
+          start: line.data[1], end: line.data[0] })
+      components.push(c)
+    } else if (endType === "dot"){
+      const { components: c } = connectorDot({ line })
+      components.push(c)
     }
 
-    return line;
+    if (this.editMode && handles.length !== 0){
+      components.push({ type: "handle", handles })
+    }
+
+    return components;
   }
 
   drawTextBox (context) {
@@ -412,7 +289,7 @@ class Type {
     return decorators
   }
 
-  customization(bbox=this.getTextBBox()) {
+  redraw(bbox=this.getTextBBox()) {
     const annotation = this.annotation
     const context = { annotation, bbox }
 
@@ -430,7 +307,7 @@ class Type {
   update() {
     const position = this.annotation.position 
     this.a.attr('transform', `translate(${position.x}, ${position.y})`)
-    this.customization()
+    this.redraw()
   }
 
   dragstarted() { event.sourceEvent.stopPropagation(); this.a.classed("dragging", true) }
@@ -449,11 +326,11 @@ class Type {
     offset.x += event.dx
     offset.y += event.dy
     this.annotation.offset = offset
-    this.customization()
+    this.redraw()
   }
 
   mapHandles(handles) {
-    return handles.filter(h => h.x !== undefined && h.y !== undefined)
+    return handles
     .map(h => ({ ...h, 
       start: this.dragstarted.bind(this), end: this.dragended.bind(this) }))
   }
