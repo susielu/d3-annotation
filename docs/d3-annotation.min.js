@@ -3329,16 +3329,6 @@ function annotation() {
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-subject');
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-textbox');
 
-      var textbox = a.select('g.annotation-textbox');
-      var offset = d.offset;
-      textbox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
-
-      (0, _TypesD.newWithClass)(textbox, [d], 'g', 'annotation-textwrapper');
-
-      var textWrapper = textbox.select('g.annotation-textwrapper');
-
-      (0, _TypesD.newWithClass)(textWrapper, [d], 'text', 'annotation-text');
-      (0, _TypesD.newWithClass)(textWrapper, [d], 'text', 'annotation-title');
       d.type = new d.type({ a: a, annotation: d, textWrap: textWrap, textPadding: textPadding, editMode: editMode, dispatcher: annotationDispatcher });
 
       d.type.draw();
@@ -4379,7 +4369,7 @@ var textBoxTitleline = exports.textBoxTitleline = function textBoxTitleline() {}
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.newWithClass = exports.d3XYThreshold = exports.d3Badge = exports.d3CalloutCurve = exports.d3CalloutCircle = exports.d3CalloutElbow = exports.d3Callout = exports.d3Label = exports.customType = undefined;
+exports.d3XYThreshold = exports.d3Badge = exports.d3CalloutCurve = exports.d3CalloutCircle = exports.d3CalloutElbow = exports.d3Callout = exports.d3Label = exports.customType = undefined;
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
@@ -4445,8 +4435,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Type = function () {
   function Type(_ref) {
-    var _this = this;
-
     var a = _ref.a,
         annotation = _ref.annotation,
         editMode = _ref.editMode,
@@ -4463,35 +4451,10 @@ var Type = function () {
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject');
 
     if (dispatcher) {
-      if (this.textBox) {
-        this.textBox.on("mouseover.annotations", function () {
-          dispatcher.call("textboxover", _this.textBox, annotation);
-        }).on("mouseout.annotations", function () {
-          return dispatcher.call("textboxout", _this.textBox, annotation);
-        }).on("click.annotations", function () {
-          return dispatcher.call("textboxclick", _this.textBox, annotation);
-        });
-      }
-
-      if (this.connector) {
-        this.connector.on("mouseover.annotations", function () {
-          return dispatcher.call("connectorover", _this.connector, annotation);
-        }).on("mouseout.annotations", function () {
-          return dispatcher.call("connectorout", _this.connector, annotation);
-        }).on("click.annotations", function () {
-          return dispatcher.call("connectorclick", _this.connector, annotation);
-        });
-      }
-
-      if (this.subject) {
-        this.subject.on("mouseover.annotations", function () {
-          return dispatcher.call("subjectover", _this.subject, annotation);
-        }).on("mouseout.annotations", function () {
-          return dispatcher.call("subjectout", _this.subject, annotation);
-        }).on("click.annotations", function () {
-          return dispatcher.call("subjectclick", _this.subject, annotation);
-        });
-      }
+      var handler = addHandlers.bind(null, annotation);
+      handler(this.textBox, 'textbox');
+      handler(this.connector, 'connector');
+      handler(this.subject, 'subject');
     }
 
     this.annotation = annotation;
@@ -4514,7 +4477,7 @@ var Type = function () {
   }, {
     key: 'drawOnSVG',
     value: function drawOnSVG(component, builders) {
-      var _this2 = this;
+      var _this = this;
 
       if (!Array.isArray(builders)) {
         builders = [builders];
@@ -4532,7 +4495,7 @@ var Type = function () {
           (0, _Handles.addHandles)({ group: component, r: attrs && attrs.r, handles: handles });
         } else {
           (function () {
-            newWithClass(component, [_this2.annotation], type, className);
+            newWithClass(component, [_this.annotation], type, className);
             var el = component.select(type + '.' + className);
             var attrKeys = Object.keys(attrs);
 
@@ -4566,29 +4529,6 @@ var Type = function () {
     key: 'getAnnotationBBox',
     value: function getAnnotationBBox() {
       return bboxWithoutHandles(this.a);
-    }
-  }, {
-    key: 'drawText',
-    value: function drawText() {
-      if (this.textBox) {
-
-        var titleBBox = { height: 0 };
-        var text = this.a.select('text.annotation-text');
-        var wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || this.textWrap || 120;
-
-        if (this.annotation.title) {
-          var title = this.a.select('text.annotation-title');
-          title.text(this.annotation.title).attr('dy', '1.1em');
-          title.call(wrap, wrapLength);
-          titleBBox = title.node().getBBox();
-        }
-
-        text.text(this.annotation.text).attr('dy', '1em');
-        text.call(wrap, wrapLength);
-
-        var textBBox = text.node().getBBox();
-        text.attr('y', titleBBox.height * 1.1 || 3);
-      }
     }
   }, {
     key: 'drawSubject',
@@ -4643,7 +4583,6 @@ var Type = function () {
         line = c;
         handles = handles.concat(h);
       } else if (type === "elbow") {
-        // context.elbow = true
         var _connectorElbow = (0, _typeElbow2.default)({ type: this }),
             _c3 = _connectorElbow.components;
 
@@ -4677,20 +4616,51 @@ var Type = function () {
       return components;
     }
   }, {
+    key: 'drawText',
+    value: function drawText() {
+      if (this.textBox) {
+
+        var textbox = a.select('g.annotation-textbox');
+        var _offset = d.offset;
+        textbox.attr('transform', 'translate(' + _offset.x + ', ' + _offset.y + ')');
+
+        newWithClass(textbox, [d], 'g', 'annotation-textwrapper');
+
+        var textWrapper = textbox.select('g.annotation-textwrapper');
+
+        newWithClass(textWrapper, [d], 'text', 'annotation-text');
+        newWithClass(textWrapper, [d], 'text', 'annotation-title');
+
+        var titleBBox = { height: 0 };
+        var text = this.a.select('text.annotation-text');
+        var wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || this.textWrap || 120;
+
+        if (this.annotation.title) {
+          var title = this.a.select('text.annotation-title');
+          title.text(this.annotation.title).attr('dy', '1.1em');
+          title.call(wrap, wrapLength);
+          titleBBox = title.node().getBBox();
+        }
+
+        text.text(this.annotation.text).attr('dy', '1em');
+        text.call(wrap, wrapLength);
+
+        var textBBox = text.node().getBBox();
+        text.attr('y', titleBBox.height * 1.1 || 3);
+      }
+    }
+  }, {
     key: 'drawTextBox',
     value: function drawTextBox(context) {
-      var offset = this.annotation.offset;
-      var tData = this.annotation.textBox;
-      var padding = tData.padding || this.textPadding || 5;
+      var components = [];
+      var handles = [];
 
-      var lineType = context.lineType;
+      var textBoxData = this.annotation.textBox;
 
-      var orientation = tData.orientation || context.orientation || 'topBottom';
-      var align = tData.align || context.align || 'dynamic';
+      var lineType = textBoxData.lineType || context.lineType;
 
-      var x = -context.bbox.x;
-      var y = -context.bbox.y;
-      var decorators = [];
+      var orientation = textBoxData.orientation || context.orientation || 'topBottom';
+      var align = textBoxData.align || context.align || 'dynamic';
 
       var leftRightDyanmic = function leftRightDyanmic() {
         if (align == "dynamic" || align == "left" || align == "right") {
@@ -4717,54 +4687,55 @@ var Type = function () {
         if (lineType == "vertical") {
           orientation = "leftRight";
           leftRightDyanmic();
-          decorators.push((0, _TextBox.textBoxSideline)(_extends({}, context, { align: align })));
+          components.push((0, _TextBox.textBoxSideline)(_extends({}, context, { align: align })));
         } else if (lineType == "horizontal") {
           orientation = "topBottom";
           topBottomDynamic();
-          decorators.push((0, _TextBox.textBoxLine)(_extends({}, context, { align: align })));
+          components.push((0, _TextBox.textBoxLine)(_extends({}, context, { align: align })));
         }
       }
 
-      if (orientation === 'topBottom') {
-        topBottomDynamic();
-        if (offset.y < 0) {
-          y -= context.bbox.height + padding;
-        } else {
-          y += padding;
-        }
+      // if (orientation === 'topBottom' ){
+      //   topBottomDynamic()
+      //   if (offset.y < 0){ 
+      //     y -= (context.bbox.height + padding)
+      //  } else {
+      //    y += padding
+      //  }
 
-        if (align === "middle") {
-          x -= context.bbox.width / 2;
-        } else if (align === "right") {
-          x -= context.bbox.width;
-        }
-      } else if (orientation === 'leftRight') {
-        leftRightDyanmic();
-        if (offset.x < 0) {
-          x -= context.bbox.width + padding;
-        } else {
-          x += padding;
-        }
+      //   if (align === "middle") {
+      //     x -= context.bbox.width/2
+      //   } else if (align === "right" ) {
+      //     x -= (context.bbox.width)
+      //   } 
 
-        if (align === "middle") {
-          y -= context.bbox.height / 2;
-        } else if (align === "top") {
-          y -= context.bbox.height;
-        }
-      }
+      // } else if (orientation === 'leftRight'){
+      //   leftRightDyanmic()
+      //   if (offset.x < 0){ 
+      //     x -= (context.bbox.width + padding) 
+      //   } else {
+      //     x += padding
+      //   }
 
-      this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
-      this.textBox.select('g.annotation-textwrapper').attr('transform', 'translate(' + x + ', ' + y + ')');
+      //    if (align === "middle") {
+      //       y -= context.bbox.height/2
+      //    } else if (align === "top" ){
+      //       y -= (context.bbox.height )
+      //    }
+      // } 
+
+      //this.textBox.select('g.annotation-textwrapper').attr('transform', `translate(${x}, ${y})`)
+
+      // if (textBoxData.type){
+
+      // }
 
       if (this.editMode) {
-
-        (0, _Handles.addHandles)({
-          group: this.textBox,
-          handles: this.mapHandles([{ x: 0, y: 0, drag: this.dragTextBox.bind(this) }])
-        });
+        handles = this.mapHandles([{ x: 0, y: 0, drag: this.dragTextBox.bind(this) }]);
+        components.push({ type: "handle", handles: handles });
       }
 
-      return decorators;
+      return components;
     }
   }, {
     key: 'redraw',
@@ -4779,17 +4750,19 @@ var Type = function () {
       this.connector && this.drawOnSVG(this.connector, this.drawConnector(context));
       this.textBox && this.drawOnSVG(this.textBox, this.drawTextBox(context));
     }
+
+    // draw() {
+    //   // this.drawText()
+    //   this.update()
+    // }
+
   }, {
     key: 'draw',
     value: function draw() {
-      this.drawText();
-      this.update();
-    }
-  }, {
-    key: 'update',
-    value: function update() {
       var position = this.annotation.position;
       this.a.attr('transform', 'translate(' + position.x + ', ' + position.y + ')');
+      var offset = this.annotation.offset;
+      this.textBox.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
       this.redraw();
     }
   }, {
@@ -4823,11 +4796,11 @@ var Type = function () {
   }, {
     key: 'mapHandles',
     value: function mapHandles(handles) {
-      var _this3 = this;
+      var _this2 = this;
 
       return handles.map(function (h) {
         return _extends({}, h, {
-          start: _this3.dragstarted.bind(_this3), end: _this3.dragended.bind(_this3) });
+          start: _this2.dragstarted.bind(_this2), end: _this2.dragended.bind(_this2) });
       });
     }
   }], [{
@@ -4853,15 +4826,15 @@ var customType = exports.customType = function customType(initialType, typeSetti
     function customType(settings) {
       _classCallCheck(this, customType);
 
-      var _this4 = _possibleConstructorReturn(this, (customType.__proto__ || Object.getPrototypeOf(customType)).call(this, settings));
+      var _this3 = _possibleConstructorReturn(this, (customType.__proto__ || Object.getPrototypeOf(customType)).call(this, settings));
 
-      _this4.typeSettings = typeSettings;
+      _this3.typeSettings = typeSettings;
       if (typeSettings.disable) {
         typeSettings.disable.forEach(function (d) {
-          _this4[d] = undefined;
+          _this3[d] = undefined;
         });
       }
-      return _this4;
+      return _this3;
     }
 
     _createClass(customType, [{
@@ -4946,7 +4919,7 @@ var d3XYThreshold = exports.d3XYThreshold = customType(d3Callout, {
   return annotation;
 });
 
-var newWithClass = exports.newWithClass = function newWithClass(a, d, type, className) {
+var newWithClass = function newWithClass(a, d, type, className) {
   var group = a.selectAll(type + '.' + className).data(d);
   group.enter().append(type).merge(group).attr('class', className);
 
@@ -4954,6 +4927,20 @@ var newWithClass = exports.newWithClass = function newWithClass(a, d, type, clas
   return a;
 };
 
+var addHandlers = function addHandlers(annotation, _ref3) {
+  var component = _ref3.component,
+      name = _ref3.name;
+
+  if (component) {
+    component.on("mouseover.annotations", function () {
+      dispatcher.call(name + 'over', component, annotation);
+    }).on("mouseout.annotations", function () {
+      return dispatcher.call(name + 'out', component, annotation);
+    }).on("click.annotations", function () {
+      return dispatcher.call(name + 'click', component, annotation);
+    });
+  }
+};
 //Text wrapping code adapted from Mike Bostock
 var wrap = function wrap(text, width) {
   text.each(function () {

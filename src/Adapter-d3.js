@@ -65,16 +65,6 @@ export default function annotation(){
         newWithClass(a, [d], 'g', 'annotation-subject')
         newWithClass(a, [d], 'g', 'annotation-textbox')
   
-        const textbox = a.select('g.annotation-textbox')
-        const offset = d.offset
-        textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
-        
-        newWithClass(textbox, [d], 'g', 'annotation-textwrapper')
-
-        const textWrapper = textbox.select('g.annotation-textwrapper')
-
-        newWithClass(textWrapper, [d], 'text', 'annotation-text')
-        newWithClass(textWrapper, [d], 'text', 'annotation-title')
         d.type = new d.type({ a, annotation: d, textWrap, textPadding, editMode, dispatcher: annotationDispatcher })
 
         d.type.draw()
