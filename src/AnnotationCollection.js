@@ -47,10 +47,10 @@ export default class AnnotationCollection {
     })
   }
 
-  updateTextPadding(textPadding) {
+  updateNotePadding(notePadding) {
     this.annotations.forEach(a => {
       if (a.type){
-        a.type.textPadding = textPadding
+        a.type.notePadding = notePadding
       }
     })
   }

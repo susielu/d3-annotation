@@ -2,6 +2,7 @@ import annotation from './src/Adapter-d3'
 import types from './src/Types-d3'
 
 d3.annotation = annotation
+d3.annotationTypeBase = types.Type
 d3.annotationLabel = types.d3Label
 d3.annotationCallout = types.d3Callout
 d3.annotationCalloutCurve = types.d3CalloutCurve

@@ -21,7 +21,9 @@ Exampe, xyThreshold init function
 ### Drawing Functions
 These functions have a context parameter. Context is an object with gives you access to the annotation with all of its properties, and the relevant bounding box. 
 
-**drawTextBox(context)**
+**drawNote(context)**
+
+**drawNoteContent(context)**
 
 **drawConnector(context)**
 

@@ -10,13 +10,14 @@ Pass an array of JSON objects with annotation properties:
 
 ![Annotation JSON](img/json.png)
 
+- **id**: 
 - **x (number)**: pixels, to place the subject and one end of the connector
 - **y (number)**: pixels, to place the subject and one end of the connector
 - **data (object)**: If you also pass accessor functions, you can give data instead of x, y coordinates for placing your annotations
-- **dy (number)**: pixels, to place the textBox and one end of the connector
-- **dx (number)**: pixels, to place the textBox and one end of the connector
-- **disable ([string])**: takes the values 'connector', 'subject', and 'textBox' pass them in this array if you want to disable those parts from rendering
-- **textBox (object)**: TODO: come back to finish this thought
+- **dy (number)**: pixels, to place the note and one end of the connector
+- **dx (number)**: pixels, to place the note and one end of the connector
+- **disable ([string])**: takes the values 'connector', 'subject', and 'note' pass them in this array if you want to disable those parts from rendering
+- **note (object)**: TODO: come back to finish this thought
 - **connector (object)**: Some connectors such as the curve connector require additional paramters to set up the annotation
 - **subject (object)**: Some subjects such as the circle require additional parameters to set up the annotation
 

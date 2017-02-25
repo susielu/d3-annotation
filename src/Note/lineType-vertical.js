@@ -1,20 +1,12 @@
 import { lineBuilder } from '../Builder'
 import { leftRightDynamic } from './alignment'
 
-export default ({ align, x, y, bbox, padding }) => {
-  align = leftRightDynamic(align, y)
+export default ({ align, x=0, y=0, bbox, offset, padding }) => {
+  align = leftRightDynamic(align, offset.y)
 
-  if (align == "right") {
-    x -= bbox.width
-  } else if (align == "middle"){
-    x -= bbox.width/2
-  }
+  if (align == "top") { y -= bbox.height } 
+  else if (align == "middle"){ y -= bbox.height/2 }
 
-  let x1 = x,
-    x2 = x1 + bbox.width,
-    y1 = y,
-    y2 = y
-
-  const data = [[x1, y1], [x2, y2]]
-  return { components: lineBuilder({ data, className : "note-line" }) }
+  const data = [[x, y], [x, y + bbox.height]]
+  return { components: [lineBuilder({ data, className : "note-line" })] }
 }

@@ -69,9 +69,9 @@ class Type {
           addHandles({ group: component, r: attrs && attrs.r, handles })
         } else {
           newWithClass(component, [this.annotation], type, className)
+          
           const el = component.select(`${type}.${className}`) 
           const attrKeys = Object.keys(attrs)
-
           attrKeys.forEach(attr => {
             if (attr === "text"){
               el.text(attrs[attr])
@@ -83,7 +83,7 @@ class Type {
       })
   }
 
-  getNoteBBox() { return bboxWithoutHandles(this.note, '.note-content')}
+  getNoteBBox() { return bboxWithoutHandles(this.note, '.annotation-note-content')}
   getConnectorBBox() { return bboxWithoutHandles(this.connector)}
   getSubjectBBox() { return bboxWithoutHandles(this.subject)}
   getAnnotationBBox() { return bboxWithoutHandles(this.a)}
@@ -135,9 +135,8 @@ class Type {
   drawNote (context) {
     const noteData = this.annotation.note
     const align = noteData.align || context.align || 'dynamic'
-    const noteParams = { bbox: context.bbox, ...this.annotation.offset , align }
+    const noteParams = { bbox: context.bbox, align, offset: this.annotation.offset }
     const lineType = noteData.lineType || context.lineType
-    
     let note={}
     if (lineType == "vertical") note = noteVertical(noteParams)
     else if (lineType == "horizontal") note = noteHorizontal(noteParams)
@@ -147,7 +146,6 @@ class Type {
       handles = this.mapHandles([{ x: 0, y: 0, drag: this.dragNote.bind(this)}])
       components.push({ type: "handle", handles })
     }
-
     return components
   }
 
@@ -156,14 +154,18 @@ class Type {
     const padding = noteData.padding || this.notePadding || 5
     let orientation = noteData.orientation || context.orientation || 'topBottom'
     const lineType = noteData.lineType || context.lineType
+    const align = noteData.align || context.align || 'dynamic'
+
     
-    if (lineType == "vertical") orientation =  "topBottom"
-    else if (lineType == "horizontal") orientation = "leftRight"
+    if (lineType == "vertical") orientation =  "leftRight"
+    else if (lineType == "horizontal") orientation = "topBottom"
 
-    const noteParams = { padding, bbox: context.bbox, offset: this.annotation.offset, orientation }
-    const { components=[], handlers=[] } = noteAlignment(noteParams)
+    const noteParams = { padding, bbox: context.bbox, offset: 
+    this.annotation.offset, orientation, align }
 
-    return components
+    this.note && this.noteContent.attr('transform', noteAlignment(noteParams))
+    
+    return []
   }
 
   redraw(bbox=this.getNoteBBox()) {
@@ -172,14 +174,9 @@ class Type {
 
     this.subject && this.drawOnSVG( this.subject, this.drawSubject(context))
     this.connector && this.drawOnSVG( this.connector, this.drawConnector(context))
-    this.noteContent && this.drawOnSVG( this.noteContent, this.drawNoteContent(context) )
+    this.noteContent && this.drawOnSVG( this.noteContent, this.drawNoteContent(context))
     this.note && this.drawOnSVG( this.note, this.drawNote(context))
   }  
-  
-  setup() {
-    this.draw()
-    this.wrapText() //?
-  }
 
   setPosition(){
     const position = this.annotation.position 
@@ -188,7 +185,7 @@ class Type {
 
   setOffset(){
     const offset = this.annotation.offset
-    this.note.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    this.note && this.note.attr('transform', `translate(${offset.x}, ${offset.y})`)
   }
 
   update(){
@@ -269,52 +266,43 @@ export const customType = (initialType, typeSettings, init) => {
   }
 }
 
-export class d3TextNote extends Type {
+export class d3NoteText extends Type {
 
   constructor(params){
     super(params)
     this.textWrap = params.textWrap || 120
+
+    this.drawText()
   }
 
-
-  drawNoteContent(context){
-    
-    super.drawNoteContent(context)
-  }
-  
   updateTextWrap (textWrap) {
     this.textWrap = textWrap
-    this.drawNote()
+    this.drawText()
   }
 
   drawText () {
     if (this.note){
-
-      const note = a.select('g.annotation-note')
-      // const offset = d.offset
-      // textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
       
-      newWithClass(note, [d], 'g', 'annotation-note-content')
+      newWithClass(this.note, [this.annotation], 'g', 'annotation-note-content')
 
-      const noteContent = note.select('g.annotation-note-content')
-
-      newWithClass(noteContent, [d], 'text', 'annotation-text')
-      newWithClass(noteContent, [d], 'text', 'annotation-title')
+      const noteContent = this.note.select('g.annotation-note-content')
+      newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-text')
+      newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-title')
 
       let titleBBox = { height: 0 }
-      const text = this.a.select('text.annotation-text')
+      const text = this.a.select('text.annotation-note-text')
       const wrapLength = this.annotation.note && this.annotation.note.wrap || this.textWrap 
 
       if (this.annotation.title){
-        const title = this.a.select('text.annotation-title')
+        const title = this.a.select('text.annotation-note-title')
         title.text(this.annotation.title)
-          // .attr('dy', '1.1em')
+          .attr('dy', '1.1em')
         title.call(wrap, wrapLength)
         titleBBox = title.node().getBBox()
       }
 
       text.text(this.annotation.text)
-        // .attr('dy', '1em')
+        .attr('dy', '1em')
       text.call(wrap, wrapLength)
 
       const textBBox = text.node().getBBox()
@@ -323,12 +311,12 @@ export class d3TextNote extends Type {
   }
 }
 
-export const d3Label = customType(Type, {
+export const d3Label = customType(d3NoteText, {
   className: "label", 
   note: { align: "middle"}
 })
 
-export const d3Callout = customType(Type, {
+export const d3Callout = customType(d3NoteText, {
   className: "callout",
   note: { lineType: "horizontal" }
 })
@@ -348,7 +336,7 @@ export const d3CalloutCurve = customType(d3Callout, {
   connector: { type: "curve" }
 })
 
-export const d3Badge = customType(d3CalloutElbow, {
+export const d3Badge = customType(Type, {
   className: "badge",
   subject: { type: "badge"},
   disable: ['connector', 'note']
@@ -392,6 +380,7 @@ const addHandlers = ( annotation, { component, name }) => {
     .on("click.annotations", () => dispatcher.call(`${name}click`, component, annotation))
   }
 }
+
 //Text wrapping code adapted from Mike Bostock
 const wrap = (text, width) => {
   text.each(function() {
@@ -439,6 +428,7 @@ const bboxWithoutHandles = (selection, selector=':not(.handle)') => {
 }
 
 export default {
+  Type,
   d3Label,
   d3Callout,
   d3CalloutElbow,

@@ -1,5 +1,5 @@
 
-export const leftRightDyanmic = (align, y) => {
+export const leftRightDynamic = (align, y) => {
   if (align == "dynamic" || align == "left" || align == "right"){
       if (y < 0){ align = "top" }
       else { align = "bottom" } 
@@ -17,12 +17,11 @@ export const topBottomDynamic = (align, x) => {
 
 
 export default ({ padding, bbox, align, orientation, offset }) => {
-
     let x = -bbox.x 
     let y = -bbox.y
 
    if ( orientation === "topBottom" ){
-      topBottomDynamic(align, offset.x)
+      align = topBottomDynamic(align, offset.x)
       if (offset.y < 0){ 
         y -= (bbox.height + padding)
      } else {
@@ -36,7 +35,7 @@ export default ({ padding, bbox, align, orientation, offset }) => {
       } 
 
     } else if ( orientation === "leftRight" ){
-      leftRightDyanmic(align, offset.y)
+      align = leftRightDynamic(align, offset.y)
       if (offset.x < 0){ 
         x -= (bbox.width + padding) 
       } else {
@@ -50,10 +49,5 @@ export default ({ padding, bbox, align, orientation, offset }) => {
        }
     } 
 
-    return { components : [{ 
-      type: "g", 
-      className: "noteContent", 
-      attrs: {
-        transform: `translate(${x}, ${y})`
-      }}] }
+    return `translate(${x}, ${y})`
 }

@@ -16,7 +16,7 @@ export default function annotation(){
     ids,
     type = d3Callout,
     textWrap,
-    textPadding,
+    notePadding,
     annotationDispatcher = dispatch("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "noteover", "noteout", "noteclick");
 
   const annotation = function(selection){
@@ -66,8 +66,7 @@ export default function annotation(){
         newWithClass(a, [d], 'g', 'annotation-note')
         newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content')
         
-  
-        d.type = new d.type({ a, annotation: d, textWrap, textPadding, editMode, dispatcher: annotationDispatcher })
+        d.type = new d.type({ a, annotation: d, textWrap, notePadding, editMode, dispatcher: annotationDispatcher })
 
         d.type.draw()
       })
@@ -104,11 +103,11 @@ export default function annotation(){
     return annotation;
   }
 
-  annotation.textPadding = function(_){
-    if (!arguments.length) return textPadding;
-    textPadding = _
+  annotation.notePadding = function(_){
+    if (!arguments.length) return notePadding;
+    notePadding = _
     if (collection) { 
-      collection.updateTextPadding(textPadding)
+      collection.updateNotePadding(notePadding)
       annotations = collection.annotations
     }
     return annotation;

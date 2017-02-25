@@ -40,7 +40,7 @@ $(document).ready(function(){
       className: "custom",
       subject: {},
       connector: {},
-      textBox: {} 
+      note: {} 
     }
 
     let typeSettings = JSON.parse(JSON.stringify(defaultSettings))
@@ -53,28 +53,28 @@ $(document).ready(function(){
     const types = {
       annotationLabel: { 
         typeSettings: {
-          textBox: { align: "middle", orientation: "topBottom" },
+          note: { align: "middle", orientation: "topBottom" },
           connector: { type: "line"}
         },
         summary: "A centered label annotation"
       },
       annotationCallout: { 
         typeSettings: {
-            textBox: { align: "dynamic", lineType: "horizontal" },
+            note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "line"}
         },
-        summary: "Adds a line along the textBox"
+        summary: "Adds a line along the note"
       },
       annotationCalloutElbow: { 
         typeSettings: {
-            textBox: { align: "dynamic", lineType: "horizontal" },
+            note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "elbow"}
         },
         summary: "Keeps connector at 45 and 90 degree angles"
       },
       annotationCalloutCircle: { 
         typeSettings: {
-           textBox: { align: "dynamic", lineType: "horizontal" },
+           note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "elbow"}
         },
         summary: "Subject options: radius, innerRadius, outerRadius, ",
@@ -86,7 +86,7 @@ $(document).ready(function(){
       },
       annotationCalloutCurve: { 
         typeSettings: {
-           textBox: { align: "dynamic", lineType: "horizontal" },
+           note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "curve"}
         },
         summary: "Connector options: curve, ",
@@ -94,7 +94,7 @@ $(document).ready(function(){
       },
       annotationXYThreshold: { 
         typeSettings: {
-           textBox: { align: "dynamic", lineType: "horizontal" },
+           note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "elbow"}
         },
         summary: "Subject options: x1, x2 or y1, y2",
@@ -105,7 +105,7 @@ $(document).ready(function(){
       },
       annotationBadge: { 
         typeSettings: {
-           textBox: { align: "dynamic", lineType: "horizontal" },
+           note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "elbow"}
         },
         summary: "Subject options: radius, text",
@@ -118,7 +118,7 @@ $(document).ready(function(){
 
     let editMode = true
     let textWrap = 120
-    let textPadding = 5
+    let padding = 5
 
     // let circle = {
     //   radius: 50,
@@ -159,7 +159,7 @@ $(document).ready(function(){
         d3.selectAll(`[data-section="${type}"][data-setting="${value}"]`)
           .classed('active', true)
 
-        if (type === "textBox:lineType") {
+        if (type === "note:lineType") {
           if (value === "none"){
           d3.selectAll(".icons .orientation")
           .classed('hidden', false)
@@ -169,15 +169,15 @@ $(document).ready(function(){
           }
         }
 
-        if ((type === "textBox:lineType" && value === "vertical") || (type === "textBox:orientation" && value === "leftRight")){
-          d3.selectAll("[data-section='textBox:align'].horizontal")
+        if ((type === "note:lineType" && value === "vertical") || (type === "note:orientation" && value === "leftRight")){
+          d3.selectAll("[data-section='note:align'].horizontal")
           .classed('hidden', true)
-          d3.selectAll("[data-section='textBox:align'].vertical")
+          d3.selectAll("[data-section='note:align'].vertical")
           .classed('hidden', false)
-        } else if ((type === "textBox:lineType" && value === "horizontal") || (type === "textBox:orientation" && value === "topBottom")){
-          d3.selectAll("[data-section='textBox:align'].vertical")
+        } else if ((type === "note:lineType" && value === "horizontal") || (type === "note:orientation" && value === "topBottom")){
+          d3.selectAll("[data-section='note:align'].vertical")
           .classed('hidden', true)
-          d3.selectAll("[data-section='textBox:align'].horizontal")
+          d3.selectAll("[data-section='note:align'].horizontal")
           .classed('hidden', false)
         }
 
@@ -255,16 +255,16 @@ $(document).ready(function(){
         d3.selectAll('.icons .options a')
           .classed('active', false)
 
-        d3.select(`.icons a[data-section="textBox:align"][data-setting="${options.textBox.align}"]`)
+        d3.select(`.icons a[data-section="note:align"][data-setting="${options.note.align}"]`)
           .classed('active', true)
 
-        if (options.textBox.lineType){
-          d3.select(`.icons a[data-section="textBox:lineType"][data-setting=${options.textBox.lineType}]`)
+        if (options.note.lineType){
+          d3.select(`.icons a[data-section="note:lineType"][data-setting=${options.note.lineType}]`)
           .classed('active', true)
            d3.selectAll(".icons .orientation")
           .classed('hidden', true)
         } else {
-          d3.select(`.icons a[data-section="textBox:lineType"][data-setting="none"]`)
+          d3.select(`.icons a[data-section="note:lineType"][data-setting="none"]`)
           .classed('active', true)
           d3.selectAll(".icons .orientation")
           .classed('hidden', false)
@@ -313,10 +313,10 @@ $(document).ready(function(){
         makeAnnotations.textWrap(textWrap)
       })
 
-    d3.select('#textPadding')
+    d3.select('#padding')
       .on('change', function(){
-        textPadding = parseInt(d3.event.target.value)
-        makeAnnotations.textPadding(textPadding)
+        padding = parseInt(d3.event.target.value)
+        makeAnnotations.notePadding(padding)
         makeAnnotations.update()
       })
 
@@ -386,8 +386,8 @@ $(document).ready(function(){
         if (Object.keys(json.connector).length === 0){
           delete json.connector
         }
-        if (Object.keys(json.textBox).length === 0){
-          delete json.textBox
+        if (Object.keys(json.note).length === 0){
+          delete json.note
         }
         typeText += `d3.annotationCustomType(\n` +
           `  d3.${typeKey}, \n` +
@@ -405,15 +405,15 @@ $(document).ready(function(){
       let textWrapText = ''
 
       if (textWrap !== 120) {
-        textWrapText = '  //also can set and override in the textBox.wrap property\n  //of the annotation JSON\n' +
+        textWrapText = '  //also can set and override in the note.wrap property\n  //of the annotation JSON\n' +
         `  .textWrap(${textWrap})`
       }
 
-      let textPaddingText = ''
+      let paddingText = ''
 
-      if (textPadding !== 5) {
-        textPaddingText = '  //also can set and override in the textBox.padding property\n  //of the annotation JSON\n' +
-        `  .textPadding(${textPadding})`
+      if (padding !== 5) {
+        paddingText = '  //also can set and override in the note.padding property\n  //of the annotation JSON\n' +
+        `  .notePadding(${padding})`
       }
 
       let curveText = ''
@@ -472,7 +472,7 @@ $(document).ready(function(){
       editModeText +
       disableText +
       textWrapText +
-      textPaddingText +
+      paddingText +
       `  .type(type)\n` +
       '  //accessors & accessorsInverse not needed\n' +
       '  //if using x, y in annotations JSON\n' +
