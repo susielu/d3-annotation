@@ -4413,7 +4413,7 @@ exports.default = function (_ref) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.newWithClass = exports.d3XYThreshold = exports.d3Badge = exports.d3CalloutCurve = exports.d3CalloutCircle = exports.d3CalloutElbow = exports.d3Callout = exports.d3Label = exports.customType = undefined;
+exports.newWithClass = exports.d3XYThreshold = exports.d3Badge = exports.d3CalloutCurve = exports.d3CalloutCircle = exports.d3CalloutElbow = exports.d3Callout = exports.d3Label = exports.d3TextNote = exports.customType = undefined;
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
@@ -4497,9 +4497,8 @@ var Type = function () {
     var a = _ref.a,
         annotation = _ref.annotation,
         editMode = _ref.editMode,
-        textWrap = _ref.textWrap,
-        textPadding = _ref.textPadding,
-        dispatcher = _ref.dispatcher;
+        dispatcher = _ref.dispatcher,
+        notePadding = _ref.notePadding;
 
     _classCallCheck(this, Type);
 
@@ -4519,22 +4518,13 @@ var Type = function () {
 
     this.annotation = annotation;
     this.editMode = editMode;
-
-    //come back to these components
-    this.textWrap = textWrap;
-    this.textPadding = textPadding;
+    this.notePadding = notePadding || 5;
   }
 
   _createClass(Type, [{
     key: 'updateEditMode',
     value: function updateEditMode() {
       this.a.selectAll('circle.handle').remove();
-    }
-  }, {
-    key: 'updateTextWrap',
-    value: function updateTextWrap(textWrap) {
-      this.textWrap = textWrap;
-      this.drawNote();
     }
   }, {
     key: 'drawOnSVG',
@@ -4654,7 +4644,7 @@ var Type = function () {
       var lineType = noteData.lineType || context.lineType;
 
       var note = {};
-      if (lineType == "vertical") note = textBoxSideline(noteParams);else if (lineType == "horizontal") note = textBoxLine(noteParams);
+      if (lineType == "vertical") note = (0, _lineTypeVertical2.default)(noteParams);else if (lineType == "horizontal") note = (0, _lineTypeHorizontal2.default)(noteParams);
 
       var _note = note,
           _note$components = _note.components,
@@ -4673,7 +4663,7 @@ var Type = function () {
     key: 'drawNoteContent',
     value: function drawNoteContent(context) {
       var noteData = this.annotation.note;
-      var padding = noteData.padding || this.textPadding || 5;
+      var padding = noteData.padding || this.notePadding || 5;
       var orientation = noteData.orientation || context.orientation || 'topBottom';
       var lineType = noteData.lineType || context.lineType;
 
@@ -4688,42 +4678,6 @@ var Type = function () {
           handlers = _noteAlignment$handle === undefined ? [] : _noteAlignment$handle;
 
       return components;
-    }
-  }, {
-    key: 'drawText',
-    value: function drawText() {
-      if (this.note) {
-
-        var note = a.select('g.annotation-note');
-        // const offset = d.offset
-        // textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
-
-        newWithClass(note, [d], 'g', 'annotation-note-content');
-
-        var noteContent = note.select('g.annotation-note-content');
-
-        newWithClass(noteContent, [d], 'text', 'annotation-text');
-        newWithClass(noteContent, [d], 'text', 'annotation-title');
-
-        var titleBBox = { height: 0 };
-        var text = this.a.select('text.annotation-text');
-        var wrapLength = this.annotation.note && this.annotation.note.wrap || this.textWrap || 120;
-
-        if (this.annotation.title) {
-          var title = this.a.select('text.annotation-title');
-          title.text(this.annotation.title);
-          // .attr('dy', '1.1em')
-          title.call(wrap, wrapLength);
-          titleBBox = title.node().getBBox();
-        }
-
-        text.text(this.annotation.text);
-        // .attr('dy', '1em')
-        text.call(wrap, wrapLength);
-
-        var textBBox = text.node().getBBox();
-        text.attr('y', titleBBox.height * 1.1 || 3);
-      }
     }
   }, {
     key: 'redraw',
@@ -4857,6 +4811,11 @@ var customType = exports.customType = function customType(initialType, typeSetti
       value: function drawNote(context) {
         return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawNote', this).call(this, _extends({}, context, typeSettings.note, this.typeSettings.note));
       }
+    }, {
+      key: 'drawNoteContent',
+      value: function drawNoteContent(context) {
+        return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawNoteContent', this).call(this, _extends({}, context, typeSettings.note, this.typeSettings.note));
+      }
     }], [{
       key: 'init',
       value: function init(annotation, accessors) {
@@ -4876,6 +4835,71 @@ var customType = exports.customType = function customType(initialType, typeSetti
     return customType;
   }(initialType);
 };
+
+var d3TextNote = exports.d3TextNote = function (_Type) {
+  _inherits(d3TextNote, _Type);
+
+  function d3TextNote(params) {
+    _classCallCheck(this, d3TextNote);
+
+    var _this4 = _possibleConstructorReturn(this, (d3TextNote.__proto__ || Object.getPrototypeOf(d3TextNote)).call(this, params));
+
+    _this4.textWrap = params.textWrap || 120;
+    return _this4;
+  }
+
+  _createClass(d3TextNote, [{
+    key: 'drawNoteContent',
+    value: function drawNoteContent(context) {
+
+      _get(d3TextNote.prototype.__proto__ || Object.getPrototypeOf(d3TextNote.prototype), 'drawNoteContent', this).call(this, context);
+    }
+  }, {
+    key: 'updateTextWrap',
+    value: function updateTextWrap(textWrap) {
+      this.textWrap = textWrap;
+      this.drawNote();
+    }
+  }, {
+    key: 'drawText',
+    value: function drawText() {
+      if (this.note) {
+
+        var note = a.select('g.annotation-note');
+        // const offset = d.offset
+        // textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+
+        newWithClass(note, [d], 'g', 'annotation-note-content');
+
+        var noteContent = note.select('g.annotation-note-content');
+
+        newWithClass(noteContent, [d], 'text', 'annotation-text');
+        newWithClass(noteContent, [d], 'text', 'annotation-title');
+
+        var titleBBox = { height: 0 };
+        var text = this.a.select('text.annotation-text');
+        var wrapLength = this.annotation.note && this.annotation.note.wrap || this.textWrap;
+
+        if (this.annotation.title) {
+          var title = this.a.select('text.annotation-title');
+          title.text(this.annotation.title);
+          // .attr('dy', '1.1em')
+          title.call(wrap, wrapLength);
+          titleBBox = title.node().getBBox();
+        }
+
+        text.text(this.annotation.text);
+        // .attr('dy', '1em')
+        text.call(wrap, wrapLength);
+
+        var textBBox = text.node().getBBox();
+        text.attr('y', titleBBox.height * 1.1 || 3);
+      }
+    }
+  }]);
+
+  return d3TextNote;
+}(Type);
 
 var d3Label = exports.d3Label = customType(Type, {
   className: "label",

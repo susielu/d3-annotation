@@ -22,7 +22,7 @@ import subjectThreshold from './Subject/threshold'
 import subjectBadge from './Subject/badge'
 
 class Type {
-  constructor({ a, annotation, editMode, textWrap, textPadding, dispatcher }) {
+  constructor({ a, annotation, editMode, dispatcher, notePadding }) {
     this.a = a
 
     this.note = annotation.disable.indexOf("note") === -1 && a.select('g.annotation-note')
@@ -39,10 +39,7 @@ class Type {
   
     this.annotation = annotation
     this.editMode = editMode
-
-    //come back to these components
-    this.textWrap = textWrap
-    this.textPadding = textPadding
+    this.notePadding = notePadding || 5
   }
 
   static init(annotation, accessors) {
@@ -58,11 +55,6 @@ class Type {
   updateEditMode () {
     this.a.selectAll('circle.handle')
       .remove()
-  }
-
-  updateTextWrap (textWrap) {
-    this.textWrap = textWrap
-    this.drawNote()
   }
 
   drawOnSVG (component, builders) {
@@ -147,8 +139,8 @@ class Type {
     const lineType = noteData.lineType || context.lineType
     
     let note={}
-    if (lineType == "vertical") note = textBoxSideline(noteParams)
-    else if (lineType == "horizontal") note = textBoxLine(noteParams)
+    if (lineType == "vertical") note = noteVertical(noteParams)
+    else if (lineType == "horizontal") note = noteHorizontal(noteParams)
 
     let { components=[], handles=[] } = note
     if (this.editMode) {
@@ -161,7 +153,7 @@ class Type {
 
   drawNoteContent (context) {
     const noteData = this.annotation.note
-    const padding = noteData.padding || this.textPadding || 5
+    const padding = noteData.padding || this.notePadding || 5
     let orientation = noteData.orientation || context.orientation || 'topBottom'
     const lineType = noteData.lineType || context.lineType
     
@@ -172,41 +164,6 @@ class Type {
     const { components=[], handlers=[] } = noteAlignment(noteParams)
 
     return components
-  }
-
-  drawText () {
-    if (this.note){
-
-      const note = a.select('g.annotation-note')
-      // const offset = d.offset
-      // textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
-      
-      newWithClass(note, [d], 'g', 'annotation-note-content')
-
-      const noteContent = note.select('g.annotation-note-content')
-
-      newWithClass(noteContent, [d], 'text', 'annotation-text')
-      newWithClass(noteContent, [d], 'text', 'annotation-title')
-
-      let titleBBox = { height: 0 }
-      const text = this.a.select('text.annotation-text')
-      const wrapLength = this.annotation.note && this.annotation.note.wrap || this.textWrap ||  120
-
-      if (this.annotation.title){
-        const title = this.a.select('text.annotation-title')
-        title.text(this.annotation.title)
-          // .attr('dy', '1.1em')
-        title.call(wrap, wrapLength)
-        titleBBox = title.node().getBBox()
-      }
-
-      text.text(this.annotation.text)
-        // .attr('dy', '1em')
-      text.call(wrap, wrapLength)
-
-      const textBBox = text.node().getBBox()
-      text.attr('y', titleBBox.height * 1.1 || 3)
-    }
   }
 
   redraw(bbox=this.getNoteBBox()) {
@@ -304,6 +261,64 @@ export const customType = (initialType, typeSettings, init) => {
 
     drawNote(context){
       return super.drawNote({ ...context, ...typeSettings.note, ...this.typeSettings.note })
+    }
+
+    drawNoteContent(context){
+      return super.drawNoteContent({ ...context, ...typeSettings.note, ...this.typeSettings.note })
+    }
+  }
+}
+
+export class d3TextNote extends Type {
+
+  constructor(params){
+    super(params)
+    this.textWrap = params.textWrap || 120
+  }
+
+
+  drawNoteContent(context){
+    
+    super.drawNoteContent(context)
+  }
+  
+  updateTextWrap (textWrap) {
+    this.textWrap = textWrap
+    this.drawNote()
+  }
+
+  drawText () {
+    if (this.note){
+
+      const note = a.select('g.annotation-note')
+      // const offset = d.offset
+      // textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+      
+      newWithClass(note, [d], 'g', 'annotation-note-content')
+
+      const noteContent = note.select('g.annotation-note-content')
+
+      newWithClass(noteContent, [d], 'text', 'annotation-text')
+      newWithClass(noteContent, [d], 'text', 'annotation-title')
+
+      let titleBBox = { height: 0 }
+      const text = this.a.select('text.annotation-text')
+      const wrapLength = this.annotation.note && this.annotation.note.wrap || this.textWrap 
+
+      if (this.annotation.title){
+        const title = this.a.select('text.annotation-title')
+        title.text(this.annotation.title)
+          // .attr('dy', '1.1em')
+        title.call(wrap, wrapLength)
+        titleBBox = title.node().getBBox()
+      }
+
+      text.text(this.annotation.text)
+        // .attr('dy', '1em')
+      text.call(wrap, wrapLength)
+
+      const textBBox = text.node().getBBox()
+      text.attr('y', titleBBox.height * 1.1 || 3)
     }
   }
 }
