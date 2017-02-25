@@ -27,5 +27,5 @@ export const lineSetup = (type) => {
 
 export default ({ type }) => {
   const data = lineSetup(type)
-  return { components: lineBuilder({ data, className : "connector" })} 
+  return { components: [lineBuilder({ data, className : "connector" })]} 
 }

@@ -11,7 +11,7 @@ export default class AnnotationCollection {
       d.type = undefined
       d.subject = newSettings && newSettings.subject ||{}
       d.connector = newSettings && newSettings.connector || {}
-      d.textBox = newSettings && newSettings.textBox || {}
+      d.note = newSettings && newSettings.note || {}
     })
   }
 

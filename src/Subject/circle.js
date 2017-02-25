@@ -3,14 +3,10 @@ import { arcBuilder } from '../Builder'
 import { event } from 'd3-selection'
 
 export default ({ subjectData, type}) => {
-    if (!subjectData.radius && !subjectData.outerRadius ){
-          subjectData.radius = 20
-    }
+    if (!subjectData.radius && !subjectData.outerRadius ){ subjectData.radius = 20 }
 
-    const c = arcBuilder({ data: subjectData, className: "subject" })
-    const components = [c]
     let handles = []
-
+    const c = arcBuilder({ data: subjectData, className: "subject" })
     if (type.editMode){
       const h = circleHandles({
         r1: c.data.outerRadius || c.data.radius,
@@ -41,5 +37,5 @@ export default ({ subjectData, type}) => {
       handles = type.mapHandles(cHandles)
     }
 
-    return { components, handles }
+    return { components: [c], handles }
 }

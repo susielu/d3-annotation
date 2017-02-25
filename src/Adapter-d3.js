@@ -17,7 +17,7 @@ export default function annotation(){
     type = d3Callout,
     textWrap,
     textPadding,
-    annotationDispatcher = dispatch("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "textboxover", "textboxout", "textboxclick");
+    annotationDispatcher = dispatch("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "noteover", "noteout", "noteclick");
 
   const annotation = function(selection){
     if (!editMode){
@@ -63,7 +63,9 @@ export default function annotation(){
 
         newWithClass(a, [d], 'g', 'annotation-connector')
         newWithClass(a, [d], 'g', 'annotation-subject')
-        newWithClass(a, [d], 'g', 'annotation-textbox')
+        newWithClass(a, [d], 'g', 'annotation-note')
+        newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content')
+        
   
         d.type = new d.type({ a, annotation: d, textWrap, textPadding, editMode, dispatcher: annotationDispatcher })
 

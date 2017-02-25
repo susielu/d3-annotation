@@ -33,7 +33,7 @@ export default ({ type, connectorData }) => {
 
   let data = lineSetup(type)
   data = [data[0], ...connectorData.points, data[1]]
-  const components = lineBuilder({ data, curve: connectorData.curve, className: "connector" })
+  const components = [lineBuilder({ data, curve: connectorData.curve, className: "connector" })]
 
   return { components , handles }
 }

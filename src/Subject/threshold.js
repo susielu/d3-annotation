@@ -11,5 +11,5 @@ export default ({ subjectData, type }) => {
     y2 = (subjectData.y2 !== undefined ? subjectData.y2 : offset.y) - offset.y
 
   const data = [[x1, y1], [x2, y2]]
-  return { components: lineBuilder({ data, className : 'subject'})}
+  return { components: [lineBuilder({ data, className : 'subject'})]}
 }

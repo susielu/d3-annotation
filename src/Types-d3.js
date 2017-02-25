@@ -1,8 +1,13 @@
 import { select, event } from 'd3-selection'
 import { drag } from 'd3-drag'
 import { Annotation } from './Annotation'
-import { textBoxLine, textBoxSideline } from './TextBox'
+// import { textBoxLine, textBoxSideline } from './TextBox'
 import { addHandles } from './Handles'
+
+//Note options
+import noteAlignment from './Note/alignment'
+import noteVertical from './Note/lineType-vertical'
+import noteHorizontal from './Note/lineType-horizontal'
 
 //Connector options
 import connectorLine from './Connector/type-line'
@@ -20,19 +25,22 @@ class Type {
   constructor({ a, annotation, editMode, textWrap, textPadding, dispatcher }) {
     this.a = a
 
-    this.textBox = annotation.disable.indexOf("textBox") === -1 && a.select('g.annotation-textbox')
+    this.note = annotation.disable.indexOf("note") === -1 && a.select('g.annotation-note')
+    this.noteContent = this.note && a.select('g.annotation-note-content')
     this.connector = annotation.disable.indexOf("connector") === -1 && a.select('g.annotation-connector')
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject')
 
     if (dispatcher){
       const handler = addHandlers.bind(null, annotation)
-      handler(this.textBox, 'textbox')
+      handler(this.note, 'note')
       handler(this.connector, 'connector')
       handler(this.subject, 'subject')
     }
   
     this.annotation = annotation
     this.editMode = editMode
+
+    //come back to these components
     this.textWrap = textWrap
     this.textPadding = textPadding
   }
@@ -54,7 +62,7 @@ class Type {
 
   updateTextWrap (textWrap) {
     this.textWrap = textWrap
-    this.drawText()
+    this.drawNote()
   }
 
   drawOnSVG (component, builders) {
@@ -83,33 +91,22 @@ class Type {
       })
   }
 
-  getTextBBox() { return bboxWithoutHandles(this.textBox, '.annotation-text, .annotation-title')}
+  getNoteBBox() { return bboxWithoutHandles(this.note, '.note-content')}
   getConnectorBBox() { return bboxWithoutHandles(this.connector)}
   getSubjectBBox() { return bboxWithoutHandles(this.subject)}
   getAnnotationBBox() { return bboxWithoutHandles(this.a)}
 
   drawSubject (context) {
-    let components = []
-    let handles = []
-
-    const type = context.type
     const subjectData = this.annotation.subject
-    if (type === "circle") {
-      const { components: c, handles: h } = subjectCircle({ subjectData, type: this })
-      components = components.concat(c)
-      handles = handles.concat(h)
-       
-     } else if (type === "threshold") {
-      const { components: c } = subjectThreshold({ subjectData, type: this })
-      components.push(c)
+    const type = context.type
+    const subjectParams = { type: this, subjectData}
 
-     } else if (type === "badge") {
-      const { components: c, handles: h } = subjectBadge({ subjectData, type: this })
-      components = components.concat(c)
-      handles = handles.concat(h)
+    let subject = {}
+    if (type === "circle") subject = subjectCircle(subjectParams)
+    else if (type === "threshold") subject = subjectThreshold(subjectParams)
+    else if (type === "badge") subject = subjectBadge(subjectParams)
     
-    }
-
+    let { components=[], handles=[] } = subject
     if (this.editMode){
       handles = handles.concat(this.mapHandles([{ drag: this.dragSubject.bind(this)}]))
       components.push({ type: "handle", handles })
@@ -119,73 +116,92 @@ class Type {
  }
 
   drawConnector (context) {
-    let components = []
-    let handles = []
-
+    const connectorData = this.annotation.connector
     const type = context.type
-    let connectorData = this.annotation.connector
-    let line
-    if (type === "curve") {
-      const { components: c, handles: h } = connectorCurve({ type: this, connectorData })
-      line = c
-      handles = handles.concat(h)
+    const connectorParams = { type: this, connectorData}
 
-    } else if (type === "elbow") {
-      const { components: c } = connectorElbow({ type: this })
-      line = c
+    let connector = {}
+    if (type === "curve") connector = connectorCurve(connectorParams)
+    else if (type === "elbow") connector = connectorElbow(connectorParams)
+    else connector = connectorLine(connectorParams)
 
-    } else {
-      const { components: c } = connectorLine({ type: this })
-      line = c
-
-    }
-    components.push(line)
-
+    let { components=[], handles=[] } = connector
+    const line = components[0]
     const endType = context.end
-    if (endType === "arrow"){      
-      const { components: c } = connectorArrow({ annotation: this.annotation, 
-          start: line.data[1], end: line.data[0] })
-      components.push(c)
-    } else if (endType === "dot"){
-      const { components: c } = connectorDot({ line })
-      components.push(c)
-    }
+    let end = {}
+    if (endType === "arrow") end = connectorArrow({ annotation: this.annotation, start: line.data[1], end: line.data[0] })
+    else if (endType === "dot") end = connectorDot({ line })
+
+    if (end.components){ components = components.concat(end.components)}
 
     if (this.editMode && handles.length !== 0){
       components.push({ type: "handle", handles })
     }
-
     return components;
   }
 
-  drawText() {
-    if (this.textBox){
+  drawNote (context) {
+    const noteData = this.annotation.note
+    const align = noteData.align || context.align || 'dynamic'
+    const noteParams = { bbox: context.bbox, ...this.annotation.offset , align }
+    const lineType = noteData.lineType || context.lineType
+    
+    let note={}
+    if (lineType == "vertical") note = textBoxSideline(noteParams)
+    else if (lineType == "horizontal") note = textBoxLine(noteParams)
 
-      const textbox = a.select('g.annotation-textbox')
-      const offset = d.offset
-      textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    let { components=[], handles=[] } = note
+    if (this.editMode) {
+      handles = this.mapHandles([{ x: 0, y: 0, drag: this.dragNote.bind(this)}])
+      components.push({ type: "handle", handles })
+    }
+
+    return components
+  }
+
+  drawNoteContent (context) {
+    const noteData = this.annotation.note
+    const padding = noteData.padding || this.textPadding || 5
+    let orientation = noteData.orientation || context.orientation || 'topBottom'
+    const lineType = noteData.lineType || context.lineType
+    
+    if (lineType == "vertical") orientation =  "topBottom"
+    else if (lineType == "horizontal") orientation = "leftRight"
+
+    const noteParams = { padding, bbox: context.bbox, offset: this.annotation.offset, orientation }
+    const { components=[], handlers=[] } = noteAlignment(noteParams)
+
+    return components
+  }
+
+  drawText () {
+    if (this.note){
+
+      const note = a.select('g.annotation-note')
+      // const offset = d.offset
+      // textbox.attr('transform', `translate(${offset.x}, ${offset.y})`)
       
-      newWithClass(textbox, [d], 'g', 'annotation-textwrapper')
+      newWithClass(note, [d], 'g', 'annotation-note-content')
 
-      const textWrapper = textbox.select('g.annotation-textwrapper')
+      const noteContent = note.select('g.annotation-note-content')
 
-      newWithClass(textWrapper, [d], 'text', 'annotation-text')
-      newWithClass(textWrapper, [d], 'text', 'annotation-title')
+      newWithClass(noteContent, [d], 'text', 'annotation-text')
+      newWithClass(noteContent, [d], 'text', 'annotation-title')
 
       let titleBBox = { height: 0 }
       const text = this.a.select('text.annotation-text')
-      const wrapLength = this.annotation.textBox && this.annotation.textBox.wrap || this.textWrap ||  120
+      const wrapLength = this.annotation.note && this.annotation.note.wrap || this.textWrap ||  120
 
       if (this.annotation.title){
         const title = this.a.select('text.annotation-title')
         title.text(this.annotation.title)
-          .attr('dy', '1.1em')
+          // .attr('dy', '1.1em')
         title.call(wrap, wrapLength)
         titleBBox = title.node().getBBox()
       }
 
       text.text(this.annotation.text)
-        .attr('dy', '1em')
+        // .attr('dy', '1em')
       text.call(wrap, wrapLength)
 
       const textBBox = text.node().getBBox()
@@ -193,113 +209,39 @@ class Type {
     }
   }
 
-  drawTextBox (context) {
-    let components = []
-    let handles = []
-
-    const textBoxData = this.annotation.textBox
-    
-    const lineType = textBoxData.lineType || context.lineType
-
-    let orientation = textBoxData.orientation || context.orientation || 'topBottom'
-    let align = textBoxData.align || context.align || 'dynamic'
-
-    const leftRightDyanmic = () => {
-      if (align == "dynamic" || align == "left" || align == "right"){
-         if (offset.y < 0){ 
-              align = "top" 
-            } else {
-              align = "bottom"
-            } 
-      }
-    }
-
-    const topBottomDynamic = () => {
-      if (align == "dynamic" || align == "top" || align == "bottom"){
-        if (offset.x < 0){
-            align = "right"
-          } else {
-            align = "left"
-          }      
-        }
-    }
-        
-    if(lineType){
-
-      if (lineType == "vertical") {
-        orientation = "leftRight"
-        leftRightDyanmic()
-        components.push(textBoxSideline({...context, align }))
-      } else if (lineType == "horizontal") {
-        orientation = "topBottom"        
-        topBottomDynamic()
-        components.push(textBoxLine({ ...context, align }) )
-      }
-    }
-
-    // if (orientation === 'topBottom' ){
-    //   topBottomDynamic()
-    //   if (offset.y < 0){ 
-    //     y -= (context.bbox.height + padding)
-    //  } else {
-    //    y += padding
-    //  }
-
-    //   if (align === "middle") {
-    //     x -= context.bbox.width/2
-    //   } else if (align === "right" ) {
-    //     x -= (context.bbox.width)
-    //   } 
-
-    // } else if (orientation === 'leftRight'){
-    //   leftRightDyanmic()
-    //   if (offset.x < 0){ 
-    //     x -= (context.bbox.width + padding) 
-    //   } else {
-    //     x += padding
-    //   }
-
-    //    if (align === "middle") {
-    //       y -= context.bbox.height/2
-    //    } else if (align === "top" ){
-    //       y -= (context.bbox.height )
-    //    }
-    // } 
-
-    //this.textBox.select('g.annotation-textwrapper').attr('transform', `translate(${x}, ${y})`)
-
-    // if (textBoxData.type){
-
-    // }
-
-    if (this.editMode) {
-      handles = this.mapHandles([{ x: 0, y: 0, drag: this.dragTextBox.bind(this)}])
-      components.push({ type: "handle", handles })
-    }
-
-    return components
-  }
-
-  redraw(bbox=this.getTextBBox()) {
+  redraw(bbox=this.getNoteBBox()) {
     const annotation = this.annotation
     const context = { annotation, bbox }
 
-    //Extend with custom annotation components
     this.subject && this.drawOnSVG( this.subject, this.drawSubject(context))
     this.connector && this.drawOnSVG( this.connector, this.drawConnector(context))
-    this.textBox && this.drawOnSVG( this.textBox, this.drawTextBox(context))
+    this.noteContent && this.drawOnSVG( this.noteContent, this.drawNoteContent(context) )
+    this.note && this.drawOnSVG( this.note, this.drawNote(context))
   }  
   
-  // draw() {
-  //   // this.drawText()
-  //   this.update()
-  // }
+  setup() {
+    this.draw()
+    this.wrapText() //?
+  }
 
-  draw() {
+  setPosition(){
     const position = this.annotation.position 
     this.a.attr('transform', `translate(${position.x}, ${position.y})`)
+  }
+
+  setOffset(){
     const offset = this.annotation.offset
-    this.textBox.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    this.note.attr('transform', `translate(${offset.x}, ${offset.y})`)
+  }
+
+  update(){
+    this.setPosition()
+    this.redraw()
+  }
+
+  draw() {
+    this.setPosition()
+    this.setOffset()
     this.redraw()
   }
 
@@ -314,11 +256,12 @@ class Type {
     this.update()
   }
 
-  dragTextBox() {
+  dragNote() {
     const offset = this.annotation.offset
     offset.x += event.dx
     offset.y += event.dy
     this.annotation.offset = offset
+    this.setOffset()
     this.redraw()
   }
 
@@ -359,20 +302,20 @@ export const customType = (initialType, typeSettings, init) => {
       return super.drawConnector({ ...context, ...typeSettings.connector, ...this.typeSettings.connector })
     }
 
-    drawTextBox(context){
-      return super.drawTextBox({ ...context, ...typeSettings.textBox, ...this.typeSettings.textBox })
+    drawNote(context){
+      return super.drawNote({ ...context, ...typeSettings.note, ...this.typeSettings.note })
     }
   }
 }
 
 export const d3Label = customType(Type, {
   className: "label", 
-  textBox: { align: "middle"}
+  note: { align: "middle"}
 })
 
 export const d3Callout = customType(Type, {
   className: "callout",
-  textBox: { lineType: "horizontal" }
+  note: { lineType: "horizontal" }
 })
 
 export const d3CalloutElbow = customType(d3Callout, {
@@ -393,7 +336,7 @@ export const d3CalloutCurve = customType(d3Callout, {
 export const d3Badge = customType(d3CalloutElbow, {
   className: "badge",
   subject: { type: "badge"},
-  disable: ['connector', 'textBox']
+  disable: ['connector', 'note']
 })
 
 export const d3XYThreshold = customType(d3Callout, {
@@ -413,7 +356,7 @@ export const d3XYThreshold = customType(d3Callout, {
     }
   )
 
-const newWithClass = (a, d, type, className) => {
+export const newWithClass = (a, d, type, className) => {
   const group = a.selectAll(`${type}.${className}`).data(d)
   group.enter()
     .append(type)
