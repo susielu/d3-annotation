@@ -418,7 +418,7 @@ const addHandlers = ( dispatcher, annotation, { component, name }) => {
 const wrap = (text, width) => {
   text.each(function() {
     var text = d3.select(this),
-        words = text.text().split(/\s+/).reverse(),
+        words = text.text().split(/ \t\r\n+/).reverse(),
         word,
         line = [],
         lineNumber = 0,
