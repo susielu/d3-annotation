@@ -120,28 +120,26 @@ $(document).ready(function(){
     let textWrap = 120
     let padding = 5
 
-    // let circle = {
-    //   radius: 50,
-    //   radiusPadding: 5
-    // }
-
-    // let threshold = {
-    //   x1: 0,
-    //   x2: 1000
-    // }
-
-    // let badge = {
-    //   text: "A",
-    //   radius: 14
-    // }
-
     const annotation = {
         note: { label: "Longer text to show text wrapping",
         title: "Annotations :)" },
         x: 150,
         y: 170,
         dy: 117,
-        dx: 162
+        dx: 162,
+        subject: {
+          //for subject circle
+          outerRadius: 50,
+          radiusPadding: 5,
+
+          //for badge
+          radius: 14,
+          text: "A",
+
+          //for xythreshold
+          x1: 0,
+          x2: 1000
+        }
       }
     window.makeAnnotations = d3.annotation()
     .editMode(editMode)
@@ -286,13 +284,13 @@ $(document).ready(function(){
             .classed('hidden', true)
         }
 
-        const subject = types[typeKey].subject
+        // const subject = types[typeKey].subject
 
-        if (subject) {
-          updateAnnotations({ subject })
-        } else {
+        // if (subject) {
+        //   updateAnnotations({ subject })
+        // } else {
           updateAnnotations()
-        }
+        // }
         sandboxCode()
 
       })
@@ -311,14 +309,13 @@ $(document).ready(function(){
     d3.select('#textWrap')
       .on('change', function(){
         textWrap = parseInt(d3.event.target.value)
-        makeAnnotations.textWrap(textWrap)
+        makeAnnotations.textWrap(textWrap).redraw()
       })
 
     d3.select('#padding')
       .on('change', function(){
         padding = parseInt(d3.event.target.value)
-        makeAnnotations.notePadding(padding)
-        makeAnnotations.update()
+        makeAnnotations.notePadding(padding).redraw()
       })
 
     d3.selectAll('#curveButtons ul.curves li a')
@@ -348,8 +345,7 @@ $(document).ready(function(){
         d3.select(".sandbox g.sandbox-annotations")
           .remove()
 
-        let subject = types[typeKey].subject
-        makeAnnotations.type(currentType, Object.assign({}, newSettings, subject ? { subject } : undefined))
+        makeAnnotations.type(currentType )
 
         d3.select(".sandbox")
           .append("g")
@@ -449,8 +445,8 @@ $(document).ready(function(){
       typeText +
       '\n' +
       'const annotations = [{\n' +
-      '        text: "Longer text to show text wrapping",\n' +
-      '        title: "Annotations :)",\n' +
+      '        notes: { label: "Longer text to show text wrapping",\n' +
+      '          title: "Annotations :)" },\n' +
       '        //can use x, y directly instead of data\n' +
       '        data: {date: "18-Sep-09", close: 185.02},\n' +
       '        dy: 137,\n' +

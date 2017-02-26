@@ -65,6 +65,9 @@
       font-size: .7em;
     }
 
+    text.hover {
+      font-size: .7em;
+    }
     </style>
 </head>
 <body>
@@ -180,6 +183,27 @@
         .accessorsInverse({
           date: d => timeFormat(x.invert(d.x)),
           close: d => y.invert(d.y) 
+        })
+        .on('subjectover', function(annotation) {
+
+          //cannot reference this if you are using es6 function syntax
+          this.append('text')
+            .attr('class', 'hover')
+            .text(annotation.note.title)
+            .attr('text-anchor', 'middle')
+            .attr('y', (annotation.subject.y && annotation.subject.y == "bottom") ? 50 : -40)
+            .attr('x', -15)
+
+          this.append('text')
+            .attr('class', 'hover')
+            .text(annotation.note.label)
+            .attr('text-anchor', 'middle')
+            .attr('y', (annotation.subject.y && annotation.subject.y == "bottom") ? 70 : -60)
+            .attr('x', -15)
+        })
+        .on('subjectout', function(annotation) {
+          this.selectAll('text.hover')
+          .remove()
         })
 
       //Isn't using data for placement so accessors and accessorsInverse

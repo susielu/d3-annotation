@@ -15,13 +15,9 @@ export default class AnnotationCollection {
     })
   }
 
-  update() { 
-    this.annotations.forEach(d => d.type.update())
-  }
-
-  updatedAccessors() {
+  setPositionWithAccessors() {
     this.annotations.forEach(d => {
-      d.type.updateWithAccessors(this.accessors)
+      d.type.setPositionWithAccessors(this.accessors)
     })
   }
 

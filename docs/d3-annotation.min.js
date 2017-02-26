@@ -3326,7 +3326,7 @@ function annotation() {
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-subject');
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-note');
       (0, _TypesD.newWithClass)(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content');
-
+      console.log('TYPE', type);
       d.type = new d.type({ a: a, annotation: d, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
         dispatcher: annotationDispatcher, accessors: accessors });
 
@@ -3341,12 +3341,32 @@ function annotation() {
   };
 
   annotation.update = function () {
-    collection.update();
+    if (annotations && collection) {
+      annotations = collection.annotations.map(function (a) {
+        a.type.setPosition();return a;
+      });
+    }
     return annotation;
   };
 
+  annotation.updateNote = function () {
+    if (annotations && collection) {
+      annotations = collection.annotations.map(function (a) {
+        a.type.setOffset();return a;
+      });
+    }
+  };
+
+  annotation.redraw = function () {
+    if (annotations && collection) {
+      annotations = collection.annotations.map(function (a) {
+        a.type.redraw();return a;
+      });
+    }
+  };
+
   annotation.updatedAccessors = function () {
-    collection.updatedAccessors();
+    collection.setPositionWithAccessors();
     annotations = collection.annotations;
     return annotation;
   };
@@ -3391,14 +3411,14 @@ function annotation() {
         previousType.noteContent && previousType.noteContent.selectAll("*").remove();
         previousType.subject && previousType.subject.selectAll("*").remove();
         previousType.connector && previousType.connector.selectAll("*").remove();
-
+        a.type = type;
         var className = type.className && type.className();
-        if (className) {
-          previousType.a.attr('class', 'annotation ' + className);
-        }
-
-        a.type = new type({ a: previousType.a, annotation: a, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
-          dispatcher: annotationDispatcher, accessors: accessors });
+        // // if (className){
+        // //   previousType.a.attr('class', `annotation ${className}`)
+        // // }
+        // console.log('in annotation', type)
+        // // a.type = new type({ a: previousType.a, annotation: a, textWrap, notePadding, editMode, 
+        // //   dispatcher: annotationDispatcher, accessors })
       });
       annotations = collection.annotations;
     }
@@ -3601,19 +3621,12 @@ var AnnotationCollection = function () {
       });
     }
   }, {
-    key: "update",
-    value: function update() {
-      this.annotations.forEach(function (d) {
-        return d.type.update();
-      });
-    }
-  }, {
-    key: "updatedAccessors",
-    value: function updatedAccessors() {
+    key: "setPositionWithAccessors",
+    value: function setPositionWithAccessors() {
       var _this = this;
 
       this.annotations.forEach(function (d) {
-        d.type.updateWithAccessors(_this.accessors);
+        d.type.setPositionWithAccessors(_this.accessors);
       });
     }
   }, {
@@ -4772,23 +4785,19 @@ var Type = function () {
   }, {
     key: 'setOffset',
     value: function setOffset() {
-      var offset = this.annotation.offset;
-      this.note && this.note.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
+      if (this.note) {
+        var offset = this.annotation.offset;
+        this.note.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
+      }
     }
   }, {
-    key: 'update',
-    value: function update() {
-      this.setPosition();
-      this.redraw();
-    }
-  }, {
-    key: 'updateWithAccessors',
-    value: function updateWithAccessors(accessors) {
+    key: 'setPositionWithAccessors',
+    value: function setPositionWithAccessors(accessors) {
       if (accessors && this.annotation.data) {
         this.mapX(accessors);
         this.mapY(accessors);
       }
-      this.update();
+      this.setPosition();
     }
   }, {
     key: 'draw',
@@ -4814,7 +4823,10 @@ var Type = function () {
       position.x += _d3Selection.event.dx;
       position.y += _d3Selection.event.dy;
       this.annotation.position = position;
-      this.update();
+      this.setPosition();
+      var annotation = this.annotation;
+      var context = { annotation: annotation, bbox: this.getNoteBBox() };
+      this.subject && this.drawOnSVG(this.subject, this.drawSubject(context));
     }
   }, {
     key: 'dragNote',

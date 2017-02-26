@@ -204,9 +204,9 @@
 
             const threshold = 400
             if (newWidth < threshold && width >= threshold){
-              makeAnnotations.type(d3.annotationBadge)
+              makeAnnotations.type(d3.annotationBadge).update()
             } else if (newWidth > threshold && width <= threshold) {
-              makeAnnotations.type(d3.annotationCalloutElbow)
+              makeAnnotations.type(d3.annotationCalloutElbow).update()
             }
 
             width = newWidth

@@ -17,7 +17,10 @@ export default function annotation(){
     type = d3Callout,
     textWrap,
     notePadding,
-    annotationDispatcher = dispatch("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "noteover", "noteout", "noteclick");
+    annotationDispatcher = dispatch(
+    "subjectover", "subjectout", "subjectclick", 
+    "connectorover", "connectorout", "connectorclick", 
+    "noteover", "noteout", "noteclick");
 
   const annotation = function(selection){
     //TODO: check to see if this is still needed
@@ -64,7 +67,7 @@ export default function annotation(){
         newWithClass(a, [d], 'g', 'annotation-subject')
         newWithClass(a, [d], 'g', 'annotation-note')
         newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content')
-
+        console.log('TYPE', type)
         d.type = new d.type({ a, annotation: d, textWrap, notePadding, editMode, 
           dispatcher: annotationDispatcher, accessors })
 
@@ -79,12 +82,26 @@ export default function annotation(){
   }
 
   annotation.update = function(){
-    collection.update()
+    if (annotations && collection){
+      annotations = collection.annotations.map(a => { a.type.setPosition(); return a })
+    }
     return annotation
   }
 
+  annotation.updateNote = function(){
+    if (annotations && collection){
+      annotations = collection.annotations.map(a => { a.type.setOffset(); return a})
+    }
+  }
+
+  annotation.redraw = function(){
+    if (annotations && collection){
+      annotations = collection.annotations.map(a => { a.type.redraw(); return a})
+    }
+  }
+
   annotation.updatedAccessors = function(){
-    collection.updatedAccessors()
+    collection.setPositionWithAccessors()
     annotations = collection.annotations
     return annotation
   }
@@ -129,14 +146,14 @@ export default function annotation(){
         previousType.noteContent && previousType.noteContent.selectAll("*").remove()
         previousType.subject && previousType.subject.selectAll("*").remove()
         previousType.connector && previousType.connector.selectAll("*").remove()
-
+        a.type = type
         const className = type.className && type.className()
-        if (className){
-          previousType.a.attr('class', `annotation ${className}`)
-        }
-
-        a.type = new type({ a: previousType.a, annotation: a, textWrap, notePadding, editMode, 
-          dispatcher: annotationDispatcher, accessors })
+        // // if (className){
+        // //   previousType.a.attr('class', `annotation ${className}`)
+        // // }
+        // console.log('in annotation', type)
+        // // a.type = new type({ a: previousType.a, annotation: a, textWrap, notePadding, editMode, 
+        // //   dispatcher: annotationDispatcher, accessors })
       })
       annotations = collection.annotations
 

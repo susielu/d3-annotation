@@ -199,21 +199,18 @@ class Type {
   }
 
   setOffset(){
-    const offset = this.annotation.offset
-    this.note && this.note.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    if (this.note){
+      const offset = this.annotation.offset
+      this.note.attr('transform', `translate(${offset.x}, ${offset.y})`)
+    }
   }
 
-  update(){
-    this.setPosition()
-    this.redraw()
-  }
-
-  updateWithAccessors(accessors){
+  setPositionWithAccessors(accessors){
     if (accessors && this.annotation.data){
       this.mapX(accessors)
       this.mapY(accessors)
     }
-    this.update()
+    this.setPosition()
   }
 
   draw() {
@@ -230,7 +227,10 @@ class Type {
     position.x += event.dx
     position.y += event.dy
     this.annotation.position = position
-    this.update()
+    this.setPosition()
+    const annotation = this.annotation
+    const context = { annotation, bbox: this.getNoteBBox() }
+    this.subject && this.drawOnSVG( this.subject, this.drawSubject(context))
   }
 
   dragNote() {

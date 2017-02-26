@@ -99,9 +99,36 @@
               .on("end", dragended));
       node.append("title")
           .text(d => d.id);
+
+      window.collide = rectCollide((a) => {
+        return [[0, 0], [a.width, a.height]]
+      })
+
+      window.yScale = d3.scaleLinear()
+
       simulation
           .nodes(graph.nodes)
-          .on("tick", ticked);
+          .on("tick", ticked)
+          .on("end", function(){
+            console.log('simualtion finished')
+
+             window.labelForce = d3.forceSimulation(window.textBoxes)
+              .force("x", d3.forceX(a => 0))
+              .force("y", d3.forceY(a => 0))
+              .force("collide", collide)
+              .on('tick', d => {
+                  makeAnnotations.annotations()
+                  .forEach((d, i) => {
+                    const match = window.textBoxes[i]	
+                          d.dx = match.x + match.vx
+                          d.dy = match.y + match.vy
+                  })
+                
+                  makeAnnotations.updateNote()
+              })
+            
+          })
+
       simulation.force("link")
           .links(graph.links);
       function ticked() {
@@ -128,7 +155,7 @@
         .annotations(graph.nodes.map(d => {
           return {
             data: {x: d.x, y: d.y},
-            text: d.id,
+            note: { label: d.id },
             type: d3.annotationLabel
           }
         }))
@@ -139,30 +166,6 @@
         .call(makeAnnotations)
 
       
-
-      window.collide = rectCollide((a) => {
-        return [[0, 0], [a.width, a.height]]
-      })
-
-      window.yScale = d3.scaleLinear()
-        
-
-      // window.labelForce = d3.forceSimulation(window.textBoxes)
-      //         .force("x", d3.forceX(a => 0))
-      //         .force("y", d3.forceY(a => 0))
-      //         .force("collide", collide)
-      //         .on('tick', d => {
-      // // console.log(d)
-      //           makeAnnotations.annotations()
-      //           .forEach((d, i) => {
-      //       const match = window.textBoxes[i]	
-      //             d.dx = match.x + match.vx
-      //             d.dy = match.y + match.vy
-      //           })
-      //       makeAnnotations.update()
-      //         })
-            
-
     });
     function dragstarted(d) {
       if (!d3.event.active) simulation.alphaTarget(0.3).restart();
@@ -178,34 +181,6 @@
       d.fx = null;
       d.fy = null;
     }
-
-
-
-    // const labels = [
-    //     {
-    //       text: "Hellooooooooo testing out a larger text box",
-    //       data: {date: "18-Sep-09",	close: 185.02},
-    //       dy: 37,
-    //       dx: 42,
-    //       type: d3.annotationCalloutDynamic
-    //     },
-    //     {
-    //       text: "Hii there",
-    //       title: "I HAZ A TITLE",
-    //       data: {date: "13-Oct-11",	close: 408.43},
-    //       dy: -93,
-    //       dx: -176,
-    //       type: d3.annotationCalloutCircle,
-    //       typeData: {
-    //         radius: 50,
-    //         radiusPadding: 5
-    //       }
-    //     }
-    //   ]
-
-
-
-   // })
 
     </script>
 </body>
