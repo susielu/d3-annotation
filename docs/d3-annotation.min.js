@@ -3326,7 +3326,6 @@ function annotation() {
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-subject');
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-note');
       (0, _TypesD.newWithClass)(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content');
-      console.log('TYPE', type);
       d.type = new d.type({ a: a, annotation: d, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
         dispatcher: annotationDispatcher, accessors: accessors });
 
@@ -3411,12 +3410,10 @@ function annotation() {
         previousType.noteContent && previousType.noteContent.selectAll("*").remove();
         previousType.subject && previousType.subject.selectAll("*").remove();
         previousType.connector && previousType.connector.selectAll("*").remove();
-        // a.type = type
         var className = type.className && type.className();
         if (className) {
           previousType.a.attr('class', 'annotation ' + className);
         }
-        // console.log('in annotation', type)
         a.type = new type({ a: previousType.a, annotation: a, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
           dispatcher: annotationDispatcher, accessors: accessors });
       });

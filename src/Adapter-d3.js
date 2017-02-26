@@ -67,7 +67,6 @@ export default function annotation(){
         newWithClass(a, [d], 'g', 'annotation-subject')
         newWithClass(a, [d], 'g', 'annotation-note')
         newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content')
-        console.log('TYPE', type)
         d.type = new d.type({ a, annotation: d, textWrap, notePadding, editMode, 
           dispatcher: annotationDispatcher, accessors })
 
@@ -146,12 +145,10 @@ export default function annotation(){
         previousType.noteContent && previousType.noteContent.selectAll("*").remove()
         previousType.subject && previousType.subject.selectAll("*").remove()
         previousType.connector && previousType.connector.selectAll("*").remove()
-        // a.type = type
         const className = type.className && type.className()
         if (className){
           previousType.a.attr('class', `annotation ${className}`)
         }
-        // console.log('in annotation', type)
         a.type = new type({ a: previousType.a, annotation: a, textWrap, notePadding, editMode, 
           dispatcher: annotationDispatcher, accessors })
       })
