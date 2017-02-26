@@ -3289,7 +3289,7 @@ function annotation() {
     }
 
     var translatedAnnotations = annotations.map(function (a) {
-      if (!a.type) {
+      if (!a.type || a.type.constructor) {
         a.type = type;
       }
       if (!a.disable) {
@@ -3411,14 +3411,14 @@ function annotation() {
         previousType.noteContent && previousType.noteContent.selectAll("*").remove();
         previousType.subject && previousType.subject.selectAll("*").remove();
         previousType.connector && previousType.connector.selectAll("*").remove();
-        a.type = type;
+        // a.type = type
         var className = type.className && type.className();
-        // // if (className){
-        // //   previousType.a.attr('class', `annotation ${className}`)
-        // // }
+        if (className) {
+          previousType.a.attr('class', 'annotation ' + className);
+        }
         // console.log('in annotation', type)
-        // // a.type = new type({ a: previousType.a, annotation: a, textWrap, notePadding, editMode, 
-        // //   dispatcher: annotationDispatcher, accessors })
+        a.type = new type({ a: previousType.a, annotation: a, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
+          dispatcher: annotationDispatcher, accessors: accessors });
       });
       annotations = collection.annotations;
     }

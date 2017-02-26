@@ -345,7 +345,7 @@ $(document).ready(function(){
         d3.select(".sandbox g.sandbox-annotations")
           .remove()
 
-        makeAnnotations.type(currentType )
+        makeAnnotations.type( currentType )
 
         d3.select(".sandbox")
           .append("g")

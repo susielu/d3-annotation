@@ -31,7 +31,7 @@ export default function annotation(){
 
     const translatedAnnotations = annotations
       .map(a => {
-        if (!a.type) { a.type = type }
+        if (!a.type || a.type.constructor) { a.type = type }
         if (!a.disable) {a.disable = disable}
         return new Annotation(a)
       });
@@ -146,14 +146,14 @@ export default function annotation(){
         previousType.noteContent && previousType.noteContent.selectAll("*").remove()
         previousType.subject && previousType.subject.selectAll("*").remove()
         previousType.connector && previousType.connector.selectAll("*").remove()
-        a.type = type
+        // a.type = type
         const className = type.className && type.className()
-        // // if (className){
-        // //   previousType.a.attr('class', `annotation ${className}`)
-        // // }
+        if (className){
+          previousType.a.attr('class', `annotation ${className}`)
+        }
         // console.log('in annotation', type)
-        // // a.type = new type({ a: previousType.a, annotation: a, textWrap, notePadding, editMode, 
-        // //   dispatcher: annotationDispatcher, accessors })
+        a.type = new type({ a: previousType.a, annotation: a, textWrap, notePadding, editMode, 
+          dispatcher: annotationDispatcher, accessors })
       })
       annotations = collection.annotations
 
