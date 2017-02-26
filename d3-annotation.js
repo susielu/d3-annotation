@@ -3283,6 +3283,7 @@ function annotation() {
       annotationDispatcher = (0, _d3Dispatch.dispatch)("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "noteover", "noteout", "noteclick");
 
   var annotation = function annotation(selection) {
+    //TODO: check to see if this is still needed
     if (!editMode) {
       selection.selectAll("circle.handle").remove();
     }
@@ -3291,13 +3292,9 @@ function annotation() {
       if (!a.type) {
         a.type = type;
       }
-      if (a.type.init) {
-        a = a.type.init(a, accessors);
-      }
       if (!a.disable) {
         a.disable = disable;
       }
-
       return new _Annotation2.default(a);
     });
 
@@ -3330,7 +3327,8 @@ function annotation() {
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-note');
       (0, _TypesD.newWithClass)(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content');
 
-      d.type = new d.type({ a: a, annotation: d, textWrap: textWrap, notePadding: notePadding, editMode: editMode, dispatcher: annotationDispatcher });
+      d.type = new d.type({ a: a, annotation: d, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
+        dispatcher: annotationDispatcher, accessors: accessors });
 
       d.type.draw();
     });
@@ -3344,6 +3342,12 @@ function annotation() {
 
   annotation.update = function () {
     collection.update();
+    return annotation;
+  };
+
+  annotation.updatedAccessors = function () {
+    collection.updatedAccessors();
+    annotations = collection.annotations;
     return annotation;
   };
 
@@ -3381,7 +3385,21 @@ function annotation() {
     if (!arguments.length) return type;
     type = _;
     if (collection) {
-      collection.clearTypes(settings);
+      collection.annotations.map(function (a) {
+        var previousType = a.type;
+        previousType.note && previousType.note.selectAll("*:not(.annotation-note-content)").remove();
+        previousType.noteContent && previousType.noteContent.selectAll("*").remove();
+        previousType.subject && previousType.subject.selectAll("*").remove();
+        previousType.connector && previousType.connector.selectAll("*").remove();
+
+        var className = type.className && type.className();
+        if (className) {
+          previousType.a.attr('class', 'annotation ' + className);
+        }
+
+        a.type = new type({ a: previousType.a, annotation: a, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
+          dispatcher: annotationDispatcher, accessors: accessors });
+      });
       annotations = collection.annotations;
     }
     return annotation;
@@ -3454,12 +3472,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Annotation = function () {
   function Annotation(_ref) {
-    var x = _ref.x,
-        y = _ref.y,
-        dy = _ref.dy,
-        dx = _ref.dx,
-        text = _ref.text,
-        title = _ref.title,
+    var _ref$x = _ref.x,
+        x = _ref$x === undefined ? 0 : _ref$x,
+        _ref$y = _ref.y,
+        y = _ref$y === undefined ? 0 : _ref$y,
+        _ref$dy = _ref.dy,
+        dy = _ref$dy === undefined ? 0 : _ref$dy,
+        _ref$dx = _ref.dx,
+        dx = _ref$dx === undefined ? 0 : _ref$dx,
         data = _ref.data,
         type = _ref.type,
         subject = _ref.subject,
@@ -3470,16 +3490,14 @@ var Annotation = function () {
 
     _classCallCheck(this, Annotation);
 
-    this.dx = dx || 0;
-    this.dy = dy || 0;
-    this.x = x || 0;
-    this.y = y || 0;
+    this.dx = dx;
+    this.dy = dy;
+    this.x = x;
+    this.y = y;
     this.id = id;
-    this.text = text;
-    this.title = title;
 
     this.type = type;
-    this.data = data || {};
+    this.data = data;
 
     this.note = note || {};
     this.connector = connector || {};
@@ -3530,8 +3548,6 @@ var Annotation = function () {
         dy: this.dy
       };
 
-      if (this.text) json.text = this.text;
-      if (this.title) json.title = this.title;
       if (this.data) json.data = this.data;
       if (this.type) json.type = this.type;
 
@@ -3579,9 +3595,9 @@ var AnnotationCollection = function () {
     value: function clearTypes(newSettings) {
       this.annotations.forEach(function (d) {
         d.type = undefined;
-        d.subject = newSettings && newSettings.subject || {};
-        d.connector = newSettings && newSettings.connector || {};
-        d.note = newSettings && newSettings.note || {};
+        d.subject = newSettings && newSettings.subject || d.subject;
+        d.connector = newSettings && newSettings.connector || d.connector;
+        d.note = newSettings && newSettings.note || d.note;
       });
     }
   }, {
@@ -3589,6 +3605,15 @@ var AnnotationCollection = function () {
     value: function update() {
       this.annotations.forEach(function (d) {
         return d.type.update();
+      });
+    }
+  }, {
+    key: "updatedAccessors",
+    value: function updatedAccessors() {
+      var _this = this;
+
+      this.annotations.forEach(function (d) {
+        d.type.updateWithAccessors(_this.accessors);
       });
     }
   }, {
@@ -3620,7 +3645,7 @@ var AnnotationCollection = function () {
     key: "updateTextWrap",
     value: function updateTextWrap(textWrap) {
       this.annotations.forEach(function (a) {
-        if (a.type) {
+        if (a.type && a.type.updateTextWrap) {
           a.type.updateTextWrap(textWrap);
         }
       });
@@ -3637,14 +3662,14 @@ var AnnotationCollection = function () {
   }, {
     key: "json",
     get: function get() {
-      var _this = this;
+      var _this2 = this;
 
       return this.annotations.map(function (a) {
         var json = a.json;
-        if (_this.accessorsInverse) {
+        if (_this2.accessorsInverse) {
           json.data = {};
-          Object.keys(_this.accessorsInverse).forEach(function (k) {
-            json.data[k] = _this.accessorsInverse[k]({ x: a.x, y: a.y });
+          Object.keys(_this2.accessorsInverse).forEach(function (k) {
+            json.data[k] = _this2.accessorsInverse[k]({ x: a.x, y: a.y });
           });
         }
         return json;
@@ -3951,7 +3976,8 @@ exports.default = function (_ref) {
     xe = x1 + diffY * opposite;
   }
 
-  if (subjectData.outerRadius || subjectData.radius) {
+  var circleCheck = type.typeSettings && type.typeSettings.subject && type.typeSettings.subject.type == "circle";
+  if (circleCheck && (subjectData.outerRadius || subjectData.radius)) {
     var r = (subjectData.outerRadius || subjectData.radius) + (subjectData.radiusPadding || 0);
     var length = r / Math.sqrt(2);
 
@@ -3996,7 +4022,8 @@ var lineSetup = exports.lineSetup = function lineSetup(type) {
 
   var subjectData = annotation.subject;
 
-  if (subjectData.outerRadius || subjectData.radius) {
+  var circleCheck = type.typeSettings && type.typeSettings.subject && type.typeSettings.subject.type == "circle";
+  if (circleCheck && (subjectData.outerRadius || subjectData.radius)) {
     var h = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     var angle = Math.asin(-y2 / h);
     var r = subjectData.outerRadius || subjectData.radius + (subjectData.radiusPadding || 0);
@@ -4442,8 +4469,6 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-// import { textBoxLine, textBoxSideline } from './TextBox'
-
 
 //Note options
 
@@ -4520,7 +4545,8 @@ var Type = function () {
         annotation = _ref.annotation,
         editMode = _ref.editMode,
         dispatcher = _ref.dispatcher,
-        notePadding = _ref.notePadding;
+        notePadding = _ref.notePadding,
+        accessors = _ref.accessors;
 
     _classCallCheck(this, Type);
 
@@ -4532,18 +4558,46 @@ var Type = function () {
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject');
 
     if (dispatcher) {
-      var handler = addHandlers.bind(null, annotation);
-      handler(this.note, 'note');
-      handler(this.connector, 'connector');
-      handler(this.subject, 'subject');
+      var handler = addHandlers.bind(null, dispatcher, annotation);
+      handler({ component: this.note, name: 'note' });
+      handler({ component: this.connector, name: 'connector' });
+      handler({ component: this.subject, name: 'subject' });
     }
 
     this.annotation = annotation;
-    this.editMode = editMode;
+    this.editMode = annotation.editMode || editMode;
     this.notePadding = notePadding || 5;
+
+    if (accessors && annotation.data) {
+      this.init(accessors);
+    }
   }
 
   _createClass(Type, [{
+    key: 'init',
+    value: function init(accessors) {
+      if (!this.annotation.x) {
+        this.mapX(accessors);
+      }
+      if (!this.annotation.y) {
+        this.mapY(accessors);
+      }
+    }
+  }, {
+    key: 'mapY',
+    value: function mapY(accessors) {
+      if (accessors.y) {
+        this.annotation.y = accessors.y(this.annotation.data);
+      }
+    }
+  }, {
+    key: 'mapX',
+    value: function mapX(accessors) {
+      if (accessors.x) {
+        this.annotation.x = accessors.x(this.annotation.data);
+      }
+    }
+  }, {
     key: 'updateEditMode',
     value: function updateEditMode() {
       this.a.selectAll('circle.handle').remove();
@@ -4728,6 +4782,15 @@ var Type = function () {
       this.redraw();
     }
   }, {
+    key: 'updateWithAccessors',
+    value: function updateWithAccessors(accessors) {
+      if (accessors && this.annotation.data) {
+        this.mapX(accessors);
+        this.mapY(accessors);
+      }
+      this.update();
+    }
+  }, {
     key: 'draw',
     value: function draw() {
       this.setPosition();
@@ -4773,17 +4836,6 @@ var Type = function () {
           start: _this2.dragstarted.bind(_this2), end: _this2.dragended.bind(_this2) });
       });
     }
-  }], [{
-    key: 'init',
-    value: function init(annotation, accessors) {
-      if (!annotation.x && annotation.data && accessors.x) {
-        annotation.x = accessors.x(annotation.data);
-      }
-      if (!annotation.y && annotation.data && accessors.y) {
-        annotation.y = accessors.y(annotation.data);
-      }
-      return annotation;
-    }
   }]);
 
   return Type;
@@ -4802,6 +4854,9 @@ var customType = exports.customType = function customType(initialType, typeSetti
       if (typeSettings.disable) {
         typeSettings.disable.forEach(function (d) {
           _this3[d] = undefined;
+          if (d == "note") {
+            _this3.noteContent = undefined;
+          }
         });
       }
       return _this3;
@@ -4875,25 +4930,25 @@ var d3NoteText = exports.d3NoteText = function (_Type) {
         newWithClass(this.note, [this.annotation], 'g', 'annotation-note-content');
 
         var noteContent = this.note.select('g.annotation-note-content');
-        newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-text');
+        newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-label');
         newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-title');
 
         var titleBBox = { height: 0 };
-        var text = this.a.select('text.annotation-note-text');
+        var label = this.a.select('text.annotation-note-label');
         var wrapLength = this.annotation.note && this.annotation.note.wrap || this.textWrap;
 
-        if (this.annotation.title) {
+        if (this.annotation.note.title) {
           var title = this.a.select('text.annotation-note-title');
-          title.text(this.annotation.title).attr('dy', '1.1em');
+          title.text(this.annotation.note.title).attr('dy', '1.1em');
           title.call(wrap, wrapLength);
           titleBBox = title.node().getBBox();
         }
 
-        text.text(this.annotation.text).attr('dy', '1em');
-        text.call(wrap, wrapLength);
+        label.text(this.annotation.note.label).attr('dy', '1em');
+        label.call(wrap, wrapLength);
 
-        var textBBox = text.node().getBBox();
-        text.attr('y', titleBBox.height * 1.1 || 3);
+        var textBBox = label.node().getBBox();
+        label.attr('y', titleBBox.height * 1.1 || 3);
       }
     }
   }]);
@@ -4932,21 +4987,47 @@ var d3Badge = exports.d3Badge = customType(Type, {
   disable: ['connector', 'note']
 });
 
-var d3XYThreshold = exports.d3XYThreshold = customType(d3Callout, {
-  className: "xythreshold",
-  subject: { type: "threshold" }
-}, function (annotation, accessors) {
-  //TODO: come back to here to check assumptions being made
-  if (!annotation.x && (annotation.subject.y1 || annotation.subject.y2) && annotation.data && accessors.x) {
-    annotation.x = accessors.x(annotation.data);
+var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout) {
+  _inherits(d3XYThreshold, _d3Callout);
+
+  function d3XYThreshold() {
+    _classCallCheck(this, d3XYThreshold);
+
+    return _possibleConstructorReturn(this, (d3XYThreshold.__proto__ || Object.getPrototypeOf(d3XYThreshold)).apply(this, arguments));
   }
 
-  if (!annotation.y && (annotation.subject.x1 || annotation.subject.x2) && annotation.data && accessors.y) {
-    annotation.y = accessors.y(annotation.data);
-  }
+  _createClass(d3XYThreshold, [{
+    key: 'drawSubject',
+    value: function drawSubject(context) {
+      return _get(d3XYThreshold.prototype.__proto__ || Object.getPrototypeOf(d3XYThreshold.prototype), 'drawSubject', this).call(this, _extends({}, context, { type: "threshold" }));
+    }
+  }, {
+    key: 'mapY',
+    value: function mapY(accessors) {
+      _get(d3XYThreshold.prototype.__proto__ || Object.getPrototypeOf(d3XYThreshold.prototype), 'mapY', this).call(this, accessors);
+      var a = this.annotation;
+      if ((a.subject.x1 || a.subject.x2) && a.data && accessors.y) {
+        a.y = accessors.y(a.data);
+      }
+    }
+  }, {
+    key: 'mapX',
+    value: function mapX(accessors) {
+      _get(d3XYThreshold.prototype.__proto__ || Object.getPrototypeOf(d3XYThreshold.prototype), 'mapX', this).call(this, accessors);
+      var a = this.annotation;
+      if ((a.subject.y1 || a.subject.y2) && a.data && accessors.x) {
+        a.x = accessors.x(a.data);
+      }
+    }
+  }], [{
+    key: 'className',
+    value: function className() {
+      return "xythreshold";
+    }
+  }]);
 
-  return annotation;
-});
+  return d3XYThreshold;
+}(d3Callout);
 
 var newWithClass = exports.newWithClass = function newWithClass(a, d, type, className) {
   var group = a.selectAll(type + '.' + className).data(d);
@@ -4956,7 +5037,7 @@ var newWithClass = exports.newWithClass = function newWithClass(a, d, type, clas
   return a;
 };
 
-var addHandlers = function addHandlers(annotation, _ref3) {
+var addHandlers = function addHandlers(dispatcher, annotation, _ref3) {
   var component = _ref3.component,
       name = _ref3.name;
 

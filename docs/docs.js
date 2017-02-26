@@ -135,18 +135,18 @@ $(document).ready(function(){
     //   radius: 14
     // }
 
-    window.makeAnnotations = d3.annotation()
-    .editMode(editMode)
-    .type(currentType)
-    .annotations([
-      {
-        text: "Longer text to show text wrapping",
-        title: "Annotations :)",
+    const annotation = {
+        note: { label: "Longer text to show text wrapping",
+        title: "Annotations :)" },
         x: 150,
         y: 170,
         dy: 117,
         dx: 162
-      }])
+      }
+    window.makeAnnotations = d3.annotation()
+    .editMode(editMode)
+    .type(currentType)
+    .annotations([annotation])
 
     d3.selectAll('.icons .options a')
       .on('click', function() {
@@ -287,6 +287,7 @@ $(document).ready(function(){
         }
 
         const subject = types[typeKey].subject
+
         if (subject) {
           updateAnnotations({ subject })
         } else {
@@ -348,7 +349,6 @@ $(document).ready(function(){
           .remove()
 
         let subject = types[typeKey].subject
-
         makeAnnotations.type(currentType, Object.assign({}, newSettings, subject ? { subject } : undefined))
 
         d3.select(".sandbox")

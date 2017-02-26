@@ -12,7 +12,8 @@ export const lineSetup = (type) => {
 
  const subjectData = annotation.subject
 
-  if (subjectData.outerRadius || subjectData.radius){
+ const circleCheck = type.typeSettings && type.typeSettings.subject && type.typeSettings.subject.type == "circle"
+  if (circleCheck && (subjectData.outerRadius || subjectData.radius)){
     const h =  Math.sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2))
     const angle = Math.asin(-y2/h)
     const r = subjectData.outerRadius || subjectData.radius + (subjectData.radiusPadding || 0)

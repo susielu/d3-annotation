@@ -9,13 +9,21 @@ export default class AnnotationCollection {
   clearTypes(newSettings) {
     this.annotations.forEach(d => {
       d.type = undefined
-      d.subject = newSettings && newSettings.subject ||{}
-      d.connector = newSettings && newSettings.connector || {}
-      d.note = newSettings && newSettings.note || {}
+      d.subject = newSettings && newSettings.subject || d.subject
+      d.connector = newSettings && newSettings.connector || d.connector
+      d.note = newSettings && newSettings.note || d.note
     })
   }
 
-  update() { this.annotations.forEach(d => d.type.update())}
+  update() { 
+    this.annotations.forEach(d => d.type.update())
+  }
+
+  updatedAccessors() {
+    this.annotations.forEach(d => {
+      d.type.updateWithAccessors(this.accessors)
+    })
+  }
 
   editMode(editMode) { this.annotations.forEach(a => {
       if (a.type) {
@@ -41,7 +49,7 @@ export default class AnnotationCollection {
 
   updateTextWrap(textWrap) {
     this.annotations.forEach(a => {
-      if (a.type){
+      if (a.type && a.type.updateTextWrap){
         a.type.updateTextWrap(textWrap)
       }
     })

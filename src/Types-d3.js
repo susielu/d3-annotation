@@ -1,7 +1,6 @@
 import { select, event } from 'd3-selection'
 import { drag } from 'd3-drag'
 import { Annotation } from './Annotation'
-// import { textBoxLine, textBoxSideline } from './TextBox'
 import { addHandles } from './Handles'
 
 //Note options
@@ -22,7 +21,7 @@ import subjectThreshold from './Subject/threshold'
 import subjectBadge from './Subject/badge'
 
 class Type {
-  constructor({ a, annotation, editMode, dispatcher, notePadding }) {
+  constructor({ a, annotation, editMode, dispatcher, notePadding, accessors }) {
     this.a = a
 
     this.note = annotation.disable.indexOf("note") === -1 && a.select('g.annotation-note')
@@ -31,26 +30,42 @@ class Type {
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject')
 
     if (dispatcher){
-      const handler = addHandlers.bind(null, annotation)
-      handler(this.note, 'note')
-      handler(this.connector, 'connector')
-      handler(this.subject, 'subject')
+      const handler = addHandlers.bind(null, dispatcher, annotation)
+      handler({ component: this.note, name: 'note' })
+      handler({ component: this.connector, name: 'connector' })
+      handler({ component: this.subject, name: 'subject' })
     }
   
     this.annotation = annotation
-    this.editMode = editMode
+    this.editMode = annotation.editMode || editMode
     this.notePadding = notePadding || 5
+
+    if (accessors && annotation.data){
+      this.init(accessors)
+    }
   }
 
-  static init(annotation, accessors) {
-    if (!annotation.x && annotation.data && accessors.x){
-      annotation.x = accessors.x(annotation.data)
+  init(accessors) {
+    if (!this.annotation.x){
+      this.mapX(accessors)
     }
-    if (!annotation.y && annotation.data && accessors.y){
-      annotation.y = accessors.y(annotation.data)
+    if (!this.annotation.y){
+      this.mapY(accessors)
     }
-    return annotation
   }
+
+  mapY(accessors){
+    if (accessors.y){
+      this.annotation.y = accessors.y(this.annotation.data)
+    }
+  }
+
+  mapX(accessors) {
+    if (accessors.x){
+      this.annotation.x = accessors.x(this.annotation.data)
+    }
+  }
+
 
   updateEditMode () {
     this.a.selectAll('circle.handle')
@@ -193,6 +208,14 @@ class Type {
     this.redraw()
   }
 
+  updateWithAccessors(accessors){
+    if (accessors && this.annotation.data){
+      this.mapX(accessors)
+      this.mapY(accessors)
+    }
+    this.update()
+  }
+
   draw() {
     this.setPosition()
     this.setOffset()
@@ -234,6 +257,9 @@ export const customType = (initialType, typeSettings, init) => {
       if (typeSettings.disable){
         typeSettings.disable.forEach(d => {
           this[d] = undefined
+          if (d == "note"){
+            this.noteContent = undefined
+          }
         })
       }
     }
@@ -286,27 +312,27 @@ export class d3NoteText extends Type {
       newWithClass(this.note, [this.annotation], 'g', 'annotation-note-content')
 
       const noteContent = this.note.select('g.annotation-note-content')
-      newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-text')
+      newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-label')
       newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-title')
 
       let titleBBox = { height: 0 }
-      const text = this.a.select('text.annotation-note-text')
+      const label = this.a.select('text.annotation-note-label')
       const wrapLength = this.annotation.note && this.annotation.note.wrap || this.textWrap 
 
-      if (this.annotation.title){
+      if (this.annotation.note.title){
         const title = this.a.select('text.annotation-note-title')
-        title.text(this.annotation.title)
+        title.text(this.annotation.note.title)
           .attr('dy', '1.1em')
         title.call(wrap, wrapLength)
         titleBBox = title.node().getBBox()
       }
 
-      text.text(this.annotation.text)
+      label.text(this.annotation.note.label)
         .attr('dy', '1em')
-      text.call(wrap, wrapLength)
+      label.call(wrap, wrapLength)
 
-      const textBBox = text.node().getBBox()
-      text.attr('y', titleBBox.height * 1.1 || 3)
+      const textBBox = label.node().getBBox()
+      label.attr('y', titleBBox.height * 1.1 || 3)
     }
   }
 }
@@ -342,22 +368,29 @@ export const d3Badge = customType(Type, {
   disable: ['connector', 'note']
 })
 
-export const d3XYThreshold = customType(d3Callout, {
-  className: "xythreshold",
-  subject: { type: "threshold" }
-  }, (annotation, accessors) => {
-      //TODO: come back to here to check assumptions being made
-      if (!annotation.x && (annotation.subject.y1 || annotation.subject.y2) && annotation.data && accessors.x){
-        annotation.x = accessors.x(annotation.data)
-      }
+export class d3XYThreshold extends d3Callout {
+  static className() { return "xythreshold" }
 
-      if (!annotation.y && (annotation.subject.x1 || annotation.subject.x2) && annotation.data && accessors.y){
-        annotation.y = accessors.y(annotation.data)
-      }
+  drawSubject(context) { 
+     return super.drawSubject({ ...context, type: "threshold" })
+   }
 
-      return annotation
+  mapY(accessors){
+    super.mapY(accessors)
+    const a = this.annotation
+    if ((a.subject.x1 || a.subject.x2) && a.data && accessors.y){
+      a.y = accessors.y(a.data)
     }
-  )
+  }
+
+  mapX(accessors) {
+    super.mapX(accessors)
+    const a = this.annotation
+    if ((a.subject.y1 || a.subject.y2) && a.data && accessors.x){
+      a.x = accessors.x(a.data)
+    }
+  }
+}
 
 export const newWithClass = (a, d, type, className) => {
   const group = a.selectAll(`${type}.${className}`).data(d)
@@ -371,7 +404,7 @@ export const newWithClass = (a, d, type, className) => {
 }
 
 
-const addHandlers = ( annotation, { component, name }) => {
+const addHandlers = ( dispatcher, annotation, { component, name }) => {
   if (component){
     component
     .on("mouseover.annotations", () => {

@@ -28,7 +28,8 @@ export default ({ type }) => {
       xe = x1 + diffY*opposite
     }
     
-    if (subjectData.outerRadius || subjectData.radius ){
+     const circleCheck = type.typeSettings && type.typeSettings.subject && type.typeSettings.subject.type == "circle"
+    if (circleCheck && (subjectData.outerRadius || subjectData.radius) ){
       const r = (subjectData.outerRadius || subjectData.radius) + (subjectData.radiusPadding || 0)
       const length = r/Math.sqrt(2)
 

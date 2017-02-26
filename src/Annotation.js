@@ -1,18 +1,16 @@
 
 export default class Annotation {
-  constructor({ x, y, dy, dx, text, title, data, type, subject, connector, note, 
+  constructor({ x=0, y=0, dy=0, dx=0, data, type, subject, connector, note, 
     disable, id }) {
 
-    this.dx = dx || 0
-    this.dy = dy || 0
-    this.x = x || 0
-    this.y = y || 0
+    this.dx = dx
+    this.dy = dy 
+    this.x = x 
+    this.y = y
     this.id = id
-    this.text = text
-    this.title = title
 
     this.type = type
-    this.data = data || {}
+    this.data = data
 
     this.note = note || {}
     this.connector = connector || {}
@@ -49,8 +47,6 @@ export default class Annotation {
       dy: this.dy
     }
 
-    if (this.text) json.text = this.text 
-    if (this.title) json.title = this.title
     if (this.data) json.data = this.data
     if (this.type) json.type = this.type
 

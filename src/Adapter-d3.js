@@ -20,6 +20,7 @@ export default function annotation(){
     annotationDispatcher = dispatch("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "noteover", "noteout", "noteclick");
 
   const annotation = function(selection){
+    //TODO: check to see if this is still needed
     if (!editMode){
       selection.selectAll("circle.handle")
         .remove()
@@ -28,9 +29,7 @@ export default function annotation(){
     const translatedAnnotations = annotations
       .map(a => {
         if (!a.type) { a.type = type }
-        if (a.type.init) { a = a.type.init(a, accessors) }
         if (!a.disable) {a.disable = disable}
-
         return new Annotation(a)
       });
 
@@ -65,8 +64,9 @@ export default function annotation(){
         newWithClass(a, [d], 'g', 'annotation-subject')
         newWithClass(a, [d], 'g', 'annotation-note')
         newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content')
-        
-        d.type = new d.type({ a, annotation: d, textWrap, notePadding, editMode, dispatcher: annotationDispatcher })
+
+        d.type = new d.type({ a, annotation: d, textWrap, notePadding, editMode, 
+          dispatcher: annotationDispatcher, accessors })
 
         d.type.draw()
       })
@@ -80,6 +80,12 @@ export default function annotation(){
 
   annotation.update = function(){
     collection.update()
+    return annotation
+  }
+
+  annotation.updatedAccessors = function(){
+    collection.updatedAccessors()
+    annotations = collection.annotations
     return annotation
   }
 
@@ -117,8 +123,23 @@ export default function annotation(){
     if (!arguments.length) return type;
     type = _;
     if (collection) { 
-      collection.clearTypes(settings)
+      collection.annotations.map(a => {
+        let previousType = a.type
+        previousType.note && previousType.note.selectAll("*:not(.annotation-note-content)").remove()
+        previousType.noteContent && previousType.noteContent.selectAll("*").remove()
+        previousType.subject && previousType.subject.selectAll("*").remove()
+        previousType.connector && previousType.connector.selectAll("*").remove()
+
+        const className = type.className && type.className()
+        if (className){
+          previousType.a.attr('class', `annotation ${className}`)
+        }
+
+        a.type = new type({ a: previousType.a, annotation: a, textWrap, notePadding, editMode, 
+          dispatcher: annotationDispatcher, accessors })
+      })
       annotations = collection.annotations
+
     }
     return annotation;
   }
