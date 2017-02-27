@@ -229,8 +229,10 @@
             const threshold = 400
             if (newWidth < threshold && width >= threshold){
               makeAnnotations.type(d3.annotationBadge)
+              svg.select("g.annotation-test").call(makeAnnotations)
             } else if (newWidth > threshold && width <= threshold) {
               makeAnnotations.type(d3.annotationCalloutElbow)
+              svg.select("g.annotation-test").call(makeAnnotations)
             }
 
             width = newWidth
