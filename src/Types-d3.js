@@ -122,11 +122,10 @@ class Type {
     return components
  }
 
-  drawConnector (context) {
+  drawConnector (context, subjectContext) {
     const connectorData = this.annotation.connector
-    const type = context.type
+    const type = connectorData.type || context.type
     const connectorParams = { type: this, connectorData}
-
     let connector = {}
     if (type === "curve") connector = connectorCurve(connectorParams)
     else if (type === "elbow") connector = connectorElbow(connectorParams)
@@ -134,7 +133,7 @@ class Type {
 
     let { components=[], handles=[] } = connector
     const line = components[0]
-    const endType = context.end
+    const endType = connectorData.arrow || context.end
     let end = {}
     if (endType === "arrow") end = connectorArrow({ annotation: this.annotation, start: line.data[1], end: line.data[0] })
     else if (endType === "dot") end = connectorDot({ line })
@@ -275,14 +274,17 @@ export const customType = (initialType, typeSettings, init) => {
     static className(){ return typeSettings.className || initialType.className()}
 
     drawSubject(context){
-       return super.drawSubject({ ...context, ...typeSettings.subject, ...this.typeSettings.subject })
+       this.typeSettings.subject = Object.assign({}, typeSettings.subject, this.typeSettings.subject)
+       return super.drawSubject({ ...context, ...this.typeSettings.subject })
     }
 
-    drawConnector(context){
+    drawConnector(context, subjectContext){
+      this.typeSettings.connector = Object.assign({}, typeSettings.connector, this.typeSettings.connector)
       return super.drawConnector({ ...context, ...typeSettings.connector, ...this.typeSettings.connector })
     }
 
     drawNote(context){
+      this.typeSettings.note = Object.assign({}, typeSettings.note, this.typeSettings.note)
       return super.drawNote({ ...context, ...typeSettings.note, ...this.typeSettings.note })
     }
 

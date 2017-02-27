@@ -3355,6 +3355,7 @@ function annotation() {
         a.type.setOffset();return a;
       });
     }
+    return annotation;
   };
 
   annotation.redraw = function () {
@@ -3363,6 +3364,7 @@ function annotation() {
         a.type.redraw();return a;
       });
     }
+    return annotation;
   };
 
   annotation.updatedAccessors = function () {
@@ -3418,6 +3420,10 @@ function annotation() {
         a.type.subject && a.type.subject.selectAll("*").remove();
         a.type.connector && a.type.connector.selectAll("*").remove();
         a.type = type;
+
+        a.subject = settings && settings.subject || a.subject;
+        a.connector = settings && settings.connector || a.connector;
+        a.note = settings && settings.note || a.note;
       });
 
       annotations = collection.annotations;
@@ -3694,10 +3700,10 @@ var AnnotationCollection = function () {
     //
 
   }, {
-    key: "textNodes",
+    key: "noteNodes",
     get: function get() {
       return this.annotations.map(function (a) {
-        return _extends({}, a.type.getTextBBox(), { startX: a.x, startY: a.y });
+        return _extends({}, a.type.getNoteBBox(), { startX: a.x, startY: a.y });
       });
     }
 
@@ -4696,11 +4702,10 @@ var Type = function () {
     }
   }, {
     key: 'drawConnector',
-    value: function drawConnector(context) {
+    value: function drawConnector(context, subjectContext) {
       var connectorData = this.annotation.connector;
-      var type = context.type;
+      var type = connectorData.type || context.type;
       var connectorParams = { type: this, connectorData: connectorData };
-
       var connector = {};
       if (type === "curve") connector = (0, _typeCurve2.default)(connectorParams);else if (type === "elbow") connector = (0, _typeElbow2.default)(connectorParams);else connector = (0, _typeLine2.default)(connectorParams);
 
@@ -4711,7 +4716,7 @@ var Type = function () {
           handles = _connector$handles === undefined ? [] : _connector$handles;
 
       var line = components[0];
-      var endType = context.end;
+      var endType = connectorData.arrow || context.end;
       var end = {};
       if (endType === "arrow") end = (0, _endArrow2.default)({ annotation: this.annotation, start: line.data[1], end: line.data[0] });else if (endType === "dot") end = (0, _endDot2.default)({ line: line });
 
@@ -4877,16 +4882,19 @@ var customType = exports.customType = function customType(initialType, typeSetti
     _createClass(customType, [{
       key: 'drawSubject',
       value: function drawSubject(context) {
-        return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawSubject', this).call(this, _extends({}, context, typeSettings.subject, this.typeSettings.subject));
+        this.typeSettings.subject = Object.assign({}, typeSettings.subject, this.typeSettings.subject);
+        return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawSubject', this).call(this, _extends({}, context, this.typeSettings.subject));
       }
     }, {
       key: 'drawConnector',
-      value: function drawConnector(context) {
+      value: function drawConnector(context, subjectContext) {
+        this.typeSettings.connector = Object.assign({}, typeSettings.connector, this.typeSettings.connector);
         return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawConnector', this).call(this, _extends({}, context, typeSettings.connector, this.typeSettings.connector));
       }
     }, {
       key: 'drawNote',
       value: function drawNote(context) {
+        this.typeSettings.note = Object.assign({}, typeSettings.note, this.typeSettings.note);
         return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawNote', this).call(this, _extends({}, context, typeSettings.note, this.typeSettings.note));
       }
     }, {

@@ -76,8 +76,8 @@ export default class AnnotationCollection {
   //If so what would that help? could that map to priority? 
   //
 
-  get textNodes(){
-    return this.annotations.map(a => ({ ...a.type.getTextBBox(), startX: a.x, startY: a.y }))
+  get noteNodes(){
+    return this.annotations.map(a => ({ ...a.type.getNoteBBox(), startX: a.x, startY: a.y }))
   }
 
   //TODO: come back and rethink if a.x and a.y are applicable in all situations

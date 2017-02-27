@@ -127,19 +127,19 @@ $(document).ready(function(){
         y: 170,
         dy: 117,
         dx: 162,
-        subject: {
-          //for subject circle
-          outerRadius: 50,
-          radiusPadding: 5,
+        // subject: {
+        //   //for subject circle
+        //   outerRadius: 50,
+        //   radiusPadding: 5,
 
-          //for badge
-          radius: 14,
-          text: "A",
+        //   //for badge
+        //   radius: 14,
+        //   text: "A",
 
-          //for xythreshold
-          x1: 0,
-          x2: 1000
-        }
+        //   //for xythreshold
+        //   x1: 0,
+        //   x2: 1000
+        // }
       }
     window.makeAnnotations = d3.annotation()
     .editMode(editMode)
@@ -301,7 +301,7 @@ $(document).ready(function(){
         editMode = d3.event.target.checked
 
         makeAnnotations.editMode(editMode)
-        makeAnnotations.update()
+        makeAnnotations.redraw()
 
         sandboxCode()
       })
@@ -345,7 +345,8 @@ $(document).ready(function(){
         d3.select(".sandbox g.sandbox-annotations")
           .remove()
 
-        makeAnnotations.type( currentType )
+        const subject = types[typeKey].subject
+        makeAnnotations.type( currentType, { subject } )
 
         d3.select(".sandbox")
           .append("g")

@@ -92,12 +92,14 @@ export default function annotation(){
     if (annotations && collection){
       annotations = collection.annotations.map(a => { a.type.setOffset(); return a})
     }
+    return annotation
   }
 
   annotation.redraw = function(){
     if (annotations && collection){
       annotations = collection.annotations.map(a => { a.type.redraw(); return a})
     }
+    return annotation
   }
 
   annotation.updatedAccessors = function(){
@@ -153,10 +155,13 @@ export default function annotation(){
         a.type.subject && a.type.subject.selectAll("*").remove()
         a.type.connector && a.type.connector.selectAll("*").remove()
         a.type = type
+
+        a.subject = settings && settings.subject || a.subject
+        a.connector = settings && settings.connector || a.connector
+        a.note = settings && settings.note || a.note
       })
 
       annotations = collection.annotations
-
     }
     return annotation;
   }
