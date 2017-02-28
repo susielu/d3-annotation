@@ -133,7 +133,7 @@ class Type {
 
     let { components=[], handles=[] } = connector
     const line = components[0]
-    const endType = connectorData.arrow || context.end
+    const endType = connectorData.end || context.end
     let end = {}
     if (endType === "arrow") end = connectorArrow({ annotation: this.annotation, start: line.data[1], end: line.data[0] })
     else if (endType === "dot") end = connectorDot({ line })

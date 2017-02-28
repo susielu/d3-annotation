@@ -3859,7 +3859,7 @@ exports.default = function (_ref) {
       end = _ref.end;
 
   var offset = annotation.position;
-
+  console.log('in connector arrow');
   if (!start) {
     start = [annotation.dx, annotation.dy];
   } else {
@@ -4765,7 +4765,7 @@ var Type = function () {
           handles = _connector$handles === undefined ? [] : _connector$handles;
 
       var line = components[0];
-      var endType = connectorData.arrow || context.end;
+      var endType = connectorData.end || context.end;
       var end = {};
       if (endType === "arrow") end = (0, _endArrow2.default)({ annotation: this.annotation, start: line.data[1], end: line.data[0] });else if (endType === "dot") end = (0, _endDot2.default)({ line: line });
 
