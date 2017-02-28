@@ -3,14 +3,14 @@
 }
 
 .annotation path {
-  stroke: var(--accent-color);
+  stroke: var(--annotation-color);
   fill: none;
 }
 
 .annotation text,
 .annotation .annotation-connector .connector-dot,
 .annotation path.connector-arrow{
-  fill: var(--accent-color);
+  fill: var(--annotation-color);
 }
 
 .annotation-note-title {
@@ -18,7 +18,7 @@
 }
 
 .annotation.badge path.subject-pointer, .annotation.badge path.subject {
-  fill: var(--accent-color);
+  fill: var(--annotation-color);
   stroke-width: 3px;
   stroke-linecap: round;
 } 
@@ -40,7 +40,7 @@
 
 circle.handle {
   stroke-dasharray: 5;
-  stroke: var(--accent-color);
+  stroke: var(--annotation-color);
   fill: rgba(255, 255, 255, .2);
   cursor: move;
 

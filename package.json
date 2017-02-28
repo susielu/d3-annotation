@@ -23,18 +23,24 @@
     "markedify": "0.0.2",
     "npm-watch": "0.1.6",
     "rollup": "0.34.7",
-    "rollup-plugin-babel": "2.6.1"
+    "rollup-plugin-babel": "2.6.1",
+    "uglify-js": "2.8.1"
   },
   "scripts": {
     "start": "npm run server & npm run watch",
     "server": "http-server",
     "browserify": "browserify web.js -o d3-annotation.js -t [ babelify --presets [ es2015 ] ]",
-    "docs-min": "browserify web.js -o docs/d3-annotation.min.js -t [ babelify --presets [ es2015 ] ]",
-    "docs": "browserify docs/docs.js -o docs/docs.min.js -t [ markedify babelify --presets [ es2015 ] ]",
-    "watch": "npm-watch"
+    "docs-browserify": "browserify web.js -o docs/d3-annotation.js -t [ babelify --presets [ es2015 ] ]",
+    "docs": "browserify docs/docs.js -o docs/docs-compiled.js -t [ markedify babelify --presets [ es2015 ] ]",
+    "watch": "npm-watch",
+    "uglify": "uglifyjs d3-annotation.js -o d3-annotation.min.js -c -m",
+    "prepublish": "npm run uglify"
   },
   "watch": {
-    "browserify": ["src/*.js", "src/**/*.js"],
+    "browserify": [
+      "src/*.js",
+      "src/**/*.js"
+    ],
     "docs": {
       "patterns": [
         "docs/docs.js",
@@ -42,7 +48,10 @@
       ],
       "extensions": "js,md"
     },
-    "docs-min": ["src/*.js", "src/**/*.js"]
+    "docs-browserify": [
+      "src/*.js",
+      "src/**/*.js"
+    ]
   },
   "repository": {
     "type": "git",

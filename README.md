@@ -5,9 +5,7 @@ This wants to be a series of examples of how to do annotations on a chart. The i
 
 ## Prior art
 
-- [Andrew Mollica](https://bl.ocks.org/armollica/67f3cf7bf08a02d95d48dc9f0c91f26c), [d3-ring-note](https://github.com/armollica/d3-ring-note) D3 plugin for placing circle and text annotation
-
-- Andrew Mollica, [HTML Annotation](http://bl.ocks.org/armollica/78894d0b3cbd46d8d8d19d135c6ca34d)
+- [Andrew Mollica](https://bl.ocks.org/armollica/67f3cf7bf08a02d95d48dc9f0c91f26c), [d3-ring-note](https://github.com/armollica/d3-ring-note) D3 plugin for placing circle and text annotation, and [HTML Annotation](http://bl.ocks.org/armollica/78894d0b3cbd46d8d8d19d135c6ca34d)
 
 - [Scatterplot with d3-annotate](https://bl.ocks.org/cmpolis/f9805a98b8a455aaccb56e5ee59964f8), by Chris Polis, example using [d3-annotate](https://github.com/cmpolis/d3-annotate)
 
