@@ -38,7 +38,7 @@ class Type {
   
     this.annotation = annotation
     this.editMode = annotation.editMode || editMode
-    this.notePadding = notePadding || 5
+    this.notePadding = notePadding || 3
 
     if (accessors && annotation.data){
       this.init(accessors)
@@ -165,7 +165,7 @@ class Type {
 
   drawNoteContent (context) {
     const noteData = this.annotation.note
-    const padding = noteData.padding || this.notePadding || 5
+    const padding = noteData.padding || this.notePadding
     let orientation = noteData.orientation || context.orientation || 'topBottom'
     const lineType = noteData.lineType || context.lineType
     const align = noteData.align || context.align || 'dynamic'
@@ -331,8 +331,7 @@ export class d3NoteText extends Type {
         .attr('dy', '1em')
       label.call(wrap, wrapLength)
 
-      const textBBox = label.node().getBBox()
-      label.attr('y', titleBBox.height * 1.1 || 3)
+      label.attr('y', titleBBox.height * 1.1 || 0)
     }
   }
 }

@@ -4630,7 +4630,7 @@ var Type = function () {
 
     this.annotation = annotation;
     this.editMode = annotation.editMode || editMode;
-    this.notePadding = notePadding || 5;
+    this.notePadding = notePadding || 3;
 
     if (accessors && annotation.data) {
       this.init(accessors);
@@ -4806,7 +4806,7 @@ var Type = function () {
     key: 'drawNoteContent',
     value: function drawNoteContent(context) {
       var noteData = this.annotation.note;
-      var padding = noteData.padding || this.notePadding || 5;
+      var padding = noteData.padding || this.notePadding;
       var orientation = noteData.orientation || context.orientation || 'topBottom';
       var lineType = noteData.lineType || context.lineType;
       var align = noteData.align || context.align || 'dynamic';
@@ -5020,8 +5020,7 @@ var d3NoteText = exports.d3NoteText = function (_Type) {
         label.text(this.annotation.note.label).attr('dy', '1em');
         label.call(wrap, wrapLength);
 
-        var textBBox = label.node().getBBox();
-        label.attr('y', titleBBox.height * 1.1 || 3);
+        label.attr('y', titleBBox.height * 1.1 || 0);
       }
     }
   }]);
