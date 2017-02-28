@@ -6,7 +6,7 @@ const start = require('./content/start.md')
 const annotation = require('./content/annotation.md')
 const styles = require('./content/styles.md')
 const custom = require('./content/custom.md')
-const layout = require('./content/layout.md')
+const inpractice = require('./content/inpractice.md')
 const extend = require('./content/extend.md')
 const notes = require('./content/notes.md')
 const highlight = require('highlight.js')
@@ -20,7 +20,7 @@ document.getElementById('setup').innerHTML = md(start);
 document.getElementById('annotation').innerHTML = md(annotation);
 document.getElementById('styles').innerHTML = md(styles);
 document.getElementById('custom').innerHTML = md(custom);
-document.getElementById('layout').innerHTML = md(layout);
+document.getElementById('in-practice').innerHTML = md(inpractice);
 document.getElementById('extend').innerHTML = md(extend);
 document.getElementById('notes').innerHTML = md(notes);
 

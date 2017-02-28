@@ -5,6 +5,6 @@
 - [Types](#types)
 - [Customizing Types](#custom)
 - [Style Helpers](#styles)
-- [Layout](#layout)
+- [In Practice](#in-practice)
 - [Extending Types](#extend)
 - [Notes](#Notes)
