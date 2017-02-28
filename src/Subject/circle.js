@@ -17,13 +17,15 @@ export default ({ subjectData, type}) => {
       const updateRadius = (attr) => {      
         const r = subjectData[attr] + event.dx*Math.sqrt(2)
         subjectData[attr] = r
-        type.redraw()
+        type.redrawSubject()
+        type.redrawConnector()
       }
 
       const updateRadiusPadding = () => {
         const rpad = subjectData.radiusPadding + event.dx
         subjectData.radiusPadding = rpad
-        type.redraw()
+        type.redrawSubject()
+        type.redrawConnector()
       }
 
       const cHandles = [

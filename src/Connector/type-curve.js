@@ -23,7 +23,7 @@ export default ({ type, connectorData }) => {
     const updatePoint = (index) => {      
         connectorData.points[index][0] += event.dx
         connectorData.points[index][1] += event.dy
-        type.redraw()
+        type.redrawConnector()
     }
   
     handles = type.mapHandles(cHandles

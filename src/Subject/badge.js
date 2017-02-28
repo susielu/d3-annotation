@@ -28,7 +28,7 @@ export default ({ subjectData, type }) => {
     const dragBadge = () => {
       subjectData.x = event.x < 0 ? "left" : "right"
       subjectData.y = event.y < 0 ? "top" : "bottom"
-      type.redraw()
+      type.redrawSubject()
     }
 
     const bHandles = [{ x: x*2, y: y*2, drag: dragBadge.bind(type)}]

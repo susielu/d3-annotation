@@ -103,7 +103,7 @@ class Type {
   getSubjectBBox() { return bboxWithoutHandles(this.subject)}
   getAnnotationBBox() { return bboxWithoutHandles(this.a)}
 
-  drawSubject (context) {
+  drawSubject (context={}) {
     const subjectData = this.annotation.subject
     const type = context.type
     const subjectParams = { type: this, subjectData}
@@ -122,7 +122,7 @@ class Type {
     return components
  }
 
-  drawConnector (context, subjectContext) {
+  drawConnector (context={}) {
     const connectorData = this.annotation.connector
     const type = connectorData.type || context.type
     const connectorParams = { type: this, connectorData}
@@ -146,7 +146,7 @@ class Type {
     return components;
   }
 
-  drawNote (context) {
+  drawNote (context={}) {
     const noteData = this.annotation.note
     const align = noteData.align || context.align || 'dynamic'
     const noteParams = { bbox: context.bbox, align, offset: this.annotation.offset }
@@ -180,17 +180,20 @@ class Type {
     this.note && this.noteContent.attr('transform', noteAlignment(noteParams))
     
     return []
+  } 
+
+  redrawSubject(){
+    this.subject && this.drawOnSVG( this.subject, this.drawSubject())
   }
 
-  redraw(bbox=this.getNoteBBox()) {
-    const annotation = this.annotation
-    const context = { annotation, bbox }
+  redrawConnector(bbox=this.getNoteBBox()){
+    this.connector && this.drawOnSVG( this.connector, this.drawConnector())
+  }
 
-    this.subject && this.drawOnSVG( this.subject, this.drawSubject(context))
-    this.connector && this.drawOnSVG( this.connector, this.drawConnector(context))
-    this.noteContent && this.drawOnSVG( this.noteContent, this.drawNoteContent(context))
-    this.note && this.drawOnSVG( this.note, this.drawNote(context))
-  }  
+  redrawNote(bbox=this.getNoteBBox()){
+    this.noteContent && this.drawOnSVG( this.noteContent, this.drawNoteContent({ bbox }))
+    this.note && this.drawOnSVG( this.note, this.drawNote({ bbox }))  
+  }
 
   setPosition(){
     const position = this.annotation.position 
@@ -215,7 +218,9 @@ class Type {
   draw() {
     this.setPosition()
     this.setOffset()
-    this.redraw()
+    this.redrawSubject()
+    this.redrawConnector()
+    this.redrawNote()
   }
 
   dragstarted() { event.sourceEvent.stopPropagation(); this.a.classed("dragging", true) }
@@ -226,10 +231,6 @@ class Type {
     position.x += event.dx
     position.y += event.dy
     this.annotation.position = position
-    this.setPosition()
-    const annotation = this.annotation
-    const context = { annotation, bbox: this.getNoteBBox() }
-    this.subject && this.drawOnSVG( this.subject, this.drawSubject(context))
   }
 
   dragNote() {
@@ -237,8 +238,6 @@ class Type {
     offset.x += event.dx
     offset.y += event.dy
     this.annotation.offset = offset
-    this.setOffset()
-    this.redraw()
   }
 
   mapHandles(handles) {
@@ -299,7 +298,6 @@ export class d3NoteText extends Type {
   constructor(params){
     super(params)
     this.textWrap = params.textWrap || 120
-
     this.drawText()
   }
 

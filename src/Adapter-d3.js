@@ -36,7 +36,6 @@ export default function annotation(){
         return new Annotation(a)
       });
 
-
     collection = new AnnotationCollection ({
       annotations: translatedAnnotations,
       accessors,
@@ -83,21 +82,7 @@ export default function annotation(){
 
   annotation.update = function(){
     if (annotations && collection){
-      annotations = collection.annotations.map(a => { a.type.setPosition(); return a })
-    }
-    return annotation
-  }
-
-  annotation.updateNote = function(){
-    if (annotations && collection){
-      annotations = collection.annotations.map(a => { a.type.setOffset(); return a})
-    }
-    return annotation
-  }
-
-  annotation.redraw = function(){
-    if (annotations && collection){
-      annotations = collection.annotations.map(a => { a.type.redraw(); return a})
+      annotations = collection.annotations.map((a, i) => { a.type.draw(); return a }) 
     }
     return annotation
   }

@@ -284,13 +284,7 @@ $(document).ready(function(){
             .classed('hidden', true)
         }
 
-        // const subject = types[typeKey].subject
-
-        // if (subject) {
-        //   updateAnnotations({ subject })
-        // } else {
-          updateAnnotations()
-        // }
+        updateAnnotations()
         sandboxCode()
 
       })
@@ -301,7 +295,7 @@ $(document).ready(function(){
         editMode = d3.event.target.checked
 
         makeAnnotations.editMode(editMode)
-        makeAnnotations.redraw()
+        makeAnnotations.update()
 
         sandboxCode()
       })
@@ -309,13 +303,13 @@ $(document).ready(function(){
     d3.select('#textWrap')
       .on('change', function(){
         textWrap = parseInt(d3.event.target.value)
-        makeAnnotations.textWrap(textWrap).redraw()
+        makeAnnotations.textWrap(textWrap).update()
       })
 
     d3.select('#padding')
       .on('change', function(){
         padding = parseInt(d3.event.target.value)
-        makeAnnotations.notePadding(padding).redraw()
+        makeAnnotations.notePadding(padding).update()
       })
 
     d3.selectAll('#curveButtons ul.curves li a')
@@ -346,7 +340,7 @@ $(document).ready(function(){
           .remove()
 
         const subject = types[typeKey].subject
-        makeAnnotations.type( currentType, { subject } )
+        makeAnnotations.type( currentType, { subject, connector: newSettings && newSettings.connector } )
 
         d3.select(".sandbox")
           .append("g")

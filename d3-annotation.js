@@ -3342,26 +3342,8 @@ function annotation() {
 
   annotation.update = function () {
     if (annotations && collection) {
-      annotations = collection.annotations.map(function (a) {
-        a.type.setPosition();return a;
-      });
-    }
-    return annotation;
-  };
-
-  annotation.updateNote = function () {
-    if (annotations && collection) {
-      annotations = collection.annotations.map(function (a) {
-        a.type.setOffset();return a;
-      });
-    }
-    return annotation;
-  };
-
-  annotation.redraw = function () {
-    if (annotations && collection) {
-      annotations = collection.annotations.map(function (a) {
-        a.type.redraw();return a;
+      annotations = collection.annotations.map(function (a, i) {
+        a.type.draw();return a;
       });
     }
     return annotation;
@@ -3486,7 +3468,7 @@ function annotation() {
 };
 
 },{"./Annotation":7,"./AnnotationCollection":8,"./Types-d3":22,"d3-dispatch":1,"d3-selection":4}],7:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -3516,13 +3498,13 @@ var Annotation = function () {
 
     _classCallCheck(this, Annotation);
 
-    this.dx = dx;
-    this.dy = dy;
-    this.x = x;
-    this.y = y;
+    this._dx = dx;
+    this._dy = dy;
+    this._x = x;
+    this._y = y;
     this.id = id;
 
-    this.type = type;
+    this.type = type || '';
     this.data = data;
 
     this.note = note || {};
@@ -3533,9 +3515,68 @@ var Annotation = function () {
   }
 
   _createClass(Annotation, [{
-    key: "offset",
+    key: 'updatePosition',
+    value: function updatePosition() {
+      if (this.type.setPosition) {
+        this.type.setPosition();
+        if (this.type.subject.selectAll(':not(.handle)').nodes().length !== 0) {
+          this.type.redrawSubject();
+        }
+      }
+    }
+  }, {
+    key: 'updateOffset',
+    value: function updateOffset() {
+      if (this.type.setOffset) {
+        this.type.setOffset();
+
+        if (this.type.connector.selectAll(':not(.handle)').nodes().length !== 0) {
+          this.type.redrawConnector();
+        }
+
+        this.type.redrawNote();
+      }
+    }
+  }, {
+    key: 'x',
     get: function get() {
-      return { x: this.dx, y: this.dy };
+      return this._x;
+    },
+    set: function set(x) {
+      this._x = x;
+      this.updatePosition();
+    }
+  }, {
+    key: 'y',
+    get: function get() {
+      return this._y;
+    },
+    set: function set(y) {
+      this._y = y;
+      this.updatePosition();
+    }
+  }, {
+    key: 'dx',
+    get: function get() {
+      return this._dx;
+    },
+    set: function set(dx) {
+      this._dx = dx;
+      this.updateOffset();
+    }
+  }, {
+    key: 'dy',
+    get: function get() {
+      return this._dy;
+    },
+    set: function set(dy) {
+      this._dy = dy;
+      this.updateOffset();
+    }
+  }, {
+    key: 'offset',
+    get: function get() {
+      return { x: this._dx, y: this._dy };
     },
     set: function set(_ref2) {
       var x = _ref2.x,
@@ -3543,11 +3584,12 @@ var Annotation = function () {
 
       this.dx = x;
       this.dy = y;
+      this.updateOffset();
     }
   }, {
-    key: "position",
+    key: 'position',
     get: function get() {
-      return { x: this.x, y: this.y };
+      return { x: this._x, y: this._y };
     },
     set: function set(_ref3) {
       var x = _ref3.x,
@@ -3555,9 +3597,10 @@ var Annotation = function () {
 
       this.x = x;
       this.y = y;
+      this.updatePosition();
     }
   }, {
-    key: "translation",
+    key: 'translation',
     get: function get() {
       return {
         x: this.x + this.dx,
@@ -3565,7 +3608,7 @@ var Annotation = function () {
       };
     }
   }, {
-    key: "json",
+    key: 'json',
     get: function get() {
       var json = {
         x: this.x,
@@ -3928,7 +3971,7 @@ exports.default = function (_ref) {
       var updatePoint = function updatePoint(index) {
         connectorData.points[index][0] += _d3Selection.event.dx;
         connectorData.points[index][1] += _d3Selection.event.dy;
-        type.redraw();
+        type.redrawConnector();
       };
 
       handles = type.mapHandles(cHandles.map(function (h) {
@@ -4370,7 +4413,7 @@ exports.default = function (_ref) {
     var dragBadge = function dragBadge() {
       subjectData.x = _d3Selection.event.x < 0 ? "left" : "right";
       subjectData.y = _d3Selection.event.y < 0 ? "top" : "bottom";
-      type.redraw();
+      type.redrawSubject();
     };
 
     var bHandles = [{ x: x * 2, y: y * 2, drag: dragBadge.bind(type) }];
@@ -4429,13 +4472,15 @@ exports.default = function (_ref) {
     var updateRadius = function updateRadius(attr) {
       var r = subjectData[attr] + _d3Selection.event.dx * Math.sqrt(2);
       subjectData[attr] = r;
-      type.redraw();
+      type.redrawSubject();
+      type.redrawConnector();
     };
 
     var updateRadiusPadding = function updateRadiusPadding() {
       var rpad = subjectData.radiusPadding + _d3Selection.event.dx;
       subjectData.radiusPadding = rpad;
-      type.redraw();
+      type.redrawSubject();
+      type.redrawConnector();
     };
 
     var cHandles = [_extends({}, h.padding, { drag: updateRadiusPadding.bind(type) }), _extends({}, h.r1, { drag: updateRadius.bind(type, subjectData.outerRadius !== undefined ? 'outerRadius' : 'radius') })];
@@ -4679,7 +4724,9 @@ var Type = function () {
     }
   }, {
     key: 'drawSubject',
-    value: function drawSubject(context) {
+    value: function drawSubject() {
+      var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
       var subjectData = this.annotation.subject;
       var type = context.type;
       var subjectParams = { type: this, subjectData: subjectData };
@@ -4702,7 +4749,9 @@ var Type = function () {
     }
   }, {
     key: 'drawConnector',
-    value: function drawConnector(context, subjectContext) {
+    value: function drawConnector() {
+      var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
       var connectorData = this.annotation.connector;
       var type = connectorData.type || context.type;
       var connectorParams = { type: this, connectorData: connectorData };
@@ -4731,7 +4780,9 @@ var Type = function () {
     }
   }, {
     key: 'drawNote',
-    value: function drawNote(context) {
+    value: function drawNote() {
+      var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
       var noteData = this.annotation.note;
       var align = noteData.align || context.align || 'dynamic';
       var noteParams = { bbox: context.bbox, align: align, offset: this.annotation.offset };
@@ -4769,17 +4820,24 @@ var Type = function () {
       return [];
     }
   }, {
-    key: 'redraw',
-    value: function redraw() {
+    key: 'redrawSubject',
+    value: function redrawSubject() {
+      this.subject && this.drawOnSVG(this.subject, this.drawSubject());
+    }
+  }, {
+    key: 'redrawConnector',
+    value: function redrawConnector() {
       var bbox = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getNoteBBox();
 
-      var annotation = this.annotation;
-      var context = { annotation: annotation, bbox: bbox };
+      this.connector && this.drawOnSVG(this.connector, this.drawConnector());
+    }
+  }, {
+    key: 'redrawNote',
+    value: function redrawNote() {
+      var bbox = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getNoteBBox();
 
-      this.subject && this.drawOnSVG(this.subject, this.drawSubject(context));
-      this.connector && this.drawOnSVG(this.connector, this.drawConnector(context));
-      this.noteContent && this.drawOnSVG(this.noteContent, this.drawNoteContent(context));
-      this.note && this.drawOnSVG(this.note, this.drawNote(context));
+      this.noteContent && this.drawOnSVG(this.noteContent, this.drawNoteContent({ bbox: bbox }));
+      this.note && this.drawOnSVG(this.note, this.drawNote({ bbox: bbox }));
     }
   }, {
     key: 'setPosition',
@@ -4809,7 +4867,9 @@ var Type = function () {
     value: function draw() {
       this.setPosition();
       this.setOffset();
-      this.redraw();
+      this.redrawSubject();
+      this.redrawConnector();
+      this.redrawNote();
     }
   }, {
     key: 'dragstarted',
@@ -4828,10 +4888,6 @@ var Type = function () {
       position.x += _d3Selection.event.dx;
       position.y += _d3Selection.event.dy;
       this.annotation.position = position;
-      this.setPosition();
-      var annotation = this.annotation;
-      var context = { annotation: annotation, bbox: this.getNoteBBox() };
-      this.subject && this.drawOnSVG(this.subject, this.drawSubject(context));
     }
   }, {
     key: 'dragNote',
@@ -4840,8 +4896,6 @@ var Type = function () {
       offset.x += _d3Selection.event.dx;
       offset.y += _d3Selection.event.dy;
       this.annotation.offset = offset;
-      this.setOffset();
-      this.redraw();
     }
   }, {
     key: 'mapHandles',
@@ -4931,7 +4985,6 @@ var d3NoteText = exports.d3NoteText = function (_Type) {
     var _this4 = _possibleConstructorReturn(this, (d3NoteText.__proto__ || Object.getPrototypeOf(d3NoteText)).call(this, params));
 
     _this4.textWrap = params.textWrap || 120;
-
     _this4.drawText();
     return _this4;
   }

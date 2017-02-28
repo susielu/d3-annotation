@@ -114,23 +114,23 @@
           .nodes(graph.nodes)
           .on("tick", ticked)
           .on("end", function(){
-            console.log('simualtion finished', makeAnnotations.collection().textNodes)
+            // console.log('simualtion finished', makeAnnotations.collection().textNodes)
 
-              const noteBoxes = makeAnnotations.collection().noteNodes
-             window.labelForce = d3.forceSimulation(noteBoxes)
-              .force("x", d3.forceX(a =>  a.startX < width/2 ? -200 : 200 ).strength(.1))
-              .force("y", d3.forceY(a => 0).strength(1))
-              .force("collide", d3.forceCollide().radius(function(d) { return d.width/4 }).iterations(2))
-              .on('tick', d => {
-                  makeAnnotations.annotations()
-                  .forEach((d, i) => {
-                    const match = noteBoxes[i]	
-                          d.dx = match.x + match.vx
-                          d.dy = match.y + match.vy
-                  })
+            //   const noteBoxes = makeAnnotations.collection().noteNodes
+            //  window.labelForce = d3.forceSimulation(noteBoxes)
+            //   .force("x", d3.forceX(a =>  a.startX < width/2 ? -200 : 200 ).strength(.1))
+            //   .force("y", d3.forceY(a => 0).strength(1))
+            //   .force("collide", d3.forceCollide().radius(function(d) { return d.width/4 }).iterations(2))
+            //   .on('tick', d => {
+            //       makeAnnotations.annotations()
+            //       .forEach((d, i) => {
+            //         const match = noteBoxes[i]	
+            //               d.dx = match.x + match.vx
+            //               d.dy = match.y + match.vy
+            //       })
                 
-                  makeAnnotations.updateNote().redraw()
-              })
+            //       makeAnnotations.update()
+            //   })
             
           })
 
@@ -151,7 +151,7 @@
             d.position = graph.nodes[i]
           })
 
-        makeAnnotations.update()
+        // makeAnnotations.update()
       }
 
       window.makeAnnotations = d3.annotation()

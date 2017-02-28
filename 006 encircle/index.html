@@ -131,8 +131,9 @@
               .map(d => ({ x: d.x, y: d.y}))
             circle = makeCircle(points)
             d.position = { x: circle.x, y: circle.y }
-            d.subject.radius = circle.r + 20
-          })
+            d.subject.radius = circle.r + 20            
+          })        
+
         makeAnnotations.update()
       }
 

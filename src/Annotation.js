@@ -3,13 +3,13 @@ export default class Annotation {
   constructor({ x=0, y=0, dy=0, dx=0, data, type, subject, connector, note, 
     disable, id }) {
 
-    this.dx = dx
-    this.dy = dy 
-    this.x = x 
-    this.y = y
+    this._dx = dx
+    this._dy = dy 
+    this._x = x 
+    this._y = y
     this.id = id
 
-    this.type = type
+    this.type = type || ''
     this.data = data
 
     this.note = note || {}
@@ -19,18 +19,65 @@ export default class Annotation {
     this.disable = disable || []
   }
 
-  get offset() { return { x: this.dx, y: this.dy }}
+  updatePosition(){
+    if (this.type.setPosition) { 
+      this.type.setPosition() 
+      if (this.type.subject.selectAll(':not(.handle)').nodes().length !== 0) {
+        this.type.redrawSubject()
+      }
+    }
+  }
+
+  updateOffset(){
+    if (this.type.setOffset) {
+      this.type.setOffset() 
+            
+      if (this.type.connector.selectAll(':not(.handle)').nodes().length !== 0) {
+        this.type.redrawConnector()
+      }
+
+      this.type.redrawNote()
+    }
+  }
+
+  get x() { return this._x }
+  set x(x) { 
+    this._x = x; 
+    this.updatePosition()
+  }
+
+  get y() { return this._y }
+  set y(y) { 
+    this._y = y; 
+    this.updatePosition()
+  }
+
+  get dx() { return this._dx }
+  set dx(dx) { 
+    this._dx = dx; 
+    this.updateOffset()
+  }
+
+  get dy() { return this._dy }
+  set dy(dy) { 
+    this._dy = dy; 
+    this.updateOffset()
+  }
+
+  get offset() { return { x: this._dx, y: this._dy }}
 
   set offset({ x, y }) {
     this.dx = x
     this.dy = y
+    this.updateOffset()
   }
 
-  get position() { return { x: this.x, y: this.y }}
+  get position() { return { x: this._x, y: this._y }}
 
   set position({ x, y }) {
     this.x = x
     this.y = y
+    this.updatePosition()
   }
 
   get translation() {
