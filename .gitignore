@@ -6,4 +6,4 @@ bower_components
 npm
 .vscode
 gifs
-.psd
+*.psd

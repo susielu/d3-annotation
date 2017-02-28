@@ -1,0 +1,48 @@
+:root {
+    --annotation-color: #E8336D;
+}
+
+.annotation path {
+  stroke: var(--accent-color);
+  fill: none;
+}
+
+.annotation text,
+.annotation .annotation-connector .connector-dot,
+.annotation path.connector-arrow{
+  fill: var(--accent-color);
+}
+
+.annotation-note-title {
+  font-weight: bold;
+}
+
+.annotation.badge path.subject-pointer, .annotation.badge path.subject {
+  fill: var(--accent-color);
+  stroke-width: 3px;
+  stroke-linecap: round;
+} 
+
+.annotation.badge path.subject-ring {
+  fill: white;
+  stroke-width: 3px;
+}
+
+.annotation.badge .badge-text {
+  fill: white;
+  font-size: .7em;
+}
+
+/* Handling edit mode styles */
+.editable .annotation-subject, .editable .annotation-note {
+  cursor: move;
+}
+
+circle.handle {
+  stroke-dasharray: 5;
+  stroke: var(--accent-color);
+  fill: rgba(255, 255, 255, .2);
+  cursor: move;
+
+  stroke-opacity: .4;
+}
