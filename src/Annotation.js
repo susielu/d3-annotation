@@ -67,34 +67,34 @@ export default class Annotation {
   get offset() { return { x: this._dx, y: this._dy }}
 
   set offset({ x, y }) {
-    this.dx = x
-    this.dy = y
+    this._dx = x
+    this._dy = y
     this.updateOffset()
   }
 
   get position() { return { x: this._x, y: this._y }}
 
   set position({ x, y }) {
-    this.x = x
-    this.y = y
+    this._x = x
+    this._y = y
     this.updatePosition()
   }
 
   get translation() {
     return {
-    x: this.x + this.dx,
-    y: this.y + this.dy
+    x: this._x + this._dx,
+    y: this._y + this._dy
   }}
 
   get json() { 
     const json = {
-      x: this.x,
-      y: this.y,
-      dx: this.dx,
-      dy: this.dy
+      x: this._x,
+      y: this._y,
+      dx: this._dx,
+      dy: this._dy
     }
 
-    if (this.data) json.data = this.data
+    if (this.data && Object.keys(this.data).length > 0) json.data = this.data
     if (this.type) json.type = this.type
 
     if (Object.keys(this.connector).length > 0) json.connector = this.connector

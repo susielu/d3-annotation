@@ -75,8 +75,8 @@ export default function annotation(){
   }
 
   annotation.json = function() {
-    console.log('Annotations JSON has been copied to your clipboard', collection.json)
-    window.copy(collection.json)
+    console.log('Annotations JSON was copied to your clipboard. Please note the annotation type is not JSON compatible. It appears in the objects array in the console, but not in the copied JSON.', collection.json)
+    window.copy(JSON.stringify(collection.json.map(a => { delete a.type; return a })))
     return annotation
   }
 

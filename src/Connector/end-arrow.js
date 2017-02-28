@@ -2,7 +2,6 @@ import { lineBuilder } from '../Builder'
 
 export default ({ annotation, start, end }) => {
   const offset = annotation.position
-  console.log('in connector arrow')
   if (!start) { start = [annotation.dx, annotation.dy]} 
   else { start = [-end[0] + start[0], - end[1] + start[1]]}
   if (!end) { end = [annotation.x - offset.x, annotation.y - offset.y]}

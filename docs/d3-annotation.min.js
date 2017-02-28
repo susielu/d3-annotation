@@ -3335,8 +3335,10 @@ function annotation() {
   };
 
   annotation.json = function () {
-    console.log('Annotations JSON has been copied to your clipboard', collection.json);
-    window.copy(collection.json);
+    console.log('Annotations JSON was copied to your clipboard. Please note the annotation type is not JSON compatible. It appears in the objects array in the console, but not in the copied JSON.', collection.json);
+    window.copy(JSON.stringify(collection.json.map(function (a) {
+      delete a.type;return a;
+    })));
     return annotation;
   };
 
@@ -3582,8 +3584,8 @@ var Annotation = function () {
       var x = _ref2.x,
           y = _ref2.y;
 
-      this.dx = x;
-      this.dy = y;
+      this._dx = x;
+      this._dy = y;
       this.updateOffset();
     }
   }, {
@@ -3595,29 +3597,29 @@ var Annotation = function () {
       var x = _ref3.x,
           y = _ref3.y;
 
-      this.x = x;
-      this.y = y;
+      this._x = x;
+      this._y = y;
       this.updatePosition();
     }
   }, {
     key: 'translation',
     get: function get() {
       return {
-        x: this.x + this.dx,
-        y: this.y + this.dy
+        x: this._x + this._dx,
+        y: this._y + this._dy
       };
     }
   }, {
     key: 'json',
     get: function get() {
       var json = {
-        x: this.x,
-        y: this.y,
-        dx: this.dx,
-        dy: this.dy
+        x: this._x,
+        y: this._y,
+        dx: this._dx,
+        dy: this._dy
       };
 
-      if (this.data) json.data = this.data;
+      if (this.data && Object.keys(this.data).length > 0) json.data = this.data;
       if (this.type) json.type = this.type;
 
       if (Object.keys(this.connector).length > 0) json.connector = this.connector;
@@ -3859,7 +3861,6 @@ exports.default = function (_ref) {
       end = _ref.end;
 
   var offset = annotation.position;
-  console.log('in connector arrow');
   if (!start) {
     start = [annotation.dx, annotation.dy];
   } else {
@@ -5128,7 +5129,7 @@ var addHandlers = function addHandlers(dispatcher, annotation, _ref3) {
 var wrap = function wrap(text, width) {
   text.each(function () {
     var text = d3.select(this),
-        words = text.text().split(/\s+/).reverse(),
+        words = text.text().split(/ \t\r\n+/).reverse(),
         word,
         line = [],
         lineNumber = 0,
