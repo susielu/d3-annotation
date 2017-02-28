@@ -3280,10 +3280,12 @@ function annotation() {
       type = _TypesD.d3Callout,
       textWrap = void 0,
       notePadding = void 0,
-      annotationDispatcher = (0, _d3Dispatch.dispatch)("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "noteover", "noteout", "noteclick");
+      annotationDispatcher = (0, _d3Dispatch.dispatch)("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "noteover", "noteout", "noteclick"),
+      sel = void 0;
 
   var annotation = function annotation(selection) {
-    //TODO: check to see if this is still needed
+    sel = selection;
+    //TODO: check to see if this is still needed    
     if (!editMode) {
       selection.selectAll("circle.handle").remove();
     }
@@ -3448,6 +3450,11 @@ function annotation() {
   annotation.editMode = function (_) {
     if (!arguments.length) return editMode;
     editMode = _;
+
+    if (sel) {
+      sel.select('g.annotations').classed('editable', editMode);
+    }
+
     if (collection) {
       collection.editMode(editMode);
       annotations = collection.annotations;
@@ -3739,11 +3746,6 @@ var AnnotationCollection = function () {
         return json;
       });
     }
-
-    //TODO: should all annotations have a key?
-    //If so what would that help? could that map to priority? 
-    //
-
   }, {
     key: "noteNodes",
     get: function get() {

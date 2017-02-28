@@ -5,9 +5,9 @@ This wants to be a series of examples of how to do annotations on a chart. The i
 
 ## Prior art
 
-- [d3-ring-note](https://github.com/armollica/d3-ring-note): D3 plugin for placing circle and text annotation, by Andrew Mollica
+- [Andrew Mollica](https://bl.ocks.org/armollica/67f3cf7bf08a02d95d48dc9f0c91f26c), [d3-ring-note](https://github.com/armollica/d3-ring-note) D3 plugin for placing circle and text annotation
 
-- [HTML Annotation](http://bl.ocks.org/armollica/78894d0b3cbd46d8d8d19d135c6ca34d), by Andrew Mollica
+- Andrew Mollica, [HTML Annotation](http://bl.ocks.org/armollica/78894d0b3cbd46d8d8d19d135c6ca34d)
 
 - [Scatterplot with d3-annotate](https://bl.ocks.org/cmpolis/f9805a98b8a455aaccb56e5ee59964f8), by Chris Polis, example using [d3-annotate](https://github.com/cmpolis/d3-annotate)
 
@@ -22,3 +22,5 @@ This wants to be a series of examples of how to do annotations on a chart. The i
 - [Scott Logic](http://blog.scottlogic.com/2014/08/26/two-line-components-for-d3-charts.html) evokes “line annotation” in a graph (different concept).
 
 - [Seven Features You’ll Want In Your Next Charting Tool](http://vis4.net/blog/posts/seven-features-youll-wantin-your-next-charting-tool/) shows how the NYT does annotations
+
+- [John Burn-Murdoch](https://bl.ocks.org/johnburnmurdoch/bcdb4e85c7523a2b0e64961f0d227154) example with adding/removing and repositioning annotations

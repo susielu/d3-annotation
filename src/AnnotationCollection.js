@@ -72,10 +72,6 @@ export default class AnnotationCollection {
     })
   }
 
-  //TODO: should all annotations have a key?
-  //If so what would that help? could that map to priority? 
-  //
-
   get noteNodes(){
     return this.annotations.map(a => ({ ...a.type.getNoteBBox(), startX: a.x, startY: a.y }))
   }

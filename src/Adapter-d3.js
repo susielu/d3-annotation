@@ -20,10 +20,12 @@ export default function annotation(){
     annotationDispatcher = dispatch(
     "subjectover", "subjectout", "subjectclick", 
     "connectorover", "connectorout", "connectorclick", 
-    "noteover", "noteout", "noteclick");
+    "noteover", "noteout", "noteclick"),
+    sel;
 
   const annotation = function(selection){
-    //TODO: check to see if this is still needed
+    sel = selection
+    //TODO: check to see if this is still needed    
     if (!editMode){
       selection.selectAll("circle.handle")
         .remove()
@@ -184,6 +186,12 @@ export default function annotation(){
   annotation.editMode = function(_) {
     if (!arguments.length) return editMode;
     editMode = _
+
+    if (sel){
+      sel.select('g.annotations')
+        .classed('editable', editMode)
+    }
+
     if (collection) { 
       collection.editMode(editMode)
       annotations = collection.annotations
