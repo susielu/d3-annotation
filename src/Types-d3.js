@@ -99,9 +99,16 @@ class Type {
   }
 
   getNoteBBox() { return bboxWithoutHandles(this.note, '.annotation-note-content')}
-  getConnectorBBox() { return bboxWithoutHandles(this.connector)}
-  getSubjectBBox() { return bboxWithoutHandles(this.subject)}
-  getAnnotationBBox() { return bboxWithoutHandles(this.a)}
+  getNoteBBoxOffset() { 
+    const bbox = bboxWithoutHandles(this.note, '.annotation-note-content')
+    const transform = this.noteContent.attr('transform').split(/\(|\,|\)/g)
+    bbox.offsetCornerX = parseFloat(transform[1])
+    bbox.offsetCornerY = parseFloat(transform[2])
+    return bbox }
+
+  // getConnectorBBox() { return bboxWithoutHandles(this.connector)}
+  // getSubjectBBox() { return bboxWithoutHandles(this.subject)}
+  // getAnnotationBBox() { return bboxWithoutHandles(this.a)}
 
   drawSubject (context={}) {
     const subjectData = this.annotation.subject
@@ -312,6 +319,7 @@ export class d3NoteText extends Type {
       newWithClass(this.note, [this.annotation], 'g', 'annotation-note-content')
 
       const noteContent = this.note.select('g.annotation-note-content')
+      newWithClass(noteContent, [this.annotation], 'rect', 'annotation-note-bg')
       newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-label')
       newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-title')
 
@@ -332,6 +340,11 @@ export class d3NoteText extends Type {
       label.call(wrap, wrapLength)
 
       label.attr('y', titleBBox.height * 1.1 || 0)
+
+      const bbox = this.getNoteBBox()
+      this.a.select('rect.annotation-note-bg')
+        .attr('width', bbox.width)
+        .attr('height', bbox.height)
     }
   }
 }

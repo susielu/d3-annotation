@@ -126,20 +126,7 @@ $(document).ready(function(){
         x: 150,
         y: 170,
         dy: 117,
-        dx: 162,
-        // subject: {
-        //   //for subject circle
-        //   outerRadius: 50,
-        //   radiusPadding: 5,
-
-        //   //for badge
-        //   radius: 14,
-        //   text: "A",
-
-        //   //for xythreshold
-        //   x1: 0,
-        //   x2: 1000
-        // }
+        dx: 162
       }
     window.makeAnnotations = d3.annotation()
     .editMode(editMode)
@@ -246,6 +233,14 @@ $(document).ready(function(){
 
         typeSettings = JSON.parse(JSON.stringify(defaultSettings))
 
+
+        if (typeKey == "annotationBadge") {
+          d3.select("li.options")
+            .classed("hidden", true)
+        } else {
+          d3.select("li.options")
+            .classed("hidden", false)
+        }
 
         //set options
         const options = types[typeKey].typeSettings

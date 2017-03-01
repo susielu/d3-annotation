@@ -9,7 +9,7 @@ module.exports = "<h2 id=\"customizing-types\">Customizing Types</h2>\n<p><stron
 },{}],5:[function(require,module,exports){
 module.exports = "<h2 id=\"extending-annotation-types\">Extending Annotation Types</h2>\n<h3 id=\"javascript-classes\">Javascript Classes</h3>\n<p>The underlying structure for the annotations and types are built with es6 JavaScript classes. To make your own custom type you can take any of the base types and extend them. </p>\n<h3 id=\"static-functions\">Static Functions</h3>\n<p><strong>STATIC className</strong></p>\n<p>A class that return a string for the class name you want to give your custom type.</p>\n<p><strong>STATIC init</strong></p>\n<p>An init function that is looped through</p>\n<p>Example, default init function</p>\n<p>Exampe, xyThreshold init function</p>\n<h3 id=\"drawing-functions\">Drawing Functions</h3>\n<p>These functions have a context parameter. Context is an object with gives you access to the annotation with all of its properties, and the relevant bounding box. </p>\n<p><strong>drawNote(context)</strong></p>\n<p><strong>drawNoteContent(context)</strong></p>\n<p><strong>drawConnector(context)</strong></p>\n<p><strong>drawSubject(context)</strong></p>\n<h3 id=\"overall-code-structure\">Overall Code structure</h3>\n<p><strong>Annotation Class</strong></p>\n<p>Each annotation is an instantiation of this class.</p>\n<p>Reference the <a href=\"https://github.com/susielu/d3-annotation/blob/master/src/Annotation.js\">souce code</a> for the full set of properties and functions. Most relevant properties: </p>\n<ul>\n<li>dx</li>\n<li>dy</li>\n<li>x</li>\n<li>y</li>\n<li>data</li>\n<li>offset: returns the dx, and dy, values as an object {x, y}</li>\n<li>position: returns the x, and y, values as an object {x, y}</li>\n</ul>\n<p><strong>Annotation Collection Class</strong></p>\n<p>When you run d3.annotation() it creates all of the annotations you pass it as Annotation Class instances and places them into an array as part of an Annotation Collection.</p>\n<p><strong>Types Class</strong></p>\n<p>Each of the annotation types is created </p>\n";
 },{}],6:[function(require,module,exports){
-module.exports = "<h2 id=\"in-practice\">In Practice</h2>\n<p>Here are some helpful tips for using this library and some examples to learn from. </p>\n<ul>\n<li>All of the shapes (aside from the edit handles) in the default annotations are paths </li>\n<li>In addition to the alignment settings for the note, you can also use the css <code>text-anchor</code> attribute to align the text within the note</li>\n<li>When you update the d3.annotation().type() you will need to use the call functionality again to set up the annotations with the new type. See the <a href=\"#responsive\">Responsive with Types and Hover</a> example</li>\n<li>You do not need to call d3.annotation().update() if you are only changing the position(x,y) or the offset(dx, dy). See the <a href=\"#overlapping\">Overlapping</a> example</li>\n</ul>\n<p><h3 id=\"responsive\">Responsive with Types and Hover</h3>\n<img src=\"img/resize.png\" alt=\"Annotation reize]\">\n<img src=\"img/minimize.png\" alt=\"Annotation reize with types]\"></p>\n<p><h3 id=\"overlapping\">Overlapping</h3>\nThis example could be greatly improved. This is an area I could use lots of help with. Finding overlaps is hard and the example below only uses the __.</p>\n<p><h3 id=\"encircle\">Encircling</h3>\n<img src=\"img/encircle.png\" alt=\"Annotation encircling]\"></p>\n";
+module.exports = "<h2 id=\"in-practice\">In Practice</h2>\n<p>Here are some helpful tips for using this library and some examples to learn from. </p>\n<ul>\n<li>All of the shapes (aside from the edit handles) in the default annotations are paths </li>\n<li>In addition to the alignment settings for the note, you can also use the css <code>text-anchor</code> attribute to align the text within the note</li>\n<li>When you update the d3.annotation().type() you will need to use the call functionality again to set up the annotations with the new type. See the <a href=\"#responsive\">Responsive with Types and Hover</a> example</li>\n<li>You do not need to call d3.annotation().update() if you are only changing the position(x,y) or the offset(dx, dy). See the <a href=\"#overlapping\">Overlapping</a> example</li>\n</ul>\n<h3 id=\"responsive\">Responsive with Types and Hover</h3>\n[![Annotation reize]](img/resize.png)](https://bl.ocks.org/susielu/974e41473737320f8db5ae711ded8542)\n\n<h3 id=\"overlapping\">Overlapping</h3>\n\n<p><h3 id=\"encircle\">Encircling</h3>\n<a href=\"https://bl.ocks.org/susielu/24ad9f80b9b681ce967f6005a03384f3\"><img src=\"img/encircle.png\" alt=\"Annotation encircling]\"></a></p>\n";
 },{}],7:[function(require,module,exports){
 module.exports = "<h2 id=\"introduction\">Introduction</h2>\n<p>Annotations <strong>establish context, and direct our users to insights and anomalies</strong>. So why are annotations so few and far between in visualizations on the web? Because <strong>implementing annotations is difficult.</strong></p>\n<p><strong>But they shouldn&#39;t be.</strong> </p>\n<p>Use d3-annotation with built-in annotation types, or extend it to make custom annotations. It is made for <a href=\"https://github.com/d3/d3/blob/master/CHANGES.md\">d3-v4</a> in SVG. </p>\n<p>I would love your help making more examples of <a href=\"#types\">annotation types</a> and <a href=\"#layout\">layouts</a>. Contact me through <a href=\"https://www.github.com/susielu/d3-annotation\">github</a> or <a href=\"https://www.twitter.com/DataToViz\">twitter</a> if you want to collaborate.</p>\n";
 },{}],8:[function(require,module,exports){
@@ -147,20 +147,7 @@ $(document).ready(function(){
         x: 150,
         y: 170,
         dy: 117,
-        dx: 162,
-        // subject: {
-        //   //for subject circle
-        //   outerRadius: 50,
-        //   radiusPadding: 5,
-
-        //   //for badge
-        //   radius: 14,
-        //   text: "A",
-
-        //   //for xythreshold
-        //   x1: 0,
-        //   x2: 1000
-        // }
+        dx: 162
       }
     window.makeAnnotations = d3.annotation()
     .editMode(editMode)
@@ -267,6 +254,14 @@ $(document).ready(function(){
 
         typeSettings = JSON.parse(JSON.stringify(defaultSettings))
 
+
+        if (typeKey == "annotationBadge") {
+          d3.select("li.options")
+            .classed("hidden", true)
+        } else {
+          d3.select("li.options")
+            .classed("hidden", false)
+        }
 
         //set options
         const options = types[typeKey].typeSettings

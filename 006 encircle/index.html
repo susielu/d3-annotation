@@ -5,6 +5,10 @@
     <link href='https://fonts.googleapis.com/css?family=Lato:300,900' rel='stylesheet' type='text/css'>
 
     <style>
+    :root {
+        --annotation-color: #E8336D;
+    }
+
      body{
         background-color: whitesmoke;
      }
@@ -22,23 +26,17 @@
        cursor: move;
      }
 
-     .line {
-        fill: none;
-        stroke: black;
-        stroke-width: 1px;
-      }
-
       .annotation path {
-        stroke: #E8336D;
+        stroke: var(--annotation-color);
         fill: rgba(0,0,0,0);
       }
 
       .annotation path.connector-arrow{
-        fill: #E8336D;
+        fill: var(--annotation-color);
       }
 
       .annotation text {
-        fill: #E8336D;
+        fill: var(--annotation-color);
       }
 
       .annotation-title {
@@ -47,7 +45,7 @@
 
        circle.handle {
         stroke-dasharray: 5;
-        stroke: #E8336D;
+        stroke: var(--annotation-color);
         fill: rgba(255, 255, 255, .5);
         cursor: move;
 
@@ -58,22 +56,21 @@
         stroke-opacity: 1;
       }
 
+      .annotation-note-bg {
+        fill: rgba(255, 255, 255, 0);
+      }
     </style>
 </head>
 <body>
     <svg width=960 height=500></svg>
     <script src="https://d3js.org/d3.v4.js"></script>
-    <script src="smallest-circle.js"></script>
-    <script src="/d3-annotation.js"></script>
+    <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
 
     <script>
-    // network code: https://bl.ocks.org/mbostock/4062045
+    // Network code from: Mike Bostock's example https://bl.ocks.org/mbostock/4062045
     var svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height");
-    var color = d3.scaleOrdinal(d3.schemeCategory20)
-      //.range(["#695B5B", "#eae4e4"])
-    ;
 
     var color = {
       "3": "#e4b0b0",
@@ -85,6 +82,7 @@
         .force("link", d3.forceLink().id( d => d.id ))
         .force("charge", d3.forceManyBody())
         .force("center", d3.forceCenter(width / 2, height / 2));
+        
     d3.json("miserables.json", function(error, graph) {
       if (error) throw error;
       var link = svg.append("g")
@@ -128,8 +126,8 @@
         .forEach((d, i) => {
             let points = graph.nodes
               .filter(d => d.group === groups[i])
-              .map(d => ({ x: d.x, y: d.y}))
-            circle = makeCircle(points)
+              .map(d => ({ x: d.x, y: d.y, r: 5}))
+            circle = d3.packEnclose(points)
             d.position = { x: circle.x, y: circle.y }
             d.subject.radius = circle.r + 20            
           })        
@@ -140,10 +138,10 @@
     let groups = [3, 1, 8]
     let points = groups.map(p => graph.nodes
       .filter(d => d.group === p)
-      .map(d => ({ x: d.x, y: d.y})))
+      .map(d => ({ x: d.x, y: d.y, r: 5 })))
 
 
-    let circle = points.map( p => makeCircle(p))
+    let circle = points.map( p => d3.packEnclose(p))
     const annotations = [{
         note: { label: "Group 3",
         title: "Les Mis" },

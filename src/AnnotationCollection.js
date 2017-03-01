@@ -73,19 +73,19 @@ export default class AnnotationCollection {
   }
 
   get noteNodes(){
-    return this.annotations.map(a => ({ ...a.type.getNoteBBox(), startX: a.x, startY: a.y }))
+    return this.annotations.map(a => ({ ...a.type.getNoteBBoxOffset(), positionX: a.x, positionY: a.y }))
   }
 
   //TODO: come back and rethink if a.x and a.y are applicable in all situations
-  get connectorNodes() {
-    return this.annotations.map(a => ({ ...a.type.getConnectorBBox(), startX: a.x, startY: a.y}))
-  }
+  // get connectorNodes() {
+  //   return this.annotations.map(a => ({ ...a.type.getConnectorBBox(), startX: a.x, startY: a.y}))
+  // }
 
-  get subjectNodes() {
-    return this.annotations.map(a => ({ ...a.type.getSubjectBBox(), startX: a.x, startY: a.y}))
-  }
+  // get subjectNodes() {
+  //   return this.annotations.map(a => ({ ...a.type.getSubjectBBox(), startX: a.x, startY: a.y}))
+  // }
 
-  get annotationNodes() {
-    return this.annotations.map(a => ({ ...a.type.getAnnotationBBox(), startX: a.x, startY: a.y}))
-  }
+  // get annotationNodes() {
+  //   return this.annotations.map(a => ({ ...a.type.getAnnotationBBox(), startX: a.x, startY: a.y}))
+  // }
 }

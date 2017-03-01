@@ -9,11 +9,9 @@ Here are some helpful tips for using this library and some examples to learn fro
 
 
 <h3 id="responsive">Responsive with Types and Hover</h3>
-![Annotation reize]](img/resize.png)
-![Annotation reize with types]](img/minimize.png)
+[![Annotation reize]](img/resize.png)](https://bl.ocks.org/susielu/974e41473737320f8db5ae711ded8542)
 
 <h3 id="overlapping">Overlapping</h3>
-This example could be greatly improved. This is an area I could use lots of help with. Finding overlaps is hard and the example below only uses the __.
 
 <h3 id="encircle">Encircling</h3>
-![Annotation encircling]](img/encircle.png)
+[![Annotation encircling]](img/encircle.png)](https://bl.ocks.org/susielu/24ad9f80b9b681ce967f6005a03384f3)
