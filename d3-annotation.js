@@ -3319,10 +3319,10 @@ function annotation() {
       var a = (0, _d3Selection.select)(this);
       var position = d.position;
 
-      var className = d.type.className && d.type.className();
-      if (className) {
-        a.attr('class', 'annotation ' + className);
-      }
+      var className = d.type.className && d.type.className() || '';
+      var aClassName = d.className || '';
+      var editClassName = editMode ? "editable" : "";
+      a.attr('class', 'annotation ' + className + ' ' + aClassName + ' ' + editClassName);
 
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-connector');
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-subject');
@@ -3452,7 +3452,7 @@ function annotation() {
     editMode = _;
 
     if (sel) {
-      sel.select('g.annotations').classed('editable', editMode);
+      sel.selectAll('g.annotation').classed('editable', editMode);
     }
 
     if (collection) {
@@ -3503,7 +3503,8 @@ var Annotation = function () {
         connector = _ref.connector,
         note = _ref.note,
         disable = _ref.disable,
-        id = _ref.id;
+        id = _ref.id,
+        className = _ref.className;
 
     _classCallCheck(this, Annotation);
 
@@ -3512,6 +3513,7 @@ var Annotation = function () {
     this._x = x;
     this._y = y;
     this.id = id;
+    this._className = className || '';
 
     this.type = type || '';
     this.data = data;
@@ -3545,6 +3547,15 @@ var Annotation = function () {
 
         this.type.redrawNote();
       }
+    }
+  }, {
+    key: 'className',
+    get: function get() {
+      return this._className;
+    },
+    set: function set(className) {
+      this._className = className;
+      if (this.type.setClassName) this.type.setClassName();
     }
   }, {
     key: 'x',
@@ -4695,6 +4706,9 @@ var Type = function () {
         }
       });
     }
+
+    //TODO: how to extend this to a drawOnCanvas mode? 
+
   }, {
     key: 'getNoteBBox',
     value: function getNoteBBox() {
@@ -4814,24 +4828,29 @@ var Type = function () {
       return [];
     }
   }, {
+    key: 'drawOnScreen',
+    value: function drawOnScreen(component, drawFunction) {
+      return this.drawOnSVG(component, drawFunction);
+    }
+  }, {
     key: 'redrawSubject',
     value: function redrawSubject() {
-      this.subject && this.drawOnSVG(this.subject, this.drawSubject());
+      this.subject && this.drawOnScreen(this.subject, this.drawSubject());
     }
   }, {
     key: 'redrawConnector',
     value: function redrawConnector() {
       var bbox = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getNoteBBox();
 
-      this.connector && this.drawOnSVG(this.connector, this.drawConnector());
+      this.connector && this.drawOnScreen(this.connector, this.drawConnector());
     }
   }, {
     key: 'redrawNote',
     value: function redrawNote() {
       var bbox = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getNoteBBox();
 
-      this.noteContent && this.drawOnSVG(this.noteContent, this.drawNoteContent({ bbox: bbox }));
-      this.note && this.drawOnSVG(this.note, this.drawNote({ bbox: bbox }));
+      this.noteContent && this.drawOnScreen(this.noteContent, this.drawNoteContent({ bbox: bbox }));
+      this.note && this.drawOnScreen(this.note, this.drawNote({ bbox: bbox }));
     }
   }, {
     key: 'setPosition',
@@ -4984,6 +5003,19 @@ var d3NoteText = exports.d3NoteText = function (_Type) {
   }
 
   _createClass(d3NoteText, [{
+    key: 'init',
+    value: function init(accessors) {
+      _get(d3NoteText.prototype.__proto__ || Object.getPrototypeOf(d3NoteText.prototype), 'init', this).call(this, accessors);
+
+      if (!(this.annotation.note && this.annotation.note.label) && accessors.label) {
+        this.annotation.note = Object.assign({}, this.annotation.note, { label: accessors.label(this.annotation.data) });
+      }
+
+      if (!(this.annotation.note && this.annotation.note.title) && accessors.title) {
+        this.annotation.note = Object.assign({}, this.annotation.note, { title: accessors.title(this.annotation.data) });
+      }
+    }
+  }, {
     key: 'updateTextWrap',
     value: function updateTextWrap(textWrap) {
       this.textWrap = textWrap;

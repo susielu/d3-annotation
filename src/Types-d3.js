@@ -98,6 +98,8 @@ class Type {
       })
   }
 
+  //TODO: how to extend this to a drawOnCanvas mode? 
+
   getNoteBBox() { return bboxWithoutHandles(this.note, '.annotation-note-content')}
   getNoteBBoxOffset() { 
     const bbox = bboxWithoutHandles(this.note, '.annotation-note-content')
@@ -192,17 +194,19 @@ class Type {
     return []
   } 
 
+  drawOnScreen(component, drawFunction) { return this.drawOnSVG( component, drawFunction) }
+
   redrawSubject(){
-    this.subject && this.drawOnSVG( this.subject, this.drawSubject())
+    this.subject && this.drawOnScreen( this.subject, this.drawSubject())
   }
 
   redrawConnector(bbox=this.getNoteBBox()){
-    this.connector && this.drawOnSVG( this.connector, this.drawConnector())
+    this.connector && this.drawOnScreen( this.connector, this.drawConnector())
   }
 
   redrawNote(bbox=this.getNoteBBox()){
-    this.noteContent && this.drawOnSVG( this.noteContent, this.drawNoteContent({ bbox }))
-    this.note && this.drawOnSVG( this.note, this.drawNote({ bbox }))  
+    this.noteContent && this.drawOnScreen( this.noteContent, this.drawNoteContent({ bbox }))
+    this.note && this.drawOnScreen( this.note, this.drawNote({ bbox }))  
   }
 
   setPosition(){
@@ -309,6 +313,18 @@ export class d3NoteText extends Type {
     super(params)
     this.textWrap = params.textWrap || 120
     this.drawText()
+  }
+
+  init(accessors) {
+    super.init(accessors)
+
+    if (!(this.annotation.note && this.annotation.note.label) && accessors.label){
+      this.annotation.note = Object.assign({}, this.annotation.note, { label: accessors.label(this.annotation.data)} )
+    }
+
+    if (!(this.annotation.note && this.annotation.note.title) && accessors.title){
+      this.annotation.note = Object.assign({}, this.annotation.note, { title: accessors.title(this.annotation.data)} )
+    }
   }
 
   updateTextWrap (textWrap) {

@@ -59,10 +59,10 @@ export default function annotation(){
         const a = select(this)
         const position = d.position
 
-        const className = d.type.className && d.type.className()
-        if (className){
-          a.attr('class', `annotation ${className}`)
-        }
+        const className = d.type.className && d.type.className() || ''
+        const aClassName = d.className || ''
+        const editClassName = editMode ? "editable" : ""
+        a.attr('class', `annotation ${className} ${aClassName} ${editClassName}`)
 
         newWithClass(a, [d], 'g', 'annotation-connector')
         newWithClass(a, [d], 'g', 'annotation-subject')
@@ -188,7 +188,7 @@ export default function annotation(){
     editMode = _
 
     if (sel){
-      sel.select('g.annotations')
+      sel.selectAll('g.annotation')
         .classed('editable', editMode)
     }
 

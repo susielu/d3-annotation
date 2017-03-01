@@ -1,13 +1,14 @@
 
 export default class Annotation {
   constructor({ x=0, y=0, dy=0, dx=0, data, type, subject, connector, note, 
-    disable, id }) {
+    disable, id, className }) {
 
     this._dx = dx
     this._dy = dy 
     this._x = x 
     this._y = y
     this.id = id
+    this._className = className || ''
 
     this.type = type || ''
     this.data = data
@@ -26,6 +27,13 @@ export default class Annotation {
         this.type.redrawSubject()
       }
     }
+  }
+
+  get className() { return this._className }
+
+  set className(className){
+    this._className = className
+    if (this.type.setClassName) this.type.setClassName()
   }
 
   updateOffset(){
