@@ -4705,8 +4705,8 @@ var Type = function () {
     value: function getNoteBBoxOffset() {
       var bbox = bboxWithoutHandles(this.note, '.annotation-note-content');
       var transform = this.noteContent.attr('transform').split(/\(|\,|\)/g);
-      bbox.offsetCornerX = parseFloat(transform[1]);
-      bbox.offsetCornerY = parseFloat(transform[2]);
+      bbox.offsetCornerX = parseFloat(transform[1]) + this.annotation.dx;
+      bbox.offsetCornerY = parseFloat(transform[2]) + this.annotation.dy;
       return bbox;
     }
 

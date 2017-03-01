@@ -102,9 +102,10 @@ class Type {
   getNoteBBoxOffset() { 
     const bbox = bboxWithoutHandles(this.note, '.annotation-note-content')
     const transform = this.noteContent.attr('transform').split(/\(|\,|\)/g)
-    bbox.offsetCornerX = parseFloat(transform[1])
-    bbox.offsetCornerY = parseFloat(transform[2])
-    return bbox }
+    bbox.offsetCornerX = parseFloat(transform[1]) + this.annotation.dx
+    bbox.offsetCornerY = parseFloat(transform[2]) + this.annotation.dy
+    return bbox 
+  }
 
   // getConnectorBBox() { return bboxWithoutHandles(this.connector)}
   // getSubjectBBox() { return bboxWithoutHandles(this.subject)}
