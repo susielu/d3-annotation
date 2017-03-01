@@ -47,7 +47,7 @@ export default function annotation(){
     
 
     const annotationG = selection.selectAll('g').data([collection])
-    annotationG.enter().append('g').attr('class', `annotations ${editMode ? "editable" : ""}`)
+    annotationG.enter().append('g').attr('class', `annotations`)
     
     const group = selection.select('g.annotations')
     newWithClass(group, collection.annotations, 'g', 'annotation')
@@ -131,11 +131,11 @@ export default function annotation(){
     if (collection) { 
       collection.annotations.map(a => {
         
-        let previousType = a.type
-        const className = type.className && type.className()
-        if (className){
-          previousType.a.attr('class', `annotation ${className}`)
-        }
+        // let previousType = a.type
+        // const className = type.className && type.className()
+        // if (className){
+        //   previousType.a.attr('class', `annotation ${className}`)
+        // }
      
         a.type.note && a.type.note.selectAll("*:not(.annotation-note-content)").remove()
         a.type.noteContent && a.type.noteContent.selectAll("*").remove()

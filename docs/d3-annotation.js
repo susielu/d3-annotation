@@ -3308,7 +3308,7 @@ function annotation() {
     });
 
     var annotationG = selection.selectAll('g').data([collection]);
-    annotationG.enter().append('g').attr('class', 'annotations ' + (editMode ? "editable" : ""));
+    annotationG.enter().append('g').attr('class', 'annotations');
 
     var group = selection.select('g.annotations');
     (0, _TypesD.newWithClass)(group, collection.annotations, 'g', 'annotation');
@@ -3395,11 +3395,11 @@ function annotation() {
     if (collection) {
       collection.annotations.map(function (a) {
 
-        var previousType = a.type;
-        var className = type.className && type.className();
-        if (className) {
-          previousType.a.attr('class', 'annotation ' + className);
-        }
+        // let previousType = a.type
+        // const className = type.className && type.className()
+        // if (className){
+        //   previousType.a.attr('class', `annotation ${className}`)
+        // }
 
         a.type.note && a.type.note.selectAll("*:not(.annotation-note-content)").remove();
         a.type.noteContent && a.type.noteContent.selectAll("*").remove();
