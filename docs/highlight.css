@@ -55,7 +55,7 @@
   color: #00897b;
 }
 
-pre, .hljs {
+pre{
   display: block;
   overflow-x: auto;
   background: #f3f3f3;
