@@ -1,19 +1,14 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <head>
-
-
   <meta name="author" content="Susie Lu">
   <meta name="description" content="Let's annotation all the things. This is a component for d3 that allows you add annotations to your visualizations.">
   <link rel="canonical" href="http://d3-annotation.susielu.com">
-
   <link href="https://fonts.googleapis.com/css?family=Bungee" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,700" rel="stylesheet">
   <link rel="stylesheet" href="materialize.min.css">
   <link rel="stylesheet" href="highlight.css">
   <style>
-
-
     :root {
       --font-color: #695B5B;
       --font-color-light: #eae4e4;
@@ -62,7 +57,7 @@
       color: var(--font-color);
       margin-top: 12px;
     }
-    
+
     nav .button-collapse img{
       vertical-align: middle;
     }
@@ -72,7 +67,7 @@
       left: 0;
       min-width: 390px;
     }
-    
+
     .table-of-contents a.active {
         border-left: 2px solid var(--accent-color);
     }
@@ -106,7 +101,7 @@
       width: 100%;
       height: 400px;
     }
-    
+
     /*.annotation.label text {
       text-anchor: middle;
     }*/
@@ -150,7 +145,7 @@
       fill: var(--accent-color);
       stroke-width: 3px;
       stroke-linecap: round;
-    } 
+    }
 
     .annotation.badge path.subject-ring {
       fill: white;
@@ -272,7 +267,7 @@
       <div class="col s12 m3 l3 hide-on-small-only">
           <ul class="col toc table-of-contents m2" id="toc1">
           </ul>
-          
+
       </div>
 
       <div>
@@ -293,8 +288,8 @@
           </nav>
       </div>
 
-      <div class="col s12 m9 l9"> 
-          <div class="section scrollspy" id="introduction"></div>          
+      <div class="col s12 m9 l9">
+          <div class="section scrollspy" id="introduction"></div>
           <div class="section scrollspy" id="anatomy"></div>
           <div class="section scrollspy" id="setup"></div>
           <div class="section scrollspy" id="annotation"></div>
@@ -317,7 +312,7 @@
                             On
                           </label>
                         </div>
-                      
+
                       </div>
 
                   </div>
@@ -340,14 +335,14 @@
                           <p>Line Type <a class="active" data-section="note:lineType" data-setting="none"><img src="img/none.png"/></a></p>
                          <a class="" data-section="note:lineType" data-setting="vertical"><img src="img/vertical.png"/></a>
                          <a class="" data-section="note:lineType" data-setting="horizontal"><img src="img/horizontal.png"/></a>
-                       
-                        
+
+
                         <div class="orientation">
                         <p >Orientation</p>
                          <a class="active" data-section="note:orientation" data-setting="topBottom"><img src="img/topBottom.png"/></a>
                          <a class="" data-section="note:orientation" data-setting="leftRight"><img src="img/leftRight.png"/></a>
                          </div>
-                        
+
                       </div>
                       <div class="col s3 note">
                           <br/>
@@ -355,7 +350,7 @@
                          <a class="" data-section="note:align" data-setting="dynamic"><img src="img/dynamic.png"/></a>
                            <a class="active" data-section="note:align" data-setting="middle"><img src="img/middle.png"/></a>
                          <a class="horizontal" data-section="note:align" data-setting="left"><img src="img/left.png"/></a>
-                       
+
                          <a class="horizontal" data-section="note:align" data-setting="right"><img src="img/right.png"/></a>
                          <a class="vertical hidden" data-section="note:align" data-setting="top"><img src="img/top.png"/></a>
                          <a class="vertical hidden" data-section="note:align" data-setting="bottom"><img src="img/down.png"/></a>
@@ -363,24 +358,24 @@
                       <div class="col s3 connector">
                           <br />
                          <label style="color: #9e9e9e;" for="textWrap">Text Wrap (120)</label>
-                          <input id="textWrap" 
+                          <input id="textWrap"
                           placeholder=120 type="number" >
-                       
+
                            <label style="color: #9e9e9e;"  for="padding">Text Padding (5)</label>
 
-                          <input id="padding" 
+                          <input id="padding"
                           placeholder=5 type="number" >
                       </div>
                       <div class="col m3 connector">
                       <p><b>Connector</b></p>
                         <p>Type <a class="" data-section="connector:type" data-setting="none"><img src="img/none.png"/></a></p>
-                        
+
                         <a class="active" data-section="connector:type"data-setting="line"><img src="img/line.png"/></a>
                         <a class="" data-section="connector:type" data-setting="elbow"><img src="img/elbow.png"/></a>
                         <a class="" data-section="connector:type" data-setting="curve"><img src="img/curve.png"/></a>
 
                         <p>End  <a class="active" data-section="connector:end" data-setting="none"><img src="img/none.png"/></a></p>
-                       
+
                         <a class="" data-section="connector:end" data-setting="arrow"><img src="img/arrow.png"/></a>
 
                         <a class="" data-section="connector:end" data-setting="dot"><img src="img/dot.png"/></a>
@@ -412,7 +407,7 @@
                     <li><a class="btn-floating  red lighten-4" data-curve="curveStep"><img src="img/step.png"/></a></li>
                   </ul>
                 </div>
-        
+
                <div class="fixed-action-btn horizontal">
                   <a class="btn-floating red lighten-4">
                     <img src="img/dots.png"/>
@@ -444,8 +439,6 @@
           </footer>
       </div>
     </div>
-    
-
   </div>
 <!-- TODO change this to minified version when deploying -->
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
@@ -453,5 +446,5 @@
 <script src="https://d3js.org/d3.v4.js"></script>
 <script src="d3-annotation.js"></script>
 <script src="docs-compiled.js"></script>
-<script src="ga.js"></script>
+<script src="ga.js" defer async></script>
 </body>

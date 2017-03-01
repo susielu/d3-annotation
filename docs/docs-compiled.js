@@ -1,11 +1,11 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = "<h2 id=\"anatomy-of-an-annotation\">Anatomy of an Annotation</h2>\n<p>All annotations are made of just three parts, a <strong>note</strong>, a <strong>connector</strong>, and a <strong>subject</strong>.</p>\n<p><img src=\"img/anatomy.png\" alt=\"Anatomy of an annotation\"></p>\n<p>They are the foundational blocks of this library.</p>\n";
 },{}],2:[function(require,module,exports){
-module.exports = "<h2 id=\"api\">API</h2>\n<p><strong>d3.annotation()</strong></p>\n<p>annotation.<strong>annotations([ objects ])</strong></p>\n<p>Pass an array of objects with annotation properties: </p>\n<ul>\n<li><strong>id</strong>: This can be anything that will help you filter and parse your annotations</li>\n</ul>\n<p><img src=\"img/json.png\" alt=\"Annotation JSON\"></p>\n<ul>\n<li><strong>x (number:pixels)</strong>: Position of the subject and one end of the connector</li>\n<li><strong>y (number:pixels)</strong>: Position of the subject and one end of the connector</li>\n<li><strong>data (object)</strong>: If you also set accessor functions, you can give data instead of x, y coordinates for placing your annotations</li>\n<li><strong>dy (number:pixels)</strong>: Position of the note and one end of the connector</li>\n<li><strong>dx (number:pixels)</strong>: Position of the note and one end of the connector</li>\n<li><strong>disable ([string])</strong>: takes the values &#39;connector&#39;, &#39;subject&#39;, and &#39;note&#39; pass them in this array if you want to disable those parts from rendering</li>\n<li><strong>note (object)</strong>: You can specify a title and label property here. All of the annotation types that come with d3-annotation have built in functionality to take the title and the label and add them to the note, however the underlying system is composable in a way that you could customize the note to contain any type of content</li>\n<li><strong>connector (object)</strong>: Some connectors such as the curve connector require additional paramters to set up the annotation</li>\n<li><strong>subject (object)</strong>: Some subjects such as the circle require additional parameters to set up the annotation</li>\n</ul>\n<p>TODO: come back, does this make sense to be renamed as &#39;mapping&#39;\nannotation.<strong>accessors({ x: function, y: function })</strong></p>\n<p>Functions that would map the .data attribute of your annotation to x and y positions. In the example below </p>\n<p>Example: </p>\n<pre><code>//Sample .data for an annotation \n//{date: \"2-Jan-08\", close: 194.84}\n\nconst parseTime = d3.timeParse(\"%d-%b-%y\");\n\nd3.annotation().accessors({ \n  x: d => x(parseTime(d.date)), \n  y: d => y(d.close)\n})\n</code></pre>\n\n<p>annotation.<strong>accessorsInverse({ &lt;x property mapping&gt;: function,  &lt;y property mapping&gt;: function })</strong></p>\n<p>The inverse of the accessor function. If you are given x, y coordinates, how to get back to the original data properties </p>\n<p>Example (goes with example from the accessors function): </p>\n<pre><code>//Sample .data for an annotation \n//{date: \"2-Jan-08\", close: 194.84}\n\nconst timeFormat = d3.timeFormat(\"%d-%b-%y\")\n\nd3.annotation().accessorsInverse({ \n  date: d => timeFormat(x.invert(d.x)),\n  close: d => y.invert(d.y) \n})\n</code></pre>\n\n<p>annotation.<strong>editMode(boolean)</strong></p>\n<p>If this is true, then the annotation will create handles for parts of the annotation that are draggable. You can style these handles with the <code>circle.handle</code> selector. If you are hooking this up to a button, you will need to run the update function below, after changing the editMode.</p>\n<p>annotation.<strong>update()</strong></p>\n<p>Redraws all of the annotations. Typcially used to reflect updated settings. If you are only updating the position (x, y) or the offset (dx, dy) you do not need to call this afterwards. Example in <a href=\"#encircle\">Layout - Encircling Annotation</a>.</p>\n<p>annotation.<strong>json()</strong></p>\n<p>You can run this in the developer console and it will print out the current annotation settings and copy them to your clipboard. Please note that in the console each annotation will also include the type that you&#39;ve associated with it. </p>\n<p>annotation.<strong>collection()</strong></p>\n<p>Access to the collection of annotations with the instantiated types.</p>\n";
+module.exports = "<h2 id=\"api\">API</h2>\n<p><strong>d3.annotation()</strong></p>\n<p>annotation.<strong>annotations([ objects ])</strong></p>\n<p>Pass an array of objects with annotation properties:</p>\n<ul>\n<li><strong>id</strong>: This can be anything that will help you filter and parse your annotations</li>\n</ul>\n<p><img src=\"img/json.png\" alt=\"Annotation JSON\"></p>\n<ul>\n<li><strong>x (number:pixels)</strong>: Position of the subject and one end of the connector</li>\n<li><strong>y (number:pixels)</strong>: Position of the subject and one end of the connector</li>\n<li><strong>data (object)</strong>: If you also set accessor functions, you can give data instead of x, y coordinates for placing your annotations</li>\n<li><strong>dy (number:pixels)</strong>: Position of the note and one end of the connector</li>\n<li><strong>dx (number:pixels)</strong>: Position of the note and one end of the connector</li>\n<li><strong>disable ([string])</strong>: takes the values &#39;connector&#39;, &#39;subject&#39;, and &#39;note&#39; pass them in this array if you want to disable those parts from rendering</li>\n<li><strong>note (object)</strong>: You can specify a title and label property here. All of the annotation types that come with d3-annotation have built in functionality to take the title and the label and add them to the note, however the underlying system is composable in a way that you could customize the note to contain any type of content</li>\n<li><strong>connector (object)</strong>: Some connectors such as the curve connector require additional paramters to set up the annotation</li>\n<li><strong>subject (object)</strong>: Some subjects such as the circle require additional parameters to set up the annotation</li>\n</ul>\n<p>TODO: come back, does this make sense to be renamed as &#39;mapping&#39;\nannotation.<strong>accessors({ x: function, y: function })</strong></p>\n<p>Functions that would map the .data attribute of your annotation to x and y positions. In the example below</p>\n<p>Example:</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-comment\">//Sample .data for an annotation</span>\n<span class=\"hljs-comment\">//{date: \"2-Jan-08\", close: 194.84}</span>\n\n<span class=\"hljs-keyword\">const</span> parseTime = d3.timeParse(<span class=\"hljs-string\">\"%d-%b-%y\"</span>);\n\nd3.annotation().accessors({\n  x: d =&gt; x(parseTime(d.date)),\n  y: d =&gt; y(d.close)\n})\n</code></pre>\n<p>annotation.<strong>accessorsInverse({ &lt;x property mapping&gt;: function,  &lt;y property mapping&gt;: function })</strong></p>\n<p>The inverse of the accessor function. If you are given x, y coordinates, how to get back to the original data properties</p>\n<p>Example (goes with example from the accessors function):</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-comment\">//Sample .data for an annotation</span>\n<span class=\"hljs-comment\">//{date: \"2-Jan-08\", close: 194.84}</span>\n\n<span class=\"hljs-keyword\">const</span> timeFormat = d3.timeFormat(<span class=\"hljs-string\">\"%d-%b-%y\"</span>)\n\nd3.annotation().accessorsInverse({\n  date: d =&gt; timeFormat(x.invert(d.x)),\n  close: d =&gt; y.invert(d.y)\n})\n</code></pre>\n<p>annotation.<strong>editMode(boolean)</strong></p>\n<p>If this is true, then the annotation will create handles for parts of the annotation that are draggable. You can style these handles with the <code>circle.handle</code> selector. If you are hooking this up to a button, you will need to run the update function below, after changing the editMode.</p>\n<p>annotation.<strong>update()</strong></p>\n<p>Redraws all of the annotations. Typcially used to reflect updated settings. If you are only updating the position (x, y) or the offset (dx, dy) you do not need to call this afterwards. Example in <a href=\"#encircle\">Layout - Encircling Annotation</a>.</p>\n<p>annotation.<strong>json()</strong></p>\n<p>You can run this in the developer console and it will print out the current annotation settings and copy them to your clipboard. Please note that in the console each annotation will also include the type that you&#39;ve associated with it.</p>\n<p>annotation.<strong>collection()</strong></p>\n<p>Access to the collection of annotations with the instantiated types.</p>\n";
 },{}],3:[function(require,module,exports){
 module.exports = "<ul>\n<li><a href=\"#introduction\">Introduction</a></li>\n<li><a href=\"#anatomy\">Anatomy</a></li>\n<li><a href=\"#setup\">Setup</a></li>\n<li><a href=\"#annotation\">API</a></li>\n<li><a href=\"#types\">Types</a></li>\n<li><a href=\"#custom\">Customizing Types</a></li>\n<li><a href=\"#styles\">Style Helpers</a></li>\n<li><a href=\"#in-practice\">In Practice</a></li>\n<li><a href=\"#extend\">Extending Types</a></li>\n<li><a href=\"#Notes\">Notes</a></li>\n</ul>\n";
 },{}],4:[function(require,module,exports){
-module.exports = "<h2 id=\"customizing-types\">Customizing Types</h2>\n<p><strong>d3.annotationCustomType(annotationType, typeSettings)</strong></p>\n<p>There are some basic settings you can use with the annotations above to customize an annotation type.</p>\n<pre>\n<code>const typeSettings = {\n  connector: { type: \"arrow\" }\n}\n\nconst calloutWithArrow = \n  d3.annotationCustomType(\n    d3.annotationCalloutElbow, \n    typeSettings\n  )\n\nd3.annotation() \n  .annotations([{\n      text: \"Plant paradise\",\n      data: {date: \"18-Sep-09\",    \n      close: 185.02},\n      dy: 37,\n      dx: 42,\n      //Your custom type\n      type: calloutWithArrow \n    }])\n  .editMode(true)\n</code>\n</pre>\n\n";
+module.exports = "<h2 id=\"customizing-types\">Customizing Types</h2>\n<p><strong>d3.annotationCustomType(annotationType, typeSettings)</strong></p>\n<p>There are some basic settings you can use with the annotations above to customize an annotation type.</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-keyword\">const</span> typeSettings = {\n  connector: { type: <span class=\"hljs-string\">\"arrow\"</span> }\n}\n\n<span class=\"hljs-keyword\">const</span> calloutWithArrow =\n  d3.annotationCustomType(\n    d3.annotationCalloutElbow,\n    typeSettings\n  )\n\nd3.annotation()\n  .annotations([{\n      text: <span class=\"hljs-string\">\"Plant paradise\"</span>,\n      data: {date: <span class=\"hljs-string\">\"18-Sep-09\"</span>,\n      close: <span class=\"hljs-number\">185.02</span>},\n      dy: <span class=\"hljs-number\">37</span>,\n      dx: <span class=\"hljs-number\">42</span>,\n      <span class=\"hljs-comment\">//Your custom type</span>\n      type: calloutWithArrow\n    }])\n  .editMode(<span class=\"hljs-literal\">true</span>)\n</code></pre>\n";
 },{}],5:[function(require,module,exports){
 module.exports = "<h2 id=\"extending-annotation-types\">Extending Annotation Types</h2>\n<h3 id=\"javascript-classes\">Javascript Classes</h3>\n<p>The underlying structure for the annotations and types are built with es6 JavaScript classes. To make your own custom type you can take any of the base types and extend them. </p>\n<h3 id=\"static-functions\">Static Functions</h3>\n<p><strong>STATIC className</strong></p>\n<p>A class that return a string for the class name you want to give your custom type.</p>\n<p><strong>STATIC init</strong></p>\n<p>An init function that is looped through</p>\n<p>Example, default init function</p>\n<p>Exampe, xyThreshold init function</p>\n<h3 id=\"drawing-functions\">Drawing Functions</h3>\n<p>These functions have a context parameter. Context is an object with gives you access to the annotation with all of its properties, and the relevant bounding box. </p>\n<p><strong>drawNote(context)</strong></p>\n<p><strong>drawNoteContent(context)</strong></p>\n<p><strong>drawConnector(context)</strong></p>\n<p><strong>drawSubject(context)</strong></p>\n<h3 id=\"overall-code-structure\">Overall Code structure</h3>\n<p><strong>Annotation Class</strong></p>\n<p>Each annotation is an instantiation of this class.</p>\n<p>Reference the <a href=\"https://github.com/susielu/d3-annotation/blob/master/src/Annotation.js\">souce code</a> for the full set of properties and functions. Most relevant properties: </p>\n<ul>\n<li>dx</li>\n<li>dy</li>\n<li>x</li>\n<li>y</li>\n<li>data</li>\n<li>offset: returns the dx, and dy, values as an object {x, y}</li>\n<li>position: returns the x, and y, values as an object {x, y}</li>\n</ul>\n<p><strong>Annotation Collection Class</strong></p>\n<p>When you run d3.annotation() it creates all of the annotations you pass it as Annotation Class instances and places them into an array as part of an Annotation Collection.</p>\n<p><strong>Types Class</strong></p>\n<p>Each of the annotation types is created </p>\n";
 },{}],6:[function(require,module,exports){
@@ -15,501 +15,379 @@ module.exports = "<h2 id=\"introduction\">Introduction</h2>\n<p>Annotations <str
 },{}],8:[function(require,module,exports){
 module.exports = "<h2 id=\"notes\">Notes</h2>\n<ul>\n<li>Mike Bostock d3</li>\n<li>Prior Art</li>\n<li>Google Fonts</li>\n<li>Materialize</li>\n</ul>\n";
 },{}],9:[function(require,module,exports){
-module.exports = "<h2 id=\"setup\">Setup</h2>\n<h3 id=\"include-the-file-directly\">Include the file directly</h3>\n<p>You must include the <a href=\"http://d3js.org/\">d3 library</a> before including the annotation file. Then you can add the compiled js file to your website</p>\n<ul>\n<li><a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.js\">Unminified</a></li>\n<li><a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.min.js\">Minified</a></li>\n</ul>\n<h3 id=\"using-npm\">Using NPM</h3>\n<p>You can add d3-annotation as a node module by running</p>\n<pre><code>npm i d3-svg-annotation -S</code></pre>\n\n";
+module.exports = "<h2 id=\"setup\">Setup</h2>\n<h3 id=\"include-the-file-directly\">Include the file directly</h3>\n<p>You must include the <a href=\"http://d3js.org/\">d3 library</a> before including the annotation file. Then you can add the compiled js file to your website</p>\n<ul>\n<li><a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.js\">Unminified</a></li>\n<li><a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.min.js\">Minified</a></li>\n</ul>\n<h3 id=\"using-npm\">Using NPM</h3>\n<p>You can add d3-annotation as a node module by running</p>\n<pre><code class=\"lang-bash\">npm i d3-svg-annotation -S\n</code></pre>\n";
 },{}],10:[function(require,module,exports){
 module.exports = "<h2 id=\"style-helpers\">Style helpers</h2>\n<p>Basic styles to use for the annotations available on <a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.css\">github</a>.</p>\n<p>Hierarchy of classes:\n<img src=\"img/classes.png\" alt=\"Annotation classes\"></p>\n";
 },{}],11:[function(require,module,exports){
-const md = require('marked');
-const contents = require('./content/contents.md')
-const introduction = require('./content/introduction.md')
-const anatomy = require('./content/anatomy.md')
-const start = require('./content/start.md')
-const annotation = require('./content/annotation.md')
-const styles = require('./content/styles.md')
-const custom = require('./content/custom.md')
-const inpractice = require('./content/inpractice.md')
-const extend = require('./content/extend.md')
-const notes = require('./content/notes.md')
-const highlight = require('highlight.js')
+'use strict';
 
-document.getElementById('toc1').innerHTML = md(contents);
-document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + md(contents)
-document.getElementById('introduction').innerHTML = md(introduction);
-document.getElementById('anatomy').innerHTML = md(anatomy);
-document.getElementById('setup').innerHTML = md(start);
+var contents = require('./content/contents.md');
+var introduction = require('./content/introduction.md');
+var anatomy = require('./content/anatomy.md');
+var start = require('./content/start.md');
+var annotation = require('./content/annotation.md');
+var styles = require('./content/styles.md');
+var custom = require('./content/custom.md');
+var inpractice = require('./content/inpractice.md');
+var extend = require('./content/extend.md');
+var notes = require('./content/notes.md');
+var highlight = require('highlight.js');
 
-document.getElementById('annotation').innerHTML = md(annotation);
-document.getElementById('styles').innerHTML = md(styles);
-document.getElementById('custom').innerHTML = md(custom);
-document.getElementById('in-practice').innerHTML = md(inpractice);
-document.getElementById('extend').innerHTML = md(extend);
-document.getElementById('notes').innerHTML = md(notes);
+document.getElementById('toc1').innerHTML = contents;
+document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + contents;
+document.getElementById('introduction').innerHTML = introduction;
+document.getElementById('anatomy').innerHTML = anatomy;
+document.getElementById('setup').innerHTML = start;
 
-$(document).ready(function(){
-    $('.scrollspy').scrollSpy();
-    $('.button-collapse').sideNav();
-    $('.toc').pushpin({
-      top: 140,
-      offset: 0
-    });
+document.getElementById('annotation').innerHTML = annotation;
+document.getElementById('styles').innerHTML = styles;
+document.getElementById('custom').innerHTML = custom;
+document.getElementById('in-practice').innerHTML = inpractice;
+document.getElementById('extend').innerHTML = extend;
+document.getElementById('notes').innerHTML = notes;
 
-    $('.collapsible').collapsible();
+$(document).ready(function () {
+  $('.scrollspy').scrollSpy();
+  $('.button-collapse').sideNav();
+  $('.toc').pushpin({
+    top: 140,
+    offset: 0
+  });
 
-    highlight.initHighlightingOnLoad();
+  $('.collapsible').collapsible();
 
-    const defaultSettings = {
-      className: "custom",
-      subject: {},
-      connector: {},
-      note: {} 
-    }
+  var defaultSettings = {
+    className: "custom",
+    subject: {},
+    connector: {},
+    note: {}
+  };
 
-    let typeSettings = JSON.parse(JSON.stringify(defaultSettings))
+  var typeSettings = JSON.parse(JSON.stringify(defaultSettings));
 
-    let currentType = d3.annotationLabel
-    let typeKey = "annotationLabel"
-    let curve = "curveCatmullRom"
-    let points = 2
-  
-    const types = {
-      annotationLabel: { 
-        typeSettings: {
-          note: { align: "middle", orientation: "topBottom" },
-          connector: { type: "line"}
-        },
-        summary: "A centered label annotation"
+  var currentType = d3.annotationLabel;
+  var typeKey = "annotationLabel";
+  var curve = "curveCatmullRom";
+  var points = 2;
+
+  var types = {
+    annotationLabel: {
+      typeSettings: {
+        note: { align: "middle", orientation: "topBottom" },
+        connector: { type: "line" }
       },
-      annotationCallout: { 
-        typeSettings: {
-            note: { align: "dynamic", lineType: "horizontal" },
-            connector: { type: "line"}
-        },
-        summary: "Adds a line along the note"
+      summary: "A centered label annotation"
+    },
+    annotationCallout: {
+      typeSettings: {
+        note: { align: "dynamic", lineType: "horizontal" },
+        connector: { type: "line" }
       },
-      annotationCalloutElbow: { 
-        typeSettings: {
-            note: { align: "dynamic", lineType: "horizontal" },
-            connector: { type: "elbow"}
-        },
-        summary: "Keeps connector at 45 and 90 degree angles"
+      summary: "Adds a line along the note"
+    },
+    annotationCalloutElbow: {
+      typeSettings: {
+        note: { align: "dynamic", lineType: "horizontal" },
+        connector: { type: "elbow" }
       },
-      annotationCalloutCircle: { 
-        typeSettings: {
-           note: { align: "dynamic", lineType: "horizontal" },
-            connector: { type: "elbow"}
-        },
-        summary: "Subject options: radius, innerRadius, outerRadius, ",
-        summaryCont: "radiusPadding",
-        subject: {
-          radius: 50,
-          radiusPadding: 5
-        }
+      summary: "Keeps connector at 45 and 90 degree angles"
+    },
+    annotationCalloutCircle: {
+      typeSettings: {
+        note: { align: "dynamic", lineType: "horizontal" },
+        connector: { type: "elbow" }
       },
-      annotationCalloutCurve: { 
-        typeSettings: {
-           note: { align: "dynamic", lineType: "horizontal" },
-            connector: { type: "curve"}
-        },
-        summary: "Connector options: curve, ",
-        summaryCont: "points(array of [x,y]s or number)"
+      summary: "Subject options: radius, innerRadius, outerRadius, ",
+      summaryCont: "radiusPadding",
+      subject: {
+        radius: 50,
+        radiusPadding: 5
+      }
+    },
+    annotationCalloutCurve: {
+      typeSettings: {
+        note: { align: "dynamic", lineType: "horizontal" },
+        connector: { type: "curve" }
       },
-      annotationXYThreshold: { 
-        typeSettings: {
-           note: { align: "dynamic", lineType: "horizontal" },
-            connector: { type: "elbow"}
-        },
-        summary: "Subject options: x1, x2 or y1, y2",
-        subject: {
-          x1: 0,
-          x2: 1000
-        }
+      summary: "Connector options: curve, ",
+      summaryCont: "points(array of [x,y]s or number)"
+    },
+    annotationXYThreshold: {
+      typeSettings: {
+        note: { align: "dynamic", lineType: "horizontal" },
+        connector: { type: "elbow" }
       },
-      annotationBadge: { 
-        typeSettings: {
-           note: { align: "dynamic", lineType: "horizontal" },
-            connector: { type: "elbow"}
-        },
-        summary: "Subject options: radius, text",
-        subject: {
-          radius: 14,
-          text: "A"
-        }
+      summary: "Subject options: x1, x2 or y1, y2",
+      subject: {
+        x1: 0,
+        x2: 1000
+      }
+    },
+    annotationBadge: {
+      typeSettings: {
+        note: { align: "dynamic", lineType: "horizontal" },
+        connector: { type: "elbow" }
+      },
+      summary: "Subject options: radius, text",
+      subject: {
+        radius: 14,
+        text: "A"
       }
     }
+  };
 
-    let editMode = true
-    let textWrap = 120
-    let padding = 5
+  var editMode = true;
+  var textWrap = 120;
+  var padding = 5;
 
-    const annotation = {
-        note: { label: "Longer text to show text wrapping",
-        title: "Annotations :)" },
-        x: 150,
-        y: 170,
-        dy: 117,
-        dx: 162
-      }
-    window.makeAnnotations = d3.annotation()
-    .editMode(editMode)
-    .type(currentType)
-    .annotations([annotation])
+  var annotation = {
+    note: { label: "Longer text to show text wrapping",
+      title: "Annotations :)" },
+    x: 150,
+    y: 170,
+    dy: 117,
+    dx: 162
+  };
+  window.makeAnnotations = d3.annotation().editMode(editMode).type(currentType).annotations([annotation]);
 
-    d3.selectAll('.icons .options a')
-      .on('click', function() {
+  d3.selectAll('.icons .options a').on('click', function () {
 
-        let type = d3.event.target.attributes['data-section'].value
-        const value = d3.event.target.attributes['data-setting'].value
-        d3.selectAll(`[data-section="${type}"]`)
-          .classed('active', false)
+    var type = d3.event.target.attributes['data-section'].value;
+    var value = d3.event.target.attributes['data-setting'].value;
+    d3.selectAll('[data-section="' + type + '"]').classed('active', false);
 
-        d3.selectAll(`[data-section="${type}"][data-setting="${value}"]`)
-          .classed('active', true)
+    d3.selectAll('[data-section="' + type + '"][data-setting="' + value + '"]').classed('active', true);
 
-        if (type === "note:lineType") {
-          if (value === "none"){
-          d3.selectAll(".icons .orientation")
-          .classed('hidden', false)
-        } else {
-            d3.selectAll(".icons .orientation")
-          .classed('hidden', true)
-          }
-        }
-
-        if ((type === "note:lineType" && value === "vertical") || (type === "note:orientation" && value === "leftRight")){
-          d3.selectAll("[data-section='note:align'].horizontal")
-          .classed('hidden', true)
-          d3.selectAll("[data-section='note:align'].vertical")
-          .classed('hidden', false)
-        } else if ((type === "note:lineType" && value === "horizontal") || (type === "note:orientation" && value === "topBottom")){
-          d3.selectAll("[data-section='note:align'].vertical")
-          .classed('hidden', true)
-          d3.selectAll("[data-section='note:align'].horizontal")
-          .classed('hidden', false)
-        }
-
-        type = type.split(':')
-
-
-        if (value === "none"){
-
-          delete typeSettings[type[0]][type[1]]
-          if (type[0] == "connector" && type[1] == "type"){
-            makeAnnotations.disable(['connector'])
-            makeAnnotations.update()
-          }
-        } else {
-
-          if (type[0] == "connector" && type[1] == "type"){
-            const connectorTypes = ['annotationCallout', 'annotationCalloutElbow', 'annotationCalloutCurve']
-            if (connectorTypes.indexOf(typeKey) !== -1){
-              if (value == "line"){
-                typeKey = 'annotationCallout'
-              } else if (value == "elbow"){
-                typeKey = 'annotationCalloutElbow'
-              } else if (value == "curve"){
-                typeKey = 'annotationCalloutCurve'
-              }
-
-              d3.selectAll(`.icons .presets img`)
-                .classed('active', false)
-
-              d3.selectAll(`[data-type="${typeKey}"]`)
-                .classed('active', true)
-            } else {
-             typeSettings[type[0]][type[1]] = value
-            }
-
-              if (value == "curve") {
-                d3.select('#curveButtons')
-                  .classed('hidden', false)
-              } else if (typeKey !== 'annotationCalloutCurve'){
-                d3.select('#curveButtons')
-                  .classed('hidden', true)
-              }
-
-            makeAnnotations.disable([])
-            makeAnnotations.update()
-          } else {
-            typeSettings[type[0]][type[1]] = value
-
-          }
-        }
-
-        currentType = d3.annotationCustomType(d3[typeKey], typeSettings)
-
-        updateAnnotations()
-        sandboxCode()
-    })
-
-    d3.selectAll('.icons .presets img')
-      .on('click', function(){
-        typeKey = d3.event.target.attributes['data-type'].value
-        currentType = d3[typeKey]
-
-        d3.selectAll(`.icons .presets img`)
-          .classed('active', false)
-
-        d3.selectAll(`[data-type="${typeKey}"]`)
-          .classed('active', true)
-
-        typeSettings = JSON.parse(JSON.stringify(defaultSettings))
-
-
-        if (typeKey == "annotationBadge") {
-          d3.select("li.options")
-            .classed("hidden", true)
-        } else {
-          d3.select("li.options")
-            .classed("hidden", false)
-        }
-
-        //set options
-        const options = types[typeKey].typeSettings
-
-        d3.selectAll('.icons .options a')
-          .classed('active', false)
-
-        d3.select(`.icons a[data-section="note:align"][data-setting="${options.note.align}"]`)
-          .classed('active', true)
-
-        if (options.note.lineType){
-          d3.select(`.icons a[data-section="note:lineType"][data-setting=${options.note.lineType}]`)
-          .classed('active', true)
-           d3.selectAll(".icons .orientation")
-          .classed('hidden', true)
-        } else {
-          d3.select(`.icons a[data-section="note:lineType"][data-setting="none"]`)
-          .classed('active', true)
-          d3.selectAll(".icons .orientation")
-          .classed('hidden', false)
-          d3.select(".icons .orientation a")
-          .classed('active', true)
-        }
-
-        d3.select('.icons a[data-section="connector:end"]')
-          .classed('active', true)
-
-        d3.select(`.icons a[data-section="connector:type"][data-setting=${options.connector.type}]`)
-          .classed('active', true)
-        
-        if (typeKey == "annotationCalloutCurve") {
-          d3.select('#curveButtons')
-            .classed('hidden', false)
-        } else {
-          d3.select('#curveButtons')
-            .classed('hidden', true)
-        }
-
-        updateAnnotations()
-        sandboxCode()
-
-      })
-     
-    d3.select('#editmode')
-      .on('change', function(){
-
-        editMode = d3.event.target.checked
-
-        makeAnnotations.editMode(editMode)
-        makeAnnotations.update()
-
-        sandboxCode()
-      })
-
-    d3.select('#textWrap')
-      .on('change', function(){
-        textWrap = parseInt(d3.event.target.value)
-        makeAnnotations.textWrap(textWrap).update()
-      })
-
-    d3.select('#padding')
-      .on('change', function(){
-        padding = parseInt(d3.event.target.value)
-        makeAnnotations.notePadding(padding).update()
-      })
-
-    d3.selectAll('#curveButtons ul.curves li a')
-      .on('click', function(){
-        curve = d3.event.target.attributes['data-curve'].value
-
-        updateAnnotations({ connector: { curve: d3[curve], points } })
-        sandboxCode()
-
-   })
-
-    d3.selectAll('#curveButtons ul.points li a')
-      .on('click', function(){
-        points = parseInt(d3.event.target.attributes['data-points'].value)
-
-        updateAnnotations({ connector: { curve: d3[curve], points } })
-        sandboxCode()
-
-   })
-
-    d3.select(".sandbox")
-      .append("g")
-      .attr("class", "sandbox-annotations")
-      .call(makeAnnotations)
-
-    const updateAnnotations = (newSettings) => {
-        d3.select(".sandbox g.sandbox-annotations")
-          .remove()
-
-        const subject = types[typeKey].subject
-        makeAnnotations.type( currentType, { subject, connector: newSettings && newSettings.connector } )
-
-        d3.select(".sandbox")
-          .append("g")
-          .attr("class", "sandbox-annotations")
-          .call(makeAnnotations)
-        
-        d3.select(".sandbox .type")
-          .text(`d3.${typeKey}`)
-
-        d3.select(".sandbox .summary")
-          .text(types[typeKey].summary)
-
-        d3.select(".sandbox .summaryCont")
-          .text(types[typeKey].summaryCont || "")
-    }
-
-    //change the text to have the right position for the annotation
-
-    const sandboxCode = () => { 
-      
-      const editModeText = editMode ? `  .editMode(true)\n` : ''
-
-      let typeText = 'const type = '
-
-      if (JSON.stringify(typeSettings) == JSON.stringify(defaultSettings)){
-        typeText += `d3.${typeKey}\n`
+    if (type === "note:lineType") {
+      if (value === "none") {
+        d3.selectAll(".icons .orientation").classed('hidden', false);
       } else {
-        let json = JSON.parse(JSON.stringify(typeSettings))
-
-        if (Object.keys(json.subject).length === 0){
-          delete json.subject
-        }
-
-        if (Object.keys(json.connector).length === 0){
-          delete json.connector
-        }
-        if (Object.keys(json.note).length === 0){
-          delete json.note
-        }
-        typeText += `d3.annotationCustomType(\n` +
-          `  d3.${typeKey}, \n` +
-          `  ${JSON.stringify(json).replace(/,/g, ',\n    ')}` +
-          `)\n`
+        d3.selectAll(".icons .orientation").classed('hidden', true);
       }
-
-      let disableText = ''
-
-      if (makeAnnotations.disable().length !== 0) {
-        disableText = '  //could also be set in the a disable property\n  //of the annotation JSON\n' +
-        `  .disable(${JSON.stringify(makeAnnotations.disable())})\n`
-      }
-
-      let textWrapText = ''
-
-      if (textWrap !== 120) {
-        textWrapText = '  //also can set and override in the note.wrap property\n  //of the annotation JSON\n' +
-        `  .textWrap(${textWrap})`
-      }
-
-      let paddingText = ''
-
-      if (padding !== 5) {
-        paddingText = '  //also can set and override in the note.padding property\n  //of the annotation JSON\n' +
-        `  .notePadding(${padding})`
-      }
-
-      let curveText = ''
-      if ((typeKey == "annotationCalloutCurve" || typeSettings.connector.type == "curve") && (curve !== 'curveCatmullRom' || points !== 2)){
-        curveText = '        connector: {\n' +
-          (curve !== 'curveCatmullRom' ? `          curve: d3.${curve}` : '') +
-          (points !== 2 && curve !== 'curveCatmullRom'? ',\n' : '' ) +
-          (points !== 2 ? `          points: ${points}` : '') +
-          '\n' +
-          '        }'
-      }
-
-      let subjectText = ''
-      if (typeKey === "annotationCalloutCircle"){
-        subjectText = `        subject: {\n` +
-                      '          radius: 50,\n' +
-                      '          radiusPadding: 5,\n' +
-                      '        }\n'
-      } else if (typeKey == "annotationXYThreshold"){
-        subjectText = `        subject: {\n` +
-                      '          x1: 0,\n' +
-                      '          x2: 500,\n' +
-                      '        }\n'
-      } else if (typeKey == "annotationBadge"){
-        subjectText = `        subject: {\n` +
-                      '          text: "A",\n' +
-                      '          radius: 14,\n' +
-                      '        }\n'
-      }
-
-      d3.select("#sandbox-code code")
-      .text(
-      typeText +
-      '\n' +
-      'const annotations = [{\n' +
-      '        notes: { label: "Longer text to show text wrapping",\n' +
-      '          title: "Annotations :)" },\n' +
-      '        //can use x, y directly instead of data\n' +
-      '        data: {date: "18-Sep-09", close: 185.02},\n' +
-      '        dy: 137,\n' +
-      `        dx: 162${curveText !== '' || subjectText !== '' ? ',' : ''}\n` +
-      curveText +
-      (subjectText !== '' && curveText !== ''? ',\n' : '') +
-      subjectText +
-      '      }]\n' + 
-      '\n' +
-      'const parseTime = d3.timeParse("%d-%b-%y")\n' +
-      'const timeFormat = d3.timeFormat("%d-%b-%y")\n' +
-      '\n'+
-      '//Skipping setting domains for sake of example\n' +
-      'const x = d3.scaleTime().range([0, 800])\n' +
-      'const y = d3.scaleLinear().range([300, 0])\n' +
-
-      '\n' +
-      'const makeAnnotations = d3.annotation()\n' +
-      editModeText +
-      disableText +
-      textWrapText +
-      paddingText +
-      `  .type(type)\n` +
-      '  //accessors & accessorsInverse not needed\n' +
-      '  //if using x, y in annotations JSON\n' +
-
-      '  .accessors({\n' + 
-      '    x: d => x(parseTime(d.date)),\n' + 
-      '    y: d => y(d.close)\n' +
-      '  })\n' +
-      '  .accessorsInverse({\n' + 
-      '     date: d => timeFormat(x.invert(d.x)),\n' +
-      '     close: d => y.invert(d.y)\n' +
-      '  })\n' +
-      `  .annotations(annotations)\n` +
-      '\n' +
-      'd3.select("svg")\n' +
-      '  .append("g")\n' +
-      '  .attr("class", "annotation-test")\n' +
-      '  .call(makeAnnotations)\n' 
-      )
-
-      $('#sandbox-code code, #sandbox-code-with-scales code').each(function(i, block) {
-        highlight.highlightBlock(block);
-      });
     }
 
-    sandboxCode()
+    if (type === "note:lineType" && value === "vertical" || type === "note:orientation" && value === "leftRight") {
+      d3.selectAll("[data-section='note:align'].horizontal").classed('hidden', true);
+      d3.selectAll("[data-section='note:align'].vertical").classed('hidden', false);
+    } else if (type === "note:lineType" && value === "horizontal" || type === "note:orientation" && value === "topBottom") {
+      d3.selectAll("[data-section='note:align'].vertical").classed('hidden', true);
+      d3.selectAll("[data-section='note:align'].horizontal").classed('hidden', false);
+    }
 
-  
+    type = type.split(':');
+
+    if (value === "none") {
+
+      delete typeSettings[type[0]][type[1]];
+      if (type[0] == "connector" && type[1] == "type") {
+        makeAnnotations.disable(['connector']);
+        makeAnnotations.update();
+      }
+    } else {
+
+      if (type[0] == "connector" && type[1] == "type") {
+        var connectorTypes = ['annotationCallout', 'annotationCalloutElbow', 'annotationCalloutCurve'];
+        if (connectorTypes.indexOf(typeKey) !== -1) {
+          if (value == "line") {
+            typeKey = 'annotationCallout';
+          } else if (value == "elbow") {
+            typeKey = 'annotationCalloutElbow';
+          } else if (value == "curve") {
+            typeKey = 'annotationCalloutCurve';
+          }
+
+          d3.selectAll('.icons .presets img').classed('active', false);
+
+          d3.selectAll('[data-type="' + typeKey + '"]').classed('active', true);
+        } else {
+          typeSettings[type[0]][type[1]] = value;
+        }
+
+        if (value == "curve") {
+          d3.select('#curveButtons').classed('hidden', false);
+        } else if (typeKey !== 'annotationCalloutCurve') {
+          d3.select('#curveButtons').classed('hidden', true);
+        }
+
+        makeAnnotations.disable([]);
+        makeAnnotations.update();
+      } else {
+        typeSettings[type[0]][type[1]] = value;
+      }
+    }
+
+    currentType = d3.annotationCustomType(d3[typeKey], typeSettings);
+
+    updateAnnotations();
+    sandboxCode();
+  });
+
+  d3.selectAll('.icons .presets img').on('click', function () {
+    typeKey = d3.event.target.attributes['data-type'].value;
+    currentType = d3[typeKey];
+
+    d3.selectAll('.icons .presets img').classed('active', false);
+
+    d3.selectAll('[data-type="' + typeKey + '"]').classed('active', true);
+
+    typeSettings = JSON.parse(JSON.stringify(defaultSettings));
+
+    if (typeKey == "annotationBadge") {
+      d3.select("li.options").classed("hidden", true);
+    } else {
+      d3.select("li.options").classed("hidden", false);
+    }
+
+    //set options
+    var options = types[typeKey].typeSettings;
+
+    d3.selectAll('.icons .options a').classed('active', false);
+
+    d3.select('.icons a[data-section="note:align"][data-setting="' + options.note.align + '"]').classed('active', true);
+
+    if (options.note.lineType) {
+      d3.select('.icons a[data-section="note:lineType"][data-setting=' + options.note.lineType + ']').classed('active', true);
+      d3.selectAll(".icons .orientation").classed('hidden', true);
+    } else {
+      d3.select('.icons a[data-section="note:lineType"][data-setting="none"]').classed('active', true);
+      d3.selectAll(".icons .orientation").classed('hidden', false);
+      d3.select(".icons .orientation a").classed('active', true);
+    }
+
+    d3.select('.icons a[data-section="connector:end"]').classed('active', true);
+
+    d3.select('.icons a[data-section="connector:type"][data-setting=' + options.connector.type + ']').classed('active', true);
+
+    if (typeKey == "annotationCalloutCurve") {
+      d3.select('#curveButtons').classed('hidden', false);
+    } else {
+      d3.select('#curveButtons').classed('hidden', true);
+    }
+
+    updateAnnotations();
+    sandboxCode();
+  });
+
+  d3.select('#editmode').on('change', function () {
+
+    editMode = d3.event.target.checked;
+
+    makeAnnotations.editMode(editMode);
+    makeAnnotations.update();
+
+    sandboxCode();
+  });
+
+  d3.select('#textWrap').on('change', function () {
+    textWrap = parseInt(d3.event.target.value);
+    makeAnnotations.textWrap(textWrap).update();
+  });
+
+  d3.select('#padding').on('change', function () {
+    padding = parseInt(d3.event.target.value);
+    makeAnnotations.notePadding(padding).update();
+  });
+
+  d3.selectAll('#curveButtons ul.curves li a').on('click', function () {
+    curve = d3.event.target.attributes['data-curve'].value;
+
+    updateAnnotations({ connector: { curve: d3[curve], points: points } });
+    sandboxCode();
+  });
+
+  d3.selectAll('#curveButtons ul.points li a').on('click', function () {
+    points = parseInt(d3.event.target.attributes['data-points'].value);
+
+    updateAnnotations({ connector: { curve: d3[curve], points: points } });
+    sandboxCode();
+  });
+
+  d3.select(".sandbox").append("g").attr("class", "sandbox-annotations").call(makeAnnotations);
+
+  var updateAnnotations = function updateAnnotations(newSettings) {
+    d3.select(".sandbox g.sandbox-annotations").remove();
+
+    var subject = types[typeKey].subject;
+    makeAnnotations.type(currentType, { subject: subject, connector: newSettings && newSettings.connector });
+
+    d3.select(".sandbox").append("g").attr("class", "sandbox-annotations").call(makeAnnotations);
+
+    d3.select(".sandbox .type").text('d3.' + typeKey);
+
+    d3.select(".sandbox .summary").text(types[typeKey].summary);
+
+    d3.select(".sandbox .summaryCont").text(types[typeKey].summaryCont || "");
+  };
+
+  //change the text to have the right position for the annotation
+
+  var sandboxCode = function sandboxCode() {
+
+    var editModeText = editMode ? '  .editMode(true)\n' : '';
+
+    var typeText = 'const type = ';
+
+    if (JSON.stringify(typeSettings) == JSON.stringify(defaultSettings)) {
+      typeText += 'd3.' + typeKey + '\n';
+    } else {
+      var json = JSON.parse(JSON.stringify(typeSettings));
+
+      if (Object.keys(json.subject).length === 0) {
+        delete json.subject;
+      }
+
+      if (Object.keys(json.connector).length === 0) {
+        delete json.connector;
+      }
+      if (Object.keys(json.note).length === 0) {
+        delete json.note;
+      }
+      typeText += 'd3.annotationCustomType(\n' + ('  d3.' + typeKey + ', \n') + ('  ' + JSON.stringify(json).replace(/,/g, ',\n    ')) + ')\n';
+    }
+
+    var disableText = '';
+
+    if (makeAnnotations.disable().length !== 0) {
+      disableText = '  //could also be set in the a disable property\n  //of the annotation JSON\n' + ('  .disable(' + JSON.stringify(makeAnnotations.disable()) + ')\n');
+    }
+
+    var textWrapText = '';
+
+    if (textWrap !== 120) {
+      textWrapText = '  //also can set and override in the note.wrap property\n  //of the annotation JSON\n' + ('  .textWrap(' + textWrap + ')');
+    }
+
+    var paddingText = '';
+
+    if (padding !== 5) {
+      paddingText = '  //also can set and override in the note.padding property\n  //of the annotation JSON\n' + ('  .notePadding(' + padding + ')');
+    }
+
+    var curveText = '';
+    if ((typeKey == "annotationCalloutCurve" || typeSettings.connector.type == "curve") && (curve !== 'curveCatmullRom' || points !== 2)) {
+      curveText = '        connector: {\n' + (curve !== 'curveCatmullRom' ? '          curve: d3.' + curve : '') + (points !== 2 && curve !== 'curveCatmullRom' ? ',\n' : '') + (points !== 2 ? '          points: ' + points : '') + '\n' + '        }';
+    }
+
+    var subjectText = '';
+    if (typeKey === "annotationCalloutCircle") {
+      subjectText = '        subject: {\n' + '          radius: 50,\n' + '          radiusPadding: 5,\n' + '        }\n';
+    } else if (typeKey == "annotationXYThreshold") {
+      subjectText = '        subject: {\n' + '          x1: 0,\n' + '          x2: 500,\n' + '        }\n';
+    } else if (typeKey == "annotationBadge") {
+      subjectText = '        subject: {\n' + '          text: "A",\n' + '          radius: 14,\n' + '        }\n';
+    }
+
+    d3.select("#sandbox-code code").text(typeText + '\n' + 'const annotations = [{\n' + '        notes: { label: "Longer text to show text wrapping",\n' + '          title: "Annotations :)" },\n' + '        //can use x, y directly instead of data\n' + '        data: {date: "18-Sep-09", close: 185.02},\n' + '        dy: 137,\n' + ('        dx: 162' + (curveText !== '' || subjectText !== '' ? ',' : '') + '\n') + curveText + (subjectText !== '' && curveText !== '' ? ',\n' : '') + subjectText + '      }]\n' + '\n' + 'const parseTime = d3.timeParse("%d-%b-%y")\n' + 'const timeFormat = d3.timeFormat("%d-%b-%y")\n' + '\n' + '//Skipping setting domains for sake of example\n' + 'const x = d3.scaleTime().range([0, 800])\n' + 'const y = d3.scaleLinear().range([300, 0])\n' + '\n' + 'const makeAnnotations = d3.annotation()\n' + editModeText + disableText + textWrapText + paddingText + '  .type(type)\n' + '  //accessors & accessorsInverse not needed\n' + '  //if using x, y in annotations JSON\n' + '  .accessors({\n' + '    x: d => x(parseTime(d.date)),\n' + '    y: d => y(d.close)\n' + '  })\n' + '  .accessorsInverse({\n' + '     date: d => timeFormat(x.invert(d.x)),\n' + '     close: d => y.invert(d.y)\n' + '  })\n' + '  .annotations(annotations)\n' + '\n' + 'd3.select("svg")\n' + '  .append("g")\n' + '  .attr("class", "annotation-test")\n' + '  .call(makeAnnotations)\n');
+
+    $('#sandbox-code code, #sandbox-code-with-scales code').each(function (i, block) {
+      highlight.highlightBlock(block);
+    });
+  };
+
+  sandboxCode();
 });
-},{"./content/anatomy.md":1,"./content/annotation.md":2,"./content/contents.md":3,"./content/custom.md":4,"./content/extend.md":5,"./content/inpractice.md":6,"./content/introduction.md":7,"./content/notes.md":8,"./content/start.md":9,"./content/styles.md":10,"highlight.js":13,"marked":151}],12:[function(require,module,exports){
+
+},{"./content/anatomy.md":1,"./content/annotation.md":2,"./content/contents.md":3,"./content/custom.md":4,"./content/extend.md":5,"./content/inpractice.md":6,"./content/introduction.md":7,"./content/notes.md":8,"./content/start.md":9,"./content/styles.md":10,"highlight.js":13}],12:[function(require,module,exports){
 /*
 Syntax highlighting with language autodetection.
 https://highlightjs.org/
@@ -14220,1294 +14098,4 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],151:[function(require,module,exports){
-(function (global){
-/**
- * marked - a markdown parser
- * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
- * https://github.com/chjj/marked
- */
-
-;(function() {
-
-/**
- * Block-Level Grammar
- */
-
-var block = {
-  newline: /^\n+/,
-  code: /^( {4}[^\n]+\n*)+/,
-  fences: noop,
-  hr: /^( *[-*_]){3,} *(?:\n+|$)/,
-  heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
-  nptable: noop,
-  lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
-  blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
-  list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
-  html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
-  def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
-  table: noop,
-  paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
-  text: /^[^\n]+/
-};
-
-block.bullet = /(?:[*+-]|\d+\.)/;
-block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;
-block.item = replace(block.item, 'gm')
-  (/bull/g, block.bullet)
-  ();
-
-block.list = replace(block.list)
-  (/bull/g, block.bullet)
-  ('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
-  ('def', '\\n+(?=' + block.def.source + ')')
-  ();
-
-block.blockquote = replace(block.blockquote)
-  ('def', block.def)
-  ();
-
-block._tag = '(?!(?:'
-  + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
-  + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
-  + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b';
-
-block.html = replace(block.html)
-  ('comment', /<!--[\s\S]*?-->/)
-  ('closed', /<(tag)[\s\S]+?<\/\1>/)
-  ('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
-  (/tag/g, block._tag)
-  ();
-
-block.paragraph = replace(block.paragraph)
-  ('hr', block.hr)
-  ('heading', block.heading)
-  ('lheading', block.lheading)
-  ('blockquote', block.blockquote)
-  ('tag', '<' + block._tag)
-  ('def', block.def)
-  ();
-
-/**
- * Normal Block Grammar
- */
-
-block.normal = merge({}, block);
-
-/**
- * GFM Block Grammar
- */
-
-block.gfm = merge({}, block.normal, {
-  fences: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,
-  paragraph: /^/,
-  heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
-});
-
-block.gfm.paragraph = replace(block.paragraph)
-  ('(?!', '(?!'
-    + block.gfm.fences.source.replace('\\1', '\\2') + '|'
-    + block.list.source.replace('\\1', '\\3') + '|')
-  ();
-
-/**
- * GFM + Tables Block Grammar
- */
-
-block.tables = merge({}, block.gfm, {
-  nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
-  table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
-});
-
-/**
- * Block Lexer
- */
-
-function Lexer(options) {
-  this.tokens = [];
-  this.tokens.links = {};
-  this.options = options || marked.defaults;
-  this.rules = block.normal;
-
-  if (this.options.gfm) {
-    if (this.options.tables) {
-      this.rules = block.tables;
-    } else {
-      this.rules = block.gfm;
-    }
-  }
-}
-
-/**
- * Expose Block Rules
- */
-
-Lexer.rules = block;
-
-/**
- * Static Lex Method
- */
-
-Lexer.lex = function(src, options) {
-  var lexer = new Lexer(options);
-  return lexer.lex(src);
-};
-
-/**
- * Preprocessing
- */
-
-Lexer.prototype.lex = function(src) {
-  src = src
-    .replace(/\r\n|\r/g, '\n')
-    .replace(/\t/g, '    ')
-    .replace(/\u00a0/g, ' ')
-    .replace(/\u2424/g, '\n');
-
-  return this.token(src, true);
-};
-
-/**
- * Lexing
- */
-
-Lexer.prototype.token = function(src, top, bq) {
-  var src = src.replace(/^ +$/gm, '')
-    , next
-    , loose
-    , cap
-    , bull
-    , b
-    , item
-    , space
-    , i
-    , l;
-
-  while (src) {
-    // newline
-    if (cap = this.rules.newline.exec(src)) {
-      src = src.substring(cap[0].length);
-      if (cap[0].length > 1) {
-        this.tokens.push({
-          type: 'space'
-        });
-      }
-    }
-
-    // code
-    if (cap = this.rules.code.exec(src)) {
-      src = src.substring(cap[0].length);
-      cap = cap[0].replace(/^ {4}/gm, '');
-      this.tokens.push({
-        type: 'code',
-        text: !this.options.pedantic
-          ? cap.replace(/\n+$/, '')
-          : cap
-      });
-      continue;
-    }
-
-    // fences (gfm)
-    if (cap = this.rules.fences.exec(src)) {
-      src = src.substring(cap[0].length);
-      this.tokens.push({
-        type: 'code',
-        lang: cap[2],
-        text: cap[3] || ''
-      });
-      continue;
-    }
-
-    // heading
-    if (cap = this.rules.heading.exec(src)) {
-      src = src.substring(cap[0].length);
-      this.tokens.push({
-        type: 'heading',
-        depth: cap[1].length,
-        text: cap[2]
-      });
-      continue;
-    }
-
-    // table no leading pipe (gfm)
-    if (top && (cap = this.rules.nptable.exec(src))) {
-      src = src.substring(cap[0].length);
-
-      item = {
-        type: 'table',
-        header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-        align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3].replace(/\n$/, '').split('\n')
-      };
-
-      for (i = 0; i < item.align.length; i++) {
-        if (/^ *-+: *$/.test(item.align[i])) {
-          item.align[i] = 'right';
-        } else if (/^ *:-+: *$/.test(item.align[i])) {
-          item.align[i] = 'center';
-        } else if (/^ *:-+ *$/.test(item.align[i])) {
-          item.align[i] = 'left';
-        } else {
-          item.align[i] = null;
-        }
-      }
-
-      for (i = 0; i < item.cells.length; i++) {
-        item.cells[i] = item.cells[i].split(/ *\| */);
-      }
-
-      this.tokens.push(item);
-
-      continue;
-    }
-
-    // lheading
-    if (cap = this.rules.lheading.exec(src)) {
-      src = src.substring(cap[0].length);
-      this.tokens.push({
-        type: 'heading',
-        depth: cap[2] === '=' ? 1 : 2,
-        text: cap[1]
-      });
-      continue;
-    }
-
-    // hr
-    if (cap = this.rules.hr.exec(src)) {
-      src = src.substring(cap[0].length);
-      this.tokens.push({
-        type: 'hr'
-      });
-      continue;
-    }
-
-    // blockquote
-    if (cap = this.rules.blockquote.exec(src)) {
-      src = src.substring(cap[0].length);
-
-      this.tokens.push({
-        type: 'blockquote_start'
-      });
-
-      cap = cap[0].replace(/^ *> ?/gm, '');
-
-      // Pass `top` to keep the current
-      // "toplevel" state. This is exactly
-      // how markdown.pl works.
-      this.token(cap, top, true);
-
-      this.tokens.push({
-        type: 'blockquote_end'
-      });
-
-      continue;
-    }
-
-    // list
-    if (cap = this.rules.list.exec(src)) {
-      src = src.substring(cap[0].length);
-      bull = cap[2];
-
-      this.tokens.push({
-        type: 'list_start',
-        ordered: bull.length > 1
-      });
-
-      // Get each top-level item.
-      cap = cap[0].match(this.rules.item);
-
-      next = false;
-      l = cap.length;
-      i = 0;
-
-      for (; i < l; i++) {
-        item = cap[i];
-
-        // Remove the list item's bullet
-        // so it is seen as the next token.
-        space = item.length;
-        item = item.replace(/^ *([*+-]|\d+\.) +/, '');
-
-        // Outdent whatever the
-        // list item contains. Hacky.
-        if (~item.indexOf('\n ')) {
-          space -= item.length;
-          item = !this.options.pedantic
-            ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
-            : item.replace(/^ {1,4}/gm, '');
-        }
-
-        // Determine whether the next list item belongs here.
-        // Backpedal if it does not belong in this list.
-        if (this.options.smartLists && i !== l - 1) {
-          b = block.bullet.exec(cap[i + 1])[0];
-          if (bull !== b && !(bull.length > 1 && b.length > 1)) {
-            src = cap.slice(i + 1).join('\n') + src;
-            i = l - 1;
-          }
-        }
-
-        // Determine whether item is loose or not.
-        // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
-        // for discount behavior.
-        loose = next || /\n\n(?!\s*$)/.test(item);
-        if (i !== l - 1) {
-          next = item.charAt(item.length - 1) === '\n';
-          if (!loose) loose = next;
-        }
-
-        this.tokens.push({
-          type: loose
-            ? 'loose_item_start'
-            : 'list_item_start'
-        });
-
-        // Recurse.
-        this.token(item, false, bq);
-
-        this.tokens.push({
-          type: 'list_item_end'
-        });
-      }
-
-      this.tokens.push({
-        type: 'list_end'
-      });
-
-      continue;
-    }
-
-    // html
-    if (cap = this.rules.html.exec(src)) {
-      src = src.substring(cap[0].length);
-      this.tokens.push({
-        type: this.options.sanitize
-          ? 'paragraph'
-          : 'html',
-        pre: !this.options.sanitizer
-          && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-        text: cap[0]
-      });
-      continue;
-    }
-
-    // def
-    if ((!bq && top) && (cap = this.rules.def.exec(src))) {
-      src = src.substring(cap[0].length);
-      this.tokens.links[cap[1].toLowerCase()] = {
-        href: cap[2],
-        title: cap[3]
-      };
-      continue;
-    }
-
-    // table (gfm)
-    if (top && (cap = this.rules.table.exec(src))) {
-      src = src.substring(cap[0].length);
-
-      item = {
-        type: 'table',
-        header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
-        align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n')
-      };
-
-      for (i = 0; i < item.align.length; i++) {
-        if (/^ *-+: *$/.test(item.align[i])) {
-          item.align[i] = 'right';
-        } else if (/^ *:-+: *$/.test(item.align[i])) {
-          item.align[i] = 'center';
-        } else if (/^ *:-+ *$/.test(item.align[i])) {
-          item.align[i] = 'left';
-        } else {
-          item.align[i] = null;
-        }
-      }
-
-      for (i = 0; i < item.cells.length; i++) {
-        item.cells[i] = item.cells[i]
-          .replace(/^ *\| *| *\| *$/g, '')
-          .split(/ *\| */);
-      }
-
-      this.tokens.push(item);
-
-      continue;
-    }
-
-    // top-level paragraph
-    if (top && (cap = this.rules.paragraph.exec(src))) {
-      src = src.substring(cap[0].length);
-      this.tokens.push({
-        type: 'paragraph',
-        text: cap[1].charAt(cap[1].length - 1) === '\n'
-          ? cap[1].slice(0, -1)
-          : cap[1]
-      });
-      continue;
-    }
-
-    // text
-    if (cap = this.rules.text.exec(src)) {
-      // Top-level should never reach here.
-      src = src.substring(cap[0].length);
-      this.tokens.push({
-        type: 'text',
-        text: cap[0]
-      });
-      continue;
-    }
-
-    if (src) {
-      throw new
-        Error('Infinite loop on byte: ' + src.charCodeAt(0));
-    }
-  }
-
-  return this.tokens;
-};
-
-/**
- * Inline-Level Grammar
- */
-
-var inline = {
-  escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
-  autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
-  url: noop,
-  tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
-  link: /^!?\[(inside)\]\(href\)/,
-  reflink: /^!?\[(inside)\]\s*\[([^\]]*)\]/,
-  nolink: /^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,
-  strong: /^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,
-  em: /^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
-  code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
-  br: /^ {2,}\n(?!\s*$)/,
-  del: noop,
-  text: /^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/
-};
-
-inline._inside = /(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/;
-inline._href = /\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;
-
-inline.link = replace(inline.link)
-  ('inside', inline._inside)
-  ('href', inline._href)
-  ();
-
-inline.reflink = replace(inline.reflink)
-  ('inside', inline._inside)
-  ();
-
-/**
- * Normal Inline Grammar
- */
-
-inline.normal = merge({}, inline);
-
-/**
- * Pedantic Inline Grammar
- */
-
-inline.pedantic = merge({}, inline.normal, {
-  strong: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
-  em: /^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/
-});
-
-/**
- * GFM Inline Grammar
- */
-
-inline.gfm = merge({}, inline.normal, {
-  escape: replace(inline.escape)('])', '~|])')(),
-  url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
-  del: /^~~(?=\S)([\s\S]*?\S)~~/,
-  text: replace(inline.text)
-    (']|', '~]|')
-    ('|', '|https?://|')
-    ()
-});
-
-/**
- * GFM + Line Breaks Inline Grammar
- */
-
-inline.breaks = merge({}, inline.gfm, {
-  br: replace(inline.br)('{2,}', '*')(),
-  text: replace(inline.gfm.text)('{2,}', '*')()
-});
-
-/**
- * Inline Lexer & Compiler
- */
-
-function InlineLexer(links, options) {
-  this.options = options || marked.defaults;
-  this.links = links;
-  this.rules = inline.normal;
-  this.renderer = this.options.renderer || new Renderer;
-  this.renderer.options = this.options;
-
-  if (!this.links) {
-    throw new
-      Error('Tokens array requires a `links` property.');
-  }
-
-  if (this.options.gfm) {
-    if (this.options.breaks) {
-      this.rules = inline.breaks;
-    } else {
-      this.rules = inline.gfm;
-    }
-  } else if (this.options.pedantic) {
-    this.rules = inline.pedantic;
-  }
-}
-
-/**
- * Expose Inline Rules
- */
-
-InlineLexer.rules = inline;
-
-/**
- * Static Lexing/Compiling Method
- */
-
-InlineLexer.output = function(src, links, options) {
-  var inline = new InlineLexer(links, options);
-  return inline.output(src);
-};
-
-/**
- * Lexing/Compiling
- */
-
-InlineLexer.prototype.output = function(src) {
-  var out = ''
-    , link
-    , text
-    , href
-    , cap;
-
-  while (src) {
-    // escape
-    if (cap = this.rules.escape.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += cap[1];
-      continue;
-    }
-
-    // autolink
-    if (cap = this.rules.autolink.exec(src)) {
-      src = src.substring(cap[0].length);
-      if (cap[2] === '@') {
-        text = cap[1].charAt(6) === ':'
-          ? this.mangle(cap[1].substring(7))
-          : this.mangle(cap[1]);
-        href = this.mangle('mailto:') + text;
-      } else {
-        text = escape(cap[1]);
-        href = text;
-      }
-      out += this.renderer.link(href, null, text);
-      continue;
-    }
-
-    // url (gfm)
-    if (!this.inLink && (cap = this.rules.url.exec(src))) {
-      src = src.substring(cap[0].length);
-      text = escape(cap[1]);
-      href = text;
-      out += this.renderer.link(href, null, text);
-      continue;
-    }
-
-    // tag
-    if (cap = this.rules.tag.exec(src)) {
-      if (!this.inLink && /^<a /i.test(cap[0])) {
-        this.inLink = true;
-      } else if (this.inLink && /^<\/a>/i.test(cap[0])) {
-        this.inLink = false;
-      }
-      src = src.substring(cap[0].length);
-      out += this.options.sanitize
-        ? this.options.sanitizer
-          ? this.options.sanitizer(cap[0])
-          : escape(cap[0])
-        : cap[0]
-      continue;
-    }
-
-    // link
-    if (cap = this.rules.link.exec(src)) {
-      src = src.substring(cap[0].length);
-      this.inLink = true;
-      out += this.outputLink(cap, {
-        href: cap[2],
-        title: cap[3]
-      });
-      this.inLink = false;
-      continue;
-    }
-
-    // reflink, nolink
-    if ((cap = this.rules.reflink.exec(src))
-        || (cap = this.rules.nolink.exec(src))) {
-      src = src.substring(cap[0].length);
-      link = (cap[2] || cap[1]).replace(/\s+/g, ' ');
-      link = this.links[link.toLowerCase()];
-      if (!link || !link.href) {
-        out += cap[0].charAt(0);
-        src = cap[0].substring(1) + src;
-        continue;
-      }
-      this.inLink = true;
-      out += this.outputLink(cap, link);
-      this.inLink = false;
-      continue;
-    }
-
-    // strong
-    if (cap = this.rules.strong.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += this.renderer.strong(this.output(cap[2] || cap[1]));
-      continue;
-    }
-
-    // em
-    if (cap = this.rules.em.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += this.renderer.em(this.output(cap[2] || cap[1]));
-      continue;
-    }
-
-    // code
-    if (cap = this.rules.code.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += this.renderer.codespan(escape(cap[2], true));
-      continue;
-    }
-
-    // br
-    if (cap = this.rules.br.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += this.renderer.br();
-      continue;
-    }
-
-    // del (gfm)
-    if (cap = this.rules.del.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += this.renderer.del(this.output(cap[1]));
-      continue;
-    }
-
-    // text
-    if (cap = this.rules.text.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += this.renderer.text(escape(this.smartypants(cap[0])));
-      continue;
-    }
-
-    if (src) {
-      throw new
-        Error('Infinite loop on byte: ' + src.charCodeAt(0));
-    }
-  }
-
-  return out;
-};
-
-/**
- * Compile Link
- */
-
-InlineLexer.prototype.outputLink = function(cap, link) {
-  var href = escape(link.href)
-    , title = link.title ? escape(link.title) : null;
-
-  return cap[0].charAt(0) !== '!'
-    ? this.renderer.link(href, title, this.output(cap[1]))
-    : this.renderer.image(href, title, escape(cap[1]));
-};
-
-/**
- * Smartypants Transformations
- */
-
-InlineLexer.prototype.smartypants = function(text) {
-  if (!this.options.smartypants) return text;
-  return text
-    // em-dashes
-    .replace(/---/g, '\u2014')
-    // en-dashes
-    .replace(/--/g, '\u2013')
-    // opening singles
-    .replace(/(^|[-\u2014/(\[{"\s])'/g, '$1\u2018')
-    // closing singles & apostrophes
-    .replace(/'/g, '\u2019')
-    // opening doubles
-    .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, '$1\u201c')
-    // closing doubles
-    .replace(/"/g, '\u201d')
-    // ellipses
-    .replace(/\.{3}/g, '\u2026');
-};
-
-/**
- * Mangle Links
- */
-
-InlineLexer.prototype.mangle = function(text) {
-  if (!this.options.mangle) return text;
-  var out = ''
-    , l = text.length
-    , i = 0
-    , ch;
-
-  for (; i < l; i++) {
-    ch = text.charCodeAt(i);
-    if (Math.random() > 0.5) {
-      ch = 'x' + ch.toString(16);
-    }
-    out += '&#' + ch + ';';
-  }
-
-  return out;
-};
-
-/**
- * Renderer
- */
-
-function Renderer(options) {
-  this.options = options || {};
-}
-
-Renderer.prototype.code = function(code, lang, escaped) {
-  if (this.options.highlight) {
-    var out = this.options.highlight(code, lang);
-    if (out != null && out !== code) {
-      escaped = true;
-      code = out;
-    }
-  }
-
-  if (!lang) {
-    return '<pre><code>'
-      + (escaped ? code : escape(code, true))
-      + '\n</code></pre>';
-  }
-
-  return '<pre><code class="'
-    + this.options.langPrefix
-    + escape(lang, true)
-    + '">'
-    + (escaped ? code : escape(code, true))
-    + '\n</code></pre>\n';
-};
-
-Renderer.prototype.blockquote = function(quote) {
-  return '<blockquote>\n' + quote + '</blockquote>\n';
-};
-
-Renderer.prototype.html = function(html) {
-  return html;
-};
-
-Renderer.prototype.heading = function(text, level, raw) {
-  return '<h'
-    + level
-    + ' id="'
-    + this.options.headerPrefix
-    + raw.toLowerCase().replace(/[^\w]+/g, '-')
-    + '">'
-    + text
-    + '</h'
-    + level
-    + '>\n';
-};
-
-Renderer.prototype.hr = function() {
-  return this.options.xhtml ? '<hr/>\n' : '<hr>\n';
-};
-
-Renderer.prototype.list = function(body, ordered) {
-  var type = ordered ? 'ol' : 'ul';
-  return '<' + type + '>\n' + body + '</' + type + '>\n';
-};
-
-Renderer.prototype.listitem = function(text) {
-  return '<li>' + text + '</li>\n';
-};
-
-Renderer.prototype.paragraph = function(text) {
-  return '<p>' + text + '</p>\n';
-};
-
-Renderer.prototype.table = function(header, body) {
-  return '<table>\n'
-    + '<thead>\n'
-    + header
-    + '</thead>\n'
-    + '<tbody>\n'
-    + body
-    + '</tbody>\n'
-    + '</table>\n';
-};
-
-Renderer.prototype.tablerow = function(content) {
-  return '<tr>\n' + content + '</tr>\n';
-};
-
-Renderer.prototype.tablecell = function(content, flags) {
-  var type = flags.header ? 'th' : 'td';
-  var tag = flags.align
-    ? '<' + type + ' style="text-align:' + flags.align + '">'
-    : '<' + type + '>';
-  return tag + content + '</' + type + '>\n';
-};
-
-// span level renderer
-Renderer.prototype.strong = function(text) {
-  return '<strong>' + text + '</strong>';
-};
-
-Renderer.prototype.em = function(text) {
-  return '<em>' + text + '</em>';
-};
-
-Renderer.prototype.codespan = function(text) {
-  return '<code>' + text + '</code>';
-};
-
-Renderer.prototype.br = function() {
-  return this.options.xhtml ? '<br/>' : '<br>';
-};
-
-Renderer.prototype.del = function(text) {
-  return '<del>' + text + '</del>';
-};
-
-Renderer.prototype.link = function(href, title, text) {
-  if (this.options.sanitize) {
-    try {
-      var prot = decodeURIComponent(unescape(href))
-        .replace(/[^\w:]/g, '')
-        .toLowerCase();
-    } catch (e) {
-      return '';
-    }
-    if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0) {
-      return '';
-    }
-  }
-  var out = '<a href="' + href + '"';
-  if (title) {
-    out += ' title="' + title + '"';
-  }
-  out += '>' + text + '</a>';
-  return out;
-};
-
-Renderer.prototype.image = function(href, title, text) {
-  var out = '<img src="' + href + '" alt="' + text + '"';
-  if (title) {
-    out += ' title="' + title + '"';
-  }
-  out += this.options.xhtml ? '/>' : '>';
-  return out;
-};
-
-Renderer.prototype.text = function(text) {
-  return text;
-};
-
-/**
- * Parsing & Compiling
- */
-
-function Parser(options) {
-  this.tokens = [];
-  this.token = null;
-  this.options = options || marked.defaults;
-  this.options.renderer = this.options.renderer || new Renderer;
-  this.renderer = this.options.renderer;
-  this.renderer.options = this.options;
-}
-
-/**
- * Static Parse Method
- */
-
-Parser.parse = function(src, options, renderer) {
-  var parser = new Parser(options, renderer);
-  return parser.parse(src);
-};
-
-/**
- * Parse Loop
- */
-
-Parser.prototype.parse = function(src) {
-  this.inline = new InlineLexer(src.links, this.options, this.renderer);
-  this.tokens = src.reverse();
-
-  var out = '';
-  while (this.next()) {
-    out += this.tok();
-  }
-
-  return out;
-};
-
-/**
- * Next Token
- */
-
-Parser.prototype.next = function() {
-  return this.token = this.tokens.pop();
-};
-
-/**
- * Preview Next Token
- */
-
-Parser.prototype.peek = function() {
-  return this.tokens[this.tokens.length - 1] || 0;
-};
-
-/**
- * Parse Text Tokens
- */
-
-Parser.prototype.parseText = function() {
-  var body = this.token.text;
-
-  while (this.peek().type === 'text') {
-    body += '\n' + this.next().text;
-  }
-
-  return this.inline.output(body);
-};
-
-/**
- * Parse Current Token
- */
-
-Parser.prototype.tok = function() {
-  switch (this.token.type) {
-    case 'space': {
-      return '';
-    }
-    case 'hr': {
-      return this.renderer.hr();
-    }
-    case 'heading': {
-      return this.renderer.heading(
-        this.inline.output(this.token.text),
-        this.token.depth,
-        this.token.text);
-    }
-    case 'code': {
-      return this.renderer.code(this.token.text,
-        this.token.lang,
-        this.token.escaped);
-    }
-    case 'table': {
-      var header = ''
-        , body = ''
-        , i
-        , row
-        , cell
-        , flags
-        , j;
-
-      // header
-      cell = '';
-      for (i = 0; i < this.token.header.length; i++) {
-        flags = { header: true, align: this.token.align[i] };
-        cell += this.renderer.tablecell(
-          this.inline.output(this.token.header[i]),
-          { header: true, align: this.token.align[i] }
-        );
-      }
-      header += this.renderer.tablerow(cell);
-
-      for (i = 0; i < this.token.cells.length; i++) {
-        row = this.token.cells[i];
-
-        cell = '';
-        for (j = 0; j < row.length; j++) {
-          cell += this.renderer.tablecell(
-            this.inline.output(row[j]),
-            { header: false, align: this.token.align[j] }
-          );
-        }
-
-        body += this.renderer.tablerow(cell);
-      }
-      return this.renderer.table(header, body);
-    }
-    case 'blockquote_start': {
-      var body = '';
-
-      while (this.next().type !== 'blockquote_end') {
-        body += this.tok();
-      }
-
-      return this.renderer.blockquote(body);
-    }
-    case 'list_start': {
-      var body = ''
-        , ordered = this.token.ordered;
-
-      while (this.next().type !== 'list_end') {
-        body += this.tok();
-      }
-
-      return this.renderer.list(body, ordered);
-    }
-    case 'list_item_start': {
-      var body = '';
-
-      while (this.next().type !== 'list_item_end') {
-        body += this.token.type === 'text'
-          ? this.parseText()
-          : this.tok();
-      }
-
-      return this.renderer.listitem(body);
-    }
-    case 'loose_item_start': {
-      var body = '';
-
-      while (this.next().type !== 'list_item_end') {
-        body += this.tok();
-      }
-
-      return this.renderer.listitem(body);
-    }
-    case 'html': {
-      var html = !this.token.pre && !this.options.pedantic
-        ? this.inline.output(this.token.text)
-        : this.token.text;
-      return this.renderer.html(html);
-    }
-    case 'paragraph': {
-      return this.renderer.paragraph(this.inline.output(this.token.text));
-    }
-    case 'text': {
-      return this.renderer.paragraph(this.parseText());
-    }
-  }
-};
-
-/**
- * Helpers
- */
-
-function escape(html, encode) {
-  return html
-    .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function unescape(html) {
-	// explicitly match decimal, hex, and named HTML entities 
-  return html.replace(/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/g, function(_, n) {
-    n = n.toLowerCase();
-    if (n === 'colon') return ':';
-    if (n.charAt(0) === '#') {
-      return n.charAt(1) === 'x'
-        ? String.fromCharCode(parseInt(n.substring(2), 16))
-        : String.fromCharCode(+n.substring(1));
-    }
-    return '';
-  });
-}
-
-function replace(regex, opt) {
-  regex = regex.source;
-  opt = opt || '';
-  return function self(name, val) {
-    if (!name) return new RegExp(regex, opt);
-    val = val.source || val;
-    val = val.replace(/(^|[^\[])\^/g, '$1');
-    regex = regex.replace(name, val);
-    return self;
-  };
-}
-
-function noop() {}
-noop.exec = noop;
-
-function merge(obj) {
-  var i = 1
-    , target
-    , key;
-
-  for (; i < arguments.length; i++) {
-    target = arguments[i];
-    for (key in target) {
-      if (Object.prototype.hasOwnProperty.call(target, key)) {
-        obj[key] = target[key];
-      }
-    }
-  }
-
-  return obj;
-}
-
-
-/**
- * Marked
- */
-
-function marked(src, opt, callback) {
-  if (callback || typeof opt === 'function') {
-    if (!callback) {
-      callback = opt;
-      opt = null;
-    }
-
-    opt = merge({}, marked.defaults, opt || {});
-
-    var highlight = opt.highlight
-      , tokens
-      , pending
-      , i = 0;
-
-    try {
-      tokens = Lexer.lex(src, opt)
-    } catch (e) {
-      return callback(e);
-    }
-
-    pending = tokens.length;
-
-    var done = function(err) {
-      if (err) {
-        opt.highlight = highlight;
-        return callback(err);
-      }
-
-      var out;
-
-      try {
-        out = Parser.parse(tokens, opt);
-      } catch (e) {
-        err = e;
-      }
-
-      opt.highlight = highlight;
-
-      return err
-        ? callback(err)
-        : callback(null, out);
-    };
-
-    if (!highlight || highlight.length < 3) {
-      return done();
-    }
-
-    delete opt.highlight;
-
-    if (!pending) return done();
-
-    for (; i < tokens.length; i++) {
-      (function(token) {
-        if (token.type !== 'code') {
-          return --pending || done();
-        }
-        return highlight(token.text, token.lang, function(err, code) {
-          if (err) return done(err);
-          if (code == null || code === token.text) {
-            return --pending || done();
-          }
-          token.text = code;
-          token.escaped = true;
-          --pending || done();
-        });
-      })(tokens[i]);
-    }
-
-    return;
-  }
-  try {
-    if (opt) opt = merge({}, marked.defaults, opt);
-    return Parser.parse(Lexer.lex(src, opt), opt);
-  } catch (e) {
-    e.message += '\nPlease report this to https://github.com/chjj/marked.';
-    if ((opt || marked.defaults).silent) {
-      return '<p>An error occured:</p><pre>'
-        + escape(e.message + '', true)
-        + '</pre>';
-    }
-    throw e;
-  }
-}
-
-/**
- * Options
- */
-
-marked.options =
-marked.setOptions = function(opt) {
-  merge(marked.defaults, opt);
-  return marked;
-};
-
-marked.defaults = {
-  gfm: true,
-  tables: true,
-  breaks: false,
-  pedantic: false,
-  sanitize: false,
-  sanitizer: null,
-  mangle: true,
-  smartLists: false,
-  silent: false,
-  highlight: null,
-  langPrefix: 'lang-',
-  smartypants: false,
-  headerPrefix: '',
-  renderer: new Renderer,
-  xhtml: false
-};
-
-/**
- * Expose
- */
-
-marked.Parser = Parser;
-marked.parser = Parser.parse;
-
-marked.Renderer = Renderer;
-
-marked.Lexer = Lexer;
-marked.lexer = Lexer.lex;
-
-marked.InlineLexer = InlineLexer;
-marked.inlineLexer = InlineLexer.output;
-
-marked.parse = marked;
-
-if (typeof module !== 'undefined' && typeof exports === 'object') {
-  module.exports = marked;
-} else if (typeof define === 'function' && define.amd) {
-  define(function() { return marked; });
-} else {
-  this.marked = marked;
-}
-
-}).call(function() {
-  return this || (typeof window !== 'undefined' ? window : global);
-}());
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}]},{},[11]);
