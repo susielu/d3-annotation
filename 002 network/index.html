@@ -12,6 +12,8 @@
      svg {
         background-color: white;
         font-family: 'Lato';
+        overflow: visible;
+        margin-top: 100px;
      }
 
      line {
@@ -69,12 +71,13 @@
     </style>
 </head>
 <body>
-    <svg width=960 height=500></svg>
+    <svg width=960 height=960></svg>
     <script src="https://d3js.org/d3.v4.js"></script>
     <script src="bboxCollide.js"></script>
     <script src="/d3-annotation.js"></script>
 
     <script>
+    console.log("d3.bboxCollide", d3.bboxCollide)
     // network code: https://bl.ocks.org/mbostock/4062045
     var svg = d3.select("svg"),
         width = +svg.attr("width"),
@@ -83,9 +86,10 @@
     var color = d3.scaleOrdinal(d3.schemeCategory20);
     var simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id( d => d.id ))
-        .force("charge", d3.forceManyBody())
+        .force("charge", d3.forceManyBody().strength(-80))
         .force("center", d3.forceCenter(width / 2, height / 2));
     d3.json("miserables.json", function(error, graph) {
+
       if (error) throw error;
       var link = svg.append("g")
           .attr("class", "links")
@@ -108,33 +112,42 @@
       node.append("title")
           .text(d => d.id);
 
-      window.collide = rectCollide((a) => {
-        return [[0, 0], [a.width, a.height]]
+      window.collide = d3.bboxCollide((a) => {
+        return [[a.offsetCornerX - 5, a.offsetCornerY - 10],[a.offsetCornerX + a.width + 5, a.offsetCornerY + a.height+ 5]]
       })
+     .strength(2)
+     .iterations(2)
 
       window.yScale = d3.scaleLinear()
 
       simulation
           .nodes(graph.nodes)
           .on("tick", ticked)
-          .on("end", function(){
-            // console.log('simualtion finished', makeAnnotations.collection().textNodes)
+          .on("end", function() {
 
-            //   const noteBoxes = makeAnnotations.collection().noteNodes
-            //  window.labelForce = d3.forceSimulation(noteBoxes)
-            //   .force("x", d3.forceX(a =>  a.startX < width/2 ? -200 : 200 ).strength(.1))
-            //   .force("y", d3.forceY(a => 0).strength(1))
-            //   .force("collide", d3.forceCollide().radius(function(d) { return d.width/4 }).iterations(2))
-            //   .on('tick', d => {
-            //       makeAnnotations.annotations()
-            //       .forEach((d, i) => {
-            //         const match = noteBoxes[i]	
-            //               d.dx = match.x + match.vx
-            //               d.dy = match.y + match.vy
-            //       })
+              const noteBoxes = makeAnnotations.collection().noteNodes
+
+              d3.selectAll(".annotation-connector > path")
+                .style("stroke", (d,i) => d3.hsl(color(graph.nodes[i].group)).darker())
+
+            console.log("noteBoxes", noteBoxes)
+            console.log("makeAnnotations.annotations()",makeAnnotations.annotations())
+             window.labelForce = d3.forceSimulation(noteBoxes)
+              .force("x", d3.forceX(a => a.positionX).strength(1))
+              .force("y", d3.forceY(a => a.positionY).strength(1))
+//              .force("collision", window.collide)
+              .force("collision", d3.forceCollide(d => d.width / 2))
+              .alpha(1)
+              .on('tick', d => {
+                  makeAnnotations.annotations()
+                  .forEach((d, i) => {
+                    const match = noteBoxes[i]	
+                          d.dx = match.x - match.positionX
+                          d.dy = match.y - match.positionY
+                  })
                 
-            //       makeAnnotations.update()
-            //   })
+                  makeAnnotations.update()
+              })
             
           })
 
@@ -159,12 +172,14 @@
       }
 
       window.makeAnnotations = d3.annotation()
-        .editMode(true)
+        .editMode(false)
         .type(d3.annotationLabel)
-        .annotations(graph.nodes.map(d => {
+        .annotations(graph.nodes.map((d,i) => {
           return {
             data: {x: d.x, y: d.y},
-            note: { label: d.id },
+            note: { label: d.mainCharacter || true ? d.id : "",
+              align: "middle",
+              orientation: "fixed" },
             connector: { type: "elbow"}
           }
         }))

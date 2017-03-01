@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link href='https://fonts.googleapis.com/css?family=Lato:300,900' rel='stylesheet' type='text/css'>
+
+    <style>
+     body{
+        background-color: whitesmoke;
+     }
+
+     svg {
+        background-color: white;
+        font-family: 'Lato';
+        overflow: visible;
+        margin-top: 100px;
+     }
+
+     line {
+       stroke:#e3e3e3;
+     }
+
+     .editable .annotation-subject, .editable .annotation-textbox {
+       cursor: move;
+     }
+
+     .line {
+        fill: none;
+        stroke: black;
+        stroke-width: 1px;
+      }
+
+      .annotation path {
+        stroke: #e91e56;
+        fill: rgba(0,0,0,0);
+      }
+
+      .annotation path.connector-arrow{
+        fill: #e91e56;
+      }
+
+      .annotation text {
+        fill: #e91e56;
+      }
+
+      .annotation-title {
+        font-weight: bold;
+      }
+
+      .annotation .annotation-subject circle.handle {
+        display: none;
+      }
+
+      .annotation-note-bg {
+        fill: rgba(255, 255, 255, 0);
+      }
+
+       circle.handle {
+        stroke-dasharray: 5;
+        stroke: #e91e56;
+        fill: rgba(255, 255, 255, .5);
+        cursor: move;
+
+        stroke-opacity: .4;
+      }
+
+      circle.handle.highlight {
+        stroke-opacity: 1;
+      }
+
+    </style>
+</head>
+<body>
+    <svg width=960 height=960></svg>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="students.js"></script>
+    <script src="/d3-annotation.js"></script>
+
+    <script>
+      console.log("students", students)
+      const keys = ["root", "grade", "socio", "gender"]
+      var depthScale = d3.scaleOrdinal()
+          .range(["#5EAFC6", "#FE9922", "#93c464", "#75739F"]);
+
+        var nestedStudents = d3.nest()
+          .key(d => d[keys[1]])
+          .key(d => d[keys[2]])
+//          .key(d => d[keys[3]])
+          .entries(students);
+        var packableStudents = {id: "All Students", values: nestedStudents};
+        var packChart = d3.pack();
+        
+        packChart.size([500,500]);
+
+          var root = d3.hierarchy(packableStudents, d => d.values)
+          .sum(() => 1);
+
+        const circlepackStudents = packChart(root).descendants()
+        console.log("circlepackStudents", circlepackStudents)
+        
+        d3.select("svg")
+          .append("g")
+          .attr("transform", "translate(100, 100)")
+          .selectAll("circle")
+          .data(circlepackStudents.filter(d => !d.children))
+          .enter()
+          .append("circle")
+            .attr("r", d => d.r)
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y)
+            .style("fill", d => depthScale(d.depth))
+            .style("stroke", "black");
+
+            console.log("circlepackStudents.filter(d => d.children)", circlepackStudents.filter(d => d.children))
+/*
+            const annotations = circlepackStudents.filter(d => d.children && d.depth !== 0)
+              .map(d => {
+                const labelOffsetX = d.depth > 1 ? -d.r * 2 : d.r * 2
+                const labelOffsetY = d.depth > 1 ? -d.r * 2 : d.r * 2
+                return { x: d.x, y: d.y, dx: labelOffsetX, dy: labelOffsetY, note: { label: d.data.key }, subject: { text: d.data.key, radius: d.r } }
+              })
+*/
+const annotations = [{"x":142.58501794483243,"y":272.22046937347903,"dx":-167.37846411249842,"dy":60.62153588750158,"connector":{"end":"arrow"},"subject":{"text":"B","radius":140.3107679437508},"note":{"label":"B"},"data":{}},{"x":390.57522307113175,"y":272.22046937347903,"dx":174.358874365097,"dy":54.358874365096995,"connector":{"end":"arrow"},"subject":{"text":"C","radius":107.6794371825485},"note":{"label":"C"},"data":{}},{"x":289.4272490680248,"y":392.70996175877997,"dx":-76.72492565516714,"dy":25.27507434483286,"connector":{"end":"arrow"},"subject":{"text":"F","radius":49.63753717241643},"note":{"label":"F"},"data":{}},{"x":294.35947509840247,"y":102.83971098374778,"dx":116.24251921881867,"dy":36,"connector":{"end":"arrow"},"subject":{"text":"D","radius":87.12125960940934},"note":{"label":"D"},"data":{}},{"x":155.38853337730376,"y":78.33911494416867,"dx":-91.01422971442716,"dy":30.98577028557284,"connector":{"end":"arrow"},"subject":{"text":"A","radius":53.99288514278642},"note":{"label":"A"},"data":{}},{"x":79.01027201784046,"y":272.22046937347903,"dx":-53.472044033517676,"dy":-113.47204403351768,"subject":{"text":"Middle","radius":76.73602201675884},"note":{"label":"Middle"},"data":{}},{"x":219.32103996159128,"y":272.22046937347903,"dx":-42.14949185398393,"dy":-93.14949185398393,"subject":{"text":"Lower","radius":63.574745926991966},"note":{"label":"Lower"},"data":{}},{"x":157.93932199545384,"y":333.8105973026789,"dx":-5.759210157268427,"dy":91.24078984273157,"subject":{"text":"Upper","radius":23.379605078634214},"note":{"label":"Upper"},"data":{}},{"x":336.7355044798575,"y":272.22046937347903,"dx":136.3205628174515,"dy":-109.6794371825485,"subject":{"text":"Lower","radius":53.83971859127425},"note":{"label":"Lower"},"data":{}},{"x":444.414941662406,"y":272.22046937347903,"dx":106.3205628174515,"dy":-68.67943718254848,"subject":{"text":"Middle","radius":53.83971859127424},"note":{"label":"Middle"},"data":{}},{"x":390.57522307113175,"y":327.574860798645,"dx":109.24078984273157,"dy":54.24078984273157,"subject":{"text":"Upper","radius":23.379605078634214},"note":{"label":"Upper"},"data":{}},{"x":273.93706210360455,"y":382.70758068491875,"dx":-14.397247980502044,"dy":73.60275201949796,"subject":{"text":"Middle","radius":31.198623990251022},"note":{"label":"Middle"},"data":{}},{"x":313.69321548308335,"y":382.70758068491875,"dx":43.884941221544395,"dy":3.884941221544395,"subject":{"text":"Upper","radius":8.5575293892278},"note":{"label":"Upper"},"data":{}},{"x":315.63663103469463,"y":409.6339812520998,"dx":-3.877826364330822,"dy":117.12217363566918,"subject":{"text":"Lower","radius":18.43891318216541},"note":{"label":"Lower"},"data":{}},{"x":253.14849470252662,"y":102.83971098374778,"dx":119.17944157293299,"dy":-109.82055842706701,"subject":{"text":"Middle","radius":45.91027921353351},"note":{"label":"Middle"},"data":{}},{"x":340.26975431193597,"y":102.83971098374778,"dx":102.5780392082483,"dy":-102.42196079175169,"subject":{"text":"Lower","radius":41.21098039587584},"note":{"label":"Lower"},"data":{}},{"x":127.06823640220074,"y":78.33911494416867,"dx":-8.345176335366801,"dy":-58.3451763353668,"subject":{"text":"Middle","radius":25.6725881676834},"note":{"label":"Middle"},"data":{}},{"x":181.06112154498715,"y":78.33911494416867,"dx":-4.640593950206039,"dy":-73.64059395020604,"subject":{"text":"Lower","radius":28.32029697510302},"note":{"label":"Lower"},"data":{}}]
+
+     window.makeAnnotations = d3.annotation()
+        .annotations(annotations)
+        .accessors({ x: d => d.x , y: d => d.y, label: d => d.data.id })
+        .type(d3.annotationCalloutCircle)
+
+
+      d3.select("svg").append("g")
+        .attr("transform", "translate(100, 100)")
+        .attr("class", "annotation-test")
+        .call(makeAnnotations)
+
+        makeAnnotations.update()
+
+    </script>
+</body>
+</html>
