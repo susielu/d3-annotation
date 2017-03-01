@@ -1,4 +1,3 @@
-const md = require('marked');
 const contents = require('./content/contents.md')
 const introduction = require('./content/introduction.md')
 const anatomy = require('./content/anatomy.md')
@@ -11,18 +10,18 @@ const extend = require('./content/extend.md')
 const notes = require('./content/notes.md')
 const highlight = require('highlight.js')
 
-document.getElementById('toc1').innerHTML = md(contents);
-document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + md(contents)
-document.getElementById('introduction').innerHTML = md(introduction);
-document.getElementById('anatomy').innerHTML = md(anatomy);
-document.getElementById('setup').innerHTML = md(start);
+document.getElementById('toc1').innerHTML = contents;
+document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + contents;
+document.getElementById('introduction').innerHTML = introduction;
+document.getElementById('anatomy').innerHTML = anatomy;
+document.getElementById('setup').innerHTML = start;
 
-document.getElementById('annotation').innerHTML = md(annotation);
-document.getElementById('styles').innerHTML = md(styles);
-document.getElementById('custom').innerHTML = md(custom);
-document.getElementById('in-practice').innerHTML = md(inpractice);
-document.getElementById('extend').innerHTML = md(extend);
-document.getElementById('notes').innerHTML = md(notes);
+document.getElementById('annotation').innerHTML = annotation;
+document.getElementById('styles').innerHTML = styles;
+document.getElementById('custom').innerHTML = custom;
+document.getElementById('in-practice').innerHTML = inpractice;
+document.getElementById('extend').innerHTML = extend;
+document.getElementById('notes').innerHTML = notes;
 
 $(document).ready(function(){
     $('.scrollspy').scrollSpy();
@@ -34,13 +33,11 @@ $(document).ready(function(){
 
     $('.collapsible').collapsible();
 
-    highlight.initHighlightingOnLoad();
-
     const defaultSettings = {
       className: "custom",
       subject: {},
       connector: {},
-      note: {} 
+      note: {}
     }
 
     let typeSettings = JSON.parse(JSON.stringify(defaultSettings))
@@ -49,30 +46,30 @@ $(document).ready(function(){
     let typeKey = "annotationLabel"
     let curve = "curveCatmullRom"
     let points = 2
-  
+
     const types = {
-      annotationLabel: { 
+      annotationLabel: {
         typeSettings: {
           note: { align: "middle", orientation: "topBottom" },
           connector: { type: "line"}
         },
         summary: "A centered label annotation"
       },
-      annotationCallout: { 
+      annotationCallout: {
         typeSettings: {
             note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "line"}
         },
         summary: "Adds a line along the note"
       },
-      annotationCalloutElbow: { 
+      annotationCalloutElbow: {
         typeSettings: {
             note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "elbow"}
         },
         summary: "Keeps connector at 45 and 90 degree angles"
       },
-      annotationCalloutCircle: { 
+      annotationCalloutCircle: {
         typeSettings: {
            note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "elbow"}
@@ -84,7 +81,7 @@ $(document).ready(function(){
           radiusPadding: 5
         }
       },
-      annotationCalloutCurve: { 
+      annotationCalloutCurve: {
         typeSettings: {
            note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "curve"}
@@ -92,7 +89,7 @@ $(document).ready(function(){
         summary: "Connector options: curve, ",
         summaryCont: "points(array of [x,y]s or number)"
       },
-      annotationXYThreshold: { 
+      annotationXYThreshold: {
         typeSettings: {
            note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "elbow"}
@@ -103,7 +100,7 @@ $(document).ready(function(){
           x2: 1000
         }
       },
-      annotationBadge: { 
+      annotationBadge: {
         typeSettings: {
            note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "elbow"}
@@ -270,7 +267,7 @@ $(document).ready(function(){
 
         d3.select(`.icons a[data-section="connector:type"][data-setting=${options.connector.type}]`)
           .classed('active', true)
-        
+
         if (typeKey == "annotationCalloutCurve") {
           d3.select('#curveButtons')
             .classed('hidden', false)
@@ -283,7 +280,7 @@ $(document).ready(function(){
         sandboxCode()
 
       })
-     
+
     d3.select('#editmode')
       .on('change', function(){
 
@@ -341,7 +338,7 @@ $(document).ready(function(){
           .append("g")
           .attr("class", "sandbox-annotations")
           .call(makeAnnotations)
-        
+
         d3.select(".sandbox .type")
           .text(`d3.${typeKey}`)
 
@@ -354,8 +351,8 @@ $(document).ready(function(){
 
     //change the text to have the right position for the annotation
 
-    const sandboxCode = () => { 
-      
+    const sandboxCode = () => {
+
       const editModeText = editMode ? `  .editMode(true)\n` : ''
 
       let typeText = 'const type = '
@@ -444,7 +441,7 @@ $(document).ready(function(){
       curveText +
       (subjectText !== '' && curveText !== ''? ',\n' : '') +
       subjectText +
-      '      }]\n' + 
+      '      }]\n' +
       '\n' +
       'const parseTime = d3.timeParse("%d-%b-%y")\n' +
       'const timeFormat = d3.timeFormat("%d-%b-%y")\n' +
@@ -463,11 +460,11 @@ $(document).ready(function(){
       '  //accessors & accessorsInverse not needed\n' +
       '  //if using x, y in annotations JSON\n' +
 
-      '  .accessors({\n' + 
-      '    x: d => x(parseTime(d.date)),\n' + 
+      '  .accessors({\n' +
+      '    x: d => x(parseTime(d.date)),\n' +
       '    y: d => y(d.close)\n' +
       '  })\n' +
-      '  .accessorsInverse({\n' + 
+      '  .accessorsInverse({\n' +
       '     date: d => timeFormat(x.invert(d.x)),\n' +
       '     close: d => y.invert(d.y)\n' +
       '  })\n' +
@@ -476,7 +473,7 @@ $(document).ready(function(){
       'd3.select("svg")\n' +
       '  .append("g")\n' +
       '  .attr("class", "annotation-test")\n' +
-      '  .call(makeAnnotations)\n' 
+      '  .call(makeAnnotations)\n'
       )
 
       $('#sandbox-code code, #sandbox-code-with-scales code').each(function(i, block) {
@@ -485,6 +482,4 @@ $(document).ready(function(){
     }
 
     sandboxCode()
-
-  
 });

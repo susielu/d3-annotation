@@ -3956,21 +3956,19 @@ exports.default = function (_ref) {
   var handles = [];
 
   if (type.editMode) {
-    (function () {
-      var cHandles = connectorData.points.map(function (c, i) {
-        return _extends({}, (0, _Handles.pointHandle)({ cx: c[0], cy: c[1] }), { index: i });
-      });
+    var cHandles = connectorData.points.map(function (c, i) {
+      return _extends({}, (0, _Handles.pointHandle)({ cx: c[0], cy: c[1] }), { index: i });
+    });
 
-      var updatePoint = function updatePoint(index) {
-        connectorData.points[index][0] += _d3Selection.event.dx;
-        connectorData.points[index][1] += _d3Selection.event.dy;
-        type.redrawConnector();
-      };
+    var updatePoint = function updatePoint(index) {
+      connectorData.points[index][0] += _d3Selection.event.dx;
+      connectorData.points[index][1] += _d3Selection.event.dy;
+      type.redrawConnector();
+    };
 
-      handles = type.mapHandles(cHandles.map(function (h) {
-        return _extends({}, h.move, { drag: updatePoint.bind(type, h.index) });
-      }));
-    })();
+    handles = type.mapHandles(cHandles.map(function (h) {
+      return _extends({}, h.move, { drag: updatePoint.bind(type, h.index) });
+    }));
   }
 
   var data = (0, _typeLine.lineSetup)(type);
@@ -4679,19 +4677,17 @@ var Type = function () {
         if (type === "handle") {
           (0, _Handles.addHandles)({ group: component, r: attrs && attrs.r, handles: handles });
         } else {
-          (function () {
-            newWithClass(component, [_this.annotation], type, className);
+          newWithClass(component, [_this.annotation], type, className);
 
-            var el = component.select(type + '.' + className);
-            var attrKeys = Object.keys(attrs);
-            attrKeys.forEach(function (attr) {
-              if (attr === "text") {
-                el.text(attrs[attr]);
-              } else {
-                el.attr(attr, attrs[attr]);
-              }
-            });
-          })();
+          var el = component.select(type + '.' + className);
+          var attrKeys = Object.keys(attrs);
+          attrKeys.forEach(function (attr) {
+            if (attr === "text") {
+              el.text(attrs[attr]);
+            } else {
+              el.attr(attr, attrs[attr]);
+            }
+          });
         }
       });
     }

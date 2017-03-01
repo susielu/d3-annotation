@@ -1,10 +1,10 @@
-## API 
+## API
 
 **d3.annotation()**
 
 annotation.**annotations([ objects ])**
 
-Pass an array of objects with annotation properties: 
+Pass an array of objects with annotation properties:
 
 - **id**: This can be anything that will help you filter and parse your annotations
 
@@ -22,36 +22,37 @@ Pass an array of objects with annotation properties:
 TODO: come back, does this make sense to be renamed as 'mapping'
 annotation.**accessors({ x: function, y: function })**
 
-Functions that would map the .data attribute of your annotation to x and y positions. In the example below 
+Functions that would map the .data attribute of your annotation to x and y positions. In the example below
 
-Example: 
-<pre><code>//Sample .data for an annotation 
+Example:
+```js
+//Sample .data for an annotation
 //{date: "2-Jan-08", close: 194.84}
 
 const parseTime = d3.timeParse("%d-%b-%y");
 
-d3.annotation().accessors({ 
-  x: d => x(parseTime(d.date)), 
+d3.annotation().accessors({
+  x: d => x(parseTime(d.date)),
   y: d => y(d.close)
 })
-</code></pre>
+```
 
 annotation.**accessorsInverse({ &lt;x property mapping&gt;: function,  &lt;y property mapping&gt;: function })**
 
-The inverse of the accessor function. If you are given x, y coordinates, how to get back to the original data properties 
+The inverse of the accessor function. If you are given x, y coordinates, how to get back to the original data properties
 
-Example (goes with example from the accessors function): 
-<pre><code>//Sample .data for an annotation 
+Example (goes with example from the accessors function):
+```js
+//Sample .data for an annotation
 //{date: "2-Jan-08", close: 194.84}
 
 const timeFormat = d3.timeFormat("%d-%b-%y")
 
-d3.annotation().accessorsInverse({ 
+d3.annotation().accessorsInverse({
   date: d => timeFormat(x.invert(d.x)),
-  close: d => y.invert(d.y) 
+  close: d => y.invert(d.y)
 })
-</code></pre>
-
+```
 annotation.**editMode(boolean)**
 
 If this is true, then the annotation will create handles for parts of the annotation that are draggable. You can style these handles with the <code>circle.handle</code> selector. If you are hooking this up to a button, you will need to run the update function below, after changing the editMode.
@@ -62,9 +63,8 @@ Redraws all of the annotations. Typcially used to reflect updated settings. If y
 
 annotation.**json()**
 
-You can run this in the developer console and it will print out the current annotation settings and copy them to your clipboard. Please note that in the console each annotation will also include the type that you've associated with it. 
+You can run this in the developer console and it will print out the current annotation settings and copy them to your clipboard. Please note that in the console each annotation will also include the type that you've associated with it.
 
 annotation.**collection()**
 
 Access to the collection of annotations with the instantiated types.
-

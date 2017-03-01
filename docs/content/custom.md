@@ -5,28 +5,26 @@
 There are some basic settings you can use with the annotations above to customize an annotation type.
 
 
-<pre>
-<code>const typeSettings = {
+```js
+const typeSettings = {
   connector: { type: "arrow" }
 }
 
-const calloutWithArrow = 
+const calloutWithArrow =
   d3.annotationCustomType(
-    d3.annotationCalloutElbow, 
+    d3.annotationCalloutElbow,
     typeSettings
   )
 
-d3.annotation() 
+d3.annotation()
   .annotations([{
       text: "Plant paradise",
-      data: {date: "18-Sep-09",	
+      data: {date: "18-Sep-09",
       close: 185.02},
       dy: 37,
       dx: 42,
       //Your custom type
-      type: calloutWithArrow 
+      type: calloutWithArrow
     }])
   .editMode(true)
-</code>
-</pre>
-
+```
