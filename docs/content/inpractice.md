@@ -9,7 +9,7 @@ Here are some helpful tips for using this library and some examples to learn fro
 
 
 <h3 id="responsive">Responsive with Types and Hover</h3>
-[![Annotation reize]](img/resize.png)](https://bl.ocks.org/susielu/974e41473737320f8db5ae711ded8542)
+<a href="https://bl.ocks.org/susielu/974e41473737320f8db5ae711ded8542"><img src="img/resize.png"/></a>
 
 <h3 id="overlapping">Overlapping</h3>
 
