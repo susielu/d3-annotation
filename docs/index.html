@@ -6,8 +6,8 @@
   <link rel="canonical" href="http://d3-annotation.susielu.com">
   <link href="https://fonts.googleapis.com/css?family=Bungee" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,700" rel="stylesheet">
-  <link rel="stylesheet" href="materialize.min.css">
-  <link rel="stylesheet" href="highlight.css">
+  <link rel="stylesheet" href="vendor/materialize.min.css">
+  <link rel="stylesheet" href="vendor/highlight.css">
   <style>
     :root {
       --font-color: #695B5B;
@@ -196,6 +196,7 @@
 
     .icons .presets img {
       width: 50px;
+      height: 50px;
     }
 
     .icons .presets img.active {
@@ -445,11 +446,6 @@
       </div>
     </div>
   </div>
-<!-- TODO change this to minified version when deploying -->
-<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-<script src="materialize.min.js"></script>
-<script src="https://d3js.org/d3.v4.js"></script>
-<script src="d3-annotation.js"></script>
-<script src="docs-compiled.js"></script>
-<script src="ga.js" defer async></script>
+  <script src="bundle.js" async></script>
+  <script src="ga.js" async></script>
 </body>
