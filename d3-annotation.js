@@ -4523,11 +4523,11 @@ exports.default = function (_ref) {
   if (!subjectData.height) {
     subjectData.height = 100;
   }
-  if (!subjectData.rx) {
+  if (subjectData.rx == undefined) {
     subjectData.rx = 0;
   }
-  if (!subjectData.ry) {
-    subjectData.ry = -subjectData.height / 2;
+  if (subjectData.ry == undefined) {
+    subjectData.ry = 0;
   }
 
   var handles = [];

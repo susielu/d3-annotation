@@ -89,7 +89,8 @@ $(document).ready(function(){
         summary: "Subject options: width, height, rx, ry",
         subject: {
           width: -50,
-          height: 100
+          height: 100,
+          ry: -50
         }
       },
       annotationCalloutCurve: {
