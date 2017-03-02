@@ -32,7 +32,7 @@
     "browserify": "browserify web.js -o d3-annotation.js -t [ babelify --presets [ es2015 ] ]",
     "docs-browserify": "browserify web.js -o docs/d3-annotation.js -t [ babelify --presets [ es2015 ] ]",
     "docs": "node docs/browserify-docs.js && npm run docs-bundle",
-    "docs-bundle": "uglifyjs --source-map=docs/bundle.map --source-map-url=bundle.map -- docs/vendor/jquery2.1.1.min.js docs/vendor/materialize.min.js docs/vendor/d3.v4.js docs/d3-annotation.js docs/docs-compiled.js > docs/bundle.js",
+    "docs-bundle": "uglifyjs --source-map=docs/bundle.map --source-map-url=bundle.map -- docs/vendor/jquery2.1.1.min.js docs/vendor/materialize.min.js docs/vendor/d3-shape.js docs/vendor/d3-selection.js docs/d3-annotation.min.js docs/docs-compiled.js > docs/bundle.js",
     "watch": "npm-watch",
     "uglify": "uglifyjs d3-annotation.js -o d3-annotation.min.js -c -m",
     "prepublish": "npm run uglify"
