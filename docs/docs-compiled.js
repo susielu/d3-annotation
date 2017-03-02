@@ -3,13 +3,13 @@ module.exports = "<h2 id=\"api\">API</h2>\n<p><strong>d3.annotation()</strong></
 },{}],2:[function(require,module,exports){
 module.exports = "<ul>\n<li><a href=\"#introduction\">Introduction</a></li>\n<li><a href=\"#setup\">Setup</a></li>\n<li><a href=\"#types\">Types</a></li>\n<li><a href=\"#in-practice\">In Practice</a></li>\n<li><a href=\"#annotation\">API</a></li>\n<li><a href=\"#extend\">Extending Types</a></li>\n<li><a href=\"#Notes\">Notes</a></li>\n</ul>\n";
 },{}],3:[function(require,module,exports){
-module.exports = "<h2 id=\"extending-annotation-types\">Extending Annotation Types</h2>\n<p>The underlying code for d3-annotation is very extensible. There is a base annotation type that all of the annotation types extend. All of the settings and components that make up the different types are customizable. </p>\n<p>The goal here was to make a system that was easy to adapt to your requirements. A longer post with details about how you can make your own customized type will be coming out in a couple of weeks. </p>\n<p>If you&#39;re interested in looking at the structure before the post is out take a look at the <a href=\"https://github.com/susielu/d3-annotation/tree/master/src\">source code</a>. </p>\n";
+module.exports = "<h2 id=\"extending-annotation-types\">Extending Annotation Types</h2>\n<p>The underlying code for d3-annotation has a base annotation type that all of the annotation types extend. The settings and components that make up the different types are customizable. </p>\n<p>The goal was to make a system that was easy to add new types and implement layout algorithms with. A longer post with details about how you can make your own type will be coming out soon. </p>\n<p>If you&#39;re interested in looking at the architecture before the post you can find the <a href=\"https://github.com/susielu/d3-annotation/tree/master/src\">source code here</a>. </p>\n";
 },{}],4:[function(require,module,exports){
 module.exports = "<h2 id=\"in-practice\">In Practice</h2>\n<ul>\n<li>All of the shapes (aside from the edit handles) in the default annotations are paths </li>\n<li>In addition to the alignment settings for the note, you can also use the css <code>text-anchor</code> attribute to align the text within the note</li>\n<li>When you update the d3.annotation().type() you will need to use the call functionality again to set up the annotations with the new type. See the <a href=\"#responsive\">Responsive with Types and Hover</a> example</li>\n<li>You do not need to call d3.annotation().update() if you are only changing the position(x,y) or the offset(dx, dy). See the <a href=\"#overlapping\">Overlapping</a> example</li>\n</ul>\n<p>Basic styles to use for the annotations available on <a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.css\">github</a>.</p>\n<p>Hierarchy of classes:\n<img src=\"img/classes.png\" alt=\"Annotation classes\"></p>\n<h2 id=\"customizing-types\">Customizing Types</h2>\n<p><strong>d3.annotationCustomType(annotationType, typeSettings)</strong></p>\n<p>There are some basic settings you can use with the annotations above to customize an annotation type.</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-keyword\">const</span> typeSettings = {\n  connector: { type: <span class=\"hljs-string\">\"arrow\"</span> }\n}\n\n<span class=\"hljs-keyword\">const</span> calloutWithArrow =\n  d3.annotationCustomType(\n    d3.annotationCalloutElbow,\n    typeSettings\n  )\n\nd3.annotation()\n  .annotations([{\n      text: <span class=\"hljs-string\">\"Plant paradise\"</span>,\n      data: {date: <span class=\"hljs-string\">\"18-Sep-09\"</span>,\n      close: <span class=\"hljs-number\">185.02</span>},\n      dy: <span class=\"hljs-number\">37</span>,\n      dx: <span class=\"hljs-number\">42</span>,\n      <span class=\"hljs-comment\">//Your custom type</span>\n      type: calloutWithArrow\n    }])\n  .editMode(<span class=\"hljs-literal\">true</span>)\n</code></pre>\n<h3 id=\"responsive\">Responsive with Types and Hover</h3>\n<a href=\"https://bl.ocks.org/susielu/974e41473737320f8db5ae711ded8542\"><img src=\"img/resize.png\"/></a>\n\n<h3 id=\"overlapping\">Overlapping</h3>\n\n<p><h3 id=\"encircle\">Encircling</h3>\n<a href=\"https://bl.ocks.org/susielu/24ad9f80b9b681ce967f6005a03384f3\"><img src=\"img/encircle.png\" alt=\"Annotation encircling]\"></a></p>\n";
 },{}],5:[function(require,module,exports){
 module.exports = "<h2 id=\"introduction\">Introduction</h2>\n<p>Annotations <strong>establish context, and direct our users to insights and anomalies</strong>. So why are annotations so few and far between in visualizations on the web? Because <strong>implementing them is difficult.</strong></p>\n<p><strong>But it shouldn&#39;t be.</strong> </p>\n<p>Use d3-annotation with built-in annotation types, or extend it to make custom annotations. It is made for <a href=\"https://github.com/d3/d3/blob/master/CHANGES.md\">d3-v4</a> in SVG. </p>\n<p>Contact me through <a href=\"https://www.github.com/susielu/d3-annotation\">github</a> or <a href=\"https://www.twitter.com/DataToViz\">twitter</a> to help make <a href=\"#in-practice\">examples</a> and <a href=\"#types\">annotation types</a>.</p>\n";
 },{}],6:[function(require,module,exports){
-module.exports = "<h2 id=\"notes\">Notes</h2>\n<ul>\n<li>Mike Bostock d3</li>\n<li>Prior Art</li>\n<li>Google Fonts</li>\n<li>Materialize</li>\n</ul>\n";
+module.exports = "<h2 id=\"notes\">Notes</h2>\n<p>Extremely grateful to my team at <a href=\"https://twitter.com/netflixdata\">Netflix</a> for mentoring me, giving me feedback, and helping out on this project. Cheers <a href=\"https://twitter.com/Elijah_Meeks\">Elijah</a>, <a href=\"https://twitter.com/james_womack\">James</a>, <a href=\"https://twitter.com/onemerovingian\">Jason</a>, and <a href=\"https://twitter.com/nathantowery\">Nathan</a>.</p>\n<p>Invaluable help from <a href=\"https://twitter.com/recifs\">Fil</a>, thanks for jumping in early to help with testing and discussion.</p>\n<p><a href=\"https://twitter.com/samccone\">Sam</a> keeps me sane and gets all the perf wins \\o/</p>\n<p>This is a data visualization project that wouldn&#39;t be possible without <a href=\"https://twitter.com/mbostock\">Mike Bostock</a>&#39;s work on <a href=\"https://d3js.org/\">d3</a>, and all of the inspiring <a href=\"https://github.com/susielu/d3-annotation#prior-art\">prior art</a> in annotations, particularly <a href=\"https://twitter.com/adamrpearce\">Adam Pearce</a>&#39;s <a href=\"https://1wheel.github.io/swoopy-drag/\">Swoopy Drag</a>, and <a href=\"https://twitter.com/armollica\">Andrew Mollica</a>&#39;s <a href=\"https://github.com/armollica/d3-ring-note\">Ring Note</a>. </p>\n<p>Thumbs up to <a href=\"https://fonts.google.com/specimen/Nunito\">Nunito</a> and <a href=\"https://fonts.google.com/specimen/Bungee\">Bungee</a> via Google Fonts and <a href=\"http://materializecss.com/\">Materialize</a> for making the docs site building a breeze.</p>\n";
 },{}],7:[function(require,module,exports){
 module.exports = "<h2 id=\"setup\">Setup</h2>\n<h3 id=\"include-the-file-directly\">Include the file directly</h3>\n<p>You must include the <a href=\"http://d3js.org/\">d3 library</a> before including the annotation file. Then you can add the compiled js file to your website</p>\n<ul>\n<li><a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.js\">Unminified</a></li>\n<li><a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.min.js\">Minified</a></li>\n</ul>\n<h3 id=\"using-npm\">Using NPM</h3>\n<p>You can add d3-annotation as a node module by running</p>\n<pre><code class=\"lang-bash\">npm i d3-svg-annotation -S\n</code></pre>\n";
 },{}],8:[function(require,module,exports){
@@ -811,13 +811,6 @@ https://highlightjs.org/
 },{}],9:[function(require,module,exports){
 'use strict';
 
-var hljs = require('./highlight');
-
-module.exports = hljs;
-
-},{"./highlight":8}],10:[function(require,module,exports){
-'use strict';
-
 var contents = require('./content/contents.md');
 var introduction = require('./content/introduction.md');
 var start = require('./content/start.md');
@@ -825,7 +818,7 @@ var inpractice = require('./content/inpractice.md');
 var api = require('./content/api.md');
 var extend = require('./content/extend.md');
 var notes = require('./content/notes.md');
-var highlight = require('./custom-highlightjs-build');
+var highlight = require('./custom-highlightjs-build/highlight');
 
 document.getElementById('toc1').innerHTML = contents;
 document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + contents;
@@ -950,7 +943,6 @@ $(document).ready(function () {
     dy: 117,
     dx: 162
   };
-  window.makeAnnotations = d3.annotation().editMode(editMode).type(currentType).annotations([annotation]);
 
   d3.selectAll('.icons .options a').on('click', function () {
 
@@ -1066,6 +1058,8 @@ $(document).ready(function () {
       d3.select('#curveButtons').classed('hidden', true);
     }
 
+    d3.select("#sandbox-title").text('Use d3.' + typeKey + ':');
+
     updateAnnotations();
     sandboxCode();
   });
@@ -1083,11 +1077,13 @@ $(document).ready(function () {
   d3.select('#textWrap').on('change', function () {
     textWrap = parseInt(d3.event.target.value);
     makeAnnotations.textWrap(textWrap).update();
+    sandboxCode();
   });
 
   d3.select('#padding').on('change', function () {
     padding = parseInt(d3.event.target.value);
     makeAnnotations.notePadding(padding).update();
+    sandboxCode();
   });
 
   d3.selectAll('#curveButtons ul.curves li a').on('click', function () {
@@ -1103,6 +1099,8 @@ $(document).ready(function () {
     updateAnnotations({ connector: { curve: d3[curve], points: points } });
     sandboxCode();
   });
+
+  window.makeAnnotations = d3.annotation().editMode(editMode).type(currentType).annotations([annotation]);
 
   d3.select(".sandbox").append("g").attr("class", "sandbox-annotations").call(makeAnnotations);
 
@@ -1134,9 +1132,9 @@ $(document).ready(function () {
     } else {
       var json = JSON.parse(JSON.stringify(typeSettings));
 
-      if (Object.keys(json.subject).length === 0) {
-        delete json.subject;
-      }
+      //if (Object.keys(json.subject).length === 0){
+      delete json.subject;
+      //}
 
       if (Object.keys(json.connector).length === 0) {
         delete json.connector;
@@ -1150,19 +1148,20 @@ $(document).ready(function () {
     var disableText = '';
 
     if (makeAnnotations.disable().length !== 0) {
-      disableText = '  //could also be set in the a disable property\n  //of the annotation JSON\n' + ('  .disable(' + JSON.stringify(makeAnnotations.disable()) + ')\n');
+      disableText = '  //could also be set in the a disable property\n  //of the annotation object\n' + ('  .disable(' + JSON.stringify(makeAnnotations.disable()) + ')\n');
     }
 
     var textWrapText = '';
 
     if (textWrap !== 120) {
-      textWrapText = '  //also can set and override in the note.wrap property\n  //of the annotation JSON\n' + ('  .textWrap(' + textWrap + ')');
+      textWrapText = '  //also can set and override in the note.wrap property\n  //of the annotation object\n' + ('  .textWrap(' + textWrap + ')\n');
     }
 
     var paddingText = '';
-
+    console.log('about ot make paddign text', padding);
     if (padding !== 5) {
-      paddingText = '  //also can set and override in the note.padding property\n  //of the annotation JSON\n' + ('  .notePadding(' + padding + ')');
+      console.log('in padding');
+      paddingText = '  //also can set and override in the note.padding property\n  //of the annotation object\n' + ('  .notePadding(' + padding + ')\n');
     }
 
     var curveText = '';
@@ -1179,9 +1178,9 @@ $(document).ready(function () {
       subjectText = '        subject: {\n' + '          text: "A",\n' + '          radius: 14,\n' + '        }\n';
     }
 
-    d3.select("#sandbox-code code").text(typeText + '\n' + 'const annotations = [{\n' + '        notes: { label: "Longer text to show text wrapping",\n' + '          title: "Annotations :)" },\n' + '        //can use x, y directly instead of data\n' + '        data: {date: "18-Sep-09", close: 185.02},\n' + '        dy: 137,\n' + ('        dx: 162' + (curveText !== '' || subjectText !== '' ? ',' : '') + '\n') + curveText + (subjectText !== '' && curveText !== '' ? ',\n' : '') + subjectText + '      }]\n' + '\n' + 'const parseTime = d3.timeParse("%d-%b-%y")\n' + 'const timeFormat = d3.timeFormat("%d-%b-%y")\n' + '\n' + '//Skipping setting domains for sake of example\n' + 'const x = d3.scaleTime().range([0, 800])\n' + 'const y = d3.scaleLinear().range([300, 0])\n' + '\n' + 'const makeAnnotations = d3.annotation()\n' + editModeText + disableText + textWrapText + paddingText + '  .type(type)\n' + '  //accessors & accessorsInverse not needed\n' + '  //if using x, y in annotations JSON\n' + '  .accessors({\n' + '    x: d => x(parseTime(d.date)),\n' + '    y: d => y(d.close)\n' + '  })\n' + '  .accessorsInverse({\n' + '     date: d => timeFormat(x.invert(d.x)),\n' + '     close: d => y.invert(d.y)\n' + '  })\n' + '  .annotations(annotations)\n' + '\n' + 'd3.select("svg")\n' + '  .append("g")\n' + '  .attr("class", "annotation-test")\n' + '  .call(makeAnnotations)\n');
+    d3.select("#sandbox-code code").text(typeText + '\n' + 'const annotations = [{\n' + '        note: { label: "Longer text to show text wrapping",\n' + '          title: "Annotations :)" },\n' + '        //can use x, y directly instead of data\n' + '        data: {date: "18-Sep-09", close: 185.02},\n' + '        dy: 137,\n' + ('        dx: 162' + (curveText !== '' || subjectText !== '' ? ',' : '') + '\n') + curveText + (subjectText !== '' && curveText !== '' ? ',\n' : '') + subjectText + '      }]\n' + '\n' + 'const parseTime = d3.timeParse("%d-%b-%y")\n' + 'const timeFormat = d3.timeFormat("%d-%b-%y")\n' + '\n' + '//Skipping setting domains for sake of example\n' + 'const x = d3.scaleTime().range([0, 800])\n' + 'const y = d3.scaleLinear().range([300, 0])\n' + '\n' + 'const makeAnnotations = d3.annotation()\n' + editModeText + disableText + textWrapText + paddingText + '  .type(type)\n' + '  //accessors & accessorsInverse not needed\n' + '  //if using x, y in annotations JSON\n' + '  .accessors({\n' + '    x: d => x(parseTime(d.date)),\n' + '    y: d => y(d.close)\n' + '  })\n' + '  .accessorsInverse({\n' + '     date: d => timeFormat(x.invert(d.x)),\n' + '     close: d => y.invert(d.y)\n' + '  })\n' + '  .annotations(annotations)\n' + '\n' + 'd3.select("svg")\n' + '  .append("g")\n' + '  .attr("class", "annotation-group")\n' + '  .call(makeAnnotations)\n');
 
-    $('#sandbox-code code, #sandbox-code-with-scales code').each(function (i, block) {
+    $('#sandbox-code code').each(function (i, block) {
       highlight.highlightBlock(block);
     });
   };
@@ -1189,4 +1188,4 @@ $(document).ready(function () {
   sandboxCode();
 });
 
-},{"./content/api.md":1,"./content/contents.md":2,"./content/extend.md":3,"./content/inpractice.md":4,"./content/introduction.md":5,"./content/notes.md":6,"./content/start.md":7,"./custom-highlightjs-build":9}]},{},[10]);
+},{"./content/api.md":1,"./content/contents.md":2,"./content/extend.md":3,"./content/inpractice.md":4,"./content/introduction.md":5,"./content/notes.md":6,"./content/start.md":7,"./custom-highlightjs-build/highlight":8}]},{},[9]);

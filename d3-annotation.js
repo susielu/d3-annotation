@@ -3319,10 +3319,7 @@ function annotation() {
       var a = (0, _d3Selection.select)(this);
       var position = d.position;
 
-      var className = d.type.className && d.type.className() || '';
-      var aClassName = d.className || '';
-      var editClassName = editMode ? "editable" : "";
-      a.attr('class', 'annotation ' + className + ' ' + aClassName + ' ' + editClassName);
+      a.attr('class', 'annotation');
 
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-connector');
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-subject');
@@ -3394,12 +3391,6 @@ function annotation() {
     type = _;
     if (collection) {
       collection.annotations.map(function (a) {
-
-        // let previousType = a.type
-        // const className = type.className && type.className()
-        // if (className){
-        //   previousType.a.attr('class', `annotation ${className}`)
-        // }
 
         a.type.note && a.type.note.selectAll("*:not(.annotation-note-content)").remove();
         a.type.noteContent && a.type.noteContent.selectAll("*").remove();
@@ -3639,6 +3630,7 @@ var Annotation = function () {
 
       if (this.data && Object.keys(this.data).length > 0) json.data = this.data;
       if (this.type) json.type = this.type;
+      if (this._className) json.className = this._className;
 
       if (Object.keys(this.connector).length > 0) json.connector = this.connector;
       if (Object.keys(this.subject).length > 0) json.subject = this.subject;
@@ -3748,7 +3740,7 @@ var AnnotationCollection = function () {
 
       return this.annotations.map(function (a) {
         var json = a.json;
-        if (_this2.accessorsInverse) {
+        if (_this2.accessorsInverse && a.data) {
           json.data = {};
           Object.keys(_this2.accessorsInverse).forEach(function (k) {
             json.data[k] = _this2.accessorsInverse[k]({ x: a.x, y: a.y });
@@ -4966,8 +4958,14 @@ var Type = function () {
       this.setPosition();
     }
   }, {
+    key: 'setClassName',
+    value: function setClassName() {
+      this.a.attr("class", 'annotation ' + (this.className && this.className()) + ' ' + (this.editMode ? "editable" : "") + ' ' + (this.annotation.className || ''));
+    }
+  }, {
     key: 'draw',
     value: function draw() {
+      this.setClassName();
       this.setPosition();
       this.setOffset();
       this.redrawSubject();
@@ -5040,6 +5038,11 @@ var customType = exports.customType = function customType(initialType, typeSetti
     }
 
     _createClass(customType, [{
+      key: 'className',
+      value: function className() {
+        return (typeSettings.className || '') + ' ' + (_get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'className', this) && _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'className', this).call(this) || '');
+      }
+    }, {
       key: 'drawSubject',
       value: function drawSubject(context) {
         this.typeSettings.subject = Object.assign({}, typeSettings.subject, this.typeSettings.subject);
@@ -5070,11 +5073,6 @@ var customType = exports.customType = function customType(initialType, typeSetti
           annotation = _init(annotation, accessors);
         }
         return annotation;
-      }
-    }, {
-      key: 'className',
-      value: function className() {
-        return typeSettings.className || initialType.className();
       }
     }]);
 
@@ -5182,6 +5180,11 @@ var d3CalloutRect = exports.d3CalloutRect = function (_d3Callout) {
   }
 
   _createClass(d3CalloutRect, [{
+    key: 'className',
+    value: function className() {
+      return "callout rect";
+    }
+  }, {
     key: 'drawSubject',
     value: function drawSubject(context) {
       this.typeSettings.subject = Object.assign({}, this.typeSettings.subject, { type: "rect" });
@@ -5202,11 +5205,6 @@ var d3CalloutRect = exports.d3CalloutRect = function (_d3Callout) {
     value: function mapY(accessors) {
       _get(d3CalloutRect.prototype.__proto__ || Object.getPrototypeOf(d3CalloutRect.prototype), 'mapY', this).call(this, accessors);
     }
-  }], [{
-    key: 'className',
-    value: function className() {
-      return "callout rect";
-    }
   }]);
 
   return d3CalloutRect;
@@ -5222,6 +5220,11 @@ var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout2) {
   }
 
   _createClass(d3XYThreshold, [{
+    key: 'className',
+    value: function className() {
+      return "xythreshold";
+    }
+  }, {
     key: 'drawSubject',
     value: function drawSubject(context) {
       this.typeSettings.subject = Object.assign({}, this.typeSettings.subject, { type: "threshold" });
@@ -5249,11 +5252,6 @@ var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout2) {
       if ((a.subject.y1 || a.subject.y2) && a.data && accessors.x) {
         a.x = accessors.x(a.data);
       }
-    }
-  }], [{
-    key: 'className',
-    value: function className() {
-      return "xythreshold";
     }
   }]);
 

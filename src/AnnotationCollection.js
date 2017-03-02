@@ -62,7 +62,7 @@ export default class AnnotationCollection {
   get json() { 
     return this.annotations.map(a => {      
       const json = a.json
-      if (this.accessorsInverse){
+      if (this.accessorsInverse && a.data){
         json.data = {}
         Object.keys(this.accessorsInverse).forEach(k => {
           json.data[k] = this.accessorsInverse[k]({ x: a.x, y: a.y})

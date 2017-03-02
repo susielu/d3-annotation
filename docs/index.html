@@ -100,7 +100,7 @@
 
     svg.sandbox {
       width: 100%;
-      height: 400px;
+      height: 440px;
     }
 
     /*.annotation.label text {
@@ -225,10 +225,16 @@
 
     .sandbox .type {
       font-weight: bold;
+      fill: var(--font-color);
     }
 
     .sandbox .summary, .sandbox .summaryCont {
       font-size: .8em;
+      fill: var(--font-color);
+    }
+
+    .sandbox .lighten {
+      fill-opacity: .7;
     }
 
     .fixed-action-btn {
@@ -403,6 +409,7 @@
                 <text y=30 class="summary">A centered label annotation </text>
                 <text y=60 class="summaryCont"> </text>
               </g>
+              <text x=30 y=415 class="summaryCont lighten">Code below ready to use with these setttings</text>
             </svg>
             <div style="top: 0px; position: absolute; width: 100%; text-align: right;">
               <div id="curveButtons" class="hidden">
@@ -432,17 +439,15 @@
               </div>
             </div>
             </div>
-            <h3>Use annotation:</h3>
+            <h3 id="sandbox-title">Use d3.annotationLabel:</h3>
             <pre id="sandbox-code">
-              <code>
+              <code class="lang-js hljs">
               </code>
             </pre>
 
           </div>
           <div class="section scrollspy" id="in-practice"></div>
 
-          <div class="section scrollspy" id="custom"></div>
-          <div class="section scrollspy" id="styles"></div>
           <div class="section scrollspy" id="api"></div>
           <div class="section scrollspy" id="extend"></div>
           <div class="section scrollspy" id="notes"></div>
@@ -452,6 +457,9 @@
       </div>
     </div>
   </div>
+  <script src="https://d3js.org/d3-selection.v1.js"></script>
+  <script src="https://d3js.org/d3-shape.v1.js"></script>
+  <script src="/d3-annotation.js" async></script>
   <script src="bundle.js" async></script>
   <script src="ga.js" async></script>
 </body>

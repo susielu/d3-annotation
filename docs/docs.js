@@ -5,7 +5,7 @@ const inpractice = require('./content/inpractice.md')
 const api = require('./content/api.md')
 const extend = require('./content/extend.md')
 const notes = require('./content/notes.md')
-const highlight = require('./custom-highlightjs-build')
+const highlight = require('./custom-highlightjs-build/highlight')
 
 document.getElementById('toc1').innerHTML = contents;
 document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + contents;
@@ -130,10 +130,6 @@ $(document).ready(function(){
         dy: 117,
         dx: 162
       }
-    window.makeAnnotations = d3.annotation()
-    .editMode(editMode)
-    .type(currentType)
-    .annotations([annotation])
 
     d3.selectAll('.icons .options a')
       .on('click', function() {
@@ -281,6 +277,9 @@ $(document).ready(function(){
             .classed('hidden', true)
         }
 
+        d3.select("#sandbox-title")
+          .text(`Use d3.${typeKey}:`)
+
         updateAnnotations()
         sandboxCode()
 
@@ -301,12 +300,14 @@ $(document).ready(function(){
       .on('change', function(){
         textWrap = parseInt(d3.event.target.value)
         makeAnnotations.textWrap(textWrap).update()
+        sandboxCode()
       })
 
     d3.select('#padding')
       .on('change', function(){
         padding = parseInt(d3.event.target.value)
         makeAnnotations.notePadding(padding).update()
+        sandboxCode()
       })
 
     d3.selectAll('#curveButtons ul.curves li a')
@@ -326,6 +327,11 @@ $(document).ready(function(){
         sandboxCode()
 
    })
+
+    window.makeAnnotations = d3.annotation()
+    .editMode(editMode)
+    .type(currentType)
+    .annotations([annotation])
 
     d3.select(".sandbox")
       .append("g")
@@ -367,9 +373,9 @@ $(document).ready(function(){
       } else {
         let json = JSON.parse(JSON.stringify(typeSettings))
 
-        if (Object.keys(json.subject).length === 0){
+       //if (Object.keys(json.subject).length === 0){
           delete json.subject
-        }
+        //}
 
         if (Object.keys(json.connector).length === 0){
           delete json.connector
@@ -386,22 +392,23 @@ $(document).ready(function(){
       let disableText = ''
 
       if (makeAnnotations.disable().length !== 0) {
-        disableText = '  //could also be set in the a disable property\n  //of the annotation JSON\n' +
+        disableText = '  //could also be set in the a disable property\n  //of the annotation object\n' +
         `  .disable(${JSON.stringify(makeAnnotations.disable())})\n`
       }
 
       let textWrapText = ''
 
       if (textWrap !== 120) {
-        textWrapText = '  //also can set and override in the note.wrap property\n  //of the annotation JSON\n' +
-        `  .textWrap(${textWrap})`
+        textWrapText = '  //also can set and override in the note.wrap property\n  //of the annotation object\n' +
+        `  .textWrap(${textWrap})\n`
       }
 
       let paddingText = ''
-
+      console.log('about ot make paddign text', padding)
       if (padding !== 5) {
-        paddingText = '  //also can set and override in the note.padding property\n  //of the annotation JSON\n' +
-        `  .notePadding(${padding})`
+        console.log('in padding')
+        paddingText = '  //also can set and override in the note.padding property\n  //of the annotation object\n' +
+        `  .notePadding(${padding})\n`
       }
 
       let curveText = ''
@@ -437,7 +444,7 @@ $(document).ready(function(){
       typeText +
       '\n' +
       'const annotations = [{\n' +
-      '        notes: { label: "Longer text to show text wrapping",\n' +
+      '        note: { label: "Longer text to show text wrapping",\n' +
       '          title: "Annotations :)" },\n' +
       '        //can use x, y directly instead of data\n' +
       '        data: {date: "18-Sep-09", close: 185.02},\n' +
@@ -477,11 +484,11 @@ $(document).ready(function(){
       '\n' +
       'd3.select("svg")\n' +
       '  .append("g")\n' +
-      '  .attr("class", "annotation-test")\n' +
+      '  .attr("class", "annotation-group")\n' +
       '  .call(makeAnnotations)\n'
       )
 
-      $('#sandbox-code code, #sandbox-code-with-scales code').each(function(i, block) {
+      $('#sandbox-code code').each(function(i, block) {
         highlight.highlightBlock(block);
       });
     }

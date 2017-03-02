@@ -233,7 +233,13 @@ class Type {
     this.setPosition()
   }
 
+
+  setClassName(){
+    this.a.attr("class", `annotation ${this.className && this.className()} ${this.editMode ? "editable" : ""} ${this.annotation.className || ''}`)
+  }
+
   draw() {
+    this.setClassName()
     this.setPosition()
     this.setOffset()
     this.redrawSubject()
@@ -294,7 +300,7 @@ export const customType = (initialType, typeSettings, init) => {
       return annotation
     }
 
-    static className(){ return typeSettings.className || initialType.className()}
+    className(){ return `${typeSettings.className || ''} ${super.className && super.className() || ''}`}
 
     drawSubject(context){
        this.typeSettings.subject = Object.assign({}, typeSettings.subject, this.typeSettings.subject)
@@ -402,7 +408,7 @@ export const d3CalloutCircle = customType(d3CalloutElbow, {
 
 
 export class d3CalloutRect extends d3Callout {
-  static className() { return "callout rect" }
+  className() { return "callout rect" }
 
   drawSubject(context) {
     this.typeSettings.subject = Object.assign({}, this.typeSettings.subject, { type: "rect"})
@@ -424,7 +430,7 @@ export class d3CalloutRect extends d3Callout {
 }
 
 export class d3XYThreshold extends d3Callout {
-  static className() { return "xythreshold" }
+  className() { return "xythreshold" }
 
   drawSubject(context) { 
       this.typeSettings.subject = Object.assign({}, this.typeSettings.subject, { type: "threshold"})

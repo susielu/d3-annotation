@@ -104,6 +104,7 @@ export default class Annotation {
 
     if (this.data && Object.keys(this.data).length > 0) json.data = this.data
     if (this.type) json.type = this.type
+    if (this._className) json.className = this._className
 
     if (Object.keys(this.connector).length > 0) json.connector = this.connector
     if (Object.keys(this.subject).length > 0) json.subject = this.subject

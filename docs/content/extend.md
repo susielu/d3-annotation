@@ -1,7 +1,7 @@
 ## Extending Annotation Types
 
-The underlying code for d3-annotation is very extensible. There is a base annotation type that all of the annotation types extend. All of the settings and components that make up the different types are customizable. 
+The underlying code for d3-annotation has a base annotation type that all of the annotation types extend. The settings and components that make up the different types are customizable. 
 
-The goal here was to make a system that was easy to adapt to your requirements. A longer post with details about how you can make your own customized type will be coming out in a couple of weeks. 
+The goal was to make a system that was easy to add new types and implement layout algorithms with. A longer post with details about how you can make your own type will be coming out soon. 
 
-If you're interested in looking at the structure before the post is out take a look at the [source code](https://github.com/susielu/d3-annotation/tree/master/src). 
+If you're interested in looking at the architecture before the post you can find the [source code here](https://github.com/susielu/d3-annotation/tree/master/src). 
