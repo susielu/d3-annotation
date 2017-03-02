@@ -49,5 +49,5 @@ export default ({ padding, bbox, align, orientation, offset }) => {
        }
     } 
 
-    return `translate(${x}, ${y})`
+    return { x, y }
 }

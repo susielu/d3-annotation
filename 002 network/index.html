@@ -5,6 +5,10 @@
     <link href='https://fonts.googleapis.com/css?family=Lato:300,900' rel='stylesheet' type='text/css'>
 
     <style>
+
+    :root {
+      --annotation-color: #e91e56;
+    }
      body{
         background-color: whitesmoke;
      }
@@ -31,16 +35,16 @@
       }
 
       .annotation path {
-        stroke: #e91e56;
+        stroke: var(--annotation-color);
         fill: rgba(0,0,0,0);
       }
 
       .annotation path.connector-arrow{
-        fill: #e91e56;
+        fill: var(--annotation-color);
       }
 
       .annotation text {
-        fill: #e91e56;
+        fill: var(--annotation-color);
       }
 
       .annotation-title {
@@ -57,8 +61,8 @@
 
        circle.handle {
         stroke-dasharray: 5;
-        stroke: #e91e56;
-        fill: rgba(255, 255, 255, .5);
+        stroke: grey;
+        fill: rgba(255, 255, 255, 0);
         cursor: move;
 
         stroke-opacity: .4;
@@ -66,6 +70,11 @@
 
       circle.handle.highlight {
         stroke-opacity: 1;
+      }
+
+      .annotation.major {
+        font-weight: 900;
+        font-size: 1em;
       }
 
     </style>
@@ -83,7 +92,8 @@
         width = +svg.attr("width"),
         height = +svg.attr("height");
         
-    var color = d3.scaleOrdinal(d3.schemeCategory20);
+    var color = d3.scaleOrdinal(d3.schemeCategory20)
+      .range(["#e91e56", "#00965f", "#00bcd4", "#3f51b5", "#9c27b0", "#ff5722", "#cddc39", "#607d8b", "#8bc34a"]);
     var simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id( d => d.id ))
         .force("charge", d3.forceManyBody().strength(-80))
@@ -103,12 +113,9 @@
         .selectAll("circle")
         .data(graph.nodes)
         .enter().append("circle")
-          .attr("r", 5)
+          .attr("r", d => d.type === "major" ? 9 : 3)
           .attr("fill", d => color(d.group))
-          .call(d3.drag()
-              .on("start", dragstarted)
-              .on("drag", dragged)
-              .on("end", dragended));
+
       node.append("title")
           .text(d => d.id);
 
@@ -125,18 +132,13 @@
           .on("tick", ticked)
           .on("end", function() {
 
-              const noteBoxes = makeAnnotations.collection().noteNodes
-
-              d3.selectAll(".annotation-connector > path")
-                .style("stroke", (d,i) => d3.hsl(color(graph.nodes[i].group)).darker())
-
+            const noteBoxes = makeAnnotations.collection().noteNodes
             console.log("noteBoxes", noteBoxes)
             console.log("makeAnnotations.annotations()",makeAnnotations.annotations())
              window.labelForce = d3.forceSimulation(noteBoxes)
               .force("x", d3.forceX(a => a.positionX).strength(1))
               .force("y", d3.forceY(a => a.positionY).strength(1))
-//              .force("collision", window.collide)
-              .force("collision", d3.forceCollide(d => d.width / 2))
+             .force("collision", window.collide)
               .alpha(1)
               .on('tick', d => {
                   makeAnnotations.annotations()
@@ -167,20 +169,19 @@
           .forEach((d, i) => {
             d.position = graph.nodes[i]
           })
-
-        // makeAnnotations.update()
       }
 
       window.makeAnnotations = d3.annotation()
-        .editMode(false)
+        .editMode(true)
         .type(d3.annotationLabel)
         .annotations(graph.nodes.map((d,i) => {
           return {
-            data: {x: d.x, y: d.y},
+            data: {x: d.x, y: d.y, group: d.group},
             note: { label: d.mainCharacter || true ? d.id : "",
               align: "middle",
               orientation: "fixed" },
-            connector: { type: "elbow"}
+            connector: { type: "elbow"},
+            className: d.type
           }
         }))
         .accessors({ x: d => d.x , y: d => d.y})
@@ -189,23 +190,13 @@
         .attr("class", "annotation-test")
         .call(makeAnnotations)
 
+      svg.selectAll(".annotation-note text")
+        .style("fill", d => color(d.data.group))
+
+      svg.selectAll(".annotation-connector > path")
+        .style("stroke", (d,i) => color(d.data.group))
       
     });
-    function dragstarted(d) {
-      if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-      d.fx = d.x;
-      d.fy = d.y;
-    }
-    function dragged(d) {
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
-    }
-    function dragended(d) {
-      if (!d3.event.active) simulation.alphaTarget(0);
-      d.fx = null;
-      d.fy = null;
-    }
-
     </script>
 </body>
 </html>

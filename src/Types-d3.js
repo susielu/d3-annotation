@@ -40,6 +40,8 @@ class Type {
     this.annotation = annotation
     this.editMode = annotation.editMode || editMode
     this.notePadding = notePadding || 3
+    this.offsetCornerX = 0
+    this.offsetCornerY = 0
 
     if (accessors && annotation.data){
       this.init(accessors)
@@ -193,7 +195,10 @@ class Type {
     const noteParams = { padding, bbox: context.bbox, offset: 
     this.annotation.offset, orientation, align }
 
-    this.note && this.noteContent.attr('transform', noteAlignment(noteParams))
+    const { x, y } = noteAlignment(noteParams)
+    this.offsetCornerX = x + this.annotation.dx
+    this.offsetCornerY = y + this.annotation.dy
+    this.note && this.noteContent.attr('transform', `translate(${x}, ${y})`)
     
     return []
   } 

@@ -4334,7 +4334,7 @@ exports.default = function (_ref) {
     }
   }
 
-  return "translate(" + x + ", " + y + ")";
+  return { x: x, y: y };
 };
 
 },{}],17:[function(require,module,exports){
@@ -4714,6 +4714,8 @@ var Type = function () {
     this.annotation = annotation;
     this.editMode = annotation.editMode || editMode;
     this.notePadding = notePadding || 3;
+    this.offsetCornerX = 0;
+    this.offsetCornerY = 0;
 
     if (accessors && annotation.data) {
       this.init(accessors);
@@ -4905,7 +4907,13 @@ var Type = function () {
 
       var noteParams = { padding: padding, bbox: context.bbox, offset: this.annotation.offset, orientation: orientation, align: align };
 
-      this.note && this.noteContent.attr('transform', (0, _alignment2.default)(noteParams));
+      var _noteAlignment = (0, _alignment2.default)(noteParams),
+          x = _noteAlignment.x,
+          y = _noteAlignment.y;
+
+      this.offsetCornerX = x + this.annotation.dx;
+      this.offsetCornerY = y + this.annotation.dy;
+      this.note && this.noteContent.attr('transform', 'translate(' + x + ', ' + y + ')');
 
       return [];
     }
