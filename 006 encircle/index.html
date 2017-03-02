@@ -64,7 +64,7 @@
 <body>
     <svg width=960 height=500></svg>
     <script src="https://d3js.org/d3.v4.js"></script>
-    <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+    <script src="/d3-annotation.js"></script>
 
     <script>
     // Network code from: Mike Bostock's example https://bl.ocks.org/mbostock/4062045
@@ -144,7 +144,8 @@
     let circle = points.map( p => d3.packEnclose(p))
     const annotations = [{
         note: { label: "Group 3",
-        title: "Les Mis" },
+         },
+        data: {id : "Les Mis"}, 
         dy: 93,
         dx: -176,
         x: circle[0].x,
@@ -157,7 +158,8 @@
     },
     {
         note: { label: "Group 1",
-        title: "Les Mis"},
+        },
+        data: {id : "Les Mis"}, 
         dy: 93,
         dx: -176,
         x: circle[1].x,
@@ -170,7 +172,8 @@
     },
     {
         note: { label: "Group 8",
-        title: "Les Mis"},
+        },
+        data: {id : "Les Mis"}, 
         dy: 93,
         dx: 176,
         x: circle[2].x,
@@ -185,7 +188,8 @@
 
      window.makeAnnotations = d3.annotation()
         .annotations(annotations)
-        .accessors({ x: d => d.x , y: d => d.y})
+        .editMode(true)
+        .accessors({ x: d => d.x , y: d => d.y, title: d => d.id })
 
       svg.append("g")
         .attr("class", "annotation-test")

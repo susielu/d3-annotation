@@ -81,6 +81,17 @@ $(document).ready(function(){
           radiusPadding: 5
         }
       },
+      annotationCalloutRect: {
+        typeSettings: {
+           note: { align: "dynamic", lineType: "horizontal" },
+            connector: { type: "elbow"}
+        },
+        summary: "Subject options: width, height, rx, ry",
+        subject: {
+          width: -50,
+          height: 100
+        }
+      },
       annotationCalloutCurve: {
         typeSettings: {
            note: { align: "dynamic", lineType: "horizontal" },

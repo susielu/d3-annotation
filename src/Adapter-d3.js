@@ -47,7 +47,7 @@ export default function annotation(){
     
 
     const annotationG = selection.selectAll('g').data([collection])
-    annotationG.enter().append('g').attr('class', `annotations ${editMode ? "editable" : ""}`)
+    annotationG.enter().append('g').attr('class', `annotations`)
     
     const group = selection.select('g.annotations')
     newWithClass(group, collection.annotations, 'g', 'annotation')
@@ -59,10 +59,10 @@ export default function annotation(){
         const a = select(this)
         const position = d.position
 
-        const className = d.type.className && d.type.className()
-        if (className){
-          a.attr('class', `annotation ${className}`)
-        }
+        const className = d.type.className && d.type.className() || ''
+        const aClassName = d.className || ''
+        const editClassName = editMode ? "editable" : ""
+        a.attr('class', `annotation ${className} ${aClassName} ${editClassName}`)
 
         newWithClass(a, [d], 'g', 'annotation-connector')
         newWithClass(a, [d], 'g', 'annotation-subject')
@@ -131,11 +131,11 @@ export default function annotation(){
     if (collection) { 
       collection.annotations.map(a => {
         
-        let previousType = a.type
-        const className = type.className && type.className()
-        if (className){
-          previousType.a.attr('class', `annotation ${className}`)
-        }
+        // let previousType = a.type
+        // const className = type.className && type.className()
+        // if (className){
+        //   previousType.a.attr('class', `annotation ${className}`)
+        // }
      
         a.type.note && a.type.note.selectAll("*:not(.annotation-note-content)").remove()
         a.type.noteContent && a.type.noteContent.selectAll("*").remove()
@@ -188,7 +188,7 @@ export default function annotation(){
     editMode = _
 
     if (sel){
-      sel.select('g.annotations')
+      sel.selectAll('g.annotation')
         .classed('editable', editMode)
     }
 
