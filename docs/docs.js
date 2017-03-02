@@ -5,7 +5,7 @@ const inpractice = require('./content/inpractice.md')
 const api = require('./content/api.md')
 const extend = require('./content/extend.md')
 const notes = require('./content/notes.md')
-const highlight = require('highlight.js')
+const highlight = require('./custom-highlightjs-build')
 
 document.getElementById('toc1').innerHTML = contents;
 document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + contents;
