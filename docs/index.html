@@ -16,7 +16,7 @@
       --accent-color: #E8336D;
     }
     h1, h2, h3, .brand-logo {
-      font-family: 'Bungee';
+      font-family: 'Bungee', Helvetica, Arial;
       color: var(--font-color);
     }
 
@@ -29,7 +29,7 @@
     }
 
     body {
-      font-family: 'Nunito';
+      font-family: 'Nunito', Helvetica, Arial;
       font-weight: 300;
       font-size: 1.2em;
       line-height: 1.8em;
@@ -294,11 +294,15 @@
 
       <div class="col s12 m9 l9">
           <div class="section scrollspy" id="introduction"></div>
-          <div class="section scrollspy" id="anatomy"></div>
           <div class="section scrollspy" id="setup"></div>
-          <div class="section scrollspy" id="annotation"></div>
           <div class="section scrollspy" id="types" >
             <h2>Annotation Types</h2>
+
+            <p>All annotations are made of just three parts, a <b>note</b>, a <b>connector</b>, and a <b>subject</b>.</p>
+
+            <img alt="Anatomy of an annotation" src="img/anatomy.png" />
+
+            <p>They are the foundational blocks of this library.</p>
             <div>
               <div class="icons">
                  <!-- Dropdown Trigger -->
@@ -434,9 +438,11 @@
             </pre>
 
           </div>
+          <div class="section scrollspy" id="in-practice"></div>
+
           <div class="section scrollspy" id="custom"></div>
           <div class="section scrollspy" id="styles"></div>
-          <div class="section scrollspy" id="in-practice"></div>
+          <div class="section scrollspy" id="api"></div>
           <div class="section scrollspy" id="extend"></div>
           <div class="section scrollspy" id="notes"></div>
           <footer>

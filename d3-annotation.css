@@ -9,7 +9,8 @@
 
 .annotation text,
 .annotation .annotation-connector .connector-dot,
-.annotation path.connector-arrow{
+.annotation path.connector-arrow,
+.annotation.callout.rect path.subject{
   fill: var(--annotation-color);
 }
 
@@ -19,6 +20,10 @@
 
 .annotation-note-bg {
   fill: rgba(255, 255, 255, 0);
+}
+
+.annotation.callout.rect path.subject{
+  fill-opacity: .1;
 }
 
 .annotation.badge path.subject-pointer, .annotation.badge path.subject {

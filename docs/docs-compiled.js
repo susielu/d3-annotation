@@ -1,34 +1,25 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports = "<h2 id=\"anatomy-of-an-annotation\">Anatomy of an Annotation</h2>\n<p>All annotations are made of just three parts, a <strong>note</strong>, a <strong>connector</strong>, and a <strong>subject</strong>.</p>\n<p><img src=\"img/anatomy.png\" alt=\"Anatomy of an annotation\"></p>\n<p>They are the foundational blocks of this library.</p>\n";
+module.exports = "<h2 id=\"api\">API</h2>\n<p><strong>d3.annotation()</strong></p>\n<p>annotation.<strong>annotations([ objects ])</strong></p>\n<p>Pass an array of objects with annotation properties:</p>\n<ul>\n<li><strong>id</strong>: This can be anything that will help you filter and parse your annotations</li>\n</ul>\n<p><img src=\"img/json.png\" alt=\"Annotation JSON\"></p>\n<ul>\n<li><strong>x (number:pixels)</strong>: Position of the subject and one end of the connector</li>\n<li><strong>y (number:pixels)</strong>: Position of the subject and one end of the connector</li>\n<li><strong>data (object)</strong>: If you also set accessor functions, you can give data instead of x, y coordinates for placing your annotations</li>\n<li><strong>dy (number:pixels)</strong>: Position of the note and one end of the connector</li>\n<li><strong>dx (number:pixels)</strong>: Position of the note and one end of the connector</li>\n<li><strong>type (d3annotationType)</strong>: Type for this annotation. Recommended to set the base type at the d3.annotation().type() property and using this only if you want to some additional types in the array</li>\n<li><strong>disable ([string])</strong>: takes the values &#39;connector&#39;, &#39;subject&#39;, and &#39;note&#39; pass them in this array if you want to disable those parts from rendering</li>\n<li><strong>note (object)</strong>: You can specify a title and label property here. All of the annotation types that come with d3-annotation have built in functionality to take the title and the label and add them to the note, however the underlying system is composable in a way that you could customize the note to contain any type of content. You can also use this to overwrite the default note properties (align, orientation, lineType, wrap, padding) in the type. For example if on one of the notes you wanted to align it differently.</li>\n<li><strong>connector (object)</strong>: Some connectors such as the curve connector require additional parameters to set up the annotation. You can also use this to overwrite the default connector properties (type, end) in the type. For example if you wanted to add an arrow to the end of some of the annotations in the array you could add <code>{ end: &quot;arrow&quot; }</code> to this connector property on the relevant annotations.</li>\n<li><strong>subject (object)</strong>: Some subjects such as the circle require additional parameters to set up the annotation. </li>\n</ul>\n<p>You can also then use this function to get the current annotations.</p>\n<p>annotation.<strong>accessors({ x: function, y: function })</strong></p>\n<p>Functions that would map the .data attribute of your annotation to x and y positions.</p>\n<p>Example:</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-comment\">//Sample .data for an annotation</span>\n<span class=\"hljs-comment\">//{date: \"2-Jan-08\", close: 194.84}</span>\n\n<span class=\"hljs-keyword\">const</span> parseTime = d3.timeParse(<span class=\"hljs-string\">\"%d-%b-%y\"</span>);\n\nd3.annotation().accessors({\n  x: d =&gt; x(parseTime(d.date)),\n  y: d =&gt; y(d.close)\n})\n</code></pre>\n<p>annotation.<strong>accessorsInverse({ &lt;x property mapping&gt;: function,  &lt;y property mapping&gt;: function })</strong></p>\n<p>The inverse of the accessor function. If you are given x, y coordinates, how to get back to the original data properties. Only for the x and y accessors.</p>\n<p>Example (goes with example from the accessors function):</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-comment\">//Sample .data for an annotation</span>\n<span class=\"hljs-comment\">//{date: \"2-Jan-08\", close: 194.84}</span>\n\n<span class=\"hljs-keyword\">const</span> timeFormat = d3.timeFormat(<span class=\"hljs-string\">\"%d-%b-%y\"</span>)\n\nd3.annotation().accessorsInverse({\n  date: d =&gt; timeFormat(x.invert(d.x)),\n  close: d =&gt; y.invert(d.y)\n})\n</code></pre>\n<p>annotation.<strong>editMode(boolean)</strong></p>\n<p>If this is true, then the annotation will create handles for parts of the annotation that are draggable. You can style these handles with the <code>circle.handle</code> selector. If you are hooking this up to a button, you will need to run the update function below, after changing the editMode. TODO add example</p>\n<p>annotation.<strong>update()</strong></p>\n<p>Redraws all of the annotations. Typcially used to reflect updated settings. If you are only updating the position (x, y) or the offset (dx, dy) you do not need to call this afterwards. Example in <a href=\"#encircle\">Layout - Encircling Annotation</a>.</p>\n<p>annotation.<strong>updatedAccessors()</strong></p>\n<p>Example in <a href=\"#responsive\">Responsive with Types and Hover</a></p>\n<p>annotation.<strong>type( d3annotationType )</strong>\nYou can pass different types into the annotation objects themselves, but you can also set a default type here. If you want to change the type, you will need to re-call the d3.annotation function on your element to recreate the annotations with the new type. Example in <a href=\"#responsive\">Responsive with Types and Hover</a></p>\n<p>annotation.<strong>json()</strong></p>\n<p>You can run this in the developer console and it will print out the current annotation settings and copy them to your clipboard. Please note that in the console each annotation will also include the type that you&#39;ve associated with it.</p>\n<p>annotation.<strong>collection()</strong></p>\n<p>Access to the collection of annotations with the instantiated types.</p>\n<p>annotation.<strong>textWrap()</strong></p>\n<p>annotation.<strong>notePadding()</strong></p>\n<p>annotation.<strong>disables()</strong></p>\n";
 },{}],2:[function(require,module,exports){
-module.exports = "<h2 id=\"api\">API</h2>\n<p><strong>d3.annotation()</strong></p>\n<p>annotation.<strong>annotations([ objects ])</strong></p>\n<p>Pass an array of objects with annotation properties:</p>\n<ul>\n<li><strong>id</strong>: This can be anything that will help you filter and parse your annotations</li>\n</ul>\n<p><img src=\"img/json.png\" alt=\"Annotation JSON\"></p>\n<ul>\n<li><strong>x (number:pixels)</strong>: Position of the subject and one end of the connector</li>\n<li><strong>y (number:pixels)</strong>: Position of the subject and one end of the connector</li>\n<li><strong>data (object)</strong>: If you also set accessor functions, you can give data instead of x, y coordinates for placing your annotations</li>\n<li><strong>dy (number:pixels)</strong>: Position of the note and one end of the connector</li>\n<li><strong>dx (number:pixels)</strong>: Position of the note and one end of the connector</li>\n<li><strong>disable ([string])</strong>: takes the values &#39;connector&#39;, &#39;subject&#39;, and &#39;note&#39; pass them in this array if you want to disable those parts from rendering</li>\n<li><strong>note (object)</strong>: You can specify a title and label property here. All of the annotation types that come with d3-annotation have built in functionality to take the title and the label and add them to the note, however the underlying system is composable in a way that you could customize the note to contain any type of content</li>\n<li><strong>connector (object)</strong>: Some connectors such as the curve connector require additional paramters to set up the annotation</li>\n<li><strong>subject (object)</strong>: Some subjects such as the circle require additional parameters to set up the annotation</li>\n</ul>\n<p>TODO: come back, does this make sense to be renamed as &#39;mapping&#39;\nannotation.<strong>accessors({ x: function, y: function })</strong></p>\n<p>Functions that would map the .data attribute of your annotation to x and y positions. In the example below</p>\n<p>Example:</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-comment\">//Sample .data for an annotation</span>\n<span class=\"hljs-comment\">//{date: \"2-Jan-08\", close: 194.84}</span>\n\n<span class=\"hljs-keyword\">const</span> parseTime = d3.timeParse(<span class=\"hljs-string\">\"%d-%b-%y\"</span>);\n\nd3.annotation().accessors({\n  x: d =&gt; x(parseTime(d.date)),\n  y: d =&gt; y(d.close)\n})\n</code></pre>\n<p>annotation.<strong>accessorsInverse({ &lt;x property mapping&gt;: function,  &lt;y property mapping&gt;: function })</strong></p>\n<p>The inverse of the accessor function. If you are given x, y coordinates, how to get back to the original data properties</p>\n<p>Example (goes with example from the accessors function):</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-comment\">//Sample .data for an annotation</span>\n<span class=\"hljs-comment\">//{date: \"2-Jan-08\", close: 194.84}</span>\n\n<span class=\"hljs-keyword\">const</span> timeFormat = d3.timeFormat(<span class=\"hljs-string\">\"%d-%b-%y\"</span>)\n\nd3.annotation().accessorsInverse({\n  date: d =&gt; timeFormat(x.invert(d.x)),\n  close: d =&gt; y.invert(d.y)\n})\n</code></pre>\n<p>annotation.<strong>editMode(boolean)</strong></p>\n<p>If this is true, then the annotation will create handles for parts of the annotation that are draggable. You can style these handles with the <code>circle.handle</code> selector. If you are hooking this up to a button, you will need to run the update function below, after changing the editMode.</p>\n<p>annotation.<strong>update()</strong></p>\n<p>Redraws all of the annotations. Typcially used to reflect updated settings. If you are only updating the position (x, y) or the offset (dx, dy) you do not need to call this afterwards. Example in <a href=\"#encircle\">Layout - Encircling Annotation</a>.</p>\n<p>annotation.<strong>json()</strong></p>\n<p>You can run this in the developer console and it will print out the current annotation settings and copy them to your clipboard. Please note that in the console each annotation will also include the type that you&#39;ve associated with it.</p>\n<p>annotation.<strong>collection()</strong></p>\n<p>Access to the collection of annotations with the instantiated types.</p>\n";
+module.exports = "<ul>\n<li><a href=\"#introduction\">Introduction</a></li>\n<li><a href=\"#setup\">Setup</a></li>\n<li><a href=\"#types\">Types</a></li>\n<li><a href=\"#in-practice\">In Practice</a></li>\n<li><a href=\"#annotation\">API</a></li>\n<li><a href=\"#extend\">Extending Types</a></li>\n<li><a href=\"#Notes\">Notes</a></li>\n</ul>\n";
 },{}],3:[function(require,module,exports){
-module.exports = "<ul>\n<li><a href=\"#introduction\">Introduction</a></li>\n<li><a href=\"#anatomy\">Anatomy</a></li>\n<li><a href=\"#setup\">Setup</a></li>\n<li><a href=\"#annotation\">API</a></li>\n<li><a href=\"#types\">Types</a></li>\n<li><a href=\"#custom\">Customizing Types</a></li>\n<li><a href=\"#styles\">Style Helpers</a></li>\n<li><a href=\"#in-practice\">In Practice</a></li>\n<li><a href=\"#extend\">Extending Types</a></li>\n<li><a href=\"#Notes\">Notes</a></li>\n</ul>\n";
+module.exports = "<h2 id=\"extending-annotation-types\">Extending Annotation Types</h2>\n<p>The underlying code for d3-annotation is very extensible. There is a base annotation type that all of the annotation types extend. All of the settings and components that make up the different types are customizable. </p>\n<p>The goal here was to make a system that was easy to adapt to your requirements. A longer post with details about how you can make your own customized type will be coming out in a couple of weeks. </p>\n<p>If you&#39;re interested in looking at the structure before the post is out take a look at the <a href=\"https://github.com/susielu/d3-annotation/tree/master/src\">source code</a>. </p>\n";
 },{}],4:[function(require,module,exports){
-module.exports = "<h2 id=\"customizing-types\">Customizing Types</h2>\n<p><strong>d3.annotationCustomType(annotationType, typeSettings)</strong></p>\n<p>There are some basic settings you can use with the annotations above to customize an annotation type.</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-keyword\">const</span> typeSettings = {\n  connector: { type: <span class=\"hljs-string\">\"arrow\"</span> }\n}\n\n<span class=\"hljs-keyword\">const</span> calloutWithArrow =\n  d3.annotationCustomType(\n    d3.annotationCalloutElbow,\n    typeSettings\n  )\n\nd3.annotation()\n  .annotations([{\n      text: <span class=\"hljs-string\">\"Plant paradise\"</span>,\n      data: {date: <span class=\"hljs-string\">\"18-Sep-09\"</span>,\n      close: <span class=\"hljs-number\">185.02</span>},\n      dy: <span class=\"hljs-number\">37</span>,\n      dx: <span class=\"hljs-number\">42</span>,\n      <span class=\"hljs-comment\">//Your custom type</span>\n      type: calloutWithArrow\n    }])\n  .editMode(<span class=\"hljs-literal\">true</span>)\n</code></pre>\n";
+module.exports = "<h2 id=\"in-practice\">In Practice</h2>\n<ul>\n<li>All of the shapes (aside from the edit handles) in the default annotations are paths </li>\n<li>In addition to the alignment settings for the note, you can also use the css <code>text-anchor</code> attribute to align the text within the note</li>\n<li>When you update the d3.annotation().type() you will need to use the call functionality again to set up the annotations with the new type. See the <a href=\"#responsive\">Responsive with Types and Hover</a> example</li>\n<li>You do not need to call d3.annotation().update() if you are only changing the position(x,y) or the offset(dx, dy). See the <a href=\"#overlapping\">Overlapping</a> example</li>\n</ul>\n<p>Basic styles to use for the annotations available on <a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.css\">github</a>.</p>\n<p>Hierarchy of classes:\n<img src=\"img/classes.png\" alt=\"Annotation classes\"></p>\n<h2 id=\"customizing-types\">Customizing Types</h2>\n<p><strong>d3.annotationCustomType(annotationType, typeSettings)</strong></p>\n<p>There are some basic settings you can use with the annotations above to customize an annotation type.</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-keyword\">const</span> typeSettings = {\n  connector: { type: <span class=\"hljs-string\">\"arrow\"</span> }\n}\n\n<span class=\"hljs-keyword\">const</span> calloutWithArrow =\n  d3.annotationCustomType(\n    d3.annotationCalloutElbow,\n    typeSettings\n  )\n\nd3.annotation()\n  .annotations([{\n      text: <span class=\"hljs-string\">\"Plant paradise\"</span>,\n      data: {date: <span class=\"hljs-string\">\"18-Sep-09\"</span>,\n      close: <span class=\"hljs-number\">185.02</span>},\n      dy: <span class=\"hljs-number\">37</span>,\n      dx: <span class=\"hljs-number\">42</span>,\n      <span class=\"hljs-comment\">//Your custom type</span>\n      type: calloutWithArrow\n    }])\n  .editMode(<span class=\"hljs-literal\">true</span>)\n</code></pre>\n<h3 id=\"responsive\">Responsive with Types and Hover</h3>\n<a href=\"https://bl.ocks.org/susielu/974e41473737320f8db5ae711ded8542\"><img src=\"img/resize.png\"/></a>\n\n<h3 id=\"overlapping\">Overlapping</h3>\n\n<p><h3 id=\"encircle\">Encircling</h3>\n<a href=\"https://bl.ocks.org/susielu/24ad9f80b9b681ce967f6005a03384f3\"><img src=\"img/encircle.png\" alt=\"Annotation encircling]\"></a></p>\n";
 },{}],5:[function(require,module,exports){
-module.exports = "<h2 id=\"extending-annotation-types\">Extending Annotation Types</h2>\n<h3 id=\"javascript-classes\">Javascript Classes</h3>\n<p>The underlying structure for the annotations and types are built with es6 JavaScript classes. To make your own custom type you can take any of the base types and extend them. </p>\n<h3 id=\"static-functions\">Static Functions</h3>\n<p><strong>STATIC className</strong></p>\n<p>A class that return a string for the class name you want to give your custom type.</p>\n<p><strong>STATIC init</strong></p>\n<p>An init function that is looped through</p>\n<p>Example, default init function</p>\n<p>Exampe, xyThreshold init function</p>\n<h3 id=\"drawing-functions\">Drawing Functions</h3>\n<p>These functions have a context parameter. Context is an object with gives you access to the annotation with all of its properties, and the relevant bounding box. </p>\n<p><strong>drawNote(context)</strong></p>\n<p><strong>drawNoteContent(context)</strong></p>\n<p><strong>drawConnector(context)</strong></p>\n<p><strong>drawSubject(context)</strong></p>\n<h3 id=\"overall-code-structure\">Overall Code structure</h3>\n<p><strong>Annotation Class</strong></p>\n<p>Each annotation is an instantiation of this class.</p>\n<p>Reference the <a href=\"https://github.com/susielu/d3-annotation/blob/master/src/Annotation.js\">souce code</a> for the full set of properties and functions. Most relevant properties: </p>\n<ul>\n<li>dx</li>\n<li>dy</li>\n<li>x</li>\n<li>y</li>\n<li>data</li>\n<li>offset: returns the dx, and dy, values as an object {x, y}</li>\n<li>position: returns the x, and y, values as an object {x, y}</li>\n</ul>\n<p><strong>Annotation Collection Class</strong></p>\n<p>When you run d3.annotation() it creates all of the annotations you pass it as Annotation Class instances and places them into an array as part of an Annotation Collection.</p>\n<p><strong>Types Class</strong></p>\n<p>Each of the annotation types is created </p>\n";
+module.exports = "<h2 id=\"introduction\">Introduction</h2>\n<p>Annotations <strong>establish context, and direct our users to insights and anomalies</strong>. So why are annotations so few and far between in visualizations on the web? Because <strong>implementing them is difficult.</strong></p>\n<p><strong>But it shouldn&#39;t be.</strong> </p>\n<p>Use d3-annotation with built-in annotation types, or extend it to make custom annotations. It is made for <a href=\"https://github.com/d3/d3/blob/master/CHANGES.md\">d3-v4</a> in SVG. </p>\n<p>Contact me through <a href=\"https://www.github.com/susielu/d3-annotation\">github</a> or <a href=\"https://www.twitter.com/DataToViz\">twitter</a> to help make <a href=\"#in-practice\">examples</a> and <a href=\"#types\">annotation types</a>.</p>\n";
 },{}],6:[function(require,module,exports){
-module.exports = "<h2 id=\"in-practice\">In Practice</h2>\n<p>Here are some helpful tips for using this library and some examples to learn from. </p>\n<ul>\n<li>All of the shapes (aside from the edit handles) in the default annotations are paths </li>\n<li>In addition to the alignment settings for the note, you can also use the css <code>text-anchor</code> attribute to align the text within the note</li>\n<li>When you update the d3.annotation().type() you will need to use the call functionality again to set up the annotations with the new type. See the <a href=\"#responsive\">Responsive with Types and Hover</a> example</li>\n<li>You do not need to call d3.annotation().update() if you are only changing the position(x,y) or the offset(dx, dy). See the <a href=\"#overlapping\">Overlapping</a> example</li>\n</ul>\n<h3 id=\"responsive\">Responsive with Types and Hover</h3>\n<a href=\"https://bl.ocks.org/susielu/974e41473737320f8db5ae711ded8542\"><img src=\"img/resize.png\"/></a>\n\n<h3 id=\"overlapping\">Overlapping</h3>\n\n<p><h3 id=\"encircle\">Encircling</h3>\n<a href=\"https://bl.ocks.org/susielu/24ad9f80b9b681ce967f6005a03384f3\"><img src=\"img/encircle.png\" alt=\"Annotation encircling]\"></a></p>\n";
-},{}],7:[function(require,module,exports){
-module.exports = "<h2 id=\"introduction\">Introduction</h2>\n<p>Annotations <strong>establish context, and direct our users to insights and anomalies</strong>. So why are annotations so few and far between in visualizations on the web? Because <strong>implementing them is difficult.</strong></p>\n<p><strong>But it shouldn&#39;t be.</strong> </p>\n<p>Use d3-annotation with built-in annotation types, or extend it to make custom annotations. It is made for <a href=\"https://github.com/d3/d3/blob/master/CHANGES.md\">d3-v4</a> in SVG. </p>\n<p>I would love your help to make more <a href=\"#in-practice\">examples</a> and <a href=\"#types\">annotation types</a>. Contact me through <a href=\"https://www.github.com/susielu/d3-annotation\">github</a> or <a href=\"https://www.twitter.com/DataToViz\">twitter</a> to collaborate.</p>\n";
-},{}],8:[function(require,module,exports){
 module.exports = "<h2 id=\"notes\">Notes</h2>\n<ul>\n<li>Mike Bostock d3</li>\n<li>Prior Art</li>\n<li>Google Fonts</li>\n<li>Materialize</li>\n</ul>\n";
-},{}],9:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports = "<h2 id=\"setup\">Setup</h2>\n<h3 id=\"include-the-file-directly\">Include the file directly</h3>\n<p>You must include the <a href=\"http://d3js.org/\">d3 library</a> before including the annotation file. Then you can add the compiled js file to your website</p>\n<ul>\n<li><a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.js\">Unminified</a></li>\n<li><a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.min.js\">Minified</a></li>\n</ul>\n<h3 id=\"using-npm\">Using NPM</h3>\n<p>You can add d3-annotation as a node module by running</p>\n<pre><code class=\"lang-bash\">npm i d3-svg-annotation -S\n</code></pre>\n";
-},{}],10:[function(require,module,exports){
-module.exports = "<h2 id=\"style-helpers\">Style helpers</h2>\n<p>Basic styles to use for the annotations available on <a href=\"https://github.com/susielu/d3-annotation/blob/master/d3-annotation.css\">github</a>.</p>\n<p>Hierarchy of classes:\n<img src=\"img/classes.png\" alt=\"Annotation classes\"></p>\n";
-},{}],11:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var contents = require('./content/contents.md');
 var introduction = require('./content/introduction.md');
-var anatomy = require('./content/anatomy.md');
 var start = require('./content/start.md');
-var annotation = require('./content/annotation.md');
-var styles = require('./content/styles.md');
-var custom = require('./content/custom.md');
 var inpractice = require('./content/inpractice.md');
+var api = require('./content/api.md');
 var extend = require('./content/extend.md');
 var notes = require('./content/notes.md');
 var highlight = require('highlight.js');
@@ -36,13 +27,9 @@ var highlight = require('highlight.js');
 document.getElementById('toc1').innerHTML = contents;
 document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + contents;
 document.getElementById('introduction').innerHTML = introduction;
-document.getElementById('anatomy').innerHTML = anatomy;
 document.getElementById('setup').innerHTML = start;
-
-document.getElementById('annotation').innerHTML = annotation;
-document.getElementById('styles').innerHTML = styles;
-document.getElementById('custom').innerHTML = custom;
 document.getElementById('in-practice').innerHTML = inpractice;
+document.getElementById('api').innerHTML = api;
 document.getElementById('extend').innerHTML = extend;
 document.getElementById('notes').innerHTML = notes;
 
@@ -399,7 +386,7 @@ $(document).ready(function () {
   sandboxCode();
 });
 
-},{"./content/anatomy.md":1,"./content/annotation.md":2,"./content/contents.md":3,"./content/custom.md":4,"./content/extend.md":5,"./content/inpractice.md":6,"./content/introduction.md":7,"./content/notes.md":8,"./content/start.md":9,"./content/styles.md":10,"highlight.js":13}],12:[function(require,module,exports){
+},{"./content/api.md":1,"./content/contents.md":2,"./content/extend.md":3,"./content/inpractice.md":4,"./content/introduction.md":5,"./content/notes.md":6,"./content/start.md":7,"highlight.js":10}],9:[function(require,module,exports){
 /*
 Syntax highlighting with language autodetection.
 https://highlightjs.org/
@@ -1172,7 +1159,7 @@ https://highlightjs.org/
   return hljs;
 }));
 
-},{}],13:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var hljs = require('./highlight');
 
 hljs.registerLanguage('1c', require('./languages/1c'));
@@ -1314,7 +1301,7 @@ hljs.registerLanguage('xquery', require('./languages/xquery'));
 hljs.registerLanguage('zephir', require('./languages/zephir'));
 
 module.exports = hljs;
-},{"./highlight":12,"./languages/1c":14,"./languages/accesslog":15,"./languages/actionscript":16,"./languages/apache":17,"./languages/applescript":18,"./languages/armasm":19,"./languages/asciidoc":20,"./languages/aspectj":21,"./languages/autohotkey":22,"./languages/autoit":23,"./languages/avrasm":24,"./languages/axapta":25,"./languages/bash":26,"./languages/brainfuck":27,"./languages/cal":28,"./languages/capnproto":29,"./languages/ceylon":30,"./languages/clojure":32,"./languages/clojure-repl":31,"./languages/cmake":33,"./languages/coffeescript":34,"./languages/cpp":35,"./languages/crmsh":36,"./languages/crystal":37,"./languages/cs":38,"./languages/css":39,"./languages/d":40,"./languages/dart":41,"./languages/delphi":42,"./languages/diff":43,"./languages/django":44,"./languages/dns":45,"./languages/dockerfile":46,"./languages/dos":47,"./languages/dust":48,"./languages/elixir":49,"./languages/elm":50,"./languages/erb":51,"./languages/erlang":53,"./languages/erlang-repl":52,"./languages/fix":54,"./languages/fortran":55,"./languages/fsharp":56,"./languages/gams":57,"./languages/gcode":58,"./languages/gherkin":59,"./languages/glsl":60,"./languages/go":61,"./languages/golo":62,"./languages/gradle":63,"./languages/groovy":64,"./languages/haml":65,"./languages/handlebars":66,"./languages/haskell":67,"./languages/haxe":68,"./languages/http":69,"./languages/inform7":70,"./languages/ini":71,"./languages/irpf90":72,"./languages/java":73,"./languages/javascript":74,"./languages/json":75,"./languages/julia":76,"./languages/kotlin":77,"./languages/lasso":78,"./languages/less":79,"./languages/lisp":80,"./languages/livecodeserver":81,"./languages/livescript":82,"./languages/lua":83,"./languages/makefile":84,"./languages/markdown":85,"./languages/mathematica":86,"./languages/matlab":87,"./languages/mel":88,"./languages/mercury":89,"./languages/mizar":90,"./languages/mojolicious":91,"./languages/monkey":92,"./languages/nginx":93,"./languages/nimrod":94,"./languages/nix":95,"./languages/nsis":96,"./languages/objectivec":97,"./languages/ocaml":98,"./languages/openscad":99,"./languages/oxygene":100,"./languages/parser3":101,"./languages/perl":102,"./languages/pf":103,"./languages/php":104,"./languages/powershell":105,"./languages/processing":106,"./languages/profile":107,"./languages/prolog":108,"./languages/protobuf":109,"./languages/puppet":110,"./languages/python":111,"./languages/q":112,"./languages/r":113,"./languages/rib":114,"./languages/roboconf":115,"./languages/rsl":116,"./languages/ruby":117,"./languages/ruleslanguage":118,"./languages/rust":119,"./languages/scala":120,"./languages/scheme":121,"./languages/scilab":122,"./languages/scss":123,"./languages/smali":124,"./languages/smalltalk":125,"./languages/sml":126,"./languages/sqf":127,"./languages/sql":128,"./languages/stata":129,"./languages/step21":130,"./languages/stylus":131,"./languages/swift":132,"./languages/tcl":133,"./languages/tex":134,"./languages/thrift":135,"./languages/tp":136,"./languages/twig":137,"./languages/typescript":138,"./languages/vala":139,"./languages/vbnet":140,"./languages/vbscript":142,"./languages/vbscript-html":141,"./languages/verilog":143,"./languages/vhdl":144,"./languages/vim":145,"./languages/x86asm":146,"./languages/xl":147,"./languages/xml":148,"./languages/xquery":149,"./languages/zephir":150}],14:[function(require,module,exports){
+},{"./highlight":9,"./languages/1c":11,"./languages/accesslog":12,"./languages/actionscript":13,"./languages/apache":14,"./languages/applescript":15,"./languages/armasm":16,"./languages/asciidoc":17,"./languages/aspectj":18,"./languages/autohotkey":19,"./languages/autoit":20,"./languages/avrasm":21,"./languages/axapta":22,"./languages/bash":23,"./languages/brainfuck":24,"./languages/cal":25,"./languages/capnproto":26,"./languages/ceylon":27,"./languages/clojure":29,"./languages/clojure-repl":28,"./languages/cmake":30,"./languages/coffeescript":31,"./languages/cpp":32,"./languages/crmsh":33,"./languages/crystal":34,"./languages/cs":35,"./languages/css":36,"./languages/d":37,"./languages/dart":38,"./languages/delphi":39,"./languages/diff":40,"./languages/django":41,"./languages/dns":42,"./languages/dockerfile":43,"./languages/dos":44,"./languages/dust":45,"./languages/elixir":46,"./languages/elm":47,"./languages/erb":48,"./languages/erlang":50,"./languages/erlang-repl":49,"./languages/fix":51,"./languages/fortran":52,"./languages/fsharp":53,"./languages/gams":54,"./languages/gcode":55,"./languages/gherkin":56,"./languages/glsl":57,"./languages/go":58,"./languages/golo":59,"./languages/gradle":60,"./languages/groovy":61,"./languages/haml":62,"./languages/handlebars":63,"./languages/haskell":64,"./languages/haxe":65,"./languages/http":66,"./languages/inform7":67,"./languages/ini":68,"./languages/irpf90":69,"./languages/java":70,"./languages/javascript":71,"./languages/json":72,"./languages/julia":73,"./languages/kotlin":74,"./languages/lasso":75,"./languages/less":76,"./languages/lisp":77,"./languages/livecodeserver":78,"./languages/livescript":79,"./languages/lua":80,"./languages/makefile":81,"./languages/markdown":82,"./languages/mathematica":83,"./languages/matlab":84,"./languages/mel":85,"./languages/mercury":86,"./languages/mizar":87,"./languages/mojolicious":88,"./languages/monkey":89,"./languages/nginx":90,"./languages/nimrod":91,"./languages/nix":92,"./languages/nsis":93,"./languages/objectivec":94,"./languages/ocaml":95,"./languages/openscad":96,"./languages/oxygene":97,"./languages/parser3":98,"./languages/perl":99,"./languages/pf":100,"./languages/php":101,"./languages/powershell":102,"./languages/processing":103,"./languages/profile":104,"./languages/prolog":105,"./languages/protobuf":106,"./languages/puppet":107,"./languages/python":108,"./languages/q":109,"./languages/r":110,"./languages/rib":111,"./languages/roboconf":112,"./languages/rsl":113,"./languages/ruby":114,"./languages/ruleslanguage":115,"./languages/rust":116,"./languages/scala":117,"./languages/scheme":118,"./languages/scilab":119,"./languages/scss":120,"./languages/smali":121,"./languages/smalltalk":122,"./languages/sml":123,"./languages/sqf":124,"./languages/sql":125,"./languages/stata":126,"./languages/step21":127,"./languages/stylus":128,"./languages/swift":129,"./languages/tcl":130,"./languages/tex":131,"./languages/thrift":132,"./languages/tp":133,"./languages/twig":134,"./languages/typescript":135,"./languages/vala":136,"./languages/vbnet":137,"./languages/vbscript":139,"./languages/vbscript-html":138,"./languages/verilog":140,"./languages/vhdl":141,"./languages/vim":142,"./languages/x86asm":143,"./languages/xl":144,"./languages/xml":145,"./languages/xquery":146,"./languages/zephir":147}],11:[function(require,module,exports){
 module.exports = function(hljs){
   var IDENT_RE_RU = '[a-zA-Zа-яА-Я][a-zA-Z0-9_а-яА-Я]*';
   var OneS_KEYWORDS = 'возврат дата для если и или иначе иначеесли исключение конецесли ' +
@@ -1400,7 +1387,7 @@ module.exports = function(hljs){
     ]
   };
 };
-},{}],15:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     contains: [
@@ -1438,7 +1425,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],16:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports = function(hljs) {
   var IDENT_RE = '[a-zA-Z_$][a-zA-Z0-9_$]*';
   var IDENT_FUNC_RETURN_TYPE_RE = '([*]|[a-zA-Z_$][a-zA-Z0-9_$]*)';
@@ -1513,7 +1500,7 @@ module.exports = function(hljs) {
     illegal: /#/
   };
 };
-},{}],17:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = function(hljs) {
   var NUMBER = {className: 'number', begin: '[\\$%]\\d+'};
   return {
@@ -1559,7 +1546,7 @@ module.exports = function(hljs) {
     illegal: /\S/
   };
 };
-},{}],18:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = function(hljs) {
   var STRING = hljs.inherit(hljs.QUOTE_STRING_MODE, {illegal: ''});
   var PARAMS = {
@@ -1656,7 +1643,7 @@ module.exports = function(hljs) {
     illegal: '//|->|=>|\\[\\['
   };
 };
-},{}],19:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports = function(hljs) {
     //local labels: %?[FB]?[AT]?\d{1,2}\w+
   return {
@@ -1748,7 +1735,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],20:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['adoc'],
@@ -1940,7 +1927,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],21:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 module.exports = function (hljs) {
   var KEYWORDS =
     'false synchronized int abstract float private char boolean static null if const ' +
@@ -2078,7 +2065,7 @@ module.exports = function (hljs) {
     ]
   };
 };
-},{}],22:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = function(hljs) {
   var BACKTICK_ESCAPE = {
     className: 'escape',
@@ -2140,7 +2127,7 @@ module.exports = function(hljs) {
     ])
   }
 };
-},{}],23:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 module.exports = function(hljs) {
     var KEYWORDS = 'ByRef Case Const ContinueCase ContinueLoop ' +
         'Default Dim Do Else ElseIf EndFunc EndIf EndSelect ' +
@@ -3895,7 +3882,7 @@ module.exports = function(hljs) {
         ]
     }
 };
-},{}],24:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     case_insensitive: true,
@@ -3957,7 +3944,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],25:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     keywords: 'false int abstract private char boolean static null if for true ' +
@@ -3988,7 +3975,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],26:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 module.exports = function(hljs) {
   var VAR = {
     className: 'variable',
@@ -4064,7 +4051,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],27:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 module.exports = function(hljs){
   var LITERAL = {
     className: 'literal',
@@ -4101,7 +4088,7 @@ module.exports = function(hljs){
     ]
   };
 };
-},{}],28:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 module.exports = function(hljs) {
   var KEYWORDS =
     'div mod in and or not xor asserterror begin case do downto else end exit for if of repeat then to ' +
@@ -4181,7 +4168,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],29:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['capnp'],
@@ -4230,7 +4217,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],30:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 module.exports = function(hljs) {
   // 2.3. Identifiers and keywords
   var KEYWORDS =
@@ -4298,7 +4285,7 @@ module.exports = function(hljs) {
     ].concat(EXPRESSIONS)
   };
 };
-},{}],31:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     contains: [
@@ -4313,7 +4300,7 @@ module.exports = function(hljs) {
     ]
   }
 };
-},{}],32:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 module.exports = function(hljs) {
   var keywords = {
     built_in:
@@ -4410,7 +4397,7 @@ module.exports = function(hljs) {
     contains: [LIST, STRING, HINT, HINT_COL, COMMENT, KEY, COLLECTION, NUMBER, LITERAL]
   }
 };
-},{}],33:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['cmake.in'],
@@ -4449,7 +4436,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],34:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 module.exports = function(hljs) {
   var KEYWORDS = {
     keyword:
@@ -4590,7 +4577,7 @@ module.exports = function(hljs) {
     ])
   };
 };
-},{}],35:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 module.exports = function(hljs) {
   var CPP_PRIMATIVE_TYPES = {
     className: 'keyword',
@@ -4731,7 +4718,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],36:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = function(hljs) {
   var RESOURCES = 'primitive rsc_template';
 
@@ -4829,7 +4816,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],37:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 module.exports = function(hljs) {
   var NUM_SUFFIX = '(_[uif](8|16|32|64))?';
   var CRYSTAL_IDENT_RE = '[a-zA-Z_]\\w*[!?=]?';
@@ -5021,7 +5008,7 @@ module.exports = function(hljs) {
     contains: CRYSTAL_DEFAULT_CONTAINS
   };
 };
-},{}],38:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 module.exports = function(hljs) {
   var KEYWORDS =
     // Normal keywords.
@@ -5140,7 +5127,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],39:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 module.exports = function(hljs) {
   var IDENT_RE = '[a-zA-Z-][a-zA-Z0-9_-]*';
   var FUNCTION = {
@@ -5242,7 +5229,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],40:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 module.exports = /**
  * Known issues:
  *
@@ -5500,7 +5487,7 @@ function(hljs) {
     ]
   };
 };
-},{}],41:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 module.exports = function (hljs) {
   var SUBST = {
     className: 'subst',
@@ -5601,7 +5588,7 @@ module.exports = function (hljs) {
     ]
   }
 };
-},{}],42:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 module.exports = function(hljs) {
   var KEYWORDS =
     'exports register file shl array record property for mod while set ally label uses raise not ' +
@@ -5668,7 +5655,7 @@ module.exports = function(hljs) {
     ].concat(COMMENT_MODES)
   };
 };
-},{}],43:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['patch'],
@@ -5708,7 +5695,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],44:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 module.exports = function(hljs) {
   var FILTER = {
     className: 'filter',
@@ -5758,7 +5745,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],45:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['bind', 'zone'],
@@ -5786,7 +5773,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],46:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['docker'],
@@ -5821,7 +5808,7 @@ module.exports = function(hljs) {
     ]
   }
 };
-},{}],47:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 module.exports = function(hljs) {
   var COMMENT = hljs.COMMENT(
     /@?rem\b/, /$/,
@@ -5870,7 +5857,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],48:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 module.exports = function(hljs) {
   var EXPRESSION_KEYWORDS = 'if eq ne lt lte gt gte select default math sep';
   return {
@@ -5905,7 +5892,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],49:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 module.exports = function(hljs) {
   var ELIXIR_IDENT_RE = '[a-zA-Z_][a-zA-Z0-9_]*(\\!|\\?)?';
   var ELIXIR_METHOD_RE = '[a-zA-Z_]\\w*[!?=]?|[-+~]\\@|<<|>>|=~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~`|]|\\[\\]=?';
@@ -6007,7 +5994,7 @@ module.exports = function(hljs) {
     contains: ELIXIR_DEFAULT_CONTAINS
   };
 };
-},{}],50:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 module.exports = function(hljs) {
   var COMMENT_MODES = [
     hljs.COMMENT('--', '$'),
@@ -6093,7 +6080,7 @@ module.exports = function(hljs) {
     ].concat(COMMENT_MODES)
   };
 };
-},{}],51:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     subLanguage: 'xml',
@@ -6108,7 +6095,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],52:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     keywords: {
@@ -6156,7 +6143,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],53:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 module.exports = function(hljs) {
   var BASIC_ATOM_RE = '[a-z\'][a-zA-Z0-9_\']*';
   var FUNCTION_NAME_RE = '(' + BASIC_ATOM_RE + ':' + BASIC_ATOM_RE + '|' + BASIC_ATOM_RE + ')';
@@ -6308,7 +6295,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],54:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     contains: [
@@ -6337,7 +6324,7 @@ module.exports = function(hljs) {
     case_insensitive: true
   };
 };
-},{}],55:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 module.exports = function(hljs) {
   var PARAMS = {
     className: 'params',
@@ -6408,7 +6395,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],56:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports = function(hljs) {
   var TYPEPARAM = {
     begin: '<', end: '>',
@@ -6467,7 +6454,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],57:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 module.exports = function (hljs) {
   var KEYWORDS =
     'abort acronym acronyms alias all and assign binary card diag display else1 eps eq equation equations file files ' +
@@ -6504,7 +6491,7 @@ module.exports = function (hljs) {
     ]
   };
 };
-},{}],58:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 module.exports = function(hljs) {
     var GCODE_IDENT_RE = '[A-Z_][A-Z0-9_.]*';
     var GCODE_CLOSE_RE = '\\%';
@@ -6577,7 +6564,7 @@ module.exports = function(hljs) {
         ].concat(GCODE_CODE)
     };
 };
-},{}],59:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 module.exports = function (hljs) {
   return {
     aliases: ['feature'],
@@ -6610,7 +6597,7 @@ module.exports = function (hljs) {
     ]
   };
 };
-},{}],60:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     keywords: {
@@ -6704,7 +6691,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],61:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 module.exports = function(hljs) {
   var GO_KEYWORDS = {
     keyword:
@@ -6743,7 +6730,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],62:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 module.exports = function(hljs) {
     return {
       keywords: {
@@ -6767,7 +6754,7 @@ module.exports = function(hljs) {
       ]
     }
 };
-},{}],63:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     case_insensitive: true,
@@ -6802,7 +6789,7 @@ module.exports = function(hljs) {
     ]
   }
 };
-},{}],64:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 module.exports = function(hljs) {
     return {
         keywords: {
@@ -6890,7 +6877,7 @@ module.exports = function(hljs) {
         illegal: /#/
     }
 };
-},{}],65:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 module.exports = // TODO support filter tags like :javascript, support inline HTML
 function(hljs) {
   return {
@@ -6998,7 +6985,7 @@ function(hljs) {
     ]
   };
 };
-},{}],66:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 module.exports = function(hljs) {
   var EXPRESSION_KEYWORDS = 'each in with if else unless bindattr action collection debugger log outlet template unbound view yield';
   return {
@@ -7031,7 +7018,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],67:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 module.exports = function(hljs) {
   var COMMENT_MODES = [
     hljs.COMMENT('--', '$'),
@@ -7155,7 +7142,7 @@ module.exports = function(hljs) {
     ].concat(COMMENT_MODES)
   };
 };
-},{}],68:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 module.exports = function(hljs) {
   var IDENT_RE = '[a-zA-Z_$][a-zA-Z0-9_$]*';
   var IDENT_FUNC_RETURN_TYPE_RE = '([*]|[a-zA-Z_$][a-zA-Z0-9_$]*)';
@@ -7216,7 +7203,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],69:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['https'],
@@ -7251,7 +7238,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],70:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 module.exports = function(hljs) {
   var START_BRACKET = '\\[';
   var END_BRACKET = '\\]';
@@ -7309,7 +7296,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],71:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 module.exports = function(hljs) {
   var STRING = {
     className: "string",
@@ -7369,7 +7356,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],72:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 module.exports = function(hljs) {
   var PARAMS = {
     className: 'params',
@@ -7445,7 +7432,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],73:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 module.exports = function(hljs) {
   var GENERIC_IDENT_RE = hljs.UNDERSCORE_IDENT_RE + '(<' + hljs.UNDERSCORE_IDENT_RE + '>)?';
   var KEYWORDS =
@@ -7545,7 +7532,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],74:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['js'],
@@ -7657,7 +7644,7 @@ module.exports = function(hljs) {
     illegal: /#/
   };
 };
-},{}],75:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 module.exports = function(hljs) {
   var LITERALS = {literal: 'true false null'};
   var TYPES = [
@@ -7695,7 +7682,7 @@ module.exports = function(hljs) {
     illegal: '\\S'
   };
 };
-},{}],76:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 module.exports = function(hljs) {
   // Since there are numerous special names in Julia, it is too much trouble
   // to maintain them by hand. Hence these names (i.e. keywords, literals and
@@ -7856,7 +7843,7 @@ module.exports = function(hljs) {
 
   return DEFAULT;
 };
-},{}],77:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 module.exports = function (hljs) {
   var KEYWORDS = 'val var get set class trait object public open private protected ' +
     'final enum if else do while for when break continue throw try catch finally ' +
@@ -7957,7 +7944,7 @@ module.exports = function (hljs) {
     ]
   };
 };
-},{}],78:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 module.exports = function(hljs) {
   var LASSO_IDENT_RE = '[a-zA-Z_][a-zA-Z0-9_.]*';
   var LASSO_ANGLE_RE = '<\\?(lasso(script)?|=)';
@@ -8143,7 +8130,7 @@ module.exports = function(hljs) {
     ].concat(LASSO_CODE)
   };
 };
-},{}],79:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 module.exports = function(hljs) {
   var IDENT_RE        = '[\\w-]+'; // yes, Less identifiers may begin with a digit
   var INTERP_IDENT_RE = '(' + IDENT_RE + '|@{' + IDENT_RE + '})';
@@ -8280,7 +8267,7 @@ module.exports = function(hljs) {
     contains: RULES
   };
 };
-},{}],80:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 module.exports = function(hljs) {
   var LISP_IDENT_RE = '[a-zA-Z_\\-\\+\\*\\/\\<\\=\\>\\&\\#][a-zA-Z0-9_\\-\\+\\*\\/\\<\\=\\>\\&\\#!]*';
   var MEC_RE = '\\|[^]*?\\|';
@@ -8387,7 +8374,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],81:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 module.exports = function(hljs) {
   var VARIABLE = {
     className: 'variable', begin: '\\b[gtps][A-Z]+[A-Za-z0-9_\\-]*\\b|\\$_[A-Z]+',
@@ -8545,7 +8532,7 @@ module.exports = function(hljs) {
     illegal: ';$|^\\[|^='
   };
 };
-},{}],82:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 module.exports = function(hljs) {
   var KEYWORDS = {
     keyword:
@@ -8696,7 +8683,7 @@ module.exports = function(hljs) {
     ])
   };
 };
-},{}],83:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 module.exports = function(hljs) {
   var OPENING_LONG_BRACKET = '\\[=*\\[';
   var CLOSING_LONG_BRACKET = '\\]=*\\]';
@@ -8752,7 +8739,7 @@ module.exports = function(hljs) {
     ])
   };
 };
-},{}],84:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 module.exports = function(hljs) {
   var VARIABLE = {
     className: 'variable',
@@ -8798,7 +8785,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],85:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['md', 'mkdown', 'mkd'],
@@ -8900,7 +8887,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],86:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['mma'],
@@ -8959,7 +8946,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],87:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 module.exports = function(hljs) {
   var COMMON_CONTAINS = [
     hljs.C_NUMBER_MODE,
@@ -9050,7 +9037,7 @@ module.exports = function(hljs) {
     ].concat(COMMON_CONTAINS)
   };
 };
-},{}],88:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     keywords:
@@ -9280,7 +9267,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],89:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 module.exports = function(hljs) {
   var KEYWORDS = {
     keyword:
@@ -9369,7 +9356,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],90:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     keywords:
@@ -9388,7 +9375,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],91:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     subLanguage: 'xml',
@@ -9413,7 +9400,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],92:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 module.exports = function(hljs) {
   var NUMBER = {
     className: 'number', relevance: 0,
@@ -9492,7 +9479,7 @@ module.exports = function(hljs) {
     ]
   }
 };
-},{}],93:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 module.exports = function(hljs) {
   var VAR = {
     className: 'variable',
@@ -9574,7 +9561,7 @@ module.exports = function(hljs) {
     illegal: '[^\\s\\}]'
   };
 };
-},{}],94:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['nim'],
@@ -9626,7 +9613,7 @@ module.exports = function(hljs) {
     ]
   }
 };
-},{}],95:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 module.exports = function(hljs) {
   var NIX_KEYWORDS = {
     keyword: 'rec with let in inherit assert if else then',
@@ -9677,7 +9664,7 @@ module.exports = function(hljs) {
     contains: EXPRESSIONS
   };
 };
-},{}],96:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 module.exports = function(hljs) {
   var CONSTANTS = {
     className: 'symbol',
@@ -9765,7 +9752,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],97:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 module.exports = function(hljs) {
   var API_CLASS = {
     className: 'built_in',
@@ -9844,7 +9831,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],98:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 module.exports = function(hljs) {
   /* missing support for heredoc-like string (OCaml 4.0.2+) */
   return {
@@ -9915,7 +9902,7 @@ module.exports = function(hljs) {
     ]
   }
 };
-},{}],99:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 module.exports = function(hljs) {
 	var SPECIAL_VARS = {
 		className: 'keyword',
@@ -9973,7 +9960,7 @@ module.exports = function(hljs) {
 		]
 	}
 };
-},{}],100:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 module.exports = function(hljs) {
   var OXYGENE_KEYWORDS = 'abstract add and array as asc aspect assembly async begin break block by case class concat const copy constructor continue '+
     'create default delegate desc distinct div do downto dynamic each else empty end ensure enum equals event except exit extension external false '+
@@ -10042,7 +10029,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],101:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 module.exports = function(hljs) {
   var CURLY_SUBCOMMENT = hljs.COMMENT(
     '{',
@@ -10090,7 +10077,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],102:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 module.exports = function(hljs) {
   var PERL_KEYWORDS = 'getpwent getservent quotemeta msgrcv scalar kill dbmclose undef lc ' +
     'ma syswrite tr send umask sysopen shmwrite vec qx utime local oct semctl localtime ' +
@@ -10247,7 +10234,7 @@ module.exports = function(hljs) {
     contains: PERL_DEFAULT_CONTAINS
   };
 };
-},{}],103:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 module.exports = function(hljs) {
   var MACRO = {
     className: 'variable',
@@ -10299,7 +10286,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],104:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 module.exports = function(hljs) {
   var VARIABLE = {
     className: 'variable', begin: '\\$+[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
@@ -10424,7 +10411,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],105:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 module.exports = function(hljs) {
   var backtickEscape = {
     begin: '`[\\s\\S]',
@@ -10472,7 +10459,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],106:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     keywords: {
@@ -10520,7 +10507,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],107:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     contains: [
@@ -10562,7 +10549,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],108:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 module.exports = function(hljs) {
 
   var ATOM = {
@@ -10651,7 +10638,7 @@ module.exports = function(hljs) {
     ])
   };
 };
-},{}],109:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     keywords: {
@@ -10688,7 +10675,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],110:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 module.exports = function(hljs) {
 
   var PUPPET_KEYWORDS = {
@@ -10796,7 +10783,7 @@ module.exports = function(hljs) {
     ]
   }
 };
-},{}],111:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 module.exports = function(hljs) {
   var PROMPT = {
     className: 'prompt',  begin: /^(>>>|\.\.\.) /
@@ -10881,7 +10868,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],112:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 module.exports = function(hljs) {
   var Q_KEYWORDS = {
   keyword:
@@ -10904,7 +10891,7 @@ module.exports = function(hljs) {
      ]
   };
 };
-},{}],113:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 module.exports = function(hljs) {
   var IDENT_RE = '([a-zA-Z]|\\.[a-zA-Z.])[a-zA-Z0-9._]*';
 
@@ -10974,7 +10961,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],114:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     keywords:
@@ -11001,7 +10988,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],115:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 module.exports = function(hljs) {
   var IDENTIFIER = '[a-zA-Z-_][^\n{\r\n]+\\{';
 
@@ -11061,7 +11048,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],116:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     keywords: {
@@ -11098,7 +11085,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],117:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 module.exports = function(hljs) {
   var RUBY_METHOD_RE = '[a-zA-Z_]\\w*[!?=]?|[-+~]\\@|<<|>>|=~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~`|]|\\[\\]=?';
   var RUBY_KEYWORDS =
@@ -11268,7 +11255,7 @@ module.exports = function(hljs) {
     contains: COMMENT_MODES.concat(IRB_DEFAULT).concat(RUBY_DEFAULT_CONTAINS)
   };
 };
-},{}],118:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     keywords: {
@@ -11329,7 +11316,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],119:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 module.exports = function(hljs) {
   var NUM_SUFFIX = '([uif](8|16|32|64|size))\?';
   var BLOCK_COMMENT = hljs.inherit(hljs.C_BLOCK_COMMENT_MODE);
@@ -11415,7 +11402,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],120:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 module.exports = function(hljs) {
 
   var ANNOTATION = {
@@ -11478,7 +11465,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],121:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 module.exports = function(hljs) {
   var SCHEME_IDENT_RE = '[^\\(\\)\\[\\]\\{\\}",\'`;#|\\\\\\s]+';
   var SCHEME_SIMPLE_NUMBER_RE = '(\\-|\\+)?\\d+([./]\\d+)?';
@@ -11600,7 +11587,7 @@ module.exports = function(hljs) {
     contains: [SHEBANG, NUMBER, STRING, QUOTED_IDENT, LIST].concat(COMMENT_MODES)
   };
 };
-},{}],122:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 module.exports = function(hljs) {
 
   var COMMON_CONTAINS = [
@@ -11655,7 +11642,7 @@ module.exports = function(hljs) {
     ].concat(COMMON_CONTAINS)
   };
 };
-},{}],123:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 module.exports = function(hljs) {
   var IDENT_RE = '[a-zA-Z-][a-zA-Z0-9_-]*';
   var VARIABLE = {
@@ -11772,7 +11759,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],124:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 module.exports = function(hljs) {
   var smali_instr_low_prio = ['add', 'and', 'cmp', 'cmpg', 'cmpl', 'const', 'div', 'double', 'float', 'goto', 'if', 'int', 'long', 'move', 'mul', 'neg', 'new', 'nop', 'not', 'or', 'rem', 'return', 'shl', 'shr', 'sput', 'sub', 'throw', 'ushr', 'xor'];
   var smali_instr_high_prio = ['aget', 'aput', 'array', 'check', 'execute', 'fill', 'filled', 'goto/16', 'goto/32', 'iget', 'instance', 'invoke', 'iput', 'monitor', 'packed', 'sget', 'sparse'];
@@ -11855,7 +11842,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],125:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 module.exports = function(hljs) {
   var VAR_IDENT_RE = '[a-z][a-zA-Z0-9_]*';
   var CHAR = {
@@ -11908,7 +11895,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],126:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['ml'],
@@ -11973,7 +11960,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],127:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 module.exports = function(hljs) {
   var allCommands = ['!', '-', '+', '!=', '%', '&&', '*', '/', '=', '==', '>', '>=', '<', '<=', 'or', 'plus', '^', ':', '>>', 'abs', 'accTime', 'acos', 'action', 'actionKeys', 'actionKeysImages', 'actionKeysNames', 'actionKeysNamesArray', 'actionName', 'activateAddons', 'activatedAddons', 'activateKey', 'addAction', 'addBackpack', 'addBackpackCargo', 'addBackpackCargoGlobal', 'addBackpackGlobal', 'addCamShake', 'addCuratorAddons', 'addCuratorCameraArea', 'addCuratorEditableObjects', 'addCuratorEditingArea', 'addCuratorPoints', 'addEditorObject', 'addEventHandler', 'addGoggles', 'addGroupIcon', 'addHandgunItem', 'addHeadgear', 'addItem', 'addItemCargo', 'addItemCargoGlobal', 'addItemPool', 'addItemToBackpack', 'addItemToUniform', 'addItemToVest', 'addLiveStats', 'addMagazine', 'addMagazine array', 'addMagazineAmmoCargo', 'addMagazineCargo', 'addMagazineCargoGlobal', 'addMagazineGlobal', 'addMagazinePool', 'addMagazines', 'addMagazineTurret', 'addMenu', 'addMenuItem', 'addMissionEventHandler', 'addMPEventHandler', 'addMusicEventHandler', 'addPrimaryWeaponItem', 'addPublicVariableEventHandler', 'addRating', 'addResources', 'addScore', 'addScoreSide', 'addSecondaryWeaponItem', 'addSwitchableUnit', 'addTeamMember', 'addToRemainsCollector', 'addUniform', 'addVehicle', 'addVest', 'addWaypoint', 'addWeapon', 'addWeaponCargo', 'addWeaponCargoGlobal', 'addWeaponGlobal', 'addWeaponPool', 'addWeaponTurret', 'agent', 'agents', 'AGLToASL', 'aimedAtTarget', 'aimPos', 'airDensityRTD', 'airportSide', 'AISFinishHeal', 'alive', 'allControls', 'allCurators', 'allDead', 'allDeadMen', 'allDisplays', 'allGroups', 'allMapMarkers', 'allMines', 'allMissionObjects', 'allow3DMode', 'allowCrewInImmobile', 'allowCuratorLogicIgnoreAreas', 'allowDamage', 'allowDammage', 'allowFileOperations', 'allowFleeing', 'allowGetIn', 'allPlayers', 'allSites', 'allTurrets', 'allUnits', 'allUnitsUAV', 'allVariables', 'ammo', 'and', 'animate', 'animateDoor', 'animationPhase', 'animationState', 'append', 'armoryPoints', 'arrayIntersect', 'asin', 'ASLToAGL', 'ASLToATL', 'assert', 'assignAsCargo', 'assignAsCargoIndex', 'assignAsCommander', 'assignAsDriver', 'assignAsGunner', 'assignAsTurret', 'assignCurator', 'assignedCargo', 'assignedCommander', 'assignedDriver', 'assignedGunner', 'assignedItems', 'assignedTarget', 'assignedTeam', 'assignedVehicle', 'assignedVehicleRole', 'assignItem', 'assignTeam', 'assignToAirport', 'atan', 'atan2', 'atg', 'ATLToASL', 'attachedObject', 'attachedObjects', 'attachedTo', 'attachObject', 'attachTo', 'attackEnabled', 'backpack', 'backpackCargo', 'backpackContainer', 'backpackItems', 'backpackMagazines', 'backpackSpaceFor', 'behaviour', 'benchmark', 'binocular', 'blufor', 'boundingBox', 'boundingBoxReal', 'boundingCenter', 'breakOut', 'breakTo', 'briefingName', 'buildingExit', 'buildingPos', 'buttonAction', 'buttonSetAction', 'cadetMode', 'call', 'callExtension', 'camCommand', 'camCommit', 'camCommitPrepared', 'camCommitted', 'camConstuctionSetParams', 'camCreate', 'camDestroy', 'cameraEffect', 'cameraEffectEnableHUD', 'cameraInterest', 'cameraOn', 'cameraView', 'campaignConfigFile', 'camPreload', 'camPreloaded', 'camPrepareBank', 'camPrepareDir', 'camPrepareDive', 'camPrepareFocus', 'camPrepareFov', 'camPrepareFovRange', 'camPreparePos', 'camPrepareRelPos', 'camPrepareTarget', 'camSetBank', 'camSetDir', 'camSetDive', 'camSetFocus', 'camSetFov', 'camSetFovRange', 'camSetPos', 'camSetRelPos', 'camSetTarget', 'camTarget', 'camUseNVG', 'canAdd', 'canAddItemToBackpack', 'canAddItemToUniform', 'canAddItemToVest', 'cancelSimpleTaskDestination', 'canFire', 'canMove', 'canSlingLoad', 'canStand', 'canUnloadInCombat', 'captive', 'captiveNum', 'case', 'catch', 'cbChecked', 'cbSetChecked', 'ceil', 'cheatsEnabled', 'checkAIFeature', 'civilian', 'className', 'clearAllItemsFromBackpack', 'clearBackpackCargo', 'clearBackpackCargoGlobal', 'clearGroupIcons', 'clearItemCargo', 'clearItemCargoGlobal', 'clearItemPool', 'clearMagazineCargo', 'clearMagazineCargoGlobal', 'clearMagazinePool', 'clearOverlay', 'clearRadio', 'clearWeaponCargo', 'clearWeaponCargoGlobal', 'clearWeaponPool', 'closeDialog', 'closeDisplay', 'closeOverlay', 'collapseObjectTree', 'combatMode', 'commandArtilleryFire', 'commandChat', 'commander', 'commandFire', 'commandFollow', 'commandFSM', 'commandGetOut', 'commandingMenu', 'commandMove', 'commandRadio', 'commandStop', 'commandTarget', 'commandWatch', 'comment', 'commitOverlay', 'compile', 'compileFinal', 'completedFSM', 'composeText', 'configClasses', 'configFile', 'configHierarchy', 'configName', 'configProperties', 'configSourceMod', 'configSourceModList', 'connectTerminalToUAV', 'controlNull', 'controlsGroupCtrl', 'copyFromClipboard', 'copyToClipboard', 'copyWaypoints', 'cos', 'count', 'countEnemy', 'countFriendly', 'countSide', 'countType', 'countUnknown', 'createAgent', 'createCenter', 'createDialog', 'createDiaryLink', 'createDiaryRecord', 'createDiarySubject', 'createDisplay', 'createGearDialog', 'createGroup', 'createGuardedPoint', 'createLocation', 'createMarker', 'createMarkerLocal', 'createMenu', 'createMine', 'createMissionDisplay', 'createSimpleTask', 'createSite', 'createSoundSource', 'createTask', 'createTeam', 'createTrigger', 'createUnit', 'createUnit array', 'createVehicle', 'createVehicle array', 'createVehicleCrew', 'createVehicleLocal', 'crew', 'ctrlActivate', 'ctrlAddEventHandler', 'ctrlAutoScrollDelay', 'ctrlAutoScrollRewind', 'ctrlAutoScrollSpeed', 'ctrlChecked', 'ctrlClassName', 'ctrlCommit', 'ctrlCommitted', 'ctrlCreate', 'ctrlDelete', 'ctrlEnable', 'ctrlEnabled', 'ctrlFade', 'ctrlHTMLLoaded', 'ctrlIDC', 'ctrlIDD', 'ctrlMapAnimAdd', 'ctrlMapAnimClear', 'ctrlMapAnimCommit', 'ctrlMapAnimDone', 'ctrlMapCursor', 'ctrlMapMouseOver', 'ctrlMapScale', 'ctrlMapScreenToWorld', 'ctrlMapWorldToScreen', 'ctrlModel', 'ctrlModelDirAndUp', 'ctrlModelScale', 'ctrlParent', 'ctrlPosition', 'ctrlRemoveAllEventHandlers', 'ctrlRemoveEventHandler', 'ctrlScale', 'ctrlSetActiveColor', 'ctrlSetAutoScrollDelay', 'ctrlSetAutoScrollRewind', 'ctrlSetAutoScrollSpeed', 'ctrlSetBackgroundColor', 'ctrlSetChecked', 'ctrlSetEventHandler', 'ctrlSetFade', 'ctrlSetFocus', 'ctrlSetFont', 'ctrlSetFontH1', 'ctrlSetFontH1B', 'ctrlSetFontH2', 'ctrlSetFontH2B', 'ctrlSetFontH3', 'ctrlSetFontH3B', 'ctrlSetFontH4', 'ctrlSetFontH4B', 'ctrlSetFontH5', 'ctrlSetFontH5B', 'ctrlSetFontH6', 'ctrlSetFontH6B', 'ctrlSetFontHeight', 'ctrlSetFontHeightH1', 'ctrlSetFontHeightH2', 'ctrlSetFontHeightH3', 'ctrlSetFontHeightH4', 'ctrlSetFontHeightH5', 'ctrlSetFontHeightH6', 'ctrlSetFontP', 'ctrlSetFontPB', 'ctrlSetForegroundColor', 'ctrlSetModel', 'ctrlSetModelDirAndUp', 'ctrlSetModelScale', 'ctrlSetPosition', 'ctrlSetScale', 'ctrlSetStructuredText', 'ctrlSetText', 'ctrlSetTextColor', 'ctrlSetTooltip', 'ctrlSetTooltipColorBox', 'ctrlSetTooltipColorShade', 'ctrlSetTooltipColorText', 'ctrlShow', 'ctrlShown', 'ctrlText', 'ctrlTextHeight', 'ctrlType', 'ctrlVisible', 'curatorAddons', 'curatorCamera', 'curatorCameraArea', 'curatorCameraAreaCeiling', 'curatorCoef', 'curatorEditableObjects', 'curatorEditingArea', 'curatorEditingAreaType', 'curatorMouseOver', 'curatorPoints', 'curatorRegisteredObjects', 'curatorSelected', 'curatorWaypointCost', 'currentChannel', 'currentCommand', 'currentMagazine', 'currentMagazineDetail', 'currentMagazineDetailTurret', 'currentMagazineTurret', 'currentMuzzle', 'currentNamespace', 'currentTask', 'currentTasks', 'currentThrowable', 'currentVisionMode', 'currentWaypoint', 'currentWeapon', 'currentWeaponMode', 'currentWeaponTurret', 'currentZeroing', 'cursorTarget', 'customChat', 'customRadio', 'cutFadeOut', 'cutObj', 'cutRsc', 'cutText', 'damage', 'date', 'dateToNumber', 'daytime', 'deActivateKey', 'debriefingText', 'debugFSM', 'debugLog', 'default', 'deg', 'deleteAt', 'deleteCenter', 'deleteCollection', 'deleteEditorObject', 'deleteGroup', 'deleteIdentity', 'deleteLocation', 'deleteMarker', 'deleteMarkerLocal', 'deleteRange', 'deleteResources', 'deleteSite', 'deleteStatus', 'deleteTeam', 'deleteVehicle', 'deleteVehicleCrew', 'deleteWaypoint', 'detach', 'detectedMines', 'diag activeMissionFSMs', 'diag activeSQFScripts', 'diag activeSQSScripts', 'diag captureFrame', 'diag captureSlowFrame', 'diag fps', 'diag fpsMin', 'diag frameNo', 'diag log', 'diag logSlowFrame', 'diag tickTime', 'dialog', 'diarySubjectExists', 'didJIP', 'didJIPOwner', 'difficulty', 'difficultyEnabled', 'difficultyEnabledRTD', 'direction', 'directSay', 'disableAI', 'disableCollisionWith', 'disableConversation', 'disableDebriefingStats', 'disableSerialization', 'disableTIEquipment', 'disableUAVConnectability', 'disableUserInput', 'displayAddEventHandler', 'displayCtrl', 'displayNull', 'displayRemoveAllEventHandlers', 'displayRemoveEventHandler', 'displaySetEventHandler', 'dissolveTeam', 'distance', 'distance2D', 'distanceSqr', 'distributionRegion', 'do', 'doArtilleryFire', 'doFire', 'doFollow', 'doFSM', 'doGetOut', 'doMove', 'doorPhase', 'doStop', 'doTarget', 'doWatch', 'drawArrow', 'drawEllipse', 'drawIcon', 'drawIcon3D', 'drawLine', 'drawLine3D', 'drawLink', 'drawLocation', 'drawRectangle', 'driver', 'drop', 'east', 'echo', 'editObject', 'editorSetEventHandler', 'effectiveCommander', 'else', 'emptyPositions', 'enableAI', 'enableAIFeature', 'enableAttack', 'enableCamShake', 'enableCaustics', 'enableCollisionWith', 'enableCopilot', 'enableDebriefingStats', 'enableDiagLegend', 'enableEndDialog', 'enableEngineArtillery', 'enableEnvironment', 'enableFatigue', 'enableGunLights', 'enableIRLasers', 'enableMimics', 'enablePersonTurret', 'enableRadio', 'enableReload', 'enableRopeAttach', 'enableSatNormalOnDetail', 'enableSaving', 'enableSentences', 'enableSimulation', 'enableSimulationGlobal', 'enableTeamSwitch', 'enableUAVConnectability', 'enableUAVWaypoints', 'endLoadingScreen', 'endMission', 'engineOn', 'enginesIsOnRTD', 'enginesRpmRTD', 'enginesTorqueRTD', 'entities', 'estimatedEndServerTime', 'estimatedTimeLeft', 'evalObjectArgument', 'everyBackpack', 'everyContainer', 'exec', 'execEditorScript', 'execFSM', 'execVM', 'exit', 'exitWith', 'exp', 'expectedDestination', 'eyeDirection', 'eyePos', 'face', 'faction', 'fadeMusic', 'fadeRadio', 'fadeSound', 'fadeSpeech', 'failMission', 'false', 'fillWeaponsFromPool', 'find', 'findCover', 'findDisplay', 'findEditorObject', 'findEmptyPosition', 'findEmptyPositionReady', 'findNearestEnemy', 'finishMissionInit', 'finite', 'fire', 'fireAtTarget', 'firstBackpack', 'flag', 'flagOwner', 'fleeing', 'floor', 'flyInHeight', 'fog', 'fogForecast', 'fogParams', 'for', 'forceAddUniform', 'forceEnd', 'forceMap', 'forceRespawn', 'forceSpeed', 'forceWalk', 'forceWeaponFire', 'forceWeatherChange', 'forEach', 'forEachMember', 'forEachMemberAgent', 'forEachMemberTeam', 'format', 'formation', 'formationDirection', 'formationLeader', 'formationMembers', 'formationPosition', 'formationTask', 'formatText', 'formLeader', 'freeLook', 'from', 'fromEditor', 'fuel', 'fullCrew', 'gearSlotAmmoCount', 'gearSlotData', 'getAllHitPointsDamage', 'getAmmoCargo', 'getArray', 'getArtilleryAmmo', 'getArtilleryComputerSettings', 'getArtilleryETA', 'getAssignedCuratorLogic', 'getAssignedCuratorUnit', 'getBackpackCargo', 'getBleedingRemaining', 'getBurningValue', 'getCargoIndex', 'getCenterOfMass', 'getClientState', 'getConnectedUAV', 'getDammage', 'getDescription', 'getDir', 'getDirVisual', 'getDLCs', 'getEditorCamera', 'getEditorMode', 'getEditorObjectScope', 'getElevationOffset', 'getFatigue', 'getFriend', 'getFSMVariable', 'getFuelCargo', 'getGroupIcon', 'getGroupIconParams', 'getGroupIcons', 'getHideFrom', 'getHit', 'getHitIndex', 'getHitPointDamage', 'getItemCargo', 'getMagazineCargo', 'getMarkerColor', 'getMarkerPos', 'getMarkerSize', 'getMarkerType', 'getMass', 'getModelInfo', 'getNumber', 'getObjectArgument', 'getObjectChildren', 'getObjectDLC', 'getObjectMaterials', 'getObjectProxy', 'getObjectTextures', 'getObjectType', 'getObjectViewDistance', 'getOxygenRemaining', 'getPersonUsedDLCs', 'getPlayerChannel', 'getPlayerUID', 'getPos', 'getPosASL', 'getPosASLVisual', 'getPosASLW', 'getPosATL', 'getPosATLVisual', 'getPosVisual', 'getPosWorld', 'getRepairCargo', 'getResolution', 'getShadowDistance', 'getSlingLoad', 'getSpeed', 'getSuppression', 'getTerrainHeightASL', 'getText', 'getVariable', 'getWeaponCargo', 'getWPPos', 'glanceAt', 'globalChat', 'globalRadio', 'goggles', 'goto', 'group', 'groupChat', 'groupFromNetId', 'groupIconSelectable', 'groupIconsVisible', 'groupId', 'groupOwner', 'groupRadio', 'groupSelectedUnits', 'groupSelectUnit', 'grpNull', 'gunner', 'gusts', 'halt', 'handgunItems', 'handgunMagazine', 'handgunWeapon', 'handsHit', 'hasInterface', 'hasWeapon', 'hcAllGroups', 'hcGroupParams', 'hcLeader', 'hcRemoveAllGroups', 'hcRemoveGroup', 'hcSelected', 'hcSelectGroup', 'hcSetGroup', 'hcShowBar', 'hcShownBar', 'headgear', 'hideBody', 'hideObject', 'hideObjectGlobal', 'hint', 'hintC', 'hintCadet', 'hintSilent', 'hmd', 'hostMission', 'htmlLoad', 'HUDMovementLevels', 'humidity', 'if', 'image', 'importAllGroups', 'importance', 'in', 'incapacitatedState', 'independent', 'inflame', 'inflamed', 'inGameUISetEventHandler', 'inheritsFrom', 'initAmbientLife', 'inputAction', 'inRangeOfArtillery', 'insertEditorObject', 'intersect', 'isAbleToBreathe', 'isAgent', 'isArray', 'isAutoHoverOn', 'isAutonomous', 'isAutotest', 'isBleeding', 'isBurning', 'isClass', 'isCollisionLightOn', 'isCopilotEnabled', 'isDedicated', 'isDLCAvailable', 'isEngineOn', 'isEqualTo', 'isFlashlightOn', 'isFlatEmpty', 'isForcedWalk', 'isFormationLeader', 'isHidden', 'isInRemainsCollector', 'isInstructorFigureEnabled', 'isIRLaserOn', 'isKeyActive', 'isKindOf', 'isLightOn', 'isLocalized', 'isManualFire', 'isMarkedForCollection', 'isMultiplayer', 'isNil', 'isNull', 'isNumber', 'isObjectHidden', 'isObjectRTD', 'isOnRoad', 'isPipEnabled', 'isPlayer', 'isRealTime', 'isServer', 'isShowing3DIcons', 'isSteamMission', 'isStreamFriendlyUIEnabled', 'isText', 'isTouchingGround', 'isTurnedOut', 'isTutHintsEnabled', 'isUAVConnectable', 'isUAVConnected', 'isUniformAllowed', 'isWalking', 'isWeaponDeployed', 'isWeaponRested', 'itemCargo', 'items', 'itemsWithMagazines', 'join', 'joinAs', 'joinAsSilent', 'joinSilent', 'joinString', 'kbAddDatabase', 'kbAddDatabaseTargets', 'kbAddTopic', 'kbHasTopic', 'kbReact', 'kbRemoveTopic', 'kbTell', 'kbWasSaid', 'keyImage', 'keyName', 'knowsAbout', 'land', 'landAt', 'landResult', 'language', 'laserTarget', 'lbAdd', 'lbClear', 'lbColor', 'lbCurSel', 'lbData', 'lbDelete', 'lbIsSelected', 'lbPicture', 'lbSelection', 'lbSetColor', 'lbSetCurSel', 'lbSetData', 'lbSetPicture', 'lbSetPictureColor', 'lbSetPictureColorDisabled', 'lbSetPictureColorSelected', 'lbSetSelectColor', 'lbSetSelectColorRight', 'lbSetSelected', 'lbSetTooltip', 'lbSetValue', 'lbSize', 'lbSort', 'lbSortByValue', 'lbText', 'lbValue', 'leader', 'leaderboardDeInit', 'leaderboardGetRows', 'leaderboardInit', 'leaveVehicle', 'libraryCredits', 'libraryDisclaimers', 'lifeState', 'lightAttachObject', 'lightDetachObject', 'lightIsOn', 'lightnings', 'limitSpeed', 'linearConversion', 'lineBreak', 'lineIntersects', 'lineIntersectsObjs', 'lineIntersectsSurfaces', 'lineIntersectsWith', 'linkItem', 'list', 'listObjects', 'ln', 'lnbAddArray', 'lnbAddColumn', 'lnbAddRow', 'lnbClear', 'lnbColor', 'lnbCurSelRow', 'lnbData', 'lnbDeleteColumn', 'lnbDeleteRow', 'lnbGetColumnsPosition', 'lnbPicture', 'lnbSetColor', 'lnbSetColumnsPos', 'lnbSetCurSelRow', 'lnbSetData', 'lnbSetPicture', 'lnbSetText', 'lnbSetValue', 'lnbSize', 'lnbText', 'lnbValue', 'load', 'loadAbs', 'loadBackpack', 'loadFile', 'loadGame', 'loadIdentity', 'loadMagazine', 'loadOverlay', 'loadStatus', 'loadUniform', 'loadVest', 'local', 'localize', 'locationNull', 'locationPosition', 'lock', 'lockCameraTo', 'lockCargo', 'lockDriver', 'locked', 'lockedCargo', 'lockedDriver', 'lockedTurret', 'lockTurret', 'lockWP', 'log', 'logEntities', 'lookAt', 'lookAtPos', 'magazineCargo', 'magazines', 'magazinesAllTurrets', 'magazinesAmmo', 'magazinesAmmoCargo', 'magazinesAmmoFull', 'magazinesDetail', 'magazinesDetailBackpack', 'magazinesDetailUniform', 'magazinesDetailVest', 'magazinesTurret', 'magazineTurretAmmo', 'mapAnimAdd', 'mapAnimClear', 'mapAnimCommit', 'mapAnimDone', 'mapCenterOnCamera', 'mapGridPosition', 'markAsFinishedOnSteam', 'markerAlpha', 'markerBrush', 'markerColor', 'markerDir', 'markerPos', 'markerShape', 'markerSize', 'markerText', 'markerType', 'max', 'members', 'min', 'mineActive', 'mineDetectedBy', 'missionConfigFile', 'missionName', 'missionNamespace', 'missionStart', 'mod', 'modelToWorld', 'modelToWorldVisual', 'moonIntensity', 'morale', 'move', 'moveInAny', 'moveInCargo', 'moveInCommander', 'moveInDriver', 'moveInGunner', 'moveInTurret', 'moveObjectToEnd', 'moveOut', 'moveTime', 'moveTo', 'moveToCompleted', 'moveToFailed', 'musicVolume', 'name', 'name location', 'nameSound', 'nearEntities', 'nearestBuilding', 'nearestLocation', 'nearestLocations', 'nearestLocationWithDubbing', 'nearestObject', 'nearestObjects', 'nearObjects', 'nearObjectsReady', 'nearRoads', 'nearSupplies', 'nearTargets', 'needReload', 'netId', 'netObjNull', 'newOverlay', 'nextMenuItemIndex', 'nextWeatherChange', 'nil', 'nMenuItems', 'not', 'numberToDate', 'objectCurators', 'objectFromNetId', 'objectParent', 'objNull', 'objStatus', 'onBriefingGroup', 'onBriefingNotes', 'onBriefingPlan', 'onBriefingTeamSwitch', 'onCommandModeChanged', 'onDoubleClick', 'onEachFrame', 'onGroupIconClick', 'onGroupIconOverEnter', 'onGroupIconOverLeave', 'onHCGroupSelectionChanged', 'onMapSingleClick', 'onPlayerConnected', 'onPlayerDisconnected', 'onPreloadFinished', 'onPreloadStarted', 'onShowNewObject', 'onTeamSwitch', 'openCuratorInterface', 'openMap', 'openYoutubeVideo', 'opfor', 'or', 'orderGetIn', 'overcast', 'overcastForecast', 'owner', 'param', 'params', 'parseNumber', 'parseText', 'parsingNamespace', 'particlesQuality', 'pi', 'pickWeaponPool', 'pitch', 'playableSlotsNumber', 'playableUnits', 'playAction', 'playActionNow', 'player', 'playerRespawnTime', 'playerSide', 'playersNumber', 'playGesture', 'playMission', 'playMove', 'playMoveNow', 'playMusic', 'playScriptedMission', 'playSound', 'playSound3D', 'position', 'positionCameraToWorld', 'posScreenToWorld', 'posWorldToScreen', 'ppEffectAdjust', 'ppEffectCommit', 'ppEffectCommitted', 'ppEffectCreate', 'ppEffectDestroy', 'ppEffectEnable', 'ppEffectForceInNVG', 'precision', 'preloadCamera', 'preloadObject', 'preloadSound', 'preloadTitleObj', 'preloadTitleRsc', 'preprocessFile', 'preprocessFileLineNumbers', 'primaryWeapon', 'primaryWeaponItems', 'primaryWeaponMagazine', 'priority', 'private', 'processDiaryLink', 'productVersion', 'profileName', 'profileNamespace', 'profileNameSteam', 'progressLoadingScreen', 'progressPosition', 'progressSetPosition', 'publicVariable', 'publicVariableClient', 'publicVariableServer', 'pushBack', 'putWeaponPool', 'queryItemsPool', 'queryMagazinePool', 'queryWeaponPool', 'rad', 'radioChannelAdd', 'radioChannelCreate', 'radioChannelRemove', 'radioChannelSetCallSign', 'radioChannelSetLabel', 'radioVolume', 'rain', 'rainbow', 'random', 'rank', 'rankId', 'rating', 'rectangular', 'registeredTasks', 'registerTask', 'reload', 'reloadEnabled', 'remoteControl', 'remoteExec', 'remoteExecCall', 'removeAction', 'removeAllActions', 'removeAllAssignedItems', 'removeAllContainers', 'removeAllCuratorAddons', 'removeAllCuratorCameraAreas', 'removeAllCuratorEditingAreas', 'removeAllEventHandlers', 'removeAllHandgunItems', 'removeAllItems', 'removeAllItemsWithMagazines', 'removeAllMissionEventHandlers', 'removeAllMPEventHandlers', 'removeAllMusicEventHandlers', 'removeAllPrimaryWeaponItems', 'removeAllWeapons', 'removeBackpack', 'removeBackpackGlobal', 'removeCuratorAddons', 'removeCuratorCameraArea', 'removeCuratorEditableObjects', 'removeCuratorEditingArea', 'removeDrawIcon', 'removeDrawLinks', 'removeEventHandler', 'removeFromRemainsCollector', 'removeGoggles', 'removeGroupIcon', 'removeHandgunItem', 'removeHeadgear', 'removeItem', 'removeItemFromBackpack', 'removeItemFromUniform', 'removeItemFromVest', 'removeItems', 'removeMagazine', 'removeMagazineGlobal', 'removeMagazines', 'removeMagazinesTurret', 'removeMagazineTurret', 'removeMenuItem', 'removeMissionEventHandler', 'removeMPEventHandler', 'removeMusicEventHandler', 'removePrimaryWeaponItem', 'removeSecondaryWeaponItem', 'removeSimpleTask', 'removeSwitchableUnit', 'removeTeamMember', 'removeUniform', 'removeVest', 'removeWeapon', 'removeWeaponGlobal', 'removeWeaponTurret', 'requiredVersion', 'resetCamShake', 'resetSubgroupDirection', 'resistance', 'resize', 'resources', 'respawnVehicle', 'restartEditorCamera', 'reveal', 'revealMine', 'reverse', 'reversedMouseY', 'roadsConnectedTo', 'roleDescription', 'ropeAttachedObjects', 'ropeAttachedTo', 'ropeAttachEnabled', 'ropeAttachTo', 'ropeCreate', 'ropeCut', 'ropeEndPosition', 'ropeLength', 'ropes', 'ropeUnwind', 'ropeUnwound', 'rotorsForcesRTD', 'rotorsRpmRTD', 'round', 'runInitScript', 'safeZoneH', 'safeZoneW', 'safeZoneWAbs', 'safeZoneX', 'safeZoneXAbs', 'safeZoneY', 'saveGame', 'saveIdentity', 'saveJoysticks', 'saveOverlay', 'saveProfileNamespace', 'saveStatus', 'saveVar', 'savingEnabled', 'say', 'say2D', 'say3D', 'scopeName', 'score', 'scoreSide', 'screenToWorld', 'scriptDone', 'scriptName', 'scriptNull', 'scudState', 'secondaryWeapon', 'secondaryWeaponItems', 'secondaryWeaponMagazine', 'select', 'selectBestPlaces', 'selectDiarySubject', 'selectedEditorObjects', 'selectEditorObject', 'selectionPosition', 'selectLeader', 'selectNoPlayer', 'selectPlayer', 'selectWeapon', 'selectWeaponTurret', 'sendAUMessage', 'sendSimpleCommand', 'sendTask', 'sendTaskResult', 'sendUDPMessage', 'serverCommand', 'serverCommandAvailable', 'serverCommandExecutable', 'serverName', 'serverTime', 'set', 'setAccTime', 'setAirportSide', 'setAmmo', 'setAmmoCargo', 'setAperture', 'setApertureNew', 'setArmoryPoints', 'setAttributes', 'setAutonomous', 'setBehaviour', 'setBleedingRemaining', 'setCameraInterest', 'setCamShakeDefParams', 'setCamShakeParams', 'setCamUseTi', 'setCaptive', 'setCenterOfMass', 'setCollisionLight', 'setCombatMode', 'setCompassOscillation', 'setCuratorCameraAreaCeiling', 'setCuratorCoef', 'setCuratorEditingAreaType', 'setCuratorWaypointCost', 'setCurrentChannel', 'setCurrentTask', 'setCurrentWaypoint', 'setDamage', 'setDammage', 'setDate', 'setDebriefingText', 'setDefaultCamera', 'setDestination', 'setDetailMapBlendPars', 'setDir', 'setDirection', 'setDrawIcon', 'setDropInterval', 'setEditorMode', 'setEditorObjectScope', 'setEffectCondition', 'setFace', 'setFaceAnimation', 'setFatigue', 'setFlagOwner', 'setFlagSide', 'setFlagTexture', 'setFog', 'setFog array', 'setFormation', 'setFormationTask', 'setFormDir', 'setFriend', 'setFromEditor', 'setFSMVariable', 'setFuel', 'setFuelCargo', 'setGroupIcon', 'setGroupIconParams', 'setGroupIconsSelectable', 'setGroupIconsVisible', 'setGroupId', 'setGroupIdGlobal', 'setGroupOwner', 'setGusts', 'setHideBehind', 'setHit', 'setHitIndex', 'setHitPointDamage', 'setHorizonParallaxCoef', 'setHUDMovementLevels', 'setIdentity', 'setImportance', 'setLeader', 'setLightAmbient', 'setLightAttenuation', 'setLightBrightness', 'setLightColor', 'setLightDayLight', 'setLightFlareMaxDistance', 'setLightFlareSize', 'setLightIntensity', 'setLightnings', 'setLightUseFlare', 'setLocalWindParams', 'setMagazineTurretAmmo', 'setMarkerAlpha', 'setMarkerAlphaLocal', 'setMarkerBrush', 'setMarkerBrushLocal', 'setMarkerColor', 'setMarkerColorLocal', 'setMarkerDir', 'setMarkerDirLocal', 'setMarkerPos', 'setMarkerPosLocal', 'setMarkerShape', 'setMarkerShapeLocal', 'setMarkerSize', 'setMarkerSizeLocal', 'setMarkerText', 'setMarkerTextLocal', 'setMarkerType', 'setMarkerTypeLocal', 'setMass', 'setMimic', 'setMousePosition', 'setMusicEffect', 'setMusicEventHandler', 'setName', 'setNameSound', 'setObjectArguments', 'setObjectMaterial', 'setObjectProxy', 'setObjectTexture', 'setObjectTextureGlobal', 'setObjectViewDistance', 'setOvercast', 'setOwner', 'setOxygenRemaining', 'setParticleCircle', 'setParticleClass', 'setParticleFire', 'setParticleParams', 'setParticleRandom', 'setPilotLight', 'setPiPEffect', 'setPitch', 'setPlayable', 'setPlayerRespawnTime', 'setPos', 'setPosASL', 'setPosASL2', 'setPosASLW', 'setPosATL', 'setPosition', 'setPosWorld', 'setRadioMsg', 'setRain', 'setRainbow', 'setRandomLip', 'setRank', 'setRectangular', 'setRepairCargo', 'setShadowDistance', 'setSide', 'setSimpleTaskDescription', 'setSimpleTaskDestination', 'setSimpleTaskTarget', 'setSimulWeatherLayers', 'setSize', 'setSkill', 'setSkill array', 'setSlingLoad', 'setSoundEffect', 'setSpeaker', 'setSpeech', 'setSpeedMode', 'setStatValue', 'setSuppression', 'setSystemOfUnits', 'setTargetAge', 'setTaskResult', 'setTaskState', 'setTerrainGrid', 'setText', 'setTimeMultiplier', 'setTitleEffect', 'setTriggerActivation', 'setTriggerArea', 'setTriggerStatements', 'setTriggerText', 'setTriggerTimeout', 'setTriggerType', 'setType', 'setUnconscious', 'setUnitAbility', 'setUnitPos', 'setUnitPosWeak', 'setUnitRank', 'setUnitRecoilCoefficient', 'setUnloadInCombat', 'setUserActionText', 'setVariable', 'setVectorDir', 'setVectorDirAndUp', 'setVectorUp', 'setVehicleAmmo', 'setVehicleAmmoDef', 'setVehicleArmor', 'setVehicleId', 'setVehicleLock', 'setVehiclePosition', 'setVehicleTiPars', 'setVehicleVarName', 'setVelocity', 'setVelocityTransformation', 'setViewDistance', 'setVisibleIfTreeCollapsed', 'setWaves', 'setWaypointBehaviour', 'setWaypointCombatMode', 'setWaypointCompletionRadius', 'setWaypointDescription', 'setWaypointFormation', 'setWaypointHousePosition', 'setWaypointLoiterRadius', 'setWaypointLoiterType', 'setWaypointName', 'setWaypointPosition', 'setWaypointScript', 'setWaypointSpeed', 'setWaypointStatements', 'setWaypointTimeout', 'setWaypointType', 'setWaypointVisible', 'setWeaponReloadingTime', 'setWind', 'setWindDir', 'setWindForce', 'setWindStr', 'setWPPos', 'show3DIcons', 'showChat', 'showCinemaBorder', 'showCommandingMenu', 'showCompass', 'showCuratorCompass', 'showGPS', 'showHUD', 'showLegend', 'showMap', 'shownArtilleryComputer', 'shownChat', 'shownCompass', 'shownCuratorCompass', 'showNewEditorObject', 'shownGPS', 'shownHUD', 'shownMap', 'shownPad', 'shownRadio', 'shownUAVFeed', 'shownWarrant', 'shownWatch', 'showPad', 'showRadio', 'showSubtitles', 'showUAVFeed', 'showWarrant', 'showWatch', 'showWaypoint', 'side', 'sideChat', 'sideEnemy', 'sideFriendly', 'sideLogic', 'sideRadio', 'sideUnknown', 'simpleTasks', 'simulationEnabled', 'simulCloudDensity', 'simulCloudOcclusion', 'simulInClouds', 'simulWeatherSync', 'sin', 'size', 'sizeOf', 'skill', 'skillFinal', 'skipTime', 'sleep', 'sliderPosition', 'sliderRange', 'sliderSetPosition', 'sliderSetRange', 'sliderSetSpeed', 'sliderSpeed', 'slingLoadAssistantShown', 'soldierMagazines', 'someAmmo', 'sort', 'soundVolume', 'spawn', 'speaker', 'speed', 'speedMode', 'splitString', 'sqrt', 'squadParams', 'stance', 'startLoadingScreen', 'step', 'stop', 'stopped', 'str', 'sunOrMoon', 'supportInfo', 'suppressFor', 'surfaceIsWater', 'surfaceNormal', 'surfaceType', 'swimInDepth', 'switch', 'switchableUnits', 'switchAction', 'switchCamera', 'switchGesture', 'switchLight', 'switchMove', 'synchronizedObjects', 'synchronizedTriggers', 'synchronizedWaypoints', 'synchronizeObjectsAdd', 'synchronizeObjectsRemove', 'synchronizeTrigger', 'synchronizeWaypoint', 'synchronizeWaypoint trigger', 'systemChat', 'systemOfUnits', 'tan', 'targetKnowledge', 'targetsAggregate', 'targetsQuery', 'taskChildren', 'taskCompleted', 'taskDescription', 'taskDestination', 'taskHint', 'taskNull', 'taskParent', 'taskResult', 'taskState', 'teamMember', 'teamMemberNull', 'teamName', 'teams', 'teamSwitch', 'teamSwitchEnabled', 'teamType', 'terminate', 'terrainIntersect', 'terrainIntersectASL', 'text', 'text location', 'textLog', 'textLogFormat', 'tg', 'then', 'throw', 'time', 'timeMultiplier', 'titleCut', 'titleFadeOut', 'titleObj', 'titleRsc', 'titleText', 'to', 'toArray', 'toLower', 'toString', 'toUpper', 'triggerActivated', 'triggerActivation', 'triggerArea', 'triggerAttachedVehicle', 'triggerAttachObject', 'triggerAttachVehicle', 'triggerStatements', 'triggerText', 'triggerTimeout', 'triggerTimeoutCurrent', 'triggerType', 'true', 'try', 'turretLocal', 'turretOwner', 'turretUnit', 'tvAdd', 'tvClear', 'tvCollapse', 'tvCount', 'tvCurSel', 'tvData', 'tvDelete', 'tvExpand', 'tvPicture', 'tvSetCurSel', 'tvSetData', 'tvSetPicture', 'tvSetPictureColor', 'tvSetTooltip', 'tvSetValue', 'tvSort', 'tvSortByValue', 'tvText', 'tvValue', 'type', 'typeName', 'typeOf', 'UAVControl', 'uiNamespace', 'uiSleep', 'unassignCurator', 'unassignItem', 'unassignTeam', 'unassignVehicle', 'underwater', 'uniform', 'uniformContainer', 'uniformItems', 'uniformMagazines', 'unitAddons', 'unitBackpack', 'unitPos', 'unitReady', 'unitRecoilCoefficient', 'units', 'unitsBelowHeight', 'unlinkItem', 'unlockAchievement', 'unregisterTask', 'updateDrawIcon', 'updateMenuItem', 'updateObjectTree', 'useAudioTimeForMoves', 'vectorAdd', 'vectorCos', 'vectorCrossProduct', 'vectorDiff', 'vectorDir', 'vectorDirVisual', 'vectorDistance', 'vectorDistanceSqr', 'vectorDotProduct', 'vectorFromTo', 'vectorMagnitude', 'vectorMagnitudeSqr', 'vectorMultiply', 'vectorNormalized', 'vectorUp', 'vectorUpVisual', 'vehicle', 'vehicleChat', 'vehicleRadio', 'vehicles', 'vehicleVarName', 'velocity', 'velocityModelSpace', 'verifySignature', 'vest', 'vestContainer', 'vestItems', 'vestMagazines', 'viewDistance', 'visibleCompass', 'visibleGPS', 'visibleMap', 'visiblePosition', 'visiblePositionASL', 'visibleWatch', 'waitUntil', 'waves', 'waypointAttachedObject', 'waypointAttachedVehicle', 'waypointAttachObject', 'waypointAttachVehicle', 'waypointBehaviour', 'waypointCombatMode', 'waypointCompletionRadius', 'waypointDescription', 'waypointFormation', 'waypointHousePosition', 'waypointLoiterRadius', 'waypointLoiterType', 'waypointName', 'waypointPosition', 'waypoints', 'waypointScript', 'waypointsEnabledUAV', 'waypointShow', 'waypointSpeed', 'waypointStatements', 'waypointTimeout', 'waypointTimeoutCurrent', 'waypointType', 'waypointVisible', 'weaponAccessories', 'weaponCargo', 'weaponDirection', 'weaponLowered', 'weapons', 'weaponsItems', 'weaponsItemsCargo', 'weaponState', 'weaponsTurret', 'weightRTD', 'west', 'WFSideText', 'while', 'wind', 'windDir', 'windStr', 'wingsForcesRTD', 'with', 'worldName', 'worldSize', 'worldToModel', 'worldToModelVisual', 'worldToScreen'];
   var control = ['case', 'catch', 'default', 'do', 'else', 'exit', 'exitWith|5', 'for', 'forEach', 'from', 'if', 'switch', 'then', 'throw', 'to', 'try', 'while', 'with'];
@@ -12069,7 +12056,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],128:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 module.exports = function(hljs) {
   var COMMENT_MODE = hljs.COMMENT('--', '$');
   return {
@@ -12229,7 +12216,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],129:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['do', 'ado'],
@@ -12267,7 +12254,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],130:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 module.exports = function(hljs) {
   var STEP21_IDENT_RE = '[A-Z_][A-Z0-9_.]*';
   var STEP21_CLOSE_RE = 'END-ISO-10303-21;';
@@ -12319,7 +12306,7 @@ module.exports = function(hljs) {
     ].concat(STEP21_CODE)
   };
 };
-},{}],131:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 module.exports = function(hljs) {
 
   var VARIABLE = {
@@ -12762,7 +12749,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],132:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 module.exports = function(hljs) {
   var SWIFT_KEYWORDS = {
       keyword: '__COLUMN__ __FILE__ __FUNCTION__ __LINE__ as as! as? associativity ' +
@@ -12882,7 +12869,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],133:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['tk'],
@@ -12944,7 +12931,7 @@ module.exports = function(hljs) {
     ]
   }
 };
-},{}],134:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 module.exports = function(hljs) {
   var COMMAND1 = {
     className: 'command',
@@ -12999,7 +12986,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],135:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 module.exports = function(hljs) {
   var BUILT_IN_TYPES = 'bool byte i16 i32 i64 double string binary';
   return {
@@ -13034,7 +13021,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],136:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 module.exports = function(hljs) {
   var TPID = {
     className: 'number',
@@ -13118,7 +13105,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],137:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 module.exports = function(hljs) {
   var PARAMS = {
     className: 'params',
@@ -13175,7 +13162,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],138:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 module.exports = function(hljs) {
   var KEYWORDS = {
     keyword:
@@ -13273,7 +13260,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],139:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     keywords: {
@@ -13328,7 +13315,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],140:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['vb'],
@@ -13384,7 +13371,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],141:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     subLanguage: 'xml',
@@ -13396,7 +13383,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],142:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['vbs'],
@@ -13435,7 +13422,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],143:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     aliases: ['v'],
@@ -13485,7 +13472,7 @@ module.exports = function(hljs) {
     ]
   }; // return
 };
-},{}],144:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 module.exports = function(hljs) {
   // Regular expression for VHDL numeric literals.
 
@@ -13541,7 +13528,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],145:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     lexemes: /[!#@\w]+/,
@@ -13604,7 +13591,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],146:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 module.exports = function(hljs) {
   return {
     case_insensitive: true,
@@ -13740,7 +13727,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],147:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 module.exports = function(hljs) {
   var BUILTIN_MODULES =
     'ObjectLoader Animate MovieCredits Slides Filters Shading Materials LensFlare Mapping VLCAudioVideo ' +
@@ -13827,7 +13814,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],148:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 module.exports = function(hljs) {
   var XML_IDENT_RE = '[A-Za-z0-9\\._:-]+';
   var PHP = {
@@ -13930,7 +13917,7 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}],149:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 module.exports = function(hljs) {
   var KEYWORDS = 'for let if while then else return where group by xquery encoding version' +
     'module namespace boundary-space preserve strip default collation base-uri ordering' +
@@ -14003,7 +13990,7 @@ module.exports = function(hljs) {
     contains: CONTAINS
   };
 };
-},{}],150:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 module.exports = function(hljs) {
   var STRING = {
     className: 'string',
@@ -14110,4 +14097,4 @@ module.exports = function(hljs) {
     ]
   };
 };
-},{}]},{},[11]);
+},{}]},{},[8]);

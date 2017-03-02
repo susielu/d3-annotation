@@ -1,11 +1,8 @@
 const contents = require('./content/contents.md')
 const introduction = require('./content/introduction.md')
-const anatomy = require('./content/anatomy.md')
 const start = require('./content/start.md')
-const annotation = require('./content/annotation.md')
-const styles = require('./content/styles.md')
-const custom = require('./content/custom.md')
 const inpractice = require('./content/inpractice.md')
+const api = require('./content/api.md')
 const extend = require('./content/extend.md')
 const notes = require('./content/notes.md')
 const highlight = require('highlight.js')
@@ -13,13 +10,9 @@ const highlight = require('highlight.js')
 document.getElementById('toc1').innerHTML = contents;
 document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + contents;
 document.getElementById('introduction').innerHTML = introduction;
-document.getElementById('anatomy').innerHTML = anatomy;
 document.getElementById('setup').innerHTML = start;
-
-document.getElementById('annotation').innerHTML = annotation;
-document.getElementById('styles').innerHTML = styles;
-document.getElementById('custom').innerHTML = custom;
 document.getElementById('in-practice').innerHTML = inpractice;
+document.getElementById('api').innerHTML = api;
 document.getElementById('extend').innerHTML = extend;
 document.getElementById('notes').innerHTML = notes;
 

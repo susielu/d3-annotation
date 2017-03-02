@@ -1,55 +1,7 @@
 ## Extending Annotation Types
 
-### Javascript Classes
+The underlying code for d3-annotation is very extensible. There is a base annotation type that all of the annotation types extend. All of the settings and components that make up the different types are customizable. 
 
-The underlying structure for the annotations and types are built with es6 JavaScript classes. To make your own custom type you can take any of the base types and extend them. 
+The goal here was to make a system that was easy to adapt to your requirements. A longer post with details about how you can make your own customized type will be coming out in a couple of weeks. 
 
-### Static Functions
-
-**STATIC className**
-
-A class that return a string for the class name you want to give your custom type.
-
-**STATIC init**
-
-An init function that is looped through
-
-Example, default init function
-
-Exampe, xyThreshold init function
-
-### Drawing Functions
-These functions have a context parameter. Context is an object with gives you access to the annotation with all of its properties, and the relevant bounding box. 
-
-**drawNote(context)**
-
-**drawNoteContent(context)**
-
-**drawConnector(context)**
-
-**drawSubject(context)**
-
-### Overall Code structure
-
-**Annotation Class**
-
-Each annotation is an instantiation of this class.
-
-Reference the [souce code](https://github.com/susielu/d3-annotation/blob/master/src/Annotation.js) for the full set of properties and functions. Most relevant properties: 
-
-- dx
-- dy
-- x
-- y
-- data
-- offset: returns the dx, and dy, values as an object {x, y}
-- position: returns the x, and y, values as an object {x, y}
-
-
-**Annotation Collection Class**
-
-When you run d3.annotation() it creates all of the annotations you pass it as Annotation Class instances and places them into an array as part of an Annotation Collection.
-
-**Types Class**
-
-Each of the annotation types is created 
+If you're interested in looking at the structure before the post is out take a look at the [source code](https://github.com/susielu/d3-annotation/tree/master/src). 

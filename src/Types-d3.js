@@ -140,6 +140,8 @@ class Type {
     const connectorData = this.annotation.connector
     const type = connectorData.type || context.type
     const connectorParams = { type: this, connectorData}
+    connectorParams.subjectType = this.typeSettings && this.typeSettings.subject && this.typeSettings.subject.type 
+
     let connector = {}
     if (type === "curve") connector = connectorCurve(connectorParams)
     else if (type === "elbow") connector = connectorElbow(connectorParams)
@@ -154,8 +156,8 @@ class Type {
 
     if (end.components){ components = components.concat(end.components)}
 
-    if (this.editMode && handles.length !== 0){
-      components.push({ type: "handle", handles })
+    if (this.editMode){
+      if (handles.length !== 0) components.push({ type: "handle", handles })
     }
     return components;
   }
@@ -183,7 +185,7 @@ class Type {
     let orientation = noteData.orientation || context.orientation || 'topBottom'
     const lineType = noteData.lineType || context.lineType
     const align = noteData.align || context.align || 'dynamic'
-
+    const subjectType = this.typeSettings && this.typeSettings.subject && this.typeSettings.subject.type 
     
     if (lineType == "vertical") orientation =  "leftRight"
     else if (lineType == "horizontal") orientation = "topBottom"
@@ -323,22 +325,12 @@ export class d3NoteText extends Type {
     this.drawText()
   }
 
-  init(accessors) {
-    super.init(accessors)
-
-    if (!(this.annotation.note && this.annotation.note.label) && accessors.label){
-      this.annotation.note = Object.assign({}, this.annotation.note, { label: accessors.label(this.annotation.data)} )
-    }
-
-    if (!(this.annotation.note && this.annotation.note.title) && accessors.title){
-      this.annotation.note = Object.assign({}, this.annotation.note, { title: accessors.title(this.annotation.data)} )
-    }
-  }
-
   updateTextWrap (textWrap) {
     this.textWrap = textWrap
     this.drawText()
   }
+
+  //TODO: add update text functionality
 
   drawText () {
     if (this.note){
@@ -408,28 +400,25 @@ export const d3CalloutCircle = customType(d3CalloutElbow, {
   subject: { type: "circle"}
 })
 
-// export const d3CalloutRect = customType(d3CalloutElbow, {
-//   className: "callout rect",
-
-//   subject: {type: "rect"}
-// })
 
 export class d3CalloutRect extends d3Callout {
   static className() { return "callout rect" }
 
   drawSubject(context) {
+    this.typeSettings.subject = Object.assign({}, this.typeSettings.subject, { type: "rect"})
     return super.drawSubject({ ...context, type: "rect" })
   }
+
+   drawConnector(context) { 
+     return super.drawConnector({ ...context, type: "elbow" })
+   }
 
   mapX(accessors){
     super.mapX(accessors)
 
-   // if (a.subject.)
-
-    // if (!a.subject.width)
   }
 
-  mapY(){
+  mapY(accessors){
     super.mapY(accessors)
   }
 }
@@ -438,7 +427,12 @@ export class d3XYThreshold extends d3Callout {
   static className() { return "xythreshold" }
 
   drawSubject(context) { 
+      this.typeSettings.subject = Object.assign({}, this.typeSettings.subject, { type: "threshold"})
      return super.drawSubject({ ...context, type: "threshold" })
+   }
+
+  drawConnector(context) { 
+     return super.drawConnector({ ...context, type: "elbow" })
    }
 
   mapY(accessors){

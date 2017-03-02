@@ -4,7 +4,7 @@ import { lineSetup } from './type-line'
 import { curveCatmullRom } from 'd3-shape'
 import { pointHandle } from '../Handles'
 
-export default ({ type, connectorData }) => {
+export default ({ type, connectorData, subjectType }) => {
 
   if (!connectorData){ connectorData = {} }
   if (!connectorData.points || typeof connectorData.points === "number"){ 
@@ -12,8 +12,6 @@ export default ({ type, connectorData }) => {
   }
   if (!connectorData.curve){ connectorData.curve = curveCatmullRom }
 
-  // context.points = connectorData.points 
-  // context.curve = connectorData.curve
   let handles = []
 
   if (type.editMode) {
@@ -31,7 +29,7 @@ export default ({ type, connectorData }) => {
 
   }
 
-  let data = lineSetup(type)
+  let data = lineSetup({ type, subjectType })
   data = [data[0], ...connectorData.points, data[1]]
   const components = [lineBuilder({ data, curve: connectorData.curve, className: "connector" })]
 

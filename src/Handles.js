@@ -82,6 +82,7 @@ export const addHandles = ({ group, handles, r=10}) => {
     .attr('cx', d => d.x)
     .attr('cy', d => d.y)
     .attr('r', d => d.r || r)
+    .attr('class', d => `handle ${d.className || ''}`)
 
   h.exit()
     .remove()

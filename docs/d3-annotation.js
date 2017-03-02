@@ -3951,7 +3951,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 exports.default = function (_ref) {
   var type = _ref.type,
-      connectorData = _ref.connectorData;
+      connectorData = _ref.connectorData,
+      subjectType = _ref.subjectType;
 
 
   if (!connectorData) {
@@ -3964,8 +3965,6 @@ exports.default = function (_ref) {
     connectorData.curve = _d3Shape.curveCatmullRom;
   }
 
-  // context.points = connectorData.points 
-  // context.curve = connectorData.curve
   var handles = [];
 
   if (type.editMode) {
@@ -3986,7 +3985,7 @@ exports.default = function (_ref) {
     })();
   }
 
-  var data = (0, _typeLine.lineSetup)(type);
+  var data = (0, _typeLine.lineSetup)({ type: type, subjectType: subjectType });
   data = [data[0]].concat(_toConsumableArray(connectorData.points), [data[1]]);
   var components = [(0, _Builder.lineBuilder)({ data: data, curve: connectorData.curve, className: "connector" })];
 
@@ -4016,7 +4015,8 @@ Object.defineProperty(exports, "__esModule", {
 var _Builder = require("../Builder");
 
 exports.default = function (_ref) {
-  var type = _ref.type;
+  var type = _ref.type,
+      subjectType = _ref.subjectType;
 
 
   var annotation = type.annotation;
@@ -4028,13 +4028,30 @@ exports.default = function (_ref) {
       y2 = y1 + annotation.dy;
 
   var subjectData = annotation.subject;
+
+  if (subjectType == "rect") {
+    var width = subjectData.width,
+        height = subjectData.height;
+
+
+    if (width > 0 && annotation.dx > 0 || width < 0 && annotation.dx < 0) {
+      if (Math.abs(width) > Math.abs(annotation.dx)) x1 = width / 2;else x1 = width;
+    }
+    if (height > 0 && annotation.dy > 0 || height < 0 && annotation.dy < 0) {
+      if (Math.abs(height) > Math.abs(annotation.dy)) y1 = height / 2;else y1 = height;
+    }
+    if (x1 == width / 2 && y1 && height / 2) {
+      x1 = x2;y1 = y2;
+    }
+  }
+
   var data = [[x1, y1], [x2, y2]];
 
   var diffY = y2 - y1;
   var diffX = x2 - x1;
   var xe = x2;
   var ye = y2;
-  var opposite = y2 < 0 && x2 > 0 || x2 < 0 && y2 > 0 ? -1 : 1;
+  var opposite = y2 < y1 && x2 > x1 || x2 < x1 && y2 > y1 ? -1 : 1;
 
   if (Math.abs(diffX) < Math.abs(diffY)) {
     xe = x2;
@@ -4044,8 +4061,7 @@ exports.default = function (_ref) {
     xe = x1 + diffY * opposite;
   }
 
-  var circleCheck = type.typeSettings && type.typeSettings.subject && type.typeSettings.subject.type == "circle";
-  if (circleCheck && (subjectData.outerRadius || subjectData.radius)) {
+  if (subjectType == "circle" && (subjectData.outerRadius || subjectData.radius)) {
     var r = (subjectData.outerRadius || subjectData.radius) + (subjectData.radiusPadding || 0);
     var length = r / Math.sqrt(2);
 
@@ -4079,7 +4095,10 @@ exports.lineSetup = undefined;
 
 var _Builder = require("../Builder");
 
-var lineSetup = exports.lineSetup = function lineSetup(type) {
+var lineSetup = exports.lineSetup = function lineSetup(_ref) {
+  var type = _ref.type,
+      subjectType = _ref.subjectType;
+
   var annotation = type.annotation;
   var offset = annotation.position;
 
@@ -4090,8 +4109,7 @@ var lineSetup = exports.lineSetup = function lineSetup(type) {
 
   var subjectData = annotation.subject;
 
-  var circleCheck = type.typeSettings && type.typeSettings.subject && type.typeSettings.subject.type == "circle";
-  if (circleCheck && (subjectData.outerRadius || subjectData.radius)) {
+  if (subjectType == "circle" && (subjectData.outerRadius || subjectData.radius)) {
     var h = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     var angle = Math.asin(-y2 / h);
     var r = subjectData.outerRadius || subjectData.radius + (subjectData.radiusPadding || 0);
@@ -4100,13 +4118,27 @@ var lineSetup = exports.lineSetup = function lineSetup(type) {
     y1 = Math.abs(Math.sin(angle) * r) * (y2 < 0 ? -1 : 1);
   }
 
+  if (subjectType == "rect") {
+    var width = subjectData.width,
+        height = subjectData.height;
+
+
+    if (width > 0 && annotation.dx > 0 || width < 0 && annotation.dx < 0) {
+      if (Math.abs(width) > Math.abs(annotation.dx)) x1 = width / 2;else x1 = width;
+    }
+    if (height > 0 && annotation.dy > 0 || height < 0 && annotation.dy < 0) {
+      if (Math.abs(height) > Math.abs(annotation.dy)) y1 = height / 2;else y1 = height;
+    }
+    if (x1 == width / 2 && y1 && height / 2) {
+      x1 = x2;y1 = y2;
+    }
+  }
+
   return [[x1, y1], [x2, y2]];
 };
 
-exports.default = function (_ref) {
-  var type = _ref.type;
-
-  var data = lineSetup(type);
+exports.default = function (connectorData) {
+  var data = lineSetup(connectorData);
   return { components: [(0, _Builder.lineBuilder)({ data: data, className: "connector" })] };
 };
 
@@ -4237,6 +4269,8 @@ var addHandles = exports.addHandles = function addHandles(_ref5) {
     return d.y;
   }).attr('r', function (d) {
     return d.r || r;
+  }).attr('class', function (d) {
+    return 'handle ' + (d.className || '');
   });
 
   h.exit().remove();
@@ -4482,14 +4516,7 @@ exports.default = function (_ref) {
       type.redrawConnector();
     };
 
-    var updateRadiusPadding = function updateRadiusPadding() {
-      var rpad = subjectData.radiusPadding + _d3Selection.event.dx;
-      subjectData.radiusPadding = rpad;
-      type.redrawSubject();
-      type.redrawConnector();
-    };
-
-    var cHandles = [_extends({}, h.padding, { drag: updateRadiusPadding.bind(type) }), _extends({}, h.r1, { drag: updateRadius.bind(type, subjectData.outerRadius !== undefined ? 'outerRadius' : 'radius') })];
+    var cHandles = [_extends({}, h.r1, { drag: updateRadius.bind(type, subjectData.outerRadius !== undefined ? 'outerRadius' : 'radius') })];
 
     if (subjectData.innerRadius) {
       cHandles.push(_extends({}, h.r2, { drag: updateRadius.bind(type, 'innerRadius') }));
@@ -4523,42 +4550,30 @@ exports.default = function (_ref) {
   if (!subjectData.height) {
     subjectData.height = 100;
   }
-  if (subjectData.rx == undefined) {
-    subjectData.rx = 0;
-  }
-  if (subjectData.ry == undefined) {
-    subjectData.ry = 0;
-  }
 
   var handles = [];
-  var rx = subjectData.rx,
-      ry = subjectData.ry,
-      width = subjectData.width,
+  var width = subjectData.width,
       height = subjectData.height;
 
 
-  var data = [[rx, ry], [rx + width, ry], [rx + width, ry + height], [rx, ry + height], [rx, ry]];
+  var data = [[0, 0], [width, 0], [width, height], [0, height], [0, 0]];
   var rect = (0, _Builder.lineBuilder)({ data: data, className: 'subject' });
 
   if (type.editMode) {
 
     var updateWidth = function updateWidth(attr) {
-      subjectData.width = -subjectData.rx + _d3Selection.event.x;
+      subjectData.width = _d3Selection.event.x;
       type.redrawSubject();
+      type.redrawConnector();
     };
 
     var updateHeight = function updateHeight() {
-      subjectData.height = -subjectData.ry + _d3Selection.event.y;
+      subjectData.height = _d3Selection.event.y;
       type.redrawSubject();
+      type.redrawConnector();
     };
 
-    var updateXY = function updateXY() {
-      subjectData.rx += _d3Selection.event.dx;
-      subjectData.ry += _d3Selection.event.dy;
-      type.redrawSubject();
-    };
-
-    var rHandles = [{ x: rx + width, y: ry + height / 2, drag: updateWidth.bind(type) }, { x: rx + width / 2, y: ry + height, drag: updateHeight.bind(type) }, { x: rx, y: ry, drag: updateXY.bind(type) }];
+    var rHandles = [{ x: width, y: height / 2, drag: updateWidth.bind(type) }, { x: width / 2, y: height, drag: updateHeight.bind(type) }];
 
     handles = type.mapHandles(rHandles);
   }
@@ -4835,6 +4850,8 @@ var Type = function () {
       var connectorData = this.annotation.connector;
       var type = connectorData.type || context.type;
       var connectorParams = { type: this, connectorData: connectorData };
+      connectorParams.subjectType = this.typeSettings && this.typeSettings.subject && this.typeSettings.subject.type;
+
       var connector = {};
       if (type === "curve") connector = (0, _typeCurve2.default)(connectorParams);else if (type === "elbow") connector = (0, _typeElbow2.default)(connectorParams);else connector = (0, _typeLine2.default)(connectorParams);
 
@@ -4853,8 +4870,8 @@ var Type = function () {
         components = components.concat(end.components);
       }
 
-      if (this.editMode && handles.length !== 0) {
-        components.push({ type: "handle", handles: handles });
+      if (this.editMode) {
+        if (handles.length !== 0) components.push({ type: "handle", handles: handles });
       }
       return components;
     }
@@ -4890,6 +4907,7 @@ var Type = function () {
       var orientation = noteData.orientation || context.orientation || 'topBottom';
       var lineType = noteData.lineType || context.lineType;
       var align = noteData.align || context.align || 'dynamic';
+      var subjectType = this.typeSettings && this.typeSettings.subject && this.typeSettings.subject.type;
 
       if (lineType == "vertical") orientation = "leftRight";else if (lineType == "horizontal") orientation = "topBottom";
 
@@ -5078,24 +5096,14 @@ var d3NoteText = exports.d3NoteText = function (_Type) {
   }
 
   _createClass(d3NoteText, [{
-    key: 'init',
-    value: function init(accessors) {
-      _get(d3NoteText.prototype.__proto__ || Object.getPrototypeOf(d3NoteText.prototype), 'init', this).call(this, accessors);
-
-      if (!(this.annotation.note && this.annotation.note.label) && accessors.label) {
-        this.annotation.note = Object.assign({}, this.annotation.note, { label: accessors.label(this.annotation.data) });
-      }
-
-      if (!(this.annotation.note && this.annotation.note.title) && accessors.title) {
-        this.annotation.note = Object.assign({}, this.annotation.note, { title: accessors.title(this.annotation.data) });
-      }
-    }
-  }, {
     key: 'updateTextWrap',
     value: function updateTextWrap(textWrap) {
       this.textWrap = textWrap;
       this.drawText();
     }
+
+    //TODO: add update text functionality
+
   }, {
     key: 'drawText',
     value: function drawText() {
@@ -5164,12 +5172,6 @@ var d3CalloutCircle = exports.d3CalloutCircle = customType(d3CalloutElbow, {
   subject: { type: "circle" }
 });
 
-// export const d3CalloutRect = customType(d3CalloutElbow, {
-//   className: "callout rect",
-
-//   subject: {type: "rect"}
-// })
-
 var d3CalloutRect = exports.d3CalloutRect = function (_d3Callout) {
   _inherits(d3CalloutRect, _d3Callout);
 
@@ -5182,20 +5184,22 @@ var d3CalloutRect = exports.d3CalloutRect = function (_d3Callout) {
   _createClass(d3CalloutRect, [{
     key: 'drawSubject',
     value: function drawSubject(context) {
+      this.typeSettings.subject = Object.assign({}, this.typeSettings.subject, { type: "rect" });
       return _get(d3CalloutRect.prototype.__proto__ || Object.getPrototypeOf(d3CalloutRect.prototype), 'drawSubject', this).call(this, _extends({}, context, { type: "rect" }));
+    }
+  }, {
+    key: 'drawConnector',
+    value: function drawConnector(context) {
+      return _get(d3CalloutRect.prototype.__proto__ || Object.getPrototypeOf(d3CalloutRect.prototype), 'drawConnector', this).call(this, _extends({}, context, { type: "elbow" }));
     }
   }, {
     key: 'mapX',
     value: function mapX(accessors) {
       _get(d3CalloutRect.prototype.__proto__ || Object.getPrototypeOf(d3CalloutRect.prototype), 'mapX', this).call(this, accessors);
-
-      // if (a.subject.)
-
-      // if (!a.subject.width)
     }
   }, {
     key: 'mapY',
-    value: function mapY() {
+    value: function mapY(accessors) {
       _get(d3CalloutRect.prototype.__proto__ || Object.getPrototypeOf(d3CalloutRect.prototype), 'mapY', this).call(this, accessors);
     }
   }], [{
@@ -5220,7 +5224,13 @@ var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout2) {
   _createClass(d3XYThreshold, [{
     key: 'drawSubject',
     value: function drawSubject(context) {
+      this.typeSettings.subject = Object.assign({}, this.typeSettings.subject, { type: "threshold" });
       return _get(d3XYThreshold.prototype.__proto__ || Object.getPrototypeOf(d3XYThreshold.prototype), 'drawSubject', this).call(this, _extends({}, context, { type: "threshold" }));
+    }
+  }, {
+    key: 'drawConnector',
+    value: function drawConnector(context) {
+      return _get(d3XYThreshold.prototype.__proto__ || Object.getPrototypeOf(d3XYThreshold.prototype), 'drawConnector', this).call(this, _extends({}, context, { type: "elbow" }));
     }
   }, {
     key: 'mapY',

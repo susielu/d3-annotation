@@ -21,15 +21,7 @@ export default ({ subjectData, type}) => {
         type.redrawConnector()
       }
 
-      const updateRadiusPadding = () => {
-        const rpad = subjectData.radiusPadding + event.dx
-        subjectData.radiusPadding = rpad
-        type.redrawSubject()
-        type.redrawConnector()
-      }
-
       const cHandles = [
-        {...h.padding, drag : updateRadiusPadding.bind(type)},
         { ...h.r1, drag: updateRadius.bind(type, subjectData.outerRadius !== undefined ? 'outerRadius': 'radius')}
         ]
 
