@@ -66,6 +66,8 @@ export default class AnnotationCollection {
         json.data = {}
         Object.keys(this.accessorsInverse).forEach(k => {
           json.data[k] = this.accessorsInverse[k]({ x: a.x, y: a.y})
+
+          //TODO make this feasible to map back to data for other types of subjects
         })
       }
       return json

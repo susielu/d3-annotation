@@ -3476,7 +3476,7 @@ function annotation() {
   return annotation;
 };
 
-},{"./Annotation":7,"./AnnotationCollection":8,"./Types-d3":22,"d3-dispatch":1,"d3-selection":4}],7:[function(require,module,exports){
+},{"./Annotation":7,"./AnnotationCollection":8,"./Types-d3":23,"d3-dispatch":1,"d3-selection":4}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3752,6 +3752,8 @@ var AnnotationCollection = function () {
           json.data = {};
           Object.keys(_this2.accessorsInverse).forEach(function (k) {
             json.data[k] = _this2.accessorsInverse[k]({ x: a.x, y: a.y });
+
+            //TODO make this feasible to map back to data for other types of subjects
           });
         }
         return json;
@@ -4509,6 +4511,72 @@ var _Handles = require('../Handles');
 
 var _Builder = require('../Builder');
 
+var _d3Selection = require('d3-selection');
+
+exports.default = function (_ref) {
+  var subjectData = _ref.subjectData,
+      type = _ref.type;
+
+  if (!subjectData.width) {
+    subjectData.width = 100;
+  }
+  if (!subjectData.height) {
+    subjectData.height = 100;
+  }
+  if (!subjectData.rx) {
+    subjectData.rx = 0;
+  }
+  if (!subjectData.ry) {
+    subjectData.ry = -subjectData.height / 2;
+  }
+
+  var handles = [];
+  var rx = subjectData.rx,
+      ry = subjectData.ry,
+      width = subjectData.width,
+      height = subjectData.height;
+
+
+  var data = [[rx, ry], [rx + width, ry], [rx + width, ry + height], [rx, ry + height], [rx, ry]];
+  var rect = (0, _Builder.lineBuilder)({ data: data, className: 'subject' });
+
+  if (type.editMode) {
+
+    var updateWidth = function updateWidth(attr) {
+      subjectData.width = -subjectData.rx + _d3Selection.event.x;
+      type.redrawSubject();
+    };
+
+    var updateHeight = function updateHeight() {
+      subjectData.height = -subjectData.ry + _d3Selection.event.y;
+      type.redrawSubject();
+    };
+
+    var updateXY = function updateXY() {
+      subjectData.rx += _d3Selection.event.dx;
+      subjectData.ry += _d3Selection.event.dy;
+      type.redrawSubject();
+    };
+
+    var rHandles = [{ x: rx + width, y: ry + height / 2, drag: updateWidth.bind(type) }, { x: rx + width / 2, y: ry + height, drag: updateHeight.bind(type) }, { x: rx, y: ry, drag: updateXY.bind(type) }];
+
+    handles = type.mapHandles(rHandles);
+  }
+
+  return { components: [rect], handles: handles };
+};
+
+},{"../Builder":9,"../Handles":15,"d3-selection":4}],22:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _Handles = require('../Handles');
+
+var _Builder = require('../Builder');
+
 exports.default = function (_ref) {
   var subjectData = _ref.subjectData,
       type = _ref.type;
@@ -4524,13 +4592,13 @@ exports.default = function (_ref) {
   return { components: [(0, _Builder.lineBuilder)({ data: data, className: 'subject' })] };
 };
 
-},{"../Builder":9,"../Handles":15}],22:[function(require,module,exports){
+},{"../Builder":9,"../Handles":15}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.newWithClass = exports.d3XYThreshold = exports.d3Badge = exports.d3CalloutCurve = exports.d3CalloutCircle = exports.d3CalloutElbow = exports.d3Callout = exports.d3Label = exports.d3NoteText = exports.customType = undefined;
+exports.newWithClass = exports.d3XYThreshold = exports.d3CalloutRect = exports.d3CalloutCircle = exports.d3Badge = exports.d3CalloutCurve = exports.d3CalloutElbow = exports.d3Callout = exports.d3Label = exports.d3NoteText = exports.customType = undefined;
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
@@ -4590,6 +4658,10 @@ var _endDot2 = _interopRequireDefault(_endDot);
 var _circle = require('./Subject/circle');
 
 var _circle2 = _interopRequireDefault(_circle);
+
+var _rect = require('./Subject/rect');
+
+var _rect2 = _interopRequireDefault(_rect);
 
 var _threshold = require('./Subject/threshold');
 
@@ -4740,7 +4812,7 @@ var Type = function () {
       var subjectParams = { type: this, subjectData: subjectData };
 
       var subject = {};
-      if (type === "circle") subject = (0, _circle2.default)(subjectParams);else if (type === "threshold") subject = (0, _threshold2.default)(subjectParams);else if (type === "badge") subject = (0, _badge2.default)(subjectParams);
+      if (type === "circle") subject = (0, _circle2.default)(subjectParams);else if (type === "rect") subject = (0, _rect2.default)(subjectParams);else if (type === "threshold") subject = (0, _threshold2.default)(subjectParams);else if (type === "badge") subject = (0, _badge2.default)(subjectParams);
 
       var _subject = subject,
           _subject$components = _subject.components,
@@ -4887,12 +4959,15 @@ var Type = function () {
   }, {
     key: 'dragstarted',
     value: function dragstarted() {
-      _d3Selection.event.sourceEvent.stopPropagation();this.a.classed("dragging", true);
+      _d3Selection.event.sourceEvent.stopPropagation();
+      this.a.classed("dragging", true);
+      this.a.selectAll("circle.handle").style("pointer-events", "none");
     }
   }, {
     key: 'dragended',
     value: function dragended() {
       this.a.classed("dragging", false);
+      this.a.selectAll("circle.handle").style("pointer-events", "all");
     }
   }, {
     key: 'dragSubject',
@@ -5073,11 +5148,6 @@ var d3CalloutElbow = exports.d3CalloutElbow = customType(d3Callout, {
   connector: { type: "elbow" }
 });
 
-var d3CalloutCircle = exports.d3CalloutCircle = customType(d3CalloutElbow, {
-  className: "callout circle",
-  subject: { type: "circle" }
-});
-
 var d3CalloutCurve = exports.d3CalloutCurve = customType(d3Callout, {
   className: "callout curve",
   connector: { type: "curve" }
@@ -5089,8 +5159,57 @@ var d3Badge = exports.d3Badge = customType(Type, {
   disable: ['connector', 'note']
 });
 
-var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout) {
-  _inherits(d3XYThreshold, _d3Callout);
+var d3CalloutCircle = exports.d3CalloutCircle = customType(d3CalloutElbow, {
+  className: "callout circle",
+  subject: { type: "circle" }
+});
+
+// export const d3CalloutRect = customType(d3CalloutElbow, {
+//   className: "callout rect",
+
+//   subject: {type: "rect"}
+// })
+
+var d3CalloutRect = exports.d3CalloutRect = function (_d3Callout) {
+  _inherits(d3CalloutRect, _d3Callout);
+
+  function d3CalloutRect() {
+    _classCallCheck(this, d3CalloutRect);
+
+    return _possibleConstructorReturn(this, (d3CalloutRect.__proto__ || Object.getPrototypeOf(d3CalloutRect)).apply(this, arguments));
+  }
+
+  _createClass(d3CalloutRect, [{
+    key: 'drawSubject',
+    value: function drawSubject(context) {
+      return _get(d3CalloutRect.prototype.__proto__ || Object.getPrototypeOf(d3CalloutRect.prototype), 'drawSubject', this).call(this, _extends({}, context, { type: "rect" }));
+    }
+  }, {
+    key: 'mapX',
+    value: function mapX(accessors) {
+      _get(d3CalloutRect.prototype.__proto__ || Object.getPrototypeOf(d3CalloutRect.prototype), 'mapX', this).call(this, accessors);
+
+      // if (a.subject.)
+
+      // if (!a.subject.width)
+    }
+  }, {
+    key: 'mapY',
+    value: function mapY() {
+      _get(d3CalloutRect.prototype.__proto__ || Object.getPrototypeOf(d3CalloutRect.prototype), 'mapY', this).call(this, accessors);
+    }
+  }], [{
+    key: 'className',
+    value: function className() {
+      return "callout rect";
+    }
+  }]);
+
+  return d3CalloutRect;
+}(d3Callout);
+
+var d3XYThreshold = exports.d3XYThreshold = function (_d3Callout2) {
+  _inherits(d3XYThreshold, _d3Callout2);
 
   function d3XYThreshold() {
     _classCallCheck(this, d3XYThreshold);
@@ -5205,12 +5324,13 @@ exports.default = {
   d3CalloutElbow: d3CalloutElbow,
   d3CalloutCurve: d3CalloutCurve,
   d3CalloutCircle: d3CalloutCircle,
+  d3CalloutRect: d3CalloutRect,
   d3XYThreshold: d3XYThreshold,
   d3Badge: d3Badge,
   customType: customType
 };
 
-},{"./Annotation":7,"./Connector/end-arrow":10,"./Connector/end-dot":11,"./Connector/type-curve":12,"./Connector/type-elbow":13,"./Connector/type-line":14,"./Handles":15,"./Note/alignment":16,"./Note/lineType-horizontal":17,"./Note/lineType-vertical":18,"./Subject/badge":19,"./Subject/circle":20,"./Subject/threshold":21,"d3-drag":2,"d3-selection":4}],23:[function(require,module,exports){
+},{"./Annotation":7,"./Connector/end-arrow":10,"./Connector/end-dot":11,"./Connector/type-curve":12,"./Connector/type-elbow":13,"./Connector/type-line":14,"./Handles":15,"./Note/alignment":16,"./Note/lineType-horizontal":17,"./Note/lineType-vertical":18,"./Subject/badge":19,"./Subject/circle":20,"./Subject/rect":21,"./Subject/threshold":22,"d3-drag":2,"d3-selection":4}],24:[function(require,module,exports){
 'use strict';
 
 var _AdapterD = require('./src/Adapter-d3');
@@ -5230,8 +5350,9 @@ d3.annotationCallout = _TypesD2.default.d3Callout;
 d3.annotationCalloutCurve = _TypesD2.default.d3CalloutCurve;
 d3.annotationCalloutElbow = _TypesD2.default.d3CalloutElbow;
 d3.annotationCalloutCircle = _TypesD2.default.d3CalloutCircle;
+d3.annotationCalloutRect = _TypesD2.default.d3CalloutRect;
 d3.annotationXYThreshold = _TypesD2.default.d3XYThreshold;
 d3.annotationBadge = _TypesD2.default.d3Badge;
 d3.annotationCustomType = _TypesD2.default.customType;
 
-},{"./src/Adapter-d3":6,"./src/Types-d3":22}]},{},[23]);
+},{"./src/Adapter-d3":6,"./src/Types-d3":23}]},{},[24]);

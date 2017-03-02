@@ -17,6 +17,7 @@ import connectorDot from './Connector/end-dot'
 
 //Subject options
 import subjectCircle from './Subject/circle'
+import subjectRect from './Subject/rect'
 import subjectThreshold from './Subject/threshold'
 import subjectBadge from './Subject/badge'
 
@@ -122,9 +123,10 @@ class Type {
 
     let subject = {}
     if (type === "circle") subject = subjectCircle(subjectParams)
+    else if (type === "rect") subject = subjectRect(subjectParams)
     else if (type === "threshold") subject = subjectThreshold(subjectParams)
     else if (type === "badge") subject = subjectBadge(subjectParams)
-    
+
     let { components=[], handles=[] } = subject
     if (this.editMode){
       handles = handles.concat(this.mapHandles([{ drag: this.dragSubject.bind(this)}]))
@@ -237,8 +239,14 @@ class Type {
     this.redrawNote()
   }
 
-  dragstarted() { event.sourceEvent.stopPropagation(); this.a.classed("dragging", true) }
-  dragended() { this.a.classed("dragging", false)}
+  dragstarted() { event.sourceEvent.stopPropagation(); 
+    this.a.classed("dragging", true) 
+    this.a.selectAll("circle.handle").style("pointer-events", "none")
+  }
+  dragended() { 
+    this.a.classed("dragging", false)
+    this.a.selectAll("circle.handle").style("pointer-events", "all")
+  }
 
   dragSubject() {
     const position = this.annotation.position
@@ -383,11 +391,6 @@ export const d3CalloutElbow = customType(d3Callout, {
   connector: { type: "elbow" }
 })
 
-export const d3CalloutCircle = customType(d3CalloutElbow, {
-  className: "callout circle",
-  subject: { type: "circle"}
-})
-
 export const d3CalloutCurve = customType(d3Callout, {
   className: "callout curve",
   connector: { type: "curve" }
@@ -398,6 +401,38 @@ export const d3Badge = customType(Type, {
   subject: { type: "badge"},
   disable: ['connector', 'note']
 })
+
+
+export const d3CalloutCircle = customType(d3CalloutElbow, {
+  className: "callout circle",
+  subject: { type: "circle"}
+})
+
+// export const d3CalloutRect = customType(d3CalloutElbow, {
+//   className: "callout rect",
+
+//   subject: {type: "rect"}
+// })
+
+export class d3CalloutRect extends d3Callout {
+  static className() { return "callout rect" }
+
+  drawSubject(context) {
+    return super.drawSubject({ ...context, type: "rect" })
+  }
+
+  mapX(accessors){
+    super.mapX(accessors)
+
+   // if (a.subject.)
+
+    // if (!a.subject.width)
+  }
+
+  mapY(){
+    super.mapY(accessors)
+  }
+}
 
 export class d3XYThreshold extends d3Callout {
   static className() { return "xythreshold" }
@@ -498,6 +533,7 @@ export default {
   d3CalloutElbow,
   d3CalloutCurve,
   d3CalloutCircle,
+  d3CalloutRect,
   d3XYThreshold,
   d3Badge,
   customType

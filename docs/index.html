@@ -125,7 +125,7 @@
       fill: none;
     }
 
-    .annotation path.connector-arrow{
+    .annotation path.connector-arrow, .annotation.callout.rect path.subject{
       fill: var(--accent-color);
     }
 
@@ -155,6 +155,10 @@
     .annotation.badge .badge-text {
       fill: white;
       font-size: .7em;
+    }
+
+    .annotation.callout.rect path.subject{
+      fill-opacity: .1;
     }
 
     .annotation .annotation-connector .connector-dot{
@@ -322,6 +326,7 @@
                     <img data-type="annotationCalloutElbow" src="img/a-elbow.png" />
                     <img data-type="annotationCalloutCurve" src="img/a-curve.png" />
                     <img data-type="annotationCalloutCircle" src="img/a-circle.png" />
+                    <img data-type="annotationCalloutRect" src="img/a-rect.png" />
                     <img data-type="annotationXYThreshold" src="img/a-threshold.png" />
                     <img data-type="annotationBadge" src="img/a-badge.png" />
                   </div>
