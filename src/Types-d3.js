@@ -103,7 +103,7 @@ class Type {
 
   //TODO: how to extend this to a drawOnCanvas mode? 
 
-  getNoteBBox() { return bboxWithoutHandles(this.note, '.annotation-note-content')}
+  getNoteBBox() { return bboxWithoutHandles(this.note, '.annotation-note-content text')}
   getNoteBBoxOffset() { 
     const bbox = bboxWithoutHandles(this.note, '.annotation-note-content')
     const transform = this.noteContent.attr('transform').split(/\(|\,|\)/g)

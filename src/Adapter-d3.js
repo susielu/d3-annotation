@@ -66,9 +66,10 @@ export default function annotation(){
         newWithClass(a, [d], 'g', 'annotation-note')
         newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content')
 
+
         d.type = new d.type({ a, annotation: d, textWrap, notePadding, editMode, 
           dispatcher: annotationDispatcher, accessors })
-
+  
         d.type.draw()
       })
   }

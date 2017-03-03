@@ -4121,7 +4121,7 @@ var lineSetup = exports.lineSetup = function lineSetup(_ref) {
     if (height > 0 && annotation.dy > 0 || height < 0 && annotation.dy < 0) {
       if (Math.abs(height) > Math.abs(annotation.dy)) y1 = height / 2;else y1 = height;
     }
-    if (x1 == width / 2 && y1 && height / 2) {
+    if (x1 == width / 2 && y1 == height / 2) {
       x1 = x2;y1 = y2;
     }
   }
@@ -4793,7 +4793,7 @@ var Type = function () {
   }, {
     key: 'getNoteBBox',
     value: function getNoteBBox() {
-      return bboxWithoutHandles(this.note, '.annotation-note-content');
+      return bboxWithoutHandles(this.note, '.annotation-note-content text');
     }
   }, {
     key: 'getNoteBBoxOffset',
