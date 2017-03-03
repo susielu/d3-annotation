@@ -9,18 +9,16 @@ Pass an array of objects with annotation properties:
 - **id**: This can be anything that will help you filter and parse your annotations
 
 ![Annotation JSON](img/json.png)
-- **x (number:pixels)**: Position of the subject and one end of the connector
-- **y (number:pixels)**: Position of the subject and one end of the connector
-- **data (object)**: If you also set accessor functions, you can give data instead of x, y coordinates for placing your annotations
-- **dy (number:pixels)**: Position of the note and one end of the connector
-- **dx (number:pixels)**: Position of the note and one end of the connector
-- **type (d3annotationType)**: Type for this annotation. Recommended to set the base type at the d3.annotation().type() property and using this only if you want to some additional types in the array
+- **x,y (number:pixels)**: Position of the subject and one end of the connector
+- **data (object)**: If you also set accessor functions, you can give data instead of x,y coordinates for placing your annotations
+- **dx, dy (number:pixels)**: Position of the note and one end of the connector, as an offset from x,y
+- **type ([d3annotationType](#types))**: Type for this annotation. Recommended to set the base type at the d3.annotation().type() property and use this to override the base
 - **disable ([string])**: takes the values 'connector', 'subject', and 'note' pass them in this array if you want to disable those parts from rendering
 - **note (object)**: You can specify a title and label property here. All of the annotation types that come with d3-annotation have built in functionality to take the title and the label and add them to the note, however the underlying system is composable in a way that you could customize the note to contain any type of content. You can also use this to overwrite the default note properties (align, orientation, lineType, wrap, padding) in the type. For example if on one of the notes you wanted to align it differently.
 - **connector (object)**: Some connectors such as the curve connector require additional parameters to set up the annotation. You can also use this to overwrite the default connector properties (type, end) in the type. For example if you wanted to add an arrow to the end of some of the annotations in the array you could add <code>{ end: "arrow" }</code> to this connector property on the relevant annotations.
 - **subject (object)**: Some subjects such as the circle require additional parameters to set up the annotation. 
 
-You can also then use this function to get the current annotations.
+If you don't pass anything to this function, it returns the current array of annotations.
 
 
 annotation.**accessors({ x: function, y: function })**
@@ -31,7 +29,6 @@ Example:
 ```js
 //Sample .data for an annotation
 //{date: "2-Jan-08", close: 194.84}
-
 const parseTime = d3.timeParse("%d-%b-%y");
 
 d3.annotation().accessors({
@@ -39,7 +36,6 @@ d3.annotation().accessors({
   y: d => y(d.close)
 })
 ```
-
 
 annotation.**accessorsInverse({ &lt;x property mapping&gt;: function,  &lt;y property mapping&gt;: function })**
 
@@ -49,7 +45,6 @@ Example (goes with example from the accessors function):
 ```js
 //Sample .data for an annotation
 //{date: "2-Jan-08", close: 194.84}
-
 const timeFormat = d3.timeFormat("%d-%b-%y")
 
 d3.annotation().accessorsInverse({

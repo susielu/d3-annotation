@@ -79,7 +79,7 @@ $(document).ready(function(){
            note: { align: "dynamic", lineType: "horizontal" },
             connector: { type: "elbow"}
         },
-        summary: "Subject options: width, height, rx, ry",
+        summary: "Subject options: width, height",
         subject: {
           width: -50,
           height: 100,
