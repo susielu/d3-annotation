@@ -5,7 +5,9 @@ const inpractice = require('./content/inpractice.md')
 const api = require('./content/api.md')
 const extend = require('./content/extend.md')
 const notes = require('./content/notes.md')
-const highlight = require('./custom-highlightjs-build/highlight')
+const highlight = require('./custom-highlightjs-build')
+const highlightjs = require('highlight.js/lib/languages/javascript')
+highlight.registerLanguage('js', highlightjs);
 
 document.getElementById('toc1').innerHTML = contents;
 document.getElementById('slide-out').innerHTML = '<li><a class="header">d3-annotation</a></li><li><div class="divider"></div></li>' + contents;
@@ -17,7 +19,7 @@ document.getElementById('extend').innerHTML = extend;
 document.getElementById('notes').innerHTML = notes;
 
 $(document).ready(function(){
-  
+
     $('.scrollspy').scrollSpy({ scrollOffset: 0});
     $('.button-collapse').sideNav();
     $('.toc').pushpin({
