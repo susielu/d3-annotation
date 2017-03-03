@@ -85,8 +85,7 @@ $(document).ready(function(){
         summary: "Subject options: width, height",
         subject: {
           width: -50,
-          height: 100,
-          ry: -50
+          height: 100
         }
       },
       annotationCalloutCurve: {
@@ -134,9 +133,7 @@ $(document).ready(function(){
         dx: 162
       }
 
-    d3.selectAll('.icons .options a')
-      .on('click', function() {
-
+    const changeOption = function() {
         let type = d3.event.target.attributes['data-section'].value
         const value = d3.event.target.attributes['data-setting'].value
         d3.selectAll(`[data-section="${type}"]`)
@@ -219,9 +216,12 @@ $(document).ready(function(){
 
         updateAnnotations()
         sandboxCode()
-    })
+    }
 
-    d3.selectAll('.icons .presets img')
+    d3.selectAll('.icons .options img')
+      .on('click', changeOption)
+
+    d3.selectAll('.icons .presets .types img')
       .on('click', function(){
         typeKey = d3.event.target.attributes['data-type'].value
         currentType = d3[typeKey]
@@ -246,30 +246,30 @@ $(document).ready(function(){
         //set options
         const options = types[typeKey].typeSettings
 
-        d3.selectAll('.icons .options a')
+        d3.selectAll('.icons .options img')
           .classed('active', false)
 
-        d3.select(`.icons a[data-section="note:align"][data-setting="${options.note.align}"]`)
+        d3.select(`.icons img[data-section="note:align"][data-setting="${options.note.align}"]`)
           .classed('active', true)
 
         if (options.note.lineType){
-          d3.select(`.icons a[data-section="note:lineType"][data-setting=${options.note.lineType}]`)
+          d3.select(`.icons img[data-section="note:lineType"][data-setting=${options.note.lineType}]`)
           .classed('active', true)
            d3.selectAll(".icons .orientation")
           .classed('hidden', true)
         } else {
-          d3.select(`.icons a[data-section="note:lineType"][data-setting="none"]`)
+          d3.select(`.icons img[data-section="note:lineType"][data-setting="none"]`)
           .classed('active', true)
           d3.selectAll(".icons .orientation")
           .classed('hidden', false)
-          d3.select(".icons .orientation a")
+          d3.select(".icons .orientation img")
           .classed('active', true)
         }
 
-        d3.select('.icons a[data-section="connector:end"]')
+        d3.select('.icons img[data-section="connector:end"]')
           .classed('active', true)
 
-        d3.select(`.icons a[data-section="connector:type"][data-setting=${options.connector.type}]`)
+        d3.select(`.icons img[data-section="connector:type"][data-setting=${options.connector.type}]`)
           .classed('active', true)
 
         if (typeKey == "annotationCalloutCurve") {
@@ -313,23 +313,26 @@ $(document).ready(function(){
         sandboxCode()
       })
 
-    d3.selectAll('#curveButtons ul.curves li a')
-      .on('click', function(){
-        curve = d3.event.target.attributes['data-curve'].value
 
+  const changeCurve = function(){
+        curve = d3.event.target.attributes['data-curve'].value
         updateAnnotations({ connector: { curve: d3[curve], points } })
         sandboxCode()
+   }
 
-   })
+    d3.selectAll('#curveButtons ul.curves li img')
+      .on('click', changeCurve)
+      .on('pointerdown', changeCurve)
+
+   const changePoints = function(){
+        points = parseInt(d3.event.target.attributes['data-points'].value)
+        updateAnnotations({ connector: { curve: d3[curve], points } })
+        sandboxCode()
+   }
 
     d3.selectAll('#curveButtons ul.points li a')
-      .on('click', function(){
-        points = parseInt(d3.event.target.attributes['data-points'].value)
-
-        updateAnnotations({ connector: { curve: d3[curve], points } })
-        sandboxCode()
-
-   })
+      .on('click', changePoints)
+      .on('pointerdown', changePoints)
 
     window.makeAnnotations = d3.annotation()
     .editMode(editMode)
@@ -345,9 +348,10 @@ $(document).ready(function(){
         d3.select(".sandbox g.sandbox-annotations")
           .remove()
 
-        const subject = types[typeKey].subject
+        const subject = types[typeKey].subject || {}
+        console.log("subjec", subject)
         makeAnnotations.type( currentType, { subject, connector: newSettings && newSettings.connector } )
-
+      
         d3.select(".sandbox")
           .append("g")
           .attr("class", "sandbox-annotations")
@@ -369,7 +373,7 @@ $(document).ready(function(){
 
       const editModeText = editMode ? `  .editMode(true)\n` : ''
 
-      let typeText = 'const type = '
+      let typeText = '\nconst type = '
 
       if (JSON.stringify(typeSettings) == JSON.stringify(defaultSettings)){
         typeText += `d3.${typeKey}\n`
@@ -426,17 +430,22 @@ $(document).ready(function(){
       if (typeKey === "annotationCalloutCircle"){
         subjectText = `        subject: {\n` +
                       '          radius: 50,\n' +
-                      '          radiusPadding: 5,\n' +
+                      '          radiusPadding: 5\n' +
+                      '        }\n'
+      } else if (typeKey == "annotationCalloutRect"){
+        subjectText = `        subject: {\n` +
+                      '          width: -50,\n' +
+                      '          height: 100\n' +
                       '        }\n'
       } else if (typeKey == "annotationXYThreshold"){
         subjectText = `        subject: {\n` +
                       '          x1: 0,\n' +
-                      '          x2: 500,\n' +
+                      '          x2: 500\n' +
                       '        }\n'
       } else if (typeKey == "annotationBadge"){
         subjectText = `        subject: {\n` +
                       '          text: "A",\n' +
-                      '          radius: 14,\n' +
+                      '          radius: 14\n' +
                       '        }\n'
       }
 

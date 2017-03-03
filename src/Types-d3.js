@@ -287,6 +287,7 @@ export const customType = (initialType, typeSettings, init) => {
     constructor (settings) {
       super(settings)
       this.typeSettings = typeSettings
+
       if (typeSettings.disable){
         typeSettings.disable.forEach(d => {
           this[d] = undefined
@@ -332,6 +333,7 @@ export class d3NoteText extends Type {
 
   constructor(params){
     super(params)
+    console.log('in constructor for note text', params, this.typeSettings)
     this.textWrap = params.textWrap || 120
     this.drawText()
   }
@@ -355,7 +357,10 @@ export class d3NoteText extends Type {
 
       let titleBBox = { height: 0 }
       const label = this.a.select('text.annotation-note-label')
-      const wrapLength = this.annotation.note && this.annotation.note.wrap || this.textWrap 
+      console.log('in wrap length', this.typeSettings)
+      const wrapLength = this.annotation.note && this.annotation.note.wrap || 
+        this.typeSettings && this.typeSettings.note && this.typeSettings.note.wrap ||
+        this.textWrap 
 
       if (this.annotation.note.title){
         const title = this.a.select('text.annotation-note-title')
@@ -411,40 +416,13 @@ export const d3CalloutCircle = customType(d3CalloutElbow, {
   subject: { type: "circle"}
 })
 
+export const d3CalloutRect = customType(d3CalloutElbow, {
+  className: "callout rect",
+  subject: { type: "rect"}
+})
 
-export class d3CalloutRect extends d3Callout {
-  className() { return "callout rect" }
 
-  drawSubject(context) {
-    this.typeSettings.subject = Object.assign({}, this.typeSettings.subject, { type: "rect"})
-    return super.drawSubject({ ...context, type: "rect" })
-  }
-
-   drawConnector(context) { 
-     return super.drawConnector({ ...context, type: "elbow" })
-   }
-
-  mapX(accessors){
-    super.mapX(accessors)
-
-  }
-
-  mapY(accessors){
-    super.mapY(accessors)
-  }
-}
-
-export class d3XYThreshold extends d3Callout {
-  className() { return "xythreshold" }
-
-  drawSubject(context) { 
-      this.typeSettings.subject = Object.assign({}, this.typeSettings.subject, { type: "threshold"})
-     return super.drawSubject({ ...context, type: "threshold" })
-   }
-
-  drawConnector(context) { 
-     return super.drawConnector({ ...context, type: "elbow" })
-   }
+class ThresholdMap extends d3Callout {
 
   mapY(accessors){
     super.mapY(accessors)
@@ -462,6 +440,13 @@ export class d3XYThreshold extends d3Callout {
     }
   }
 }
+
+export const d3XYThreshold = customType(ThresholdMap, {
+  className: "callout xythreshold",
+  subject: { type: "threshold"}
+})
+
+
 
 export const newWithClass = (a, d, type, className) => {
   const group = a.selectAll(`${type}.${className}`).data(d)

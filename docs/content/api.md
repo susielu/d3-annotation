@@ -24,9 +24,8 @@ If you don't pass anything to this function, it returns the current array of ann
 
 annotation.**accessors({ x: function, y: function })**
 
-Functions that would map the .data attribute of your annotation to x and y positions.
+Functions that would map the .data attribute of your annotation to x and y positions:
 
-Example:
 ```js
 //Sample .data for an annotation
 //{date: "2-Jan-08", close: 194.84}
@@ -40,9 +39,8 @@ d3.annotation().accessors({
 
 annotation.**accessorsInverse({ &lt;x property mapping&gt;: function,  &lt;y property mapping&gt;: function })**
 
-The inverse of the accessor function. If you are given x, y coordinates, how to get back to the original data properties. Only for the x and y accessors.
+The inverse of the accessor function. If you are given x, y coordinates, how to get back to the original data properties. Only for the x and y accessors:
 
-Example (goes with example from the accessors function):
 ```js
 //Sample .data for an annotation
 //{date: "2-Jan-08", close: 194.84}
@@ -55,7 +53,7 @@ d3.annotation().accessorsInverse({
 ```
 annotation.**editMode(boolean)**
 
-If this is true, then the annotation will create handles for parts of the annotation that are draggable. You can style these handles with the <code>circle.handle</code> selector. If you are hooking this up to a button, you will need to run the update function below, after changing the editMode. TODO add example
+If this is true, then the annotation will create handles for parts of the annotation that are draggable. You can style these handles with the <code>circle.handle</code> selector. If you are hooking this up to a button, you will need to run the update function below, after changing the editMode. Example in [Map with Tooltips and Edit Mode](#map)
 
 annotation.**update()**
 
@@ -63,7 +61,7 @@ Redraws all of the annotations. Typcially used to reflect updated settings. If y
 
 annotation.**updatedAccessors()**
 
-Example in [Responsive with Types and Hover](#responsive)
+Redraws all the annotations with updated accessor scales. Example in [Responsive with Types and Hover](#responsive)
 
 annotation.**type( d3annotationType )**
 You can pass different types into the annotation objects themselves, but you can also set a default type here. If you want to change the type, you will need to re-call the d3.annotation function on your element to recreate the annotations with the new type. Example in [Responsive with Types and Hover](#responsive)
@@ -78,7 +76,10 @@ annotation.**collection()**
 Access to the collection of annotations with the instantiated types.
 
 annotation.**textWrap()**
+Change the overall textWrap, otherwise in the annotation object array you can change each individual one with the <code>{note: {wrap: 30}}</code> property
 
 annotation.**notePadding()**
+Change the overall notePadding, otherwise in the annotation object array you can change each individual one with the <code>{note: {padding: 30}}</code> property
 
-annotation.**disables()**
+annotation.**disable()**
+Takes the values 'connector', 'subject', and 'note' pass them in this array if you want to disable those parts from rendering

@@ -66,10 +66,8 @@ export default function annotation(){
         newWithClass(a, [d], 'g', 'annotation-note')
         newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content')
 
-
         d.type = new d.type({ a, annotation: d, textWrap, notePadding, editMode, 
           dispatcher: annotationDispatcher, accessors })
-  
         d.type.draw()
       })
   }
@@ -133,6 +131,7 @@ export default function annotation(){
         a.type.noteContent && a.type.noteContent.selectAll("*").remove()
         a.type.subject && a.type.subject.selectAll("*").remove()
         a.type.connector && a.type.connector.selectAll("*").remove()
+        a.type.typeSettings = {}
         a.type = type
 
         a.subject = settings && settings.subject || a.subject

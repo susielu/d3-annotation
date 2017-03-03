@@ -7,4 +7,4 @@ Annotations **establish context, and direct our users to insights and anomalies*
 Use d3-annotation with built-in annotation types, or extend it to make custom annotations. It is made for [d3-v4](https://github.com/d3/d3/blob/master/CHANGES.md) in SVG. 
 
 
-Contact me via [github](https://www.github.com/susielu/d3-annotation) or [twitter](https://www.twitter.com/DataToViz) to help make [examples](#in-practice) and [annotation types](#types).
+Contact me through the [github repo](https://www.github.com/susielu/d3-annotation) or [twitter](https://www.twitter.com/DataToViz).

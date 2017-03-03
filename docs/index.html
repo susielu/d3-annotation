@@ -2,6 +2,7 @@
 <meta charset="utf-8">
 <head>
   <meta name="author" content="Susie Lu">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <meta name="description" content="Let's annotation all the things. This is a component for d3 that allows you add annotations to your visualizations.">
   <link rel="preload" href="bundle.js" as="script">
   <link rel="canonical" href="http://d3-annotation.susielu.com">
@@ -211,10 +212,9 @@
       width: 24px;
       vertical-align: middle;
       padding: 4px;
-      pointer-events: none;
       border: 1px solid white;
     }
-    .icons .presets .options .active img {
+    .icons .presets .options img.active {
         border: 1px dotted var(--accent-color);
     }
 
@@ -252,7 +252,7 @@
       vertical-align: middle;
       width: 16px;
       margin-top: -2px;
-      pointer-events: none;
+      /*pointer-events: none;*/
     }
 
     .section .fixed-action-btn ul:not(.collapsible)  li {
@@ -307,7 +307,7 @@
             <div>
               <div class="icons">
               <ul class="collapsible presets" data-collapsible="expandable">
-                <li>
+                <li class="types">
                   <div class="collapsible-header active">
                     <b>Presets</b>
                     <div style="float:right;">
@@ -338,32 +338,31 @@
                   <div class="collapsible-header  "><b>Options</b></div>
                   <div class="collapsible-body">
                     <div class"row">
-                      <div class="col s3 note">
+                      <div class="col s6 m3 note">
                         <p><b>Note</b></p>
-                          <p>Line Type <a class="active" data-section="note:lineType" data-setting="none"><img src="img/none.png"/></a></p>
-                         <a class="" data-section="note:lineType" data-setting="vertical"><img src="img/vertical.png"/></a>
-                         <a class="" data-section="note:lineType" data-setting="horizontal"><img src="img/horizontal.png"/></a>
+                          <p>Line Type <img class="active"  data-section="note:lineType" data-setting="none" src="img/none.png"/></p>
+                         <img  data-section="note:lineType" data-setting="vertical" src="img/vertical.png"/>
+                         <img data-section="note:lineType" data-setting="horizontal" src="img/horizontal.png"/>
 
 
                         <div class="orientation">
                         <p >Orientation</p>
-                         <a class="active" data-section="note:orientation" data-setting="topBottom"><img src="img/topBottom.png"/></a>
-                         <a class="" data-section="note:orientation" data-setting="leftRight"><img src="img/leftRight.png"/></a>
+                         <img class="active" data-section="note:orientation" data-setting="topBottom" src="img/topBottom.png"/>
+                         <img data-section="note:orientation" data-setting="leftRight" src="img/leftRight.png"/>
                          </div>
 
                       </div>
-                      <div class="col s3 note">
+                      <div class="col s6 m3 note">
                           <br/>
                         <p>Align</p>
-                         <a class="" data-section="note:align" data-setting="dynamic"><img src="img/dynamic.png"/></a>
-                           <a class="active" data-section="note:align" data-setting="middle"><img src="img/middle.png"/></a>
-                         <a class="horizontal" data-section="note:align" data-setting="left"><img src="img/left.png"/></a>
-
-                         <a class="horizontal" data-section="note:align" data-setting="right"><img src="img/right.png"/></a>
-                         <a class="vertical hidden" data-section="note:align" data-setting="top"><img src="img/top.png"/></a>
-                         <a class="vertical hidden" data-section="note:align" data-setting="bottom"><img src="img/down.png"/></a>
+                         <img data-section="note:align" data-setting="dynamic" src="img/dynamic.png"/>
+                         <img class="active" data-section="note:align" data-setting="middle" src="img/middle.png"/>
+                         <img class="horizontal" data-section="note:align" data-setting="left"src="img/left.png"/>
+                         <img class="horizontal" data-section="note:align" data-setting="right" src="img/right.png"/>
+                         <img class="vertical hidden" data-section="note:align" data-setting="top" src="img/top.png"/>
+                         <img class="vertical hidden" data-section="note:align" data-setting="bottom" src="img/down.png"/>
                       </div>
-                      <div class="col s3 connector">
+                      <div class="col m3 s12 note">
                           <br />
                          <label style="color: #9e9e9e;" for="textWrap">Text Wrap (120)</label>
                           <input id="textWrap"
@@ -374,19 +373,22 @@
                           <input id="padding"
                           placeholder=5 type="number" >
                       </div>
-                      <div class="col m3 connector">
+                      <div class="col m3 s12 connector">
                       <p><b>Connector</b></p>
-                        <p>Type <a class="" data-section="connector:type" data-setting="none"><img src="img/none.png"/></a></p>
+                        <div class="col s6 m12">
+                        <p>Type <img data-section="connector:type" data-setting="none" src="img/none.png"/></p>
 
-                        <a class="active" data-section="connector:type"data-setting="line"><img src="img/line.png"/></a>
-                        <a class="" data-section="connector:type" data-setting="elbow"><img src="img/elbow.png"/></a>
-                        <a class="" data-section="connector:type" data-setting="curve"><img src="img/curve.png"/></a>
+                        <img class="active" data-section="connector:type"data-setting="line" src="img/line.png"/>
+                        <img data-section="connector:type" data-setting="elbow" src="img/elbow.png"/>
+                        <img data-section="connector:type" data-setting="curve" src="img/curve.png"/>
+                        </div>
+                        <div class="col s6 m12">
+                        <p>End  <img class="active" data-section="connector:end" data-setting="none" src="img/none.png"/></p>
 
-                        <p>End  <a class="active" data-section="connector:end" data-setting="none"><img src="img/none.png"/></a></p>
+                        <img data-section="connector:end" data-setting="arrow" src="img/arrow.png"/>
 
-                        <a class="" data-section="connector:end" data-setting="arrow"><img src="img/arrow.png"/></a>
-
-                        <a class="" data-section="connector:end" data-setting="dot"><img src="img/dot.png"/></a>
+                        <img data-section="connector:end" data-setting="dot" src="img/dot.png"/>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -410,10 +412,10 @@
                     <img src="img/curve.png"/>
                   </a>
                   <ul class="curves">
-                    <li><a class="btn-floating  red lighten-4" data-curve="curveBasis"><img src="img/basis.png"/></a></li>
-                    <li><a class="btn-floating  red lighten-4" data-curve="curveCatmullRom"><img src="img/cardinal.png"/></a></li>
-                    <li><a class="btn-floating  red lighten-4" data-curve="curveLinear"><img src="img/linear.png"/></a></li>
-                    <li><a class="btn-floating  red lighten-4" data-curve="curveStep"><img src="img/step.png"/></a></li>
+                    <li><a class="btn-floating  red lighten-4"><img data-curve="curveBasis" src="img/basis.png"/></a></li>
+                    <li><a class="btn-floating  red lighten-4"><img data-curve="curveCatmullRom" src="img/cardinal.png"/></a></li>
+                    <li><a class="btn-floating  red lighten-4" ><img data-curve="curveLinear" src="img/linear.png"/></a></li>
+                    <li><a class="btn-floating  red lighten-4" ><img data-curve="curveStep" src="img/step.png"/></a></li>
                   </ul>
                 </div>
 
@@ -449,9 +451,6 @@
       </div>
     </div>
   </div>
-  <script src="https://d3js.org/d3-selection.v1.js"></script>
-  <script src="https://d3js.org/d3-shape.v1.js"></script>
-  <script src="/d3-annotation.js" async></script>
-  <script src="bundle.js" async></script>
+  <script src="bundle.js"></script>
   <script src="ga.js" async></script>
 </body>
