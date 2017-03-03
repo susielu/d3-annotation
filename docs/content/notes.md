@@ -1,4 +1,5 @@
-## Notes
+<h2><a href="#notes">#</a>Notes</h2>
+
 
 Extremely grateful to my team at [Netflix](https://twitter.com/netflixdata) for mentoring me, giving me feedback, and helping out on this project. Cheers [Elijah](https://twitter.com/Elijah_Meeks), [James](https://twitter.com/james_womack), [Jason](https://twitter.com/onemerovingian), and [Nathan](https://twitter.com/nathantowery).
 

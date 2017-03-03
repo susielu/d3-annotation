@@ -1,2 +1,0 @@
-## Anatomy of an Annotation
-

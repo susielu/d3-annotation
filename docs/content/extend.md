@@ -1,4 +1,5 @@
-## Extending Annotation Types
+<h2><a href="#extend">#</a>Extending Annotation Types</h2>
+
 
 The underlying code for d3-annotation has a base annotation type that all of the annotation types extend. The settings and components that make up the different types are customizable. 
 

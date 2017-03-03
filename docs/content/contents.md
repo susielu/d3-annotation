@@ -2,6 +2,6 @@
 - [Setup](#setup)
 - [Types](#types)
 - [In Practice](#in-practice)
-- [API](#annotation)
+- [API](#api)
 - [Extending Types](#extend)
-- [Notes](#Notes)
+- [Notes](#notes)

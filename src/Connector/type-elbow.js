@@ -23,7 +23,7 @@ export default ({ type, subjectType }) => {
           if (Math.abs(height) > Math.abs(annotation.dy)) y1 = height/2
           else y1 = height
       }
-      if (x1 == width/2 && y1 && height/2){ x1 = x2; y1 = y2;}
+      if (x1 == width/2 && y1 == height/2){ x1 = x2; y1 = y2;}
     }
 
     let data = [[x1, y1], [x2, y2]]

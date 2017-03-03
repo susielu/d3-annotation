@@ -1,4 +1,4 @@
-## Setup
+<h2><a href="#setup">#</a>Setup</h2>
 
 ### Include the file directly
 

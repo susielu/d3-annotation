@@ -17,7 +17,8 @@ document.getElementById('extend').innerHTML = extend;
 document.getElementById('notes').innerHTML = notes;
 
 $(document).ready(function(){
-    $('.scrollspy').scrollSpy();
+  
+    $('.scrollspy').scrollSpy({ scrollOffset: 0});
     $('.button-collapse').sideNav();
     $('.toc').pushpin({
       top: 140,
@@ -404,9 +405,7 @@ $(document).ready(function(){
       }
 
       let paddingText = ''
-      console.log('about ot make paddign text', padding)
       if (padding !== 5) {
-        console.log('in padding')
         paddingText = '  //also can set and override in the note.padding property\n  //of the annotation object\n' +
         `  .notePadding(${padding})\n`
       }

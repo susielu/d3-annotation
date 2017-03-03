@@ -1,4 +1,4 @@
-## Introduction
+<h2><a href="#introduction">#</a>Introduction</h2>
 
 Annotations **establish context, and direct our users to insights and anomalies**. So why are annotations so few and far between in visualizations on the web? Because **implementing them is difficult.**
 

@@ -1,4 +1,4 @@
-## In Practice
+<h2><a href="#in-practice">#</a>In Practice</h2>
 
 All annotations are made of just three parts, a **note**, a **connector**, and a **subject**.
 
@@ -84,11 +84,12 @@ d3.annotation()
   .editMode(true)
 ```
 
-### Selecting Elements
+<h3 id="select"><a href="#select">#</a>Selecting Elements</h3>
 - All of the visible shapes (aside from the edit handles) in the default annotations are **paths**
 - There is an invisible rect behind the text in the notes as a helper for more click area etc.
 
-**Hierarchy of classes**
+<h3 id="classes"><a href="#classes">#</a>Hierarchy of classes</h3>
+
 ![Annotation classes](img/classes.png)
 
 Within the g.annotation-note-content there could be three additional elements: 
@@ -96,19 +97,32 @@ Within the g.annotation-note-content there could be three additional elements:
 - text.annotation-note-title
 - rect.annotation-note-bg
 
-### Basic styles 
+<h3 id="styles"><a href="#styles">#</a> Basic Styles</h3>
 Available on [github](https://github.com/susielu/d3-annotation/blob/master/d3-annotation.css).
 
 
-### Tips
+<h3 id="tips"><a href="#tips">#</a>Tips</h3>
+
 - In addition to the alignment settings for the note, you can also use the css `text-anchor` attribute to align the text within the note
+- The annotations get transformed from objects into 
 - When you update the d3.annotation().type() you will need to use the call functionality again to set up the annotations with the new type. See the [Responsive with Types and Hover](#responsive) example
 - You do not need to call d3.annotation().update() if you are only changing the position(x,y) or the offset(dx, dy). See the [Overlapping](#overlapping) example
 
-<h3 id="responsive">Example: Responsive with Types and Hover</h3>
-<a href="https://bl.ocks.org/susielu/974e41473737320f8db5ae711ded8542"><img src="img/resize.png"/></a>
+<h3 id="tooltips"><a href="#tooltips">#</a>Example: Tooltips</h3>
+[![Annotation overalapping]](img/encircle.png)](https://bl.ocks.org/susielu/24ad9f80b9b681ce967f6005a03384f3)
 
-<h3 id="overlapping">Example: Overlapping</h3>
+<h3 id="responsive"><a href="#responsive">#</a>Example: Responsive with Types and Hover</h3>
+<a href="https://bl.ocks.org/susielu/974e41473737320f8db5ae711ded8542">
+<img src="img/resize.png"/></a>
 
-<h3 id="encircle">Example: Encircling</h3>
+<h3 id="overlapping"><a href="#overlapping">#</a>Example: Overlapping</h3>
+[![Annotation overalapping]](img/overlapping.png)](https://bl.ocks.org/susielu/24ad9f80b9b681ce967f6005a03384f3)
+
+<h3 id="encircle"><a href="#encircle">#</a>Example: Encircling</h3>
 [![Annotation encircling]](img/encircle.png)](https://bl.ocks.org/susielu/24ad9f80b9b681ce967f6005a03384f3)
+
+<h3 id="circle-pack"><a href="#circle-pack">#</a>Example:  Reimagining the Circle Pack</h3>
+[![Annotation circle pack]](img/circle-pack.png)](https://bl.ocks.org/emeeks/762b3694269a46151f73f6bc48be6d1c)
+
+<h3 id="map"><a href="#map">#</a>Example: Map with Tooltips and Edit Mode</h3>
+[![Annotation map]](img/map-edit-mode.jpg)](https://bl.ocks.org/Fil/17fc857c3ce36bf8e21ddefab8bc9af4)

@@ -4032,7 +4032,7 @@ exports.default = function (_ref) {
     if (height > 0 && annotation.dy > 0 || height < 0 && annotation.dy < 0) {
       if (Math.abs(height) > Math.abs(annotation.dy)) y1 = height / 2;else y1 = height;
     }
-    if (x1 == width / 2 && y1 && height / 2) {
+    if (x1 == width / 2 && y1 == height / 2) {
       x1 = x2;y1 = y2;
     }
   }
