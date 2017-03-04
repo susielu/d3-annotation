@@ -2,10 +2,13 @@
   "name": "d3-svg-annotation",
   "version": "1.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "indexRollup.js",
+  "jsnext:main": "indexRollup.mjs",
   "files": [
-    "src",
     "index.js",
+    "indexRollup.js",
+    "indexRollup.js.map",
+    "indexRollup.mjs",
     "d3-annotation.*"
   ],
   "keywords": [],

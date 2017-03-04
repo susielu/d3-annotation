@@ -21,7 +21,7 @@ import subjectRect from './Subject/rect'
 import subjectThreshold from './Subject/threshold'
 import subjectBadge from './Subject/badge'
 
-class Type {
+export class Type {
   constructor({ a, annotation, editMode, dispatcher, notePadding, accessors }) {
     this.a = a
 

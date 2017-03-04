@@ -14,7 +14,7 @@ export default {
     {
       dest: pkg['main'],
       format: 'umd',
-      moduleName: 'd3annotation',
+      moduleName: 'indexRollup',
       sourceMap: true
     },
     {
