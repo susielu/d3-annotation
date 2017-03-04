@@ -1,11 +1,10 @@
 {
   "name": "d3-svg-annotation",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "",
-  "main": "d3-annotation.js",
-  "jsnext:main": "d3-annotation.mjs",
+  "main": "index.js",
   "files": [
-    "lib",
+    "src",
     "index.js",
     "d3-annotation.*"
   ],
