@@ -351,7 +351,7 @@ $(document).ready(function(){
         const subject = types[typeKey].subject || {}
         console.log("subjec", subject)
         makeAnnotations.type( currentType, { subject, connector: newSettings && newSettings.connector } )
-      
+
         d3.select(".sandbox")
           .append("g")
           .attr("class", "sandbox-annotations")
@@ -454,16 +454,18 @@ $(document).ready(function(){
       typeText +
       '\n' +
       'const annotations = [{\n' +
-      '        note: { label: "Longer text to show text wrapping",\n' +
-      '          title: "Annotations :)" },\n' +
-      '        //can use x, y directly instead of data\n' +
-      '        data: {date: "18-Sep-09", close: 185.02},\n' +
-      '        dy: 137,\n' +
-      `        dx: 162${curveText !== '' || subjectText !== '' ? ',' : ''}\n` +
+      '  note: {\n' +
+      '    label: "Longer text to show text wrapping",\n' +
+      '    title: "Annotations :)"\n' +
+      '  },\n' +
+      '  //can use x, y directly instead of data\n' +
+      '  data: { date: "18-Sep-09", close: 185.02 },\n' +
+      '  dy: 137,\n' +
+      `  dx: 162${curveText !== '' || subjectText !== '' ? ',' : ''}\n` +
       curveText +
       (subjectText !== '' && curveText !== ''? ',\n' : '') +
       subjectText +
-      '      }]\n' +
+      '}]\n' +
       '\n' +
       'const parseTime = d3.timeParse("%d-%b-%y")\n' +
       'const timeFormat = d3.timeFormat("%d-%b-%y")\n' +
