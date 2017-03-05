@@ -1657,7 +1657,7 @@
   //Text wrapping code adapted from Mike Bostock
   var wrap = function wrap(text, width) {
     text.each(function () {
-      var text = d3.select(this),
+      var text = d3Selection.select(this),
           words = text.text().split(/[ \t\r\n]+/).reverse(),
           word,
           line = [],

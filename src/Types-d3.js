@@ -473,7 +473,7 @@ const addHandlers = ( dispatcher, annotation, { component, name }) => {
 //Text wrapping code adapted from Mike Bostock
 const wrap = (text, width) => {
   text.each(function() {
-    var text = d3.select(this),
+    var text = select(this),
         words = text.text().split(/[ \t\r\n]+/).reverse(),
         word,
         line = [],
