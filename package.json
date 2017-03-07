@@ -9,7 +9,8 @@
     "indexRollup.js",
     "indexRollup.js.map",
     "indexRollup.mjs",
-    "d3-annotation.*"
+    "d3-annotation.*",
+    "types/*"
   ],
   "keywords": [],
   "directories": {},
@@ -60,7 +61,10 @@
   "bugs": {
     "url": "https://github.com/susielu/d3-annotation/issues"
   },
+  "types": "./types/d3-svg-annotation.d.ts",
   "dependencies": {
+    "@types/d3-dispatch": "^1.0.4",
+    "@types/d3-selection": "^1.0.10",
     "d3-dispatch": "1.0.2",
     "d3-drag": "1.0.2",
     "d3-selection": "1.0.2",
