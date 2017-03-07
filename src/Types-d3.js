@@ -333,7 +333,6 @@ export class d3NoteText extends Type {
 
   constructor(params){
     super(params)
-    console.log('in constructor for note text', params, this.typeSettings)
     this.textWrap = params.textWrap || 120
     this.drawText()
   }
@@ -357,7 +356,6 @@ export class d3NoteText extends Type {
 
       let titleBBox = { height: 0 }
       const label = this.a.select('text.annotation-note-label')
-      console.log('in wrap length', this.typeSettings)
       const wrapLength = this.annotation.note && this.annotation.note.wrap || 
         this.typeSettings && this.typeSettings.note && this.typeSettings.note.wrap ||
         this.textWrap 

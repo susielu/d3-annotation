@@ -5097,7 +5097,6 @@ var d3NoteText = exports.d3NoteText = function (_Type) {
 
     var _this4 = _possibleConstructorReturn(this, (d3NoteText.__proto__ || Object.getPrototypeOf(d3NoteText)).call(this, params));
 
-    console.log('in constructor for note text', params, _this4.typeSettings);
     _this4.textWrap = params.textWrap || 120;
     _this4.drawText();
     return _this4;
@@ -5126,7 +5125,6 @@ var d3NoteText = exports.d3NoteText = function (_Type) {
 
         var titleBBox = { height: 0 };
         var label = this.a.select('text.annotation-note-label');
-        console.log('in wrap length', this.typeSettings);
         var wrapLength = this.annotation.note && this.annotation.note.wrap || this.typeSettings && this.typeSettings.note && this.typeSettings.note.wrap || this.textWrap;
 
         if (this.annotation.note.title) {

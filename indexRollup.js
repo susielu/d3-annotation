@@ -4,6 +4,71 @@
   (factory((global.indexRollup = global.indexRollup || {}),global.d3Selection,global.d3Drag,global.d3Shape,global.d3Dispatch));
 }(this, function (exports,d3Selection,d3Drag,d3Shape,d3Dispatch) { 'use strict';
 
+  var babelHelpers = {};
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  };
+
+  var jsx = function () {
+    var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7;
+    return function createRawReactElement(type, props, key, children) {
+      var defaultProps = type && type.defaultProps;
+      var childrenLength = arguments.length - 3;
+
+      if (!props && childrenLength !== 0) {
+        props = {};
+      }
+
+      if (props && defaultProps) {
+        for (var propName in defaultProps) {
+          if (props[propName] === void 0) {
+            props[propName] = defaultProps[propName];
+          }
+        }
+      } else if (!props) {
+        props = defaultProps || {};
+      }
+
+      if (childrenLength === 1) {
+        props.children = children;
+      } else if (childrenLength > 1) {
+        var childArray = Array(childrenLength);
+
+        for (var i = 0; i < childrenLength; i++) {
+          childArray[i] = arguments[i + 3];
+        }
+
+        props.children = childArray;
+      }
+
+      return {
+        $$typeof: REACT_ELEMENT_TYPE,
+        type: type,
+        key: key === undefined ? null : '' + key,
+        ref: null,
+        props: props,
+        _owner: null
+      };
+    };
+  }();
+
+  var asyncIterator = function (iterable) {
+    if (typeof Symbol === "function") {
+      if (Symbol.asyncIterator) {
+        var method = iterable[Symbol.asyncIterator];
+        if (method != null) return method.call(iterable);
+      }
+
+      if (Symbol.iterator) {
+        return iterable[Symbol.iterator]();
+      }
+    }
+
+    throw new TypeError("Object is not async iterable");
+  };
+
   var asyncGenerator = function () {
     function AwaitValue(value) {
       this.value = value;
@@ -117,6 +182,87 @@
     };
   }();
 
+  var asyncGeneratorDelegate = function (inner, awaitWrap) {
+    var iter = {},
+        waiting = false;
+
+    function pump(key, value) {
+      waiting = true;
+      value = new Promise(function (resolve) {
+        resolve(inner[key](value));
+      });
+      return {
+        done: false,
+        value: awaitWrap(value)
+      };
+    }
+
+    ;
+
+    if (typeof Symbol === "function" && Symbol.iterator) {
+      iter[Symbol.iterator] = function () {
+        return this;
+      };
+    }
+
+    iter.next = function (value) {
+      if (waiting) {
+        waiting = false;
+        return value;
+      }
+
+      return pump("next", value);
+    };
+
+    if (typeof inner.throw === "function") {
+      iter.throw = function (value) {
+        if (waiting) {
+          waiting = false;
+          throw value;
+        }
+
+        return pump("throw", value);
+      };
+    }
+
+    if (typeof inner.return === "function") {
+      iter.return = function (value) {
+        return pump("return", value);
+      };
+    }
+
+    return iter;
+  };
+
+  var asyncToGenerator = function (fn) {
+    return function () {
+      var gen = fn.apply(this, arguments);
+      return new Promise(function (resolve, reject) {
+        function step(key, arg) {
+          try {
+            var info = gen[key](arg);
+            var value = info.value;
+          } catch (error) {
+            reject(error);
+            return;
+          }
+
+          if (info.done) {
+            resolve(value);
+          } else {
+            return Promise.resolve(value).then(function (value) {
+              step("next", value);
+            }, function (err) {
+              step("throw", err);
+            });
+          }
+        }
+
+        return step("next");
+      });
+    };
+  };
+
   var classCallCheck = function (instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
@@ -140,6 +286,47 @@
       return Constructor;
     };
   }();
+
+  var defineEnumerableProperties = function (obj, descs) {
+    for (var key in descs) {
+      var desc = descs[key];
+      desc.configurable = desc.enumerable = true;
+      if ("value" in desc) desc.writable = true;
+      Object.defineProperty(obj, key, desc);
+    }
+
+    return obj;
+  };
+
+  var defaults = function (obj, defaults) {
+    var keys = Object.getOwnPropertyNames(defaults);
+
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var value = Object.getOwnPropertyDescriptor(defaults, key);
+
+      if (value && value.configurable && obj[key] === undefined) {
+        Object.defineProperty(obj, key, value);
+      }
+    }
+
+    return obj;
+  };
+
+  var defineProperty = function (obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  };
 
   var _extends = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
@@ -196,12 +383,172 @@
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   };
 
+  var _instanceof = function (left, right) {
+    if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+      return right[Symbol.hasInstance](left);
+    } else {
+      return left instanceof right;
+    }
+  };
+
+  var interopRequireDefault = function (obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  };
+
+  var interopRequireWildcard = function (obj) {
+    if (obj && obj.__esModule) {
+      return obj;
+    } else {
+      var newObj = {};
+
+      if (obj != null) {
+        for (var key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+        }
+      }
+
+      newObj.default = obj;
+      return newObj;
+    }
+  };
+
+  var newArrowCheck = function (innerThis, boundThis) {
+    if (innerThis !== boundThis) {
+      throw new TypeError("Cannot instantiate an arrow function");
+    }
+  };
+
+  var objectDestructuringEmpty = function (obj) {
+    if (obj == null) throw new TypeError("Cannot destructure undefined");
+  };
+
+  var objectWithoutProperties = function (obj, keys) {
+    var target = {};
+
+    for (var i in obj) {
+      if (keys.indexOf(i) >= 0) continue;
+      if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
+      target[i] = obj[i];
+    }
+
+    return target;
+  };
+
   var possibleConstructorReturn = function (self, call) {
     if (!self) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
 
     return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  };
+
+  var selfGlobal = typeof global === "undefined" ? self : global;
+
+  var set = function set(object, property, value, receiver) {
+    var desc = Object.getOwnPropertyDescriptor(object, property);
+
+    if (desc === undefined) {
+      var parent = Object.getPrototypeOf(object);
+
+      if (parent !== null) {
+        set(parent, property, value, receiver);
+      }
+    } else if ("value" in desc && desc.writable) {
+      desc.value = value;
+    } else {
+      var setter = desc.set;
+
+      if (setter !== undefined) {
+        setter.call(receiver, value);
+      }
+    }
+
+    return value;
+  };
+
+  var slicedToArray = function () {
+    function sliceIterator(arr, i) {
+      var _arr = [];
+      var _n = true;
+      var _d = false;
+      var _e = undefined;
+
+      try {
+        for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+          _arr.push(_s.value);
+
+          if (i && _arr.length === i) break;
+        }
+      } catch (err) {
+        _d = true;
+        _e = err;
+      } finally {
+        try {
+          if (!_n && _i["return"]) _i["return"]();
+        } finally {
+          if (_d) throw _e;
+        }
+      }
+
+      return _arr;
+    }
+
+    return function (arr, i) {
+      if (Array.isArray(arr)) {
+        return arr;
+      } else if (Symbol.iterator in Object(arr)) {
+        return sliceIterator(arr, i);
+      } else {
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      }
+    };
+  }();
+
+  var slicedToArrayLoose = function (arr, i) {
+    if (Array.isArray(arr)) {
+      return arr;
+    } else if (Symbol.iterator in Object(arr)) {
+      var _arr = [];
+
+      for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
+        _arr.push(_step.value);
+
+        if (i && _arr.length === i) break;
+      }
+
+      return _arr;
+    } else {
+      throw new TypeError("Invalid attempt to destructure non-iterable instance");
+    }
+  };
+
+  var taggedTemplateLiteral = function (strings, raw) {
+    return Object.freeze(Object.defineProperties(strings, {
+      raw: {
+        value: Object.freeze(raw)
+      }
+    }));
+  };
+
+  var taggedTemplateLiteralLoose = function (strings, raw) {
+    strings.raw = raw;
+    return strings;
+  };
+
+  var temporalRef = function (val, name, undef) {
+    if (val === undef) {
+      throw new ReferenceError(name + " is not defined - temporal dead zone");
+    } else {
+      return val;
+    }
+  };
+
+  var temporalUndefined = {};
+
+  var toArray = function (arr) {
+    return Array.isArray(arr) ? arr : Array.from(arr);
   };
 
   var toConsumableArray = function (arr) {
@@ -213,6 +560,8 @@
       return Array.from(arr);
     }
   };
+
+  babelHelpers;
 
   var Annotation = function () {
     function Annotation(_ref) {
@@ -528,6 +877,61 @@
     }
 
     return h;
+  };
+
+  var rectHandles = function rectHandles(_ref3) {
+    var _ref3$x = _ref3.x1,
+        x1 = _ref3$x === undefined ? 0 : _ref3$x,
+        _ref3$y = _ref3.y1,
+        y1 = _ref3$y === undefined ? 0 : _ref3$y,
+        _ref3$x2 = _ref3.x2,
+        x2 = _ref3$x2 === undefined ? x1 : _ref3$x2,
+        _ref3$y2 = _ref3.y2,
+        y2 = _ref3$y2 === undefined ? y1 : _ref3$y2,
+        width = _ref3.width,
+        height = _ref3.height;
+
+
+    var w = width || Math.abs(x2 - x1);
+    var h = height || Math.abs(y2 - y1);
+
+    return {
+      move: {
+        x: Math.min(x1, x2) + w / 2,
+        y: Math.min(y1, y2) - 10
+      },
+      width: {
+        x: Math.max(x1, x2),
+        y: Math.min(y1, y2) + h / 2
+      },
+      height: {
+        x: Math.min(x1, x2) + w / 2,
+        y: Math.max(y1, y2)
+      }
+    };
+  };
+
+  var lineHandles = function lineHandles(_ref4) {
+    var x1 = _ref4.x1,
+        y1 = _ref4.y1,
+        x2 = _ref4.x2,
+        y2 = _ref4.y2,
+        x = _ref4.x,
+        y = _ref4.y;
+
+
+    var minY = Math.min(y1, y2);
+    var minX = Math.min(x1, x2);
+
+    var height = Math.abs(y2 - y1);
+    var width = Math.abs(x2 - x1);
+
+    return {
+      move: {
+        x: x || minX + width / 2,
+        y: y || minY + height / 2
+      }
+    };
   };
 
   //arc handles
@@ -1508,7 +1912,6 @@
 
       var _this4 = possibleConstructorReturn(this, (d3NoteText.__proto__ || Object.getPrototypeOf(d3NoteText)).call(this, params));
 
-      console.log('in constructor for note text', params, _this4.typeSettings);
       _this4.textWrap = params.textWrap || 120;
       _this4.drawText();
       return _this4;
@@ -1537,7 +1940,6 @@
 
           var titleBBox = { height: 0 };
           var label = this.a.select('text.annotation-note-label');
-          console.log('in wrap length', this.typeSettings);
           var wrapLength = this.annotation.note && this.annotation.note.wrap || this.typeSettings && this.typeSettings.note && this.typeSettings.note.wrap || this.textWrap;
 
           if (this.annotation.note.title) {
@@ -1696,6 +2098,19 @@
       p.height += bbox.height;
       return p;
     }, { x: 0, y: 0, width: 0, height: 0 });
+  };
+
+  {
+    Type: Type,
+    d3Label: d3Label,
+    d3Callout: d3Callout,
+    d3CalloutElbow: d3CalloutElbow,
+    d3CalloutCurve: d3CalloutCurve,
+    d3CalloutCircle: d3CalloutCircle,
+    d3CalloutRect: d3CalloutRect,
+    d3XYThreshold: d3XYThreshold,
+    d3Badge: d3Badge,
+    customType: customType
   };
 
   function annotation() {
