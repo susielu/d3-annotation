@@ -21,28 +21,28 @@ type BBox = {
 
 export default class Annotation {
 
-  className: any;
-  x: any;
-  y: any;
-  dx: any;
-  dy: any;
+  className: string;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
   offset: {
-    x: any;
-    y: any;
+    x: number;
+    y: number;
   };
   position: {
-    x: any;
-    y: any;
+    x: number;
+    y: number;
   };
   readonly translation: {
-    x: any;
-    y: any;
+    x: number;
+    y: number;
   };
   readonly json: {
-    x: any;
-    y: any;
-    dx: any;
-    dy: any;
+    x: number;
+    y: number;
+    dx: number;
+    dy: number;
   };
 
   constructor({ x, y, dy, dx, data, type, subject, connector, note, disable, id, className }: {
@@ -57,7 +57,7 @@ export default class Annotation {
     note: any;
     disable: any;
     id: any;
-    className: any;
+    className: string;
   });
 
   updatePosition(): void;
