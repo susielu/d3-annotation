@@ -153,8 +153,18 @@ export class Type {
     const line = components[0]
     const endType = connectorData.end || context.end
     let end = {}
-    if (endType === "arrow") end = connectorArrow({ annotation: this.annotation, start: line.data[1], end: line.data[0] })
-    else if (endType === "dot") end = connectorDot({ line })
+    if (endType === "arrow") {
+      let s = line.data[1]
+      const e = line.data[0]
+      const distance = Math.sqrt(Math.pow((s[0] - e[0]),2) + Math.pow((s[1] - e[1]),2))
+      if (distance < 5 && line.data[2]) {
+        s = line.data[2]
+      }
+
+      end = connectorArrow({ annotation: this.annotation, start: s, end: e })
+    } else if (endType === "dot") {
+      end = connectorDot({ line })
+    }
 
     if (end.components){ components = components.concat(end.components)}
 
