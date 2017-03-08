@@ -1271,7 +1271,18 @@
         var line = components[0];
         var endType = connectorData.end || context.end;
         var end = {};
-        if (endType === "arrow") end = connectorArrow({ annotation: this.annotation, start: line.data[1], end: line.data[0] });else if (endType === "dot") end = connectorDot({ line: line });
+        if (endType === "arrow") {
+          var s = line.data[1];
+          var e = line.data[0];
+          var distance = Math.sqrt(Math.pow(s[0] - e[0], 2) + Math.pow(s[1] - e[1], 2));
+          if (distance < 5 && line.data[2]) {
+            s = line.data[2];
+          }
+
+          end = connectorArrow({ annotation: this.annotation, start: s, end: e });
+        } else if (endType === "dot") {
+          end = connectorDot({ line: line });
+        }
 
         if (end.components) {
           components = components.concat(end.components);

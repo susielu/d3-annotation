@@ -1120,7 +1120,6 @@ $(document).ready(function () {
     d3.select(".sandbox g.sandbox-annotations").remove();
 
     var subject = types[typeKey].subject || {};
-    console.log("subjec", subject);
     makeAnnotations.type(currentType, { subject: subject, connector: newSettings && newSettings.connector });
 
     d3.select(".sandbox").append("g").attr("class", "sandbox-annotations").call(makeAnnotations);

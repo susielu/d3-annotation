@@ -349,7 +349,6 @@ $(document).ready(function(){
           .remove()
 
         const subject = types[typeKey].subject || {}
-        console.log("subjec", subject)
         makeAnnotations.type( currentType, { subject, connector: newSettings && newSettings.connector } )
       
         d3.select(".sandbox")
