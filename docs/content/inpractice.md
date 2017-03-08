@@ -11,11 +11,12 @@ They are the foundational blocks of this library.
 Settings for subject types are in the annotation object's <code>.subject</code>:
 
 ```js
-const annotations = [{ note: { label: "Hi"},
+const annotations = [{
+  note: { label: "Hi"},
   x: 100, y 100,
-  dy: 137, dx: 162
-  subject: { radius: 50, radiusPadding: 10 }]
-}
+  dy: 137, dx: 162,
+  subject: { radius: 50, radiusPadding: 10 }
+}]
 
 d3.annotation().annotations(annotations)
 ```
@@ -46,38 +47,38 @@ d3.annotation().annotations(annotations)
 
 The Options panel in the [Annotation Types UI](#types) exposes all of the options for connectors and notes. So the "Line Type" in the UI maps to <code>{ connector: { lineType : "horizontal" } }</code>
 
-There are two ways to customize the connectors and notes. You can either change these properties per annotation: 
+There are two ways to customize the connectors and notes. You can either change these properties per annotation:
 
 ```js
-const annotations = [{ note: { label: "Hi"},
+const annotations = [{
+  note: { label: "Hi"},
   x: 100, y 100,
   dy: 137, dx: 162,
   type: d3.annotationCalloutElbow,
-  connector: { end: "arrow" }]
-}
+  connector: { end: "arrow" }
+}]
 
 d3.annotation().annotations(annotations)
 ```
 
-Or if you want all of the annotations to have these settings create a custom type with 
+Or if you want all of the annotations to have these settings create a custom type with
 **d3.annotationCustomType(annotationType, typeSettings)**:
 
 ```js
 const calloutWithArrow =
   d3.annotationCustomType(
     d3.annotationCalloutElbow,
-    { connector:{ end: "arrow" }}
+    { connector: { end: "arrow" }}
   )
 
 d3.annotation()
   .type(calloutWithArrow)
   .annotations([{
-      text: "Plant paradise",
-      data: {date: "18-Sep-09",
-      close: 185.02},
-      dy: 37,
-      dx: 42
-    }])
+    text: "Plant paradise",
+    data: { date: "18-Sep-09", close: 185.02 },
+    dy: 37,
+    dx: 42
+  }])
   .editMode(true)
 ```
 Both examples above produce the same results.
@@ -87,7 +88,7 @@ Both examples above produce the same results.
 
 - All of the visible shapes (aside from the edit handles) in the default annotations are **paths**
 - There is an invisible rect (<code>rect.annotation-note-bg</code>) behind the text in the notes as a helper for more click area etc.
-- Hierarchy of classes: 
+- Hierarchy of classes:
 ![Annotation classes](img/classes.png)
 - Within the g.annotation-note-content there could be three additional elements: <code>text.annotation-note-label</code>, <code>text.annotation-note-title</code>, <code>rect.annotation-note-bg</code>
 
@@ -114,12 +115,12 @@ Example showing how to dynamically change anntation types
 
 <h3 id="overlapping"><a href="#overlapping">#</a>Example: Overlapping</h3>
 
-Moving annotations algorithmically to prevent overlap using rect collision 
+Moving annotations algorithmically to prevent overlap using rect collision
 [![Annotation overalapping]](img/overlapping.png)](https://bl.ocks.org/emeeks/625641430adead4bd7dbc9c1ab3f5102)
 
 <h3 id="encircle"><a href="#encircle">#</a>Example: Encircling</h3>
 
-Annotations following a set of points using d3.packEnclose 
+Annotations following a set of points using d3.packEnclose
 [![Annotation encircling]](img/encircle.png)](https://bl.ocks.org/susielu/24ad9f80b9b681ce967f6005a03384f3)
 
 <h3 id="circle-pack"><a href="#circle-pack">#</a>Example: Reimagining the Circle Pack</h3>
