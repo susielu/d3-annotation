@@ -2,25 +2,36 @@ import babel from 'rollup-plugin-babel';
 import babelrc from 'babelrc-rollup';
 
 let pkg = require('./package.json');
-let external = Object.keys(pkg.dependencies);
 
 export default {
   entry: 'index.js',
   plugins: [
     babel(babelrc())
   ],
-  external: external,
   targets: [
     {
       dest: pkg['main'],
       format: 'umd',
-      moduleName: 'indexRollup',
-      sourceMap: true
+      moduleName: 'd3',
+      sourceMap: true,
+      globals: {
+        'd3-selection': 'd3',
+        'd3-dispatch': 'd3',
+        'd3-shape': 'd3',
+        'd3-drag': 'd3'
+      }
     },
     {
       dest: pkg['jsnext:main'],
       format: 'es',
-      sourceMap: true
+      moduleName: 'd3',
+      sourceMap: true,
+      globals: {
+        'd3-selection': 'd3',
+        'd3-dispatch': 'd3',
+        'd3-shape': 'd3',
+        'd3-drag': 'd3'
+      }
     }
   ]
 };

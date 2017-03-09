@@ -3,12 +3,14 @@
   "version": "1.5.0",
   "description": "",
   "main": "indexRollup.js",
-  "jsnext:main": "indexRollup.mjs",
+  "jsnext:main": "indexRollupNext.js",
+  "module": "indexRollupNext.js",
   "files": [
     "index.js",
     "indexRollup.js",
     "indexRollup.js.map",
-    "indexRollup.mjs",
+    "indexRollupNext.js",
+    "indexRollupNext.js.map",
     "d3-annotation.*",
     "types/*"
   ],
@@ -25,9 +27,9 @@
     "marked": "0.3.6",
     "markedify": "0.0.2",
     "npm-watch": "0.1.6",
-    "rollup": "0.34.7",
+    "rollup": "0.41.4",
     "rollup-plugin-babel": "2.6.1",
-    "uglify-js": "^2.8.1"
+    "uglify-js": "2.8.1"
   },
   "scripts": {
     "start": "npm run server & npm run watch",

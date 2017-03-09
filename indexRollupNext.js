@@ -1,8 +1,7 @@
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3-selection'), require('d3-drag'), require('d3-shape'), require('d3-dispatch')) :
-	typeof define === 'function' && define.amd ? define(['exports', 'd3-selection', 'd3-drag', 'd3-shape', 'd3-dispatch'], factory) :
-	(factory((global.d3 = global.d3 || {}),global.d3,global.d3,global.d3,global.d3));
-}(this, (function (exports,d3Selection,d3Drag,d3Shape,d3Dispatch) { 'use strict';
+import { event, select } from 'd3-selection';
+import { drag } from 'd3-drag';
+import { arc, curveCatmullRom, curveLinear, line } from 'd3-shape';
+import { dispatch } from 'd3-dispatch';
 
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -466,7 +465,7 @@ var addHandles = function addHandles(_ref5) {
   //then give it instructions on what the handles change 
   var h = group.selectAll('circle.handle').data(handles);
 
-  h.enter().append('circle').attr('class', 'handle').call(d3Drag.drag().container(d3Selection.select('g.annotations').node()).on('start', function (d) {
+  h.enter().append('circle').attr('class', 'handle').call(drag().container(select('g.annotations').node()).on('start', function (d) {
     return d.start && d.start(d);
   }).on('drag', function (d) {
     return d.drag && d.drag(d);
@@ -553,11 +552,11 @@ var noteAlignment = (function (_ref) {
 var lineBuilder = function lineBuilder(_ref) {
   var data = _ref.data,
       _ref$curve = _ref.curve,
-      curve = _ref$curve === undefined ? d3Shape.curveLinear : _ref$curve,
+      curve = _ref$curve === undefined ? curveLinear : _ref$curve,
       canvasContext = _ref.canvasContext,
       className = _ref.className;
 
-  var lineGen = d3Shape.line().curve(curve);
+  var lineGen = line().curve(curve);
 
   var builder = {
     type: 'path',
@@ -589,7 +588,7 @@ var arcBuilder = function arcBuilder(_ref2) {
     data: data
   };
 
-  var arcShape = d3Shape.arc().innerRadius(data.innerRadius || 0).outerRadius(data.outerRadius || data.radius || 2).startAngle(data.startAngle || 0).endAngle(data.endAngle || 2 * Math.PI);
+  var arcShape = arc().innerRadius(data.innerRadius || 0).outerRadius(data.outerRadius || data.radius || 2).startAngle(data.startAngle || 0).endAngle(data.endAngle || 2 * Math.PI);
 
   if (canvasContext) {
     arcShape.context(canvasContext);
@@ -779,7 +778,7 @@ var connectorCurve = (function (_ref) {
     connectorData.points = createPoints(type.annotation.offset, connectorData.points);
   }
   if (!connectorData.curve) {
-    connectorData.curve = d3Shape.curveCatmullRom;
+    connectorData.curve = curveCatmullRom;
   }
 
   var handles = [];
@@ -791,8 +790,8 @@ var connectorCurve = (function (_ref) {
       });
 
       var updatePoint = function updatePoint(index) {
-        connectorData.points[index][0] += d3Selection.event.dx;
-        connectorData.points[index][1] += d3Selection.event.dy;
+        connectorData.points[index][0] += event.dx;
+        connectorData.points[index][1] += event.dy;
         type.redrawConnector();
       };
 
@@ -899,7 +898,7 @@ var subjectCircle = (function (_ref) {
     });
 
     var updateRadius = function updateRadius(attr) {
-      var r = subjectData[attr] + d3Selection.event.dx * Math.sqrt(2);
+      var r = subjectData[attr] + event.dx * Math.sqrt(2);
       subjectData[attr] = r;
       type.redrawSubject();
       type.redrawConnector();
@@ -938,13 +937,13 @@ var subjectRect = (function (_ref) {
   if (type.editMode) {
 
     var updateWidth = function updateWidth(attr) {
-      subjectData.width = d3Selection.event.x;
+      subjectData.width = event.x;
       type.redrawSubject();
       type.redrawConnector();
     };
 
     var updateHeight = function updateHeight() {
-      subjectData.height = d3Selection.event.y;
+      subjectData.height = event.y;
       type.redrawSubject();
       type.redrawConnector();
     };
@@ -999,8 +998,8 @@ var subjectBadge = (function (_ref) {
   if (type.editMode) {
 
     var dragBadge = function dragBadge() {
-      subjectData.x = d3Selection.event.x < 0 ? "left" : "right";
-      subjectData.y = d3Selection.event.y < 0 ? "top" : "bottom";
+      subjectData.x = event.x < 0 ? "left" : "right";
+      subjectData.y = event.y < 0 ? "top" : "bottom";
       type.redrawSubject();
     };
 
@@ -1335,7 +1334,7 @@ var Type = function () {
   }, {
     key: 'dragstarted',
     value: function dragstarted() {
-      d3Selection.event.sourceEvent.stopPropagation();
+      event.sourceEvent.stopPropagation();
       this.a.classed("dragging", true);
       this.a.selectAll("circle.handle").style("pointer-events", "none");
     }
@@ -1349,16 +1348,16 @@ var Type = function () {
     key: 'dragSubject',
     value: function dragSubject() {
       var position = this.annotation.position;
-      position.x += d3Selection.event.dx;
-      position.y += d3Selection.event.dy;
+      position.x += event.dx;
+      position.y += event.dy;
       this.annotation.position = position;
     }
   }, {
     key: 'dragNote',
     value: function dragNote() {
       var offset = this.annotation.offset;
-      offset.x += d3Selection.event.dx;
-      offset.y += d3Selection.event.dy;
+      offset.x += event.dx;
+      offset.y += event.dy;
       this.annotation.offset = offset;
     }
   }, {
@@ -1594,7 +1593,7 @@ var addHandlers = function addHandlers(dispatcher, annotation, _ref3) {
 //Text wrapping code adapted from Mike Bostock
 var wrap = function wrap(text, width) {
   text.each(function () {
-    var text = d3Selection.select(this),
+    var text = select(this),
         words = text.text().split(/[ \t\r\n]+/).reverse(),
         word,
         line$$1 = [],
@@ -1648,7 +1647,7 @@ function annotation() {
       type = d3Callout,
       textWrap = void 0,
       notePadding = void 0,
-      annotationDispatcher = d3Dispatch.dispatch("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "noteover", "noteout", "noteclick"),
+      annotationDispatcher = dispatch("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "noteover", "noteout", "noteclick"),
       sel = void 0;
 
   var annotation = function annotation(selection) {
@@ -1684,7 +1683,7 @@ function annotation() {
     var annotation = group.selectAll('g.annotation');
 
     annotation.each(function (d) {
-      var a = d3Selection.select(this);
+      var a = select(this);
       var position = d.position;
 
       a.attr('class', 'annotation');
@@ -1849,20 +1848,5 @@ var index = {
   annotationCustomType: customType
 };
 
-exports.annotation = annotation;
-exports.annotationTypeBase = Type;
-exports.annotationLabel = d3Label;
-exports.annotationCallout = d3Callout;
-exports.annotationCalloutCurve = d3CalloutCurve;
-exports.annotationCalloutElbow = d3CalloutElbow;
-exports.annotationCalloutCircle = d3CalloutCircle;
-exports.annotationCalloutRect = d3CalloutRect;
-exports.annotationXYThreshold = d3XYThreshold;
-exports.annotationBadge = d3Badge;
-exports.annotationCustomType = customType;
-exports['default'] = index;
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-})));
-//# sourceMappingURL=indexRollup.js.map
+export { annotation, Type as annotationTypeBase, d3Label as annotationLabel, d3Callout as annotationCallout, d3CalloutCurve as annotationCalloutCurve, d3CalloutElbow as annotationCalloutElbow, d3CalloutCircle as annotationCalloutCircle, d3CalloutRect as annotationCalloutRect, d3XYThreshold as annotationXYThreshold, d3Badge as annotationBadge, customType as annotationCustomType };export default index;
+//# sourceMappingURL=indexRollupNext.js.map

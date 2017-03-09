@@ -1,6 +1,5 @@
 import { select, event } from 'd3-selection'
 import { drag } from 'd3-drag'
-import { Annotation } from './Annotation'
 import { addHandles } from './Handles'
 
 //Note options
