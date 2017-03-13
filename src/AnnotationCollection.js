@@ -1,12 +1,12 @@
 export default class AnnotationCollection {
 
-  constructor({ annotations, accessors, accessorsInverse }) {
+  constructor ({ annotations, accessors, accessorsInverse }) {
     this.accessors = accessors
     this.accessorsInverse = accessorsInverse
     this.annotations = annotations
   }
 
-  clearTypes(newSettings) {
+  clearTypes (newSettings) {
     this.annotations.forEach(d => {
       d.type = undefined
       d.subject = newSettings && newSettings.subject || d.subject
@@ -15,54 +15,54 @@ export default class AnnotationCollection {
     })
   }
 
-  setPositionWithAccessors() {
+  setPositionWithAccessors () {
     this.annotations.forEach(d => {
       d.type.setPositionWithAccessors(this.accessors)
     })
   }
 
-  editMode(editMode) { this.annotations.forEach(a => {
-      if (a.type) {
-        a.type.editMode = editMode
-        a.type.updateEditMode()
-      }
-    })
+  editMode (editMode) { this.annotations.forEach(a => {
+    if (a.type) {
+      a.type.editMode = editMode
+      a.type.updateEditMode()
+    }
+  })
   }
 
-  updateDisable(disable) {
+  updateDisable (disable) {
     this.annotations.forEach(a => {
       a.disable = disable
-      if (a.type){
+      if (a.type) {
         disable.forEach(d => {
-          if (a.type[d]){
-          a.type[d].remove && a.type[d].remove()
-          a.type[d] = undefined
+          if (a.type[d]) {
+            a.type[d].remove && a.type[d].remove()
+            a.type[d] = undefined
           }
         })
       }
     })
   }
 
-  updateTextWrap(textWrap) {
+  updateTextWrap (textWrap) {
     this.annotations.forEach(a => {
-      if (a.type && a.type.updateTextWrap){
+      if (a.type && a.type.updateTextWrap) {
         a.type.updateTextWrap(textWrap)
       }
     })
   }
 
-  updateNotePadding(notePadding) {
+  updateNotePadding (notePadding) {
     this.annotations.forEach(a => {
-      if (a.type){
+      if (a.type) {
         a.type.notePadding = notePadding
       }
     })
   }
 
-  get json() { 
+  get json () { 
     return this.annotations.map(a => {      
       const json = a.json
-      if (this.accessorsInverse && a.data){
+      if (this.accessorsInverse && a.data) {
         json.data = {}
         Object.keys(this.accessorsInverse).forEach(k => {
           json.data[k] = this.accessorsInverse[k]({ x: a.x, y: a.y})
@@ -74,7 +74,7 @@ export default class AnnotationCollection {
     })
   }
 
-  get noteNodes(){
+  get noteNodes () {
     return this.annotations.map(a => ({ ...a.type.getNoteBBoxOffset(), positionX: a.x, positionY: a.y }))
   }
 

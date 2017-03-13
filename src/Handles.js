@@ -1,7 +1,6 @@
 import { select } from 'd3-selection'
 import { drag } from 'd3-drag'
 
-
 export const pointHandle = ({ cx=0, cy=0 }) => {
   return { move: { x: cx, y: cy} }
 }
@@ -65,7 +64,7 @@ export const lineHandles = ({ x1, y1, x2, y2, x, y}) => {
 export const addHandles = ({ group, handles, r=10}) => { 
    //give it a group and x,y to draw handles
    //then give it instructions on what the handles change 
-   const h = group.selectAll('circle.handle')
+  const h = group.selectAll('circle.handle')
     .data(handles)
 
   h.enter()

@@ -1,4 +1,4 @@
-import { line, arc, curveLinear, symbol, symbolTriangle } from "d3-shape"
+import { line, arc, curveLinear } from "d3-shape"
 
 export const lineBuilder = ({ data, curve=curveLinear, canvasContext, className }) => { 
   const lineGen = line()

@@ -1,6 +1,6 @@
 
 export default class Annotation {
-  constructor({ x=0, y=0, dy=0, dx=0, data, type, subject, connector, note, 
+  constructor ({ x=0, y=0, dy=0, dx=0, data, type, subject, connector, note, 
     disable, id, className }) {
 
     this._dx = dx
@@ -20,7 +20,7 @@ export default class Annotation {
     this.disable = disable || []
   }
 
-  updatePosition(){
+  updatePosition () {
     if (this.type.setPosition) { 
       this.type.setPosition() 
       if (this.type.subject.selectAll(':not(.handle)').nodes().length !== 0) {
@@ -29,14 +29,14 @@ export default class Annotation {
     }
   }
 
-  get className() { return this._className }
+  get className () { return this._className }
 
-  set className(className){
+  set className (className) {
     this._className = className
     if (this.type.setClassName) this.type.setClassName()
   }
 
-  updateOffset(){
+  updateOffset () {
     if (this.type.setOffset) {
       this.type.setOffset() 
             
@@ -48,53 +48,53 @@ export default class Annotation {
     }
   }
 
-  get x() { return this._x }
-  set x(x) { 
+  get x () { return this._x }
+  set x (x) { 
     this._x = x; 
     this.updatePosition()
   }
 
-  get y() { return this._y }
-  set y(y) { 
+  get y () { return this._y }
+  set y (y) { 
     this._y = y; 
     this.updatePosition()
   }
 
-  get dx() { return this._dx }
-  set dx(dx) { 
+  get dx () { return this._dx }
+  set dx (dx) { 
     this._dx = dx; 
     this.updateOffset()
   }
 
-  get dy() { return this._dy }
-  set dy(dy) { 
+  get dy () { return this._dy }
+  set dy (dy) { 
     this._dy = dy; 
     this.updateOffset()
   }
 
-  get offset() { return { x: this._dx, y: this._dy }}
+  get offset () { return { x: this._dx, y: this._dy }}
 
-  set offset({ x, y }) {
+  set offset ({ x, y }) {
     this._dx = x
     this._dy = y
     this.updateOffset()
   }
 
-  get position() { return { x: this._x, y: this._y }}
+  get position () { return { x: this._x, y: this._y }}
 
-  set position({ x, y }) {
+  set position ({ x, y }) {
     this._x = x
     this._y = y
     this.updatePosition()
   }
 
-  get translation() {
+  get translation () {
     return {
-    x: this._x + this._dx,
-    y: this._y + this._dy
-  }}
+      x: this._x + this._dx,
+      y: this._y + this._dy
+    }}
 
-  get json() { 
+  get json () { 
     const json = {
       x: this._x,
       y: this._y,

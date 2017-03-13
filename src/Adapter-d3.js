@@ -5,7 +5,7 @@ import { select } from 'd3-selection'
 import { dispatch } from 'd3-dispatch';
 
 
-export default function annotation(){
+export default function annotation () {
   let annotations = [],
     collection,
     context, //TODO: add canvas functionality
@@ -23,10 +23,10 @@ export default function annotation(){
     "noteover", "noteout", "noteclick"),
     sel;
 
-  const annotation = function(selection){
+  const annotation = function (selection) {
     sel = selection
     //TODO: check to see if this is still needed    
-    if (!editMode){
+    if (!editMode) {
       selection.selectAll("circle.handle")
         .remove()
     }
@@ -55,9 +55,8 @@ export default function annotation(){
     const annotation = group.selectAll('g.annotation')
     
     annotation 
-      .each(function(d) {
+      .each(function (d) {
         const a = select(this)
-        const position = d.position
 
         a.attr('class', 'annotation')
 
@@ -72,26 +71,26 @@ export default function annotation(){
       })
   }
 
-  annotation.json = function() {
+  annotation.json = function () {
     console.log('Annotations JSON was copied to your clipboard. Please note the annotation type is not JSON compatible. It appears in the objects array in the console, but not in the copied JSON.', collection.json)
     window.copy(JSON.stringify(collection.json.map(a => { delete a.type; return a })))
     return annotation
   }
 
-  annotation.update = function(){
-    if (annotations && collection){
-      annotations = collection.annotations.map((a, i) => { a.type.draw(); return a }) 
+  annotation.update = function () {
+    if (annotations && collection) {
+      annotations = collection.annotations.map(a => { a.type.draw(); return a }) 
     }
     return annotation
   }
 
-  annotation.updatedAccessors = function(){
+  annotation.updatedAccessors = function () {
     collection.setPositionWithAccessors()
     annotations = collection.annotations
     return annotation
   }
 
-  annotation.disable = function(_){
+  annotation.disable = function (_) {
     if (!arguments.length) return disable;
     disable = _
     if (collection) { 
@@ -101,7 +100,7 @@ export default function annotation(){
     return annotation;
   }
 
-  annotation.textWrap = function(_){
+  annotation.textWrap = function (_) {
     if (!arguments.length) return textWrap;
     textWrap = _
     if (collection) { 
@@ -111,7 +110,7 @@ export default function annotation(){
     return annotation;
   }
 
-  annotation.notePadding = function(_){
+  annotation.notePadding = function (_) {
     if (!arguments.length) return notePadding;
     notePadding = _
     if (collection) { 
@@ -121,7 +120,7 @@ export default function annotation(){
     return annotation;
   }
 
-  annotation.type = function(_, settings) {
+  annotation.type = function (_, settings) {
     if (!arguments.length) return type;
     type = _;
     if (collection) { 
@@ -144,41 +143,41 @@ export default function annotation(){
     return annotation;
   }
 
-  annotation.annotations = function(_) {
+  annotation.annotations = function (_) {
     if (!arguments.length) return collection && collection.annotations || annotations;
     annotations = _
     return annotation;
   };
 
-  annotation.context = function(_) {
+  annotation.context = function (_) {
     if (!arguments.length) return context;
     context = _
     return annotation;
   }; 
 
-  annotation.accessors = function(_) {
+  annotation.accessors = function (_) {
     if (!arguments.length) return accessors;
     accessors = _;
     return annotation
   }
 
-  annotation.accessorsInverse = function(_) {
+  annotation.accessorsInverse = function (_) {
     if (!arguments.length) return accessorsInverse;
     accessorsInverse = _;
     return annotation
   }
 
-  annotation.ids = function(_) {
+  annotation.ids = function (_) {
     if (!arguments.length) return ids;
     ids = _;
     return annotation
   }
 
-  annotation.editMode = function(_) {
+  annotation.editMode = function (_) {
     if (!arguments.length) return editMode;
     editMode = _
 
-    if (sel){
+    if (sel) {
       sel.selectAll('g.annotation')
         .classed('editable', editMode)
     }
@@ -190,13 +189,13 @@ export default function annotation(){
     return annotation
   }
 
-  annotation.collection = function(_) {
+  annotation.collection = function (_) {
     if (!arguments.length) return collection;
     collection = _
     return annotation
   }
 
-  annotation.on = function(){
+  annotation.on = function () {
     const value = annotationDispatcher.on.apply(annotationDispatcher, arguments)
     return value === annotationDispatcher ? annotation : value;
   }

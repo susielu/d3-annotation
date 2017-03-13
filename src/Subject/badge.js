@@ -1,4 +1,3 @@
-import { circleHandles } from '../Handles'
 import { lineBuilder, arcBuilder } from '../Builder'
 import { event } from 'd3-selection'
 
@@ -10,8 +9,8 @@ export default ({ subjectData, type }) => {
   let handles = []
   const radius = subjectData.radius
   const innerRadius = radius*.7
-  const x = subjectData.x == "left" ? -radius : radius
-  const y = subjectData.y == "top" ? -radius : radius
+  const x = subjectData.x === "left" ? -radius : radius
+  const y = subjectData.y === "top" ? -radius : radius
   const transform = `translate(${x}, ${y})`
   const circlebg = arcBuilder({ className: 'subject', data: { radius} }) 
   circlebg.attrs.transform = transform
@@ -23,7 +22,7 @@ export default ({ subjectData, type }) => {
     data: [[0, 0], [x, 0], [0, y], [0, 0]]
   })
 
-  if (type.editMode){
+  if (type.editMode) {
 
     const dragBadge = () => {
       subjectData.x = event.x < 0 ? "left" : "right"
@@ -37,7 +36,7 @@ export default ({ subjectData, type }) => {
   }
 
   let text
-  if (subjectData.text){
+  if (subjectData.text) {
     text = {
       type: "text",
       className: "badge-text",

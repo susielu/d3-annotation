@@ -3,10 +3,8 @@
 export default ({ noteData }) => {
 
   let components = []
-  let text
-  let title
 
-  if (noteData.text){
+  if (noteData.text) {
     text = {
       type: "text", 
       className: "noteText", 
@@ -17,7 +15,7 @@ export default ({ noteData }) => {
     }
   }
 
-  if (noteData.title){
+  if (noteData.title) {
     title = {
       type: "text", 
       className: "noteText", 

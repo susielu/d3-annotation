@@ -1,4 +1,3 @@
-import { circleHandles } from '../Handles'
 import { lineBuilder } from '../Builder'
 
 
