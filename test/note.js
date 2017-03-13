@@ -18,13 +18,20 @@ describe('Note-alignment', function () {
 
   it ('stays if orientation is top', function () {
     let a = alignment(set)
-    console.log('A', a)
     expect(a.x).to.equal(0)
     expect(a.y).to.equal(-50)
 
     a = alignment(assign(set, { orientation: "topBottom"}))
 
     expect(a.x).to.equal(0)
+    expect(a.y).to.equal(0)
+  })
+
+  it ('stays if orientation is left', function () {
+
+    a = alignment(assign(set, { orientation: "left"}))
+
+    expect(a.x).to.equal(100)
     expect(a.y).to.equal(0)
   })
 
