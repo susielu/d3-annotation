@@ -3317,7 +3317,6 @@ function annotation() {
 
     annotation.each(function (d) {
       var a = (0, _d3Selection.select)(this);
-      var position = d.position;
 
       a.attr('class', 'annotation');
 
@@ -3342,7 +3341,7 @@ function annotation() {
 
   annotation.update = function () {
     if (annotations && collection) {
-      annotations = collection.annotations.map(function (a, i) {
+      annotations = collection.annotations.map(function (a) {
         a.type.draw();return a;
       });
     }
@@ -4021,7 +4020,7 @@ exports.default = function (_ref) {
 
   var subjectData = annotation.subject;
 
-  if (subjectType == "rect") {
+  if (subjectType === "rect") {
     var width = subjectData.width,
         height = subjectData.height;
 
@@ -4032,7 +4031,7 @@ exports.default = function (_ref) {
     if (height > 0 && annotation.dy > 0 || height < 0 && annotation.dy < 0) {
       if (Math.abs(height) > Math.abs(annotation.dy)) y1 = height / 2;else y1 = height;
     }
-    if (x1 == width / 2 && y1 == height / 2) {
+    if (x1 === width / 2 && y1 === height / 2) {
       x1 = x2;y1 = y2;
     }
   }
@@ -4053,7 +4052,7 @@ exports.default = function (_ref) {
     xe = x1 + diffY * opposite;
   }
 
-  if (subjectType == "circle" && (subjectData.outerRadius || subjectData.radius)) {
+  if (subjectType === "circle" && (subjectData.outerRadius || subjectData.radius)) {
     var r = (subjectData.outerRadius || subjectData.radius) + (subjectData.radiusPadding || 0);
     var length = r / Math.sqrt(2);
 
@@ -4101,7 +4100,7 @@ var lineSetup = exports.lineSetup = function lineSetup(_ref) {
 
   var subjectData = annotation.subject;
 
-  if (subjectType == "circle" && (subjectData.outerRadius || subjectData.radius)) {
+  if (subjectType === "circle" && (subjectData.outerRadius || subjectData.radius)) {
     var h = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     var angle = Math.asin(-y2 / h);
     var r = subjectData.outerRadius || subjectData.radius + (subjectData.radiusPadding || 0);
@@ -4110,7 +4109,7 @@ var lineSetup = exports.lineSetup = function lineSetup(_ref) {
     y1 = Math.abs(Math.sin(angle) * r) * (y2 < 0 ? -1 : 1);
   }
 
-  if (subjectType == "rect") {
+  if (subjectType === "rect") {
     var width = subjectData.width,
         height = subjectData.height;
 
@@ -4121,7 +4120,7 @@ var lineSetup = exports.lineSetup = function lineSetup(_ref) {
     if (height > 0 && annotation.dy > 0 || height < 0 && annotation.dy < 0) {
       if (Math.abs(height) > Math.abs(annotation.dy)) y1 = height / 2;else y1 = height;
     }
-    if (x1 == width / 2 && y1 == height / 2) {
+    if (x1 === width / 2 && y1 === height / 2) {
       x1 = x2;y1 = y2;
     }
   }
@@ -4275,7 +4274,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var leftRightDynamic = exports.leftRightDynamic = function leftRightDynamic(align, y) {
-  if (align == "dynamic" || align == "left" || align == "right") {
+  if (align === "dynamic" || align === "left" || align === "right") {
     if (y < 0) {
       align = "top";
     } else {
@@ -4286,7 +4285,7 @@ var leftRightDynamic = exports.leftRightDynamic = function leftRightDynamic(alig
 };
 
 var topBottomDynamic = exports.topBottomDynamic = function topBottomDynamic(align, x) {
-  if (align == "dynamic" || align == "top" || align == "bottom") {
+  if (align === "dynamic" || align === "top" || align === "bottom") {
     if (x < 0) {
       align = "right";
     } else {
@@ -4296,19 +4295,25 @@ var topBottomDynamic = exports.topBottomDynamic = function topBottomDynamic(alig
   return align;
 };
 
+var orientationTopBottom = ["topBottom", "top", "bottom"];
+var orientationLeftRight = ["leftRight", "left", "right"];
+
 exports.default = function (_ref) {
-  var padding = _ref.padding,
-      bbox = _ref.bbox,
+  var _ref$padding = _ref.padding,
+      padding = _ref$padding === undefined ? 0 : _ref$padding,
+      _ref$bbox = _ref.bbox,
+      bbox = _ref$bbox === undefined ? { x: 0, y: 0, width: 0, height: 0 } : _ref$bbox,
       align = _ref.align,
       orientation = _ref.orientation,
-      offset = _ref.offset;
+      _ref$offset = _ref.offset,
+      offset = _ref$offset === undefined ? { x: 0, y: 0 } : _ref$offset;
 
   var x = -bbox.x;
   var y = -bbox.y;
 
-  if (orientation === "topBottom") {
+  if (orientationTopBottom.indexOf(orientation) !== -1) {
     align = topBottomDynamic(align, offset.x);
-    if (offset.y < 0) {
+    if (offset.y < 0 && orientation === "topBotom" || orientation === "top") {
       y -= bbox.height + padding;
     } else {
       y += padding;
@@ -4319,9 +4324,9 @@ exports.default = function (_ref) {
     } else if (align === "right") {
       x -= bbox.width;
     }
-  } else if (orientation === "leftRight") {
+  } else if (orientationLeftRight.indexOf(orientation) !== -1) {
     align = leftRightDynamic(align, offset.y);
-    if (offset.x < 0) {
+    if (offset.x < 0 && orientation === "leftRight" || orientation === "left") {
       x -= bbox.width + padding;
     } else {
       x += padding;
@@ -4355,14 +4360,13 @@ exports.default = function (_ref) {
       _ref$y = _ref.y,
       y = _ref$y === undefined ? 0 : _ref$y,
       offset = _ref.offset,
-      bbox = _ref.bbox,
-      padding = _ref.padding;
+      bbox = _ref.bbox;
 
   align = (0, _alignment.topBottomDynamic)(align, offset.x);
 
-  if (align == "right") {
+  if (align === "right") {
     x -= bbox.width;
-  } else if (align == "middle") {
+  } else if (align === "middle") {
     x -= bbox.width / 2;
   }
 
@@ -4388,14 +4392,13 @@ exports.default = function (_ref) {
       _ref$y = _ref.y,
       y = _ref$y === undefined ? 0 : _ref$y,
       bbox = _ref.bbox,
-      offset = _ref.offset,
-      padding = _ref.padding;
+      offset = _ref.offset;
 
   align = (0, _alignment.leftRightDynamic)(align, offset.y);
 
-  if (align == "top") {
+  if (align === "top") {
     y -= bbox.height;
-  } else if (align == "middle") {
+  } else if (align === "middle") {
     y -= bbox.height / 2;
   }
 
@@ -4409,8 +4412,6 @@ exports.default = function (_ref) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _Handles = require('../Handles');
 
 var _Builder = require('../Builder');
 
@@ -4427,8 +4428,8 @@ exports.default = function (_ref) {
   var handles = [];
   var radius = subjectData.radius;
   var innerRadius = radius * .7;
-  var x = subjectData.x == "left" ? -radius : radius;
-  var y = subjectData.y == "top" ? -radius : radius;
+  var x = subjectData.x === "left" ? -radius : radius;
+  var y = subjectData.y === "top" ? -radius : radius;
   var transform = 'translate(' + x + ', ' + y + ')';
   var circlebg = (0, _Builder.arcBuilder)({ className: 'subject', data: { radius: radius } });
   circlebg.attrs.transform = transform;
@@ -4469,7 +4470,7 @@ exports.default = function (_ref) {
   return { components: [pointer, circlebg, circle, text], handles: handles };
 };
 
-},{"../Builder":9,"../Handles":15,"d3-selection":4}],20:[function(require,module,exports){
+},{"../Builder":9,"d3-selection":4}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4526,8 +4527,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _Handles = require('../Handles');
-
 var _Builder = require('../Builder');
 
 var _d3Selection = require('d3-selection');
@@ -4553,7 +4552,7 @@ exports.default = function (_ref) {
 
   if (type.editMode) {
 
-    var updateWidth = function updateWidth(attr) {
+    var updateWidth = function updateWidth() {
       subjectData.width = _d3Selection.event.x;
       type.redrawSubject();
       type.redrawConnector();
@@ -4573,14 +4572,12 @@ exports.default = function (_ref) {
   return { components: [rect], handles: handles };
 };
 
-},{"../Builder":9,"../Handles":15,"d3-selection":4}],22:[function(require,module,exports){
+},{"../Builder":9,"d3-selection":4}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _Handles = require('../Handles');
 
 var _Builder = require('../Builder');
 
@@ -4599,7 +4596,7 @@ exports.default = function (_ref) {
   return { components: [(0, _Builder.lineBuilder)({ data: data, className: 'subject' })] };
 };
 
-},{"../Builder":9,"../Handles":15}],23:[function(require,module,exports){
+},{"../Builder":9}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4623,10 +4620,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 
 var _d3Selection = require('d3-selection');
-
-var _d3Drag = require('d3-drag');
-
-var _Annotation = require('./Annotation');
 
 var _Handles = require('./Handles');
 
@@ -4890,7 +4883,7 @@ var Type = exports.Type = function () {
       var noteParams = { bbox: context.bbox, align: align, offset: this.annotation.offset };
       var lineType = noteData.lineType || context.lineType;
       var note = {};
-      if (lineType == "vertical") note = (0, _lineTypeVertical2.default)(noteParams);else if (lineType == "horizontal") note = (0, _lineTypeHorizontal2.default)(noteParams);
+      if (lineType === "vertical") note = (0, _lineTypeVertical2.default)(noteParams);else if (lineType === "horizontal") note = (0, _lineTypeHorizontal2.default)(noteParams);
 
       var _note = note,
           _note$components = _note.components,
@@ -4912,9 +4905,8 @@ var Type = exports.Type = function () {
       var orientation = noteData.orientation || context.orientation || 'topBottom';
       var lineType = noteData.lineType || context.lineType;
       var align = noteData.align || context.align || 'dynamic';
-      var subjectType = this.typeSettings && this.typeSettings.subject && this.typeSettings.subject.type;
 
-      if (lineType == "vertical") orientation = "leftRight";else if (lineType == "horizontal") orientation = "topBottom";
+      if (lineType === "vertical") orientation = "leftRight";else if (lineType === "horizontal") orientation = "topBottom";
 
       var noteParams = { padding: padding, bbox: context.bbox, offset: this.annotation.offset, orientation: orientation, align: align };
 
@@ -4941,8 +4933,6 @@ var Type = exports.Type = function () {
   }, {
     key: 'redrawConnector',
     value: function redrawConnector() {
-      var bbox = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getNoteBBox();
-
       this.connector && this.drawOnScreen(this.connector, this.drawConnector());
     }
   }, {
@@ -5049,7 +5039,7 @@ var customType = exports.customType = function customType(initialType, typeSetti
       if (typeSettings.disable) {
         typeSettings.disable.forEach(function (d) {
           _this3[d] = undefined;
-          if (d == "note") {
+          if (d === "note") {
             _this3.noteContent = undefined;
           }
         });
@@ -5070,7 +5060,7 @@ var customType = exports.customType = function customType(initialType, typeSetti
       }
     }, {
       key: 'drawConnector',
-      value: function drawConnector(context, subjectContext) {
+      value: function drawConnector(context) {
         this.typeSettings.connector = Object.assign({}, typeSettings.connector, this.typeSettings.connector);
         return _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawConnector', this).call(this, _extends({}, context, typeSettings.connector, this.typeSettings.connector));
       }
@@ -5145,7 +5135,7 @@ var d3NoteText = exports.d3NoteText = function (_Type) {
           titleBBox = title.node().getBBox();
         }
 
-        label.text(this.annotation.note.label).attr('dy', '1em');
+        label.text(this.annotation.note.label).attr('dy', '1em').attr('dx', '0');
         label.call(wrap, wrapLength);
 
         label.attr('y', titleBBox.height * 1.1 || 0);
@@ -5260,13 +5250,15 @@ var wrap = function wrap(text, width) {
   text.each(function () {
     var text = (0, _d3Selection.select)(this),
         words = text.text().split(/[ \t\r\n]+/).reverse(),
-        word,
-        line = [],
-        lineNumber = 0,
-        lineHeight = .2,
+
+    // lineNumber = 0,
+    lineHeight = .2,
         //ems
-    y = text.attr("y"),
-        dy = parseFloat(text.attr("dy")) || 0,
+    // y = text.attr("y"),
+    dy = parseFloat(text.attr("dy")) || 0;
+
+    var word = void 0,
+        line = [],
         tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", dy + "em");
 
     while (word = words.pop()) {
@@ -5312,7 +5304,7 @@ exports.default = {
   customType: customType
 };
 
-},{"./Annotation":7,"./Connector/end-arrow":10,"./Connector/end-dot":11,"./Connector/type-curve":12,"./Connector/type-elbow":13,"./Connector/type-line":14,"./Handles":15,"./Note/alignment":16,"./Note/lineType-horizontal":17,"./Note/lineType-vertical":18,"./Subject/badge":19,"./Subject/circle":20,"./Subject/rect":21,"./Subject/threshold":22,"d3-drag":2,"d3-selection":4}],24:[function(require,module,exports){
+},{"./Connector/end-arrow":10,"./Connector/end-dot":11,"./Connector/type-curve":12,"./Connector/type-elbow":13,"./Connector/type-line":14,"./Handles":15,"./Note/alignment":16,"./Note/lineType-horizontal":17,"./Note/lineType-vertical":18,"./Subject/badge":19,"./Subject/circle":20,"./Subject/rect":21,"./Subject/threshold":22,"d3-selection":4}],24:[function(require,module,exports){
 'use strict';
 
 var _AdapterD = require('./src/Adapter-d3');

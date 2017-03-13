@@ -30,6 +30,7 @@
     "markedify": "0.0.2",
     "mocha": "3.2.0",
     "npm-watch": "0.1.6",
+    "reify": "0.4.16",
     "rollup": "0.41.4",
     "rollup-plugin-babel": "2.6.1",
     "uglify-js": "2.8.1"
@@ -43,7 +44,7 @@
     "watch": "npm-watch",
     "uglify": "uglifyjs d3-annotation.js -o d3-annotation.min.js -c -m",
     "prepublish": "npm test && npm run uglify && rollup -c",
-    "test": "mocha"
+    "test": "mocha --require reify"
   },
   "watch": {
     "browserify": [

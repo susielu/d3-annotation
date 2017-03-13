@@ -16,13 +16,16 @@ export const topBottomDynamic = (align, x) => {
 }
 
 
-export default ({ padding, bbox, align, orientation, offset }) => {
+const orientationTopBottom = ["topBottom", "top", "bottom"]
+const orientationLeftRight = ["leftRight", "left", "right"]
+
+export default ({ padding=0, bbox={x:0, y:0, width:0, height:0}, align, orientation, offset={x:0, y:0} }) => {
   let x = -bbox.x 
   let y = -bbox.y
 
-  if ( orientation === "topBottom" ) {
+  if ( orientationTopBottom.indexOf(orientation) !== -1 ) {
     align = topBottomDynamic(align, offset.x)
-    if (offset.y < 0) { 
+    if (offset.y < 0 && orientation === "topBotom" || orientation === "top") { 
       y -= bbox.height + padding
     } else {
       y += padding
@@ -34,9 +37,9 @@ export default ({ padding, bbox, align, orientation, offset }) => {
       x -= bbox.width
     } 
 
-  } else if ( orientation === "leftRight" ) {
+  } else if ( orientationLeftRight.indexOf(orientation) !== -1 ) {
     align = leftRightDynamic(align, offset.y)
-    if (offset.x < 0) { 
+    if (offset.x < 0 && orientation === "leftRight" || orientation === "left") { 
       x -= bbox.width + padding
     } else {
       x += padding

@@ -377,6 +377,7 @@ export class d3NoteText extends Type {
 
       label.text(this.annotation.note.label)
         .attr('dy', '1em')
+        .attr('dx', '0')
       label.call(wrap, wrapLength)
 
       label.attr('y', titleBBox.height * 1.1 || 0)
@@ -480,17 +481,17 @@ const wrap = (text, width) => {
   text.each(function () {
     const text = select(this),
       words = text.text().split(/[ \t\r\n]+/).reverse(),
-      line = [],
       // lineNumber = 0,
       lineHeight = .2, //ems
       // y = text.attr("y"),
-      dy = parseFloat(text.attr("dy")) || 0,
+      dy = parseFloat(text.attr("dy")) || 0
+    
+    let word,
+      line = [],
       tspan = text.text(null)
         .append("tspan")
         .attr("x", 0)
         .attr("dy", dy + "em")
-    
-    let word
 
     while (word = words.pop()) {
       line.push(word);
