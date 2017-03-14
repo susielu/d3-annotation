@@ -201,7 +201,7 @@ export class Type {
 
     const noteParams = { padding, bbox: context.bbox, offset: 
     this.annotation.offset, orientation, align }
-
+    console.log('draw note content', orientation, lineType, align)
     const { x, y } = noteAlignment(noteParams)
     this.offsetCornerX = x + this.annotation.dx
     this.offsetCornerY = y + this.annotation.dy

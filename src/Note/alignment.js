@@ -22,10 +22,9 @@ const orientationLeftRight = ["leftRight", "left", "right"]
 export default ({ padding=0, bbox={x:0, y:0, width:0, height:0}, align, orientation, offset={x:0, y:0} }) => {
   let x = -bbox.x 
   let y = -bbox.y
-
   if ( orientationTopBottom.indexOf(orientation) !== -1 ) {
     align = topBottomDynamic(align, offset.x)
-    if (offset.y < 0 && orientation === "topBotom" || orientation === "top") { 
+    if (offset.y < 0 && orientation === "topBottom" || orientation === "top") { 
       y -= bbox.height + padding
     } else {
       y += padding

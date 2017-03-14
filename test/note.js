@@ -21,10 +21,10 @@ describe('Note-alignment', function () {
     expect(a.x).to.equal(0)
     expect(a.y).to.equal(-50)
 
-    a = alignment(assign(set, { orientation: "topBottom"}))
+    a = alignment(assign(set, { orientation: "topBottom", offset: {x: 0, y: -100}}))
 
     expect(a.x).to.equal(0)
-    expect(a.y).to.equal(0)
+    expect(a.y).to.equal(-50)
   })
 
   it ('stays if orientation is left', function () {
