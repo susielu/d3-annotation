@@ -10,7 +10,7 @@ export default {
   ],
   targets: [
     {
-      dest: pkg['main'],
+      dest: pkg.main,
       format: 'umd',
       moduleName: 'd3',
       sourceMap: true,

@@ -14,10 +14,10 @@ describe('Note-alignment', function () {
     },
     orientation: "top"
   }
-
+  let a
 
   it ('stays if orientation is top', function () {
-    let a = alignment(set)
+    a = alignment(set)
     expect(a.x).to.equal(0)
     expect(a.y).to.equal(-50)
 
@@ -31,15 +31,28 @@ describe('Note-alignment', function () {
 
     a = alignment(assign(set, { orientation: "left"}))
 
-    expect(a.x).to.equal(100)
+    expect(a.x).to.equal(-100)
     expect(a.y).to.equal(0)
   })
 
+  it ('honors alignment', function () {
+    a = alignment(assign(set, { align: "right" }))
+    expect(a.x).to.equal(-100)
+    expect(a.y).to.equal(-50)
+  })
+  
+
   it ('honors padding', function () {
-    let a = alignment(assign(set, { padding: 20 }))
+    a = alignment(assign(set, { padding: 20 }))
 
     expect(a.x).to.equal(0)
     expect(a.y).to.equal(-70)
+
+    a = alignment(assign(set, { padding: 20, orientation: "left" }))
+
+    expect(a.x).to.equal(-120)
+    expect(a.y).to.equal(0)
   })
+  
 
 })

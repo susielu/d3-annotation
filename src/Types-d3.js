@@ -313,7 +313,7 @@ export const customType = (initialType, typeSettings, init) => {
       return annotation
     }
 
-    className () { return `${typeSettings.className || ''} ${super.className && super.className() || ''}`}
+    className () { return `${typeSettings.className || super.className && super.className() || ''}`}
 
     drawSubject (context) {
       this.typeSettings.subject = Object.assign({}, typeSettings.subject, this.typeSettings.subject)

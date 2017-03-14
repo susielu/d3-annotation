@@ -5050,7 +5050,7 @@ var customType = exports.customType = function customType(initialType, typeSetti
     _createClass(customType, [{
       key: 'className',
       value: function className() {
-        return (typeSettings.className || '') + ' ' + (_get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'className', this) && _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'className', this).call(this) || '');
+        return '' + (typeSettings.className || _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'className', this) && _get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'className', this).call(this) || '');
       }
     }, {
       key: 'drawSubject',
