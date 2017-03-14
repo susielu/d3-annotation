@@ -4908,7 +4908,6 @@ var Type = exports.Type = function () {
       if (lineType === "vertical") orientation = "leftRight";else if (lineType === "horizontal") orientation = "topBottom";
 
       var noteParams = { padding: padding, bbox: context.bbox, offset: this.annotation.offset, orientation: orientation, align: align };
-      console.log('draw note content', orientation, lineType, align);
 
       var _noteAlignment = (0, _alignment2.default)(noteParams),
           x = _noteAlignment.x,
