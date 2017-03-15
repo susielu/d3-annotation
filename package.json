@@ -25,6 +25,7 @@
     "babelrc-rollup": "3.0.0",
     "browserify": "13.1.1",
     "chai": "3.5.0",
+    "eslint": "3.17.1",
     "http-server": "0.9.0",
     "marked": "0.3.6",
     "markedify": "0.0.2",
@@ -33,6 +34,7 @@
     "reify": "0.4.16",
     "rollup": "0.41.4",
     "rollup-plugin-babel": "2.6.1",
+    "rollup-plugin-node-resolve": "2.0.0",
     "uglify-js": "2.8.1"
   },
   "scripts": {
@@ -43,7 +45,8 @@
     "docs-bundle": "uglifyjs --source-map=docs/bundle.map --source-map-url=bundle.map -- docs/vendor/jquery2.1.1.min.js docs/vendor/materialize.min.js docs/vendor/d3-selection.js docs/vendor/d3-shape.js d3-annotation.js docs/docs-compiled.js > docs/bundle.js",
     "watch": "npm-watch",
     "uglify": "uglifyjs d3-annotation.js -o d3-annotation.min.js -c -m",
-    "prepublish": "npm test && npm run uglify && rollup -c",
+    "eslint": "eslint --rule 'no-console: 2'  src/** --ignore-pattern /src/Adapter-d3.js",
+    "prepublish": "npm run eslint && npm test && npm run uglify && rollup -c && rollup -c rollupNext.config.js",
     "test": "mocha --require reify"
   },
   "watch": {

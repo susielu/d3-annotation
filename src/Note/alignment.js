@@ -15,7 +15,6 @@ export const topBottomDynamic = (align, x) => {
   return align
 }
 
-
 const orientationTopBottom = ["topBottom", "top", "bottom"]
 const orientationLeftRight = ["leftRight", "left", "right"]
 
