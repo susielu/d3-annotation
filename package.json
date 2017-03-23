@@ -14,7 +14,7 @@
     "d3-annotation.*",
     "types/*"
   ],
-  "keywords": [],
+  "keywords": ["d3", "d3-module", "annotation"],
   "directories": {},
   "devDependencies": {
     "babel-eslint": "7.1.1",
