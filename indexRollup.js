@@ -3332,19 +3332,19 @@ var customType = function customType(initialType, typeSettings, _init) {
     }, {
       key: 'drawSubject',
       value: function drawSubject(context) {
-        this.typeSettings.subject = Object.assign({}, typeSettings.subject, this.typeSettings.subject);
+        this.typeSettings.subject = _extends({}, typeSettings.subject, this.typeSettings.subject);
         return get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawSubject', this).call(this, _extends({}, context, this.typeSettings.subject));
       }
     }, {
       key: 'drawConnector',
       value: function drawConnector(context) {
-        this.typeSettings.connector = Object.assign({}, typeSettings.connector, this.typeSettings.connector);
+        this.typeSettings.connector = _extends({}, typeSettings.connector, this.typeSettings.connector);
         return get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawConnector', this).call(this, _extends({}, context, typeSettings.connector, this.typeSettings.connector));
       }
     }, {
       key: 'drawNote',
       value: function drawNote(context) {
-        this.typeSettings.note = Object.assign({}, typeSettings.note, this.typeSettings.note);
+        this.typeSettings.note = _extends({}, typeSettings.note, this.typeSettings.note);
         return get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawNote', this).call(this, _extends({}, context, typeSettings.note, this.typeSettings.note));
       }
     }, {
