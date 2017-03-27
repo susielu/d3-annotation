@@ -2,7 +2,7 @@ import { Dispatch } from 'd3-dispatch';
 import { BaseType, Selection } from 'd3-selection';
 
 type Accessors = {
-  [k: string]: (any) => number
+  [k: string]: () => number
 };
 
 // TODO figure out what these actually are.
@@ -60,8 +60,13 @@ export default class Annotation {
     className: string;
   });
 
+  annotations(anotations: any[]): Annotation;
+  accessors(accessors: any): Annotation;
+  editMode(editMode: boolean): Annotation;
+  type(type: any): Annotation;
   updatePosition(): void;
   updateOffset(): void;
+  update(): void;
 }
 
 export class Type {
@@ -114,14 +119,14 @@ export class Type {
     bbox: BBox,
   }): Components;
 
-  drawNoteContent({
+  drawNoteContent(context: {
     orientation: Orientation,
     lineType: LineType,
     align: Align,
     bbox: BBox,
   }): Array<void>;
 
-  drawOnScreen(component: any, drawFunction: (any) => any): void;
+  drawOnScreen(component: any, drawFunction: () => any): void;
 
   redrawSubmit(): void;
 
@@ -147,11 +152,13 @@ export class Type {
 }
 
 // TODO define these
-export class d3Label extends Type { }
-export class d3Callout extends Type { }
-export class d3CalloutElbow extends Type { }
-export class d3CalloutCurve extends Type { }
-export class d3CalloutCircle extends Type { }
-export class d3CalloutRect extends Type { }
-export class d3XYThreshold extends Type { }
-export class d3Badge extends Type { }
+export class annotationLabel extends Type { }
+export class annotationCallout extends Type { }
+export class annotationCalloutElbow extends Type { }
+export class annotationCalloutCurve extends Type { }
+export class annotationCalloutCircle extends Type { }
+export class annotationCalloutRect extends Type { }
+export class annotationXYThreshold extends Type { }
+export class annotationBadge extends Type { }
+
+export function annotation(): Annotation;
