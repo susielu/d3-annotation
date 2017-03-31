@@ -10,6 +10,10 @@ You must include the [d3 library](http://d3js.org/) before including the annotat
 - [Unminified](https://github.com/susielu/d3-annotation/blob/master/d3-annotation.js)
 - [Minified](https://github.com/susielu/d3-annotation/blob/master/d3-annotation.min.js)
 
+### Using CDN
+
+You can also add the latest version of [d3-annotation hosted on cdnjs](https://cdnjs.com/libraries/d3-annotation).
+
 ### Using NPM
 
 You can add d3-annotation as a node module by running

@@ -9,7 +9,7 @@ You must include the [d3 library](http://d3js.org/) before including the annotat
 
 ### Using CDN
 
-You can also add latest version of [d3-annotation hosted on cdnjs](https://cdnjs.com/libraries/d3-annotation).
+You can also add the latest version of [d3-annotation hosted on cdnjs](https://cdnjs.com/libraries/d3-annotation).
 
 ### Using NPM
 
