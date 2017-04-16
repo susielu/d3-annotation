@@ -5336,16 +5336,18 @@ var _TypesD2 = _interopRequireDefault(_TypesD);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-d3.annotation = _AdapterD2.default;
-d3.annotationTypeBase = _TypesD2.default.Type;
-d3.annotationLabel = _TypesD2.default.d3Label;
-d3.annotationCallout = _TypesD2.default.d3Callout;
-d3.annotationCalloutCurve = _TypesD2.default.d3CalloutCurve;
-d3.annotationCalloutElbow = _TypesD2.default.d3CalloutElbow;
-d3.annotationCalloutCircle = _TypesD2.default.d3CalloutCircle;
-d3.annotationCalloutRect = _TypesD2.default.d3CalloutRect;
-d3.annotationXYThreshold = _TypesD2.default.d3XYThreshold;
-d3.annotationBadge = _TypesD2.default.d3Badge;
-d3.annotationCustomType = _TypesD2.default.customType;
+window.d3annotation = {};
+
+d3annotation.annotation = _AdapterD2.default;
+d3annotation.annotationTypeBase = _TypesD2.default.Type;
+d3annotation.annotationLabel = _TypesD2.default.d3Label;
+d3annotation.annotationCallout = _TypesD2.default.d3Callout;
+d3annotation.annotationCalloutCurve = _TypesD2.default.d3CalloutCurve;
+d3annotation.annotationCalloutElbow = _TypesD2.default.d3CalloutElbow;
+d3annotation.annotationCalloutCircle = _TypesD2.default.d3CalloutCircle;
+d3annotation.annotationCalloutRect = _TypesD2.default.d3CalloutRect;
+d3annotation.annotationXYThreshold = _TypesD2.default.d3XYThreshold;
+d3annotation.annotationBadge = _TypesD2.default.d3Badge;
+d3annotation.annotationCustomType = _TypesD2.default.customType;
 
 },{"./src/Adapter-d3":6,"./src/Types-d3":23}]},{},[24]);

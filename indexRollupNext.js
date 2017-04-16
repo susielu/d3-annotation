@@ -978,9 +978,29 @@ var subjectBadge = (function (_ref) {
   var subjectData = _ref.subjectData,
       type = _ref.type;
 
-  if (!subjectData.radius) subjectData.radius = 14;
-  if (!subjectData.x) subjectData.x = "left";
-  if (!subjectData.y) subjectData.y = "top";
+  var typeSettings = type.typeSettings && type.typeSettings.subject;
+
+  if (!subjectData.radius) {
+    if (typeSettings && typeSettings.radius) {
+      subjectData.radius = typeSettings.radius;
+    } else {
+      subjectData.radius = 14;
+    }
+  }
+  if (!subjectData.x) {
+    if (typeSettings && typeSettings.x) {
+      subjectData.x = typeSettings.x;
+    } else {
+      subjectData.x = "left";
+    }
+  }
+  if (!subjectData.y) {
+    if (typeSettings && typeSettings.y) {
+      subjectData.y = typeSettings.y;
+    } else {
+      subjectData.y = "top";
+    }
+  }
 
   var handles = [];
   var radius = subjectData.radius;

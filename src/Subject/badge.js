@@ -2,12 +2,32 @@ import { lineBuilder, arcBuilder } from '../Builder'
 import { event } from 'd3-selection'
 
 export default ({ subjectData, type }) => {
-  if (!subjectData.radius ) subjectData.radius = 14
-  if (!subjectData.x) subjectData.x ="left"
-  if (!subjectData.y) subjectData.y = "top"
+  const typeSettings = type.typeSettings && type.typeSettings.subject
+
+  if (!subjectData.radius ) {
+    if (typeSettings && typeSettings.radius) {
+      subjectData.radius = typeSettings.radius
+    } else {
+      subjectData.radius = 14
+    }
+  }
+  if (!subjectData.x) {
+    if (typeSettings && typeSettings.x) {
+      subjectData.x = typeSettings.x
+    } else {
+      subjectData.x = "left"
+    }
+  }
+  if (!subjectData.y) {
+    if (typeSettings && typeSettings.y) {
+      subjectData.y = typeSettings.y
+    } else {
+      subjectData.y = "top"
+    }
+  }
 
   let handles = []
-  const radius = subjectData.radius
+  const radius = subjectData.radius 
   const innerRadius = radius*.7
   const x = subjectData.x === "left" ? -radius : radius
   const y = subjectData.y === "top" ? -radius : radius

@@ -79,7 +79,7 @@ export default function annotation () {
 
   annotation.update = function () {
     if (annotations && collection) {
-      annotations = collection.annotations.map(a => { a.type.draw(); return a }) 
+      annotations = collection.annotations.map(a => { a.type.draw(); return a })
     }
     return annotation
   }
