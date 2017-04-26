@@ -39,7 +39,7 @@ export const arcBuilder = ({ data, canvasContext, className }) => {
 
   if (canvasContext) {
     arcShape.context(canvasContext)
-    builder.pathMethods = lineGen
+    builder.pathMethods = arcShape
 
   } else {
     

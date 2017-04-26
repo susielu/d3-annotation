@@ -23,12 +23,19 @@ export default function annotation () {
     "noteover", "noteout", "noteclick"),
     sel;
 
+  const error = "Please provide a d3.selection or canvas context to d3 annotation"
   const annotation = function (selection) {
-    sel = selection
-    //TODO: check to see if this is still needed    
-    if (!editMode) {
-      selection.selectAll("circle.handle")
-        .remove()
+
+    if (!selection) {
+      console.error(error)
+      return
+    }
+
+    const selectionType = selection.constructor.name
+
+    if (!(selectionType === "Selection" || selectionType === "CanvasRenderingContext2D")) {
+      console.error(error)
+      return
     }
 
     const translatedAnnotations = annotations
@@ -44,32 +51,51 @@ export default function annotation () {
       accessorsInverse,
       ids
     })
-    
 
-    const annotationG = selection.selectAll('g').data([collection])
-    annotationG.enter().append('g').attr('class', `annotations`)
-    
-    const group = selection.select('g.annotations')
-    newWithClass(group, collection.annotations, 'g', 'annotation')
+    if (selectionType === "Selection") {
+      sel = selection
+      //TODO: check to see if this is still needed    
+      if (!editMode) {
+        selection.selectAll("circle.handle")
+          .remove()
+      }
 
-    const annotation = group.selectAll('g.annotation')
-    
-    annotation 
-      .each(function (d) {
-        const a = select(this)
+      const annotationG = selection.selectAll('g').data([collection])
+      annotationG.enter().append('g').attr('class', `annotations`)
+      
+      const group = selection.select('g.annotations')
+      newWithClass(group, collection.annotations, 'g', 'annotation')
 
-        a.attr('class', 'annotation')
+      const annotation = group.selectAll('g.annotation')
+      
+      annotation 
+        .each(function (d) {
+          const a = select(this)
 
-        newWithClass(a, [d], 'g', 'annotation-connector')
-        newWithClass(a, [d], 'g', 'annotation-subject')
-        newWithClass(a, [d], 'g', 'annotation-note')
-        newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content')
+          a.attr('class', 'annotation')
 
-        d.type = new d.type({ a, annotation: d, textWrap, 
+          newWithClass(a, [d], 'g', 'annotation-connector')
+          newWithClass(a, [d], 'g', 'annotation-subject')
+          newWithClass(a, [d], 'g', 'annotation-note')
+          newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content')
+
+          d.type = new d.type({ a, annotation: d, textWrap, 
+            notePadding, editMode, context,
+            dispatcher: annotationDispatcher, accessors })
+          d.type.draw()
+        })
+    } else if (selectionType === "CanvasRenderingContext2D") {     
+      context = selection
+      collection.annotations.forEach( d => {
+        d.type = new d.type({ annotation: d, textWrap, 
           notePadding, editMode, context,
-          dispatcher: annotationDispatcher, accessors })
+         /* dispatcher: annotationDispatcher, */
+          accessors })
         d.type.draw()
       })
+
+    }
+   
   }
 
   annotation.json = function () {
@@ -149,12 +175,6 @@ export default function annotation () {
     annotations = _
     return annotation;
   };
-
-  annotation.context = function (_) {
-    if (!arguments.length) return context;
-    context = _
-    return annotation;
-  }; 
 
   annotation.accessors = function (_) {
     if (!arguments.length) return accessors;

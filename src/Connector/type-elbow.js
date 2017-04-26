@@ -64,5 +64,6 @@ export default ({ type, subjectType }) => {
     data = [[x1, y1], [xe , ye], [x2, y2]]
   }
 
-  return { components: [lineBuilder({ data, className: "connector"})]}
+  return { components: [lineBuilder({ data, className: "connector", 
+    canvasContext: type.context })]}
 }

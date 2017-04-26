@@ -6,7 +6,7 @@ export default ({ subjectData, type}) => {
   if (!subjectData.radius && !subjectData.outerRadius ) { subjectData.radius = 20 }
 
   let handles = []
-  const c = arcBuilder({ data: subjectData, className: "subject" })
+  const c = arcBuilder({ data: subjectData, className: "subject", canvasContext: type.context })
   if (type.editMode) {
     const h = circleHandles({
       r1: c.data.outerRadius || c.data.radius,

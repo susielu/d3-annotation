@@ -88,6 +88,8 @@ export default class Annotation {
     this.updatePosition()
   }
 
+  get notePosition () { return { x: this._x + this._dx, y: this._y + this._dy}}
+
   get translation () {
     return {
       x: this._x + this._dx,

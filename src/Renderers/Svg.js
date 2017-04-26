@@ -1,7 +1,7 @@
 import { select, event } from 'd3-selection'
 import { addHandles } from './Handles'
-import canvasRender from './Renderers/Canvas'
-import svgRender from './Renderers/Svg'
+import contextRender from './ContextRender'
+import svgRender from './SvgRender'
 
 //Note options
 import noteAlignment from './Note/alignment'
@@ -39,6 +39,7 @@ export class Type {
     this.connector = annotation.disable.indexOf("connector") === -1 && (context || a.select('g.annotation-connector'))
 
     this.renderer = context ? canvasRender || svgRender
+
 
     if (dispatcher) {
       const handler = addHandlers.bind(null, dispatcher, annotation)

@@ -1,6 +1,6 @@
 import { lineBuilder } from '../Builder'
 
-export default ({ annotation, start, end }) => {
+export default ({ annotation, start, end, canvasContext }) => {
   const offset = annotation.position
   if (!start) { start = [annotation.dx, annotation.dy]} 
   else { start = [-end[0] + start[0], - end[1] + start[1]]}
@@ -40,5 +40,5 @@ export default ({ annotation, start, end }) => {
   //   ]
   // }
 
-  return { components: [lineBuilder({ data, className : 'connector-arrow' })] }
+  return { components: [lineBuilder({ data, className : 'connector-arrow', canvasContext })] }
 }

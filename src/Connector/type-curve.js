@@ -31,7 +31,8 @@ export default ({ type, connectorData, subjectType }) => {
 
   let data = lineSetup({ type, subjectType })
   data = [data[0], ...connectorData.points, data[1]]
-  const components = [lineBuilder({ data, curve: connectorData.curve, className: "connector" })]
+  const components = [lineBuilder({ data, curve: connectorData.curve, 
+    className: "connector", canvasContext: type.context })]
 
   return { components , handles }
 }

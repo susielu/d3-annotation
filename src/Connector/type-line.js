@@ -42,5 +42,6 @@ export const lineSetup = ({ type, subjectType }) => {
 
 export default (connectorData) => {
   const data = lineSetup(connectorData)
-  return { components: [lineBuilder({ data, className : "connector" })]} 
+  return { components: [lineBuilder({ data, className : "connector", 
+    canvasContext: connectorData.type.context })]} 
 }
