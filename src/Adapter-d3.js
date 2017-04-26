@@ -8,7 +8,7 @@ import { dispatch } from 'd3-dispatch';
 export default function annotation () {
   let annotations = [],
     collection,
-    context, //TODO: add canvas functionality
+    context,
     disable = [],
     accessors = {},
     accessorsInverse = {},
@@ -65,7 +65,8 @@ export default function annotation () {
         newWithClass(a, [d], 'g', 'annotation-note')
         newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content')
 
-        d.type = new d.type({ a, annotation: d, textWrap, notePadding, editMode, 
+        d.type = new d.type({ a, annotation: d, textWrap, 
+          notePadding, editMode, context,
           dispatcher: annotationDispatcher, accessors })
         d.type.draw()
       })

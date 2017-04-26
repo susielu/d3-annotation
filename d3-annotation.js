@@ -3271,8 +3271,7 @@ function annotation() {
   var annotations = [],
       collection = void 0,
       context = void 0,
-      //TODO: add canvas functionality
-  disable = [],
+      disable = [],
       accessors = {},
       accessorsInverse = {},
       editMode = false,
@@ -3325,7 +3324,8 @@ function annotation() {
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-note');
       (0, _TypesD.newWithClass)(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content');
 
-      d.type = new d.type({ a: a, annotation: d, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
+      d.type = new d.type({ a: a, annotation: d, textWrap: textWrap,
+        notePadding: notePadding, editMode: editMode, context: context,
         dispatcher: annotationDispatcher, accessors: accessors });
       d.type.draw();
     });
@@ -4705,7 +4705,8 @@ var Type = exports.Type = function () {
         editMode = _ref.editMode,
         dispatcher = _ref.dispatcher,
         notePadding = _ref.notePadding,
-        accessors = _ref.accessors;
+        accessors = _ref.accessors,
+        context = _ref.context;
 
     _classCallCheck(this, Type);
 
@@ -4724,6 +4725,7 @@ var Type = exports.Type = function () {
     }
 
     this.annotation = annotation;
+    this.context = context;
     this.editMode = annotation.editMode || editMode;
     this.notePadding = notePadding || 3;
     this.offsetCornerX = 0;
@@ -4799,9 +4801,6 @@ var Type = exports.Type = function () {
         }
       });
     }
-
-    //TODO: how to extend this to a drawOnCanvas mode? 
-
   }, {
     key: 'getNoteBBox',
     value: function getNoteBBox() {

@@ -20,7 +20,7 @@ import subjectThreshold from './Subject/threshold'
 import subjectBadge from './Subject/badge'
 
 export class Type {
-  constructor ({ a, annotation, editMode, dispatcher, notePadding, accessors }) {
+  constructor ({ a, annotation, editMode, dispatcher, notePadding, accessors, context }) {
     this.a = a
 
     this.note = annotation.disable.indexOf("note") === -1 && a.select('g.annotation-note')
@@ -36,6 +36,7 @@ export class Type {
     }
   
     this.annotation = annotation
+    this.context = context
     this.editMode = annotation.editMode || editMode
     this.notePadding = notePadding || 3
     this.offsetCornerX = 0
@@ -98,8 +99,6 @@ export class Type {
         }
       })
   }
-
-  //TODO: how to extend this to a drawOnCanvas mode? 
 
   getNoteBBox () { return bboxWithoutHandles(this.note, '.annotation-note-content text')}
   getNoteBBoxOffset () { 
