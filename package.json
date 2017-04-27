@@ -1,6 +1,6 @@
 {
   "name": "d3-svg-annotation",
-  "version": "1.12.1",
+  "version": "1.13.0",
   "description": "",
   "main": "indexRollup.js",
   "jsnext:main": "indexRollupNext.js",
