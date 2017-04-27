@@ -3324,8 +3324,8 @@ function annotation() {
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-subject');
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-note');
       (0, _TypesD.newWithClass)(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content');
-
-      d.type = new d.type({ a: a, annotation: d, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
+      //d.type.name check to see if it's instantiated
+      d.type = !d.type.name ? d.type : new d.type({ a: a, annotation: d, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
         dispatcher: annotationDispatcher, accessors: accessors });
       d.type.draw();
     });
@@ -4309,7 +4309,7 @@ exports.default = function (_ref) {
       offset = _ref$offset === undefined ? { x: 0, y: 0 } : _ref$offset;
 
   var x = -bbox.x;
-  var y = -bbox.y;
+  var y = 0; //-bbox.y
   if (orientationTopBottom.indexOf(orientation) !== -1) {
     align = topBottomDynamic(align, offset.x);
     if (offset.y < 0 && orientation === "topBottom" || orientation === "top") {
@@ -4725,7 +4725,7 @@ var Type = exports.Type = function () {
 
     this.annotation = annotation;
     this.editMode = annotation.editMode || editMode;
-    this.notePadding = notePadding || 3;
+    this.notePadding = notePadding !== undefined ? notePadding : 3;
     this.offsetCornerX = 0;
     this.offsetCornerY = 0;
 
@@ -4818,11 +4818,6 @@ var Type = exports.Type = function () {
       bbox.offsetY = this.annotation.dy;
       return bbox;
     }
-
-    // getConnectorBBox() { return bboxWithoutHandles(this.connector)}
-    // getSubjectBBox() { return bboxWithoutHandles(this.subject)}
-    // getAnnotationBBox() { return bboxWithoutHandles(this.a)}
-
   }, {
     key: 'drawSubject',
     value: function drawSubject() {
@@ -4920,7 +4915,7 @@ var Type = exports.Type = function () {
     key: 'drawNoteContent',
     value: function drawNoteContent(context) {
       var noteData = this.annotation.note;
-      var padding = noteData.padding || this.notePadding;
+      var padding = noteData.padding !== undefined ? noteData.padding : this.notePadding;
       var orientation = noteData.orientation || context.orientation || 'topBottom';
       var lineType = noteData.lineType || context.lineType;
       var align = noteData.align || context.align || 'dynamic';
@@ -5149,12 +5144,12 @@ var d3NoteText = exports.d3NoteText = function (_Type) {
 
         if (this.annotation.note.title) {
           var title = this.a.select('text.annotation-note-title');
-          title.text(this.annotation.note.title).attr('dy', '1.1em');
+          title.text(this.annotation.note.title);
           title.call(wrap, wrapLength);
           titleBBox = title.node().getBBox();
         }
 
-        label.text(this.annotation.note.label).attr('dy', '1em').attr('dx', '0');
+        label.text(this.annotation.note.label).attr('dx', '0');
         label.call(wrap, wrapLength);
 
         label.attr('y', titleBBox.height * 1.1 || 0);
@@ -5269,16 +5264,11 @@ var wrap = function wrap(text, width) {
   text.each(function () {
     var text = (0, _d3Selection.select)(this),
         words = text.text().split(/[ \t\r\n]+/).reverse(),
-
-    // lineNumber = 0,
-    lineHeight = .2,
-        //ems
-    // y = text.attr("y"),
-    dy = parseFloat(text.attr("dy")) || 0;
+        lineHeight = 1.2; //ems
 
     var word = void 0,
         line = [],
-        tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", dy + "em");
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", .8 + "em");
 
     while (word = words.pop()) {
       line.push(word);
@@ -5287,7 +5277,7 @@ var wrap = function wrap(text, width) {
         line.pop();
         tspan.text(line.join(" "));
         line = [word];
-        tspan = text.append("tspan").attr("x", 0).attr("dy", lineHeight + dy + "em").text(word);
+        tspan = text.append("tspan").attr("x", 0).attr("dy", lineHeight + "em").text(word);
       }
     }
   });
@@ -5301,11 +5291,14 @@ var bboxWithoutHandles = function bboxWithoutHandles(selection) {
   }
 
   return selection.selectAll(selector).nodes().reduce(function (p, c) {
+    window.c = c;
     var bbox = c.getBBox();
     p.x = Math.min(p.x, bbox.x);
     p.y = Math.min(p.y, bbox.y);
     p.width = Math.max(p.width, bbox.width);
-    p.height += bbox.height;
+
+    var yOffset = c && c.attributes && c.attributes.y;
+    p.height = Math.max(p.height, (yOffset && parseFloat(yOffset.value) || 0) + bbox.height);
     return p;
   }, { x: 0, y: 0, width: 0, height: 0 });
 };

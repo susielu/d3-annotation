@@ -37,7 +37,7 @@ export class Type {
   
     this.annotation = annotation
     this.editMode = annotation.editMode || editMode
-    this.notePadding = notePadding || 3
+    this.notePadding = notePadding !== undefined ? notePadding : 3
     this.offsetCornerX = 0
     this.offsetCornerY = 0
 
@@ -111,10 +111,6 @@ export class Type {
     bbox.offsetY = this.annotation.dy
     return bbox 
   }
-
-  // getConnectorBBox() { return bboxWithoutHandles(this.connector)}
-  // getSubjectBBox() { return bboxWithoutHandles(this.subject)}
-  // getAnnotationBBox() { return bboxWithoutHandles(this.a)}
 
   drawSubject (context={}) {
     const subjectData = this.annotation.subject
@@ -191,14 +187,14 @@ export class Type {
 
   drawNoteContent (context) {
     const noteData = this.annotation.note
-    const padding = noteData.padding || this.notePadding
+    const padding = noteData.padding !== undefined ? noteData.padding : this.notePadding
     let orientation = noteData.orientation || context.orientation || 'topBottom'
     const lineType = noteData.lineType || context.lineType
     const align = noteData.align || context.align || 'dynamic'
     
     if (lineType === "vertical") orientation =  "leftRight"
     else if (lineType === "horizontal") orientation = "topBottom"
-
+  
     const noteParams = { padding, bbox: context.bbox, offset: 
     this.annotation.offset, orientation, align }
     const { x, y } = noteAlignment(noteParams)
@@ -369,13 +365,11 @@ export class d3NoteText extends Type {
       if (this.annotation.note.title) {
         const title = this.a.select('text.annotation-note-title')
         title.text(this.annotation.note.title)
-          .attr('dy', '1.1em')
         title.call(wrap, wrapLength)
         titleBBox = title.node().getBBox()
       }
 
       label.text(this.annotation.note.label)
-        .attr('dy', '1em')
         .attr('dx', '0')
       label.call(wrap, wrapLength)
 
@@ -476,21 +470,17 @@ const addHandlers = ( dispatcher, annotation, { component, name }) => {
 }
 
 //Text wrapping code adapted from Mike Bostock
-const wrap = (text, width) => {
+const wrap = (text, width, lineHeight=1.2) => {
   text.each(function () {
     const text = select(this),
-      words = text.text().split(/[ \t\r\n]+/).reverse(),
-      // lineNumber = 0,
-      lineHeight = .2, //ems
-      // y = text.attr("y"),
-      dy = parseFloat(text.attr("dy")) || 0
+      words = text.text().split(/[ \t\r\n]+/).reverse()
     
     let word,
       line = [],
       tspan = text.text(null)
         .append("tspan")
         .attr("x", 0)
-        .attr("dy", dy + "em")
+        .attr("dy", .8 + "em")
 
     while (word = words.pop()) {
       line.push(word);
@@ -501,7 +491,7 @@ const wrap = (text, width) => {
         line = [word];
         tspan = text.append("tspan")
           .attr("x", 0)
-          .attr("dy", lineHeight + dy + "em").text(word);
+          .attr("dy", lineHeight  + "em").text(word);
       }
     }
   });
@@ -511,13 +501,15 @@ const bboxWithoutHandles = (selection, selector=':not(.handle)') => {
   if (!selection) {
     return { x: 0, y: 0, width: 0, height: 0}
   }
-
+  
   return selection.selectAll(selector).nodes().reduce((p, c) => {
     const bbox = c.getBBox()
     p.x = Math.min(p.x, bbox.x)
     p.y = Math.min(p.y, bbox.y)
     p.width = Math.max(p.width, bbox.width)
-    p.height += bbox.height
+
+    const yOffset = c && c.attributes && c.attributes.y
+    p.height = Math.max(p.height, (yOffset && parseFloat(yOffset.value) || 0) + bbox.height)
     return p
   }, { x: 0, y: 0, width: 0, height: 0});
 }
