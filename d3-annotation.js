@@ -3324,7 +3324,7 @@ function annotation() {
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-subject');
       (0, _TypesD.newWithClass)(a, [d], 'g', 'annotation-note');
       (0, _TypesD.newWithClass)(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content');
-      //d.type.name check to see if it's instantiated
+
       d.type = !d.type.name ? d.type : new d.type({ a: a, annotation: d, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
         dispatcher: annotationDispatcher, accessors: accessors });
       d.type.draw();
@@ -5261,10 +5261,11 @@ var addHandlers = function addHandlers(dispatcher, annotation, _ref3) {
 
 //Text wrapping code adapted from Mike Bostock
 var wrap = function wrap(text, width) {
+  var lineHeight = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1.2;
+
   text.each(function () {
     var text = (0, _d3Selection.select)(this),
-        words = text.text().split(/[ \t\r\n]+/).reverse(),
-        lineHeight = 1.2; //ems
+        words = text.text().split(/[ \t\r\n]+/).reverse();
 
     var word = void 0,
         line = [],
@@ -5291,7 +5292,6 @@ var bboxWithoutHandles = function bboxWithoutHandles(selection) {
   }
 
   return selection.selectAll(selector).nodes().reduce(function (p, c) {
-    window.c = c;
     var bbox = c.getBBox();
     p.x = Math.min(p.x, bbox.x);
     p.y = Math.min(p.y, bbox.y);

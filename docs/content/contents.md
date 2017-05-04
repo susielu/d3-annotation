@@ -2,6 +2,8 @@
 - [Setup](#setup)
 - [Types](#types)
 - [In Practice](#in-practice)
+- [Examples](#examples)
+- [Essays](#essays)
 - [API](#api)
 - [Extending Types](#extend)
 - [Notes](#notes)
