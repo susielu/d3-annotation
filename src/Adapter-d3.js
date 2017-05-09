@@ -38,7 +38,7 @@ export default function annotation () {
         return new Annotation(a)
       });
 
-    collection = new AnnotationCollection ({
+    collection = collection || new AnnotationCollection ({
       annotations: translatedAnnotations,
       accessors,
       accessorsInverse,
@@ -68,6 +68,7 @@ export default function annotation () {
         d.type = !d.type.name ? d.type : new d.type({ a, annotation: d, textWrap, notePadding, editMode,
           dispatcher: annotationDispatcher, accessors })
         d.type.draw()
+        d.type.drawText && d.type.drawText()
       })
   }
 
@@ -83,6 +84,15 @@ export default function annotation () {
     }
     return annotation
   }
+
+  annotation.updateText = function () {
+    if (collection) { 
+      collection.updateText(textWrap)
+      annotations = collection.annotations
+    }
+    return annotation;
+  }
+
 
   annotation.updatedAccessors = function () {
     collection.setPositionWithAccessors()

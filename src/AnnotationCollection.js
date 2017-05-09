@@ -51,6 +51,14 @@ export default class AnnotationCollection {
     })
   }
 
+  updateText () {
+    this.annotations.forEach(a => {
+      if (a.type && a.type.drawText) {
+        a.type.drawText()
+      }
+    })
+  }
+
   updateNotePadding (notePadding) {
     this.annotations.forEach(a => {
       if (a.type) {

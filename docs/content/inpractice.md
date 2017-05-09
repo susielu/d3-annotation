@@ -102,3 +102,14 @@ Available on [github](https://github.com/susielu/d3-annotation/blob/master/d3-an
 - In addition to the alignment settings for the note, you can also use the css `text-anchor` attribute to align the text within the note
 - When you update the d3.annotation().type() you will need to use the call functionality again to set up the annotations with the new type. See the [Responsive with Types and Hover](#responsive) example
 - You do not need to call d3.annotation().update() if you are only changing the position(x,y) or the offset(dx, dy). See the [Overlapping](#overlapping) example
+- If you are importing custom fonts, you may notice the annotations don't load perfectly with text wrapping and alignment. To fix that you can use, `document.fonts.ready` to make sure the fonts are loaded first to reflect the custom font's spacing for all of the calculations. Here's an example:
+
+```js
+    document.fonts.ready.then(function(){
+      d3.select("svg")
+        .append("g")
+        .attr("class", "annotation-group")
+        .style('font-size', fontSize(ratio))
+        .call(makeAnnotations)
+    })
+```
