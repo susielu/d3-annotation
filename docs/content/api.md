@@ -57,7 +57,11 @@ If this is true, then the annotation will create handles for parts of the annota
 
 annotation.**update()**
 
-Redraws all of the annotations. Typcially used to reflect updated settings. If you are only updating the position (x, y) or the offset (dx, dy) you do not need to call this afterwards. Example in [Layout - Encircling Annotation](#encircle).
+Redraws all of the annotations. Typcially used to reflect updated settings. If you are only updating the position (x, y) or the offset (dx, dy) you do not need to run `call` on makeAnnotations afterwards. Example in [Layout - Encircling Annotation](#encircle).
+
+annotation.**updateText()**
+
+If you only want to update the text then use this function. It will re-evaluate with the new text and text wrapping settings. This is separated from the `update()` function for flexibility with performance. If you call the entire set again it will run both functions.
 
 annotation.**updatedAccessors()**
 
@@ -76,7 +80,7 @@ annotation.**collection()**
 Access to the collection of annotations with the instantiated types.
 
 annotation.**textWrap()**
-Change the overall textWrap, otherwise in the annotation object array you can change each individual one with the <code>{note: {wrap: 30}}</code> property
+Change the overall textWrap, otherwise in the annotation object array you can change each individual one with the <code>{note: {wrap: 30}}</code> property. This function calls `updateText()` internally so you do not need to call both functions when updating `textWrap`.
 
 annotation.**notePadding()**
 Change the overall notePadding, otherwise in the annotation object array you can change each individual one with the <code>{note: {padding: 30}}</code> property

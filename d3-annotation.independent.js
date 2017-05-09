@@ -365,6 +365,15 @@ var AnnotationCollection = function () {
       });
     }
   }, {
+    key: "updateText",
+    value: function updateText() {
+      this.annotations.forEach(function (a) {
+        if (a.type && a.type.drawText) {
+          a.type.drawText();
+        }
+      });
+    }
+  }, {
     key: "updateNotePadding",
     value: function updateNotePadding(notePadding) {
       this.annotations.forEach(function (a) {
@@ -1683,7 +1692,7 @@ function annotation() {
       return new Annotation(a);
     });
 
-    collection = new AnnotationCollection({
+    collection = collection || new AnnotationCollection({
       annotations: translatedAnnotations,
       accessors: accessors,
       accessorsInverse: accessorsInverse,
@@ -1711,6 +1720,7 @@ function annotation() {
       d.type = !d.type.name ? d.type : new d.type({ a: a, annotation: d, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
         dispatcher: annotationDispatcher, accessors: accessors });
       d.type.draw();
+      d.type.drawText && d.type.drawText();
     });
   };
 
@@ -1727,6 +1737,14 @@ function annotation() {
       annotations = collection.annotations.map(function (a) {
         a.type.draw();return a;
       });
+    }
+    return annotation;
+  };
+
+  annotation.updateText = function () {
+    if (collection) {
+      collection.updateText(textWrap);
+      annotations = collection.annotations;
     }
     return annotation;
   };
