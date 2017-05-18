@@ -27,6 +27,7 @@ export class Type {
     this.noteContent = this.note && a.select('g.annotation-note-content')
     this.connector = annotation.disable.indexOf("connector") === -1 && a.select('g.annotation-connector')
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject')
+    this.dispatcher = dispatcher
 
     if (dispatcher) {
       const handler = addHandlers.bind(null, dispatcher, annotation)
@@ -255,10 +256,12 @@ export class Type {
   }
 
   dragstarted () { event.sourceEvent.stopPropagation(); 
+    this.dispatcher && this.dispatcher.call("dragstart", this.a, this.annotation)
     this.a.classed("dragging", true) 
     this.a.selectAll("circle.handle").style("pointer-events", "none")
   }
   dragended () { 
+    this.dispatcher && this.dispatcher.call("dragend", this.a, this.annotation)
     this.a.classed("dragging", false)
     this.a.selectAll("circle.handle").style("pointer-events", "all")
   }

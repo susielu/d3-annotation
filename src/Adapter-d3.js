@@ -18,9 +18,9 @@ export default function annotation () {
     textWrap,
     notePadding,
     annotationDispatcher = dispatch(
-    "subjectover", "subjectout", "subjectclick", 
+    "subjectover", "subjectout", "subjectclick",
     "connectorover", "connectorout", "connectorclick", 
-    "noteover", "noteout", "noteclick"),
+    "noteover", "noteout", "noteclick", "dragend", "dragstart"),
     sel;
 
   const annotation = function (selection) {
@@ -129,7 +129,7 @@ export default function annotation () {
     }
     return annotation;
   }
-
+//todo think of how to handle when undefined is sent
   annotation.type = function (_, settings) {
     if (!arguments.length) return type;
     type = _;

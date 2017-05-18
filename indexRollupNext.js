@@ -1075,6 +1075,7 @@ var Type = function () {
     this.noteContent = this.note && a.select('g.annotation-note-content');
     this.connector = annotation.disable.indexOf("connector") === -1 && a.select('g.annotation-connector');
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject');
+    this.dispatcher = dispatcher;
 
     if (dispatcher) {
       var handler = addHandlers.bind(null, dispatcher, annotation);
@@ -1359,12 +1360,14 @@ var Type = function () {
     key: 'dragstarted',
     value: function dragstarted() {
       event.sourceEvent.stopPropagation();
+      this.dispatcher && this.dispatcher.call("dragstart", this.a, this.annotation);
       this.a.classed("dragging", true);
       this.a.selectAll("circle.handle").style("pointer-events", "none");
     }
   }, {
     key: 'dragended',
     value: function dragended() {
+      this.dispatcher && this.dispatcher.call("dragend", this.a, this.annotation);
       this.a.classed("dragging", false);
       this.a.selectAll("circle.handle").style("pointer-events", "all");
     }
@@ -1671,7 +1674,7 @@ function annotation() {
       type = d3Callout,
       textWrap = void 0,
       notePadding = void 0,
-      annotationDispatcher = dispatch("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "noteover", "noteout", "noteclick"),
+      annotationDispatcher = dispatch("subjectover", "subjectout", "subjectclick", "connectorover", "connectorout", "connectorclick", "noteover", "noteout", "noteclick", "dragend", "dragstart"),
       sel = void 0;
 
   var annotation = function annotation(selection) {
@@ -1783,7 +1786,7 @@ function annotation() {
     }
     return annotation;
   };
-
+  //todo think of how to handle when undefined is sent
   annotation.type = function (_, settings) {
     if (!arguments.length) return type;
     type = _;
