@@ -19,7 +19,7 @@ type BBox = {
   height: number
 };
 
-export default class Annotation {
+export default class Annotation<T> {
 
   className: string;
   x: number;
@@ -60,22 +60,24 @@ export default class Annotation {
     className: string;
   });
 
-  annotations(anotations: any[]): Annotation;
-  accessors(accessors: any): Annotation;
-  editMode(editMode: boolean): Annotation;
-  type(type: any): Annotation;
+  annotations(anotations: any[]): Annotation<T>;
+  accessors(accessors: { x?: (datum: T) => any, y?: (datum: T) => any }): Annotation<T>;
+  accessorsInverse(accessors: any): Annotation<T>;
+  editMode(editMode: boolean): Annotation<T>;
+  type(type: any): Annotation<T>;
   updatePosition(): void;
   updateOffset(): void;
   update(): void;
+  updatedAccessors(): void;
 }
 
-export class Type {
+export class Type<T> {
   a: Selection<BaseType, any, any, any>;
   note: Selection<Element, any, any, any> | false;
   noteContent: Selection<Element, any, any, any> | false;
   connector: Selection<Element, any, any, any> | false;
   subject: Selection<Element, any, any, any> | false;
-  annotation: Annotation;
+  annotation: Annotation<T>;
   editMode: boolean;
   notePadding: number;
   offsetCornerX: number;
@@ -83,7 +85,7 @@ export class Type {
 
   constructor(args: {
     a: Selection<any, any, any, any>,
-    annotation: Annotation,
+    annotation: Annotation<T>,
     editMode?: boolean,
     dispatcher?: Dispatch<Element>,
     notePadding?: number,
@@ -152,13 +154,27 @@ export class Type {
 }
 
 // TODO define these
-export class annotationLabel extends Type { }
-export class annotationCallout extends Type { }
-export class annotationCalloutElbow extends Type { }
-export class annotationCalloutCurve extends Type { }
-export class annotationCalloutCircle extends Type { }
-export class annotationCalloutRect extends Type { }
-export class annotationXYThreshold extends Type { }
-export class annotationBadge extends Type { }
+export class annotationLabel<T> extends Type<T> { }
+export class annotationCallout<T> extends Type<T> { }
+export class annotationCalloutElbow<T> extends Type<T> { }
+export class annotationCalloutCurve<T> extends Type<T> { }
+export class annotationCalloutCircle<T> extends Type<T> { }
+export class annotationCalloutRect<T> extends Type<T> { }
+export class annotationXYThreshold<T> extends Type<T> { }
+export class annotationBadge<T> extends Type<T> { }
 
-export function annotation(): Annotation;
+interface CustomAnnotationSettings {
+  disable?: string[];
+  className?: string;
+  subject?: any;
+  connector?: any;
+  note?: any;
+}
+
+export class annotationCustomType<T> extends Type<T> {
+  constructor(type: typeof Type, settings: CustomAnnotationSettings);
+}
+
+export function annotation<T>(): Annotation<T>;
+
+export as namespace d3;
