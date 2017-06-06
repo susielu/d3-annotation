@@ -40,5 +40,5 @@ export default ({ annotation, start, end }) => {
   //   ]
   // }
 
-  return { components: [lineBuilder({ data, className : 'connector-arrow' })] }
+  return { components: [lineBuilder({ data, className : 'connector-end connector-arrow', classID: 'connector-end' })] }
 }

@@ -141,6 +141,8 @@ var Annotation = function () {
         x = _ref$x === undefined ? 0 : _ref$x,
         _ref$y = _ref.y,
         y = _ref$y === undefined ? 0 : _ref$y,
+        nx = _ref.nx,
+        ny = _ref.ny,
         _ref$dy = _ref.dy,
         dy = _ref$dy === undefined ? 0 : _ref$dy,
         _ref$dx = _ref.dx,
@@ -156,8 +158,8 @@ var Annotation = function () {
     classCallCheck(this, Annotation);
 
 
-    this._dx = dx;
-    this._dy = dy;
+    this._dx = nx !== undefined ? nx - x : dx;
+    this._dy = ny !== undefined ? ny - y : dy;
     this._x = x;
     this._y = y;
     this.id = id;
@@ -239,6 +241,18 @@ var Annotation = function () {
     },
     set: function set$$1(dy) {
       this._dy = dy;
+      this.updateOffset();
+    }
+  }, {
+    key: 'nx',
+    set: function set$$1(nx) {
+      this._dx = nx - this._x;
+      this.updateOffset();
+    }
+  }, {
+    key: 'ny',
+    set: function set$$1(ny) {
+      this._dy = ny - this._y;
       this.updateOffset();
     }
   }, {
@@ -569,13 +583,15 @@ var lineBuilder = function lineBuilder(_ref) {
       _ref$curve = _ref.curve,
       curve = _ref$curve === undefined ? d3Shape.curveLinear : _ref$curve,
       canvasContext = _ref.canvasContext,
-      className = _ref.className;
+      className = _ref.className,
+      classID = _ref.classID;
 
   var lineGen = d3Shape.line().curve(curve);
 
   var builder = {
     type: 'path',
     className: className,
+    classID: classID,
     data: data
   };
 
@@ -594,12 +610,14 @@ var lineBuilder = function lineBuilder(_ref) {
 var arcBuilder = function arcBuilder(_ref2) {
   var data = _ref2.data,
       canvasContext = _ref2.canvasContext,
-      className = _ref2.className;
+      className = _ref2.className,
+      classID = _ref2.classID;
 
 
   var builder = {
     type: 'path',
     className: className,
+    classID: classID,
     data: data
   };
 
@@ -880,14 +898,14 @@ var connectorArrow = (function (_ref) {
   //   ]
   // }
 
-  return { components: [lineBuilder({ data: data, className: 'connector-arrow' })] };
+  return { components: [lineBuilder({ data: data, className: 'connector-end connector-arrow', classID: 'connector-end' })] };
 });
 
 var connectorDot = (function (_ref) {
   var line$$1 = _ref.line;
 
 
-  var dot = arcBuilder({ className: 'connector-dot', data: { radius: 3 } });
+  var dot = arcBuilder({ className: 'connector-end connector-dot', classID: 'connector-end', data: { radius: 3 } });
   dot.attrs.transform = 'translate(' + line$$1.data[0][0] + ', ' + line$$1.data[0][1] + ')';
 
   return { components: [dot] };
@@ -1140,22 +1158,34 @@ var Type = function () {
         var type = _ref2.type,
             className = _ref2.className,
             attrs = _ref2.attrs,
-            handles = _ref2.handles;
+            handles = _ref2.handles,
+            classID = _ref2.classID;
 
         if (type === "handle") {
           addHandles({ group: component, r: attrs && attrs.r, handles: handles });
         } else {
           (function () {
-            newWithClass(component, [_this.annotation], type, className);
+            newWithClass(component, [_this.annotation], type, className, classID);
+            var el = component.select(type + '.' + (classID || className));
+            var addAttrs = Object.keys(attrs);
+            var removeAttrs = [];
 
-            var el = component.select(type + '.' + className);
-            var attrKeys = Object.keys(attrs);
-            attrKeys.forEach(function (attr) {
+            var currentAttrs = el.node().attributes;
+            for (var i = currentAttrs.length - 1; i >= 0; i--) {
+              var name = currentAttrs[i].name;
+              if (addAttrs.indexOf(name) === -1 && name !== "class") removeAttrs.push(name);
+            }
+
+            addAttrs.forEach(function (attr) {
               if (attr === "text") {
                 el.text(attrs[attr]);
               } else {
                 el.attr(attr, attrs[attr]);
               }
+            });
+
+            removeAttrs.forEach(function (attr) {
+              return el.attr(attr, null);
             });
           })();
         }
@@ -1234,7 +1264,6 @@ var Type = function () {
         if (distance < 5 && line$$1.data[2]) {
           s = line$$1.data[2];
         }
-
         end = connectorArrow({ annotation: this.annotation, start: s, end: e });
       } else if (endType === "dot") {
         end = connectorDot({ line: line$$1 });
@@ -1595,8 +1624,8 @@ var d3XYThreshold = customType(ThresholdMap, {
   subject: { type: "threshold" }
 });
 
-var newWithClass = function newWithClass(a, d, type, className) {
-  var group = a.selectAll(type + '.' + className).data(d);
+var newWithClass = function newWithClass(a, d, type, className, classID) {
+  var group = a.selectAll(type + '.' + (classID || className)).data(d);
   group.enter().append(type).merge(group).attr('class', className);
 
   group.exit().remove();
@@ -1624,8 +1653,9 @@ var wrap = function wrap(text, width) {
 
   text.each(function () {
     var text = d3Selection.select(this),
-        words = text.text().split(/[ \t\r\n]+/).reverse();
-
+        words = text.text().split(/[ \t\r\n]+/).reverse().filter(function (w) {
+      return w !== "";
+    });
     var word = void 0,
         line$$1 = [],
         tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", .8 + "em");
@@ -1720,7 +1750,7 @@ function annotation() {
       newWithClass(a, [d], 'g', 'annotation-note');
       newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content');
 
-      d.type = !d.type.name ? d.type : new d.type({ a: a, annotation: d, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
+      d.type = d.type.toString() === "[object Object]" ? d.type : new d.type({ a: a, annotation: d, textWrap: textWrap, notePadding: notePadding, editMode: editMode,
         dispatcher: annotationDispatcher, accessors: accessors });
       d.type.draw();
       d.type.drawText && d.type.drawText();

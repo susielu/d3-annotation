@@ -1,10 +1,10 @@
 
 export default class Annotation {
-  constructor ({ x=0, y=0, dy=0, dx=0, data, type, subject, connector, note, 
+  constructor ({ x=0, y=0, nx, ny, dy=0, dx=0, data, type, subject, connector, note, 
     disable, id, className }) {
 
-    this._dx = dx
-    this._dy = dy 
+    this._dx = nx !== undefined ? nx - x : dx
+    this._dy = ny !== undefined ? ny - y : dy 
     this._x = x 
     this._y = y
     this.id = id
@@ -68,7 +68,17 @@ export default class Annotation {
 
   get dy () { return this._dy }
   set dy (dy) { 
-    this._dy = dy; 
+    this._dy = dy
+    this.updateOffset()
+  }
+
+  set nx (nx) { 
+    this._dx = nx - this._x
+    this.updateOffset()
+  }
+
+  set ny (ny) { 
+    this._dy = ny - this._y
     this.updateOffset()
   }
 

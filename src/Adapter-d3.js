@@ -65,7 +65,7 @@ export default function annotation () {
         newWithClass(a, [d], 'g', 'annotation-note')
         newWithClass(a.select('g.annotation-note'), [d], 'g', 'annotation-note-content')
 
-        d.type = !d.type.name ? d.type : new d.type({ a, annotation: d, textWrap, notePadding, editMode,
+        d.type = d.type.toString() === "[object Object]" ? d.type : new d.type({ a, annotation: d, textWrap, notePadding, editMode,
           dispatcher: annotationDispatcher, accessors })
         d.type.draw()
         d.type.drawText && d.type.drawText()

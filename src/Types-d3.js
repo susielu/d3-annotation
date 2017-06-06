@@ -78,24 +78,33 @@ export class Type {
     if (!Array.isArray(builders)) {
       builders = [ builders ]
     }
-
+    
     builders
       .filter(b => b)
-      .forEach(({ type, className, attrs, handles}) => {
+      .forEach(({ type, className, attrs, handles, classID }) => {
         if (type === "handle") {
           addHandles({ group: component, r: attrs && attrs.r, handles })
         } else {
-          newWithClass(component, [this.annotation], type, className)
+          newWithClass(component, [this.annotation], type, className, classID)
+          const el = component.select(`${type}.${classID || className}`) 
+          const addAttrs = Object.keys(attrs)
+          const removeAttrs = []
           
-          const el = component.select(`${type}.${className}`) 
-          const attrKeys = Object.keys(attrs)
-          attrKeys.forEach(attr => {
+          const currentAttrs = el.node().attributes
+          for(let i = currentAttrs.length - 1; i >= 0; i--) {
+            const name = currentAttrs[i].name
+            if (addAttrs.indexOf(name) === -1 && name !== "class") removeAttrs.push(name)
+          }
+
+          addAttrs.forEach(attr => {
             if (attr === "text") {
               el.text(attrs[attr])
             } else {
               el.attr(attr, attrs[attr])
             }
           })
+
+          removeAttrs.forEach(attr => el.attr(attr, null))
         }
       })
   }
@@ -155,7 +164,6 @@ export class Type {
       if (distance < 5 && line.data[2]) {
         s = line.data[2]
       }
-
       end = connectorArrow({ annotation: this.annotation, start: s, end: e })
     } else if (endType === "dot") {
       end = connectorDot({ line })
@@ -206,7 +214,7 @@ export class Type {
     return []
   } 
 
-  drawOnScreen (component, drawFunction) { return this.drawOnSVG( component, drawFunction) }
+  drawOnScreen (component, drawFunction) { return this.drawOnSVG( component, drawFunction ) }
 
   redrawSubject () {
     this.subject && this.drawOnScreen( this.subject, this.drawSubject())
@@ -450,8 +458,8 @@ export const d3XYThreshold = customType(ThresholdMap, {
 
 
 
-export const newWithClass = (a, d, type, className) => {
-  const group = a.selectAll(`${type}.${className}`).data(d)
+export const newWithClass = (a, d, type, className, classID) => {
+  const group = a.selectAll(`${type}.${classID || className}`).data(d)
   group.enter()
     .append(type)
     .merge(group)
@@ -476,8 +484,7 @@ const addHandlers = ( dispatcher, annotation, { component, name }) => {
 const wrap = (text, width, lineHeight=1.2) => {
   text.each(function () {
     const text = select(this),
-      words = text.text().split(/[ \t\r\n]+/).reverse()
-    
+      words = text.text().split(/[ \t\r\n]+/).reverse().filter(w => w !== "")
     let word,
       line = [],
       tspan = text.text(null)

@@ -1,12 +1,13 @@
 import { line, arc, curveLinear } from "d3-shape"
 
-export const lineBuilder = ({ data, curve=curveLinear, canvasContext, className }) => { 
+export const lineBuilder = ({ data, curve=curveLinear, canvasContext, className, classID }) => { 
   const lineGen = line()
     .curve(curve)
 
   const builder = {
     type: 'path',
     className,
+    classID,
     data
   }
 
@@ -23,11 +24,12 @@ export const lineBuilder = ({ data, curve=curveLinear, canvasContext, className 
   return builder
 }
 
-export const arcBuilder = ({ data, canvasContext, className }) => {
+export const arcBuilder = ({ data, canvasContext, className, classID }) => {
 
   const builder = {
     type: 'path',
     className,
+    classID,
     data
   }
 
