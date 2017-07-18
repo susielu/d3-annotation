@@ -1,41 +1,46 @@
-import { select, event } from 'd3-selection'
-import { addHandles } from './Handles'
+import { select, event } from "d3-selection"
+import { addHandles } from "./Handles"
 
 //Note options
-import noteAlignment from './Note/alignment'
-import noteVertical from './Note/lineType-vertical'
-import noteHorizontal from './Note/lineType-horizontal'
+import noteAlignment from "./Note/alignment"
+import noteVertical from "./Note/lineType-vertical"
+import noteHorizontal from "./Note/lineType-horizontal"
 
 //Connector options
-import connectorLine from './Connector/type-line'
-import connectorElbow from './Connector/type-elbow'
-import connectorCurve from './Connector/type-curve'
-import connectorArrow from './Connector/end-arrow'
-import connectorDot from './Connector/end-dot'
+import connectorLine from "./Connector/type-line"
+import connectorElbow from "./Connector/type-elbow"
+import connectorCurve from "./Connector/type-curve"
+import connectorArrow from "./Connector/end-arrow"
+import connectorDot from "./Connector/end-dot"
 
 //Subject options
-import subjectCircle from './Subject/circle'
-import subjectRect from './Subject/rect'
-import subjectThreshold from './Subject/threshold'
-import subjectBadge from './Subject/badge'
+import subjectCircle from "./Subject/circle"
+import subjectRect from "./Subject/rect"
+import subjectThreshold from "./Subject/threshold"
+import subjectBadge from "./Subject/badge"
 
 export class Type {
-  constructor ({ a, annotation, editMode, dispatcher, notePadding, accessors }) {
+  constructor({ a, annotation, editMode, dispatcher, notePadding, accessors }) {
     this.a = a
 
-    this.note = annotation.disable.indexOf("note") === -1 && a.select('g.annotation-note')
-    this.noteContent = this.note && a.select('g.annotation-note-content')
-    this.connector = annotation.disable.indexOf("connector") === -1 && a.select('g.annotation-connector')
-    this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject')
+    this.note =
+      annotation.disable.indexOf("note") === -1 && a.select("g.annotation-note")
+    this.noteContent = this.note && a.select("g.annotation-note-content")
+    this.connector =
+      annotation.disable.indexOf("connector") === -1 &&
+      a.select("g.annotation-connector")
+    this.subject =
+      annotation.disable.indexOf("subject") === -1 &&
+      a.select("g.annotation-subject")
     this.dispatcher = dispatcher
 
     if (dispatcher) {
       const handler = addHandlers.bind(null, dispatcher, annotation)
-      handler({ component: this.note, name: 'note' })
-      handler({ component: this.connector, name: 'connector' })
-      handler({ component: this.subject, name: 'subject' })
+      handler({ component: this.note, name: "note" })
+      handler({ component: this.connector, name: "connector" })
+      handler({ component: this.subject, name: "subject" })
     }
-  
+
     this.annotation = annotation
     this.editMode = annotation.editMode || editMode
     this.notePadding = notePadding !== undefined ? notePadding : 3
@@ -47,7 +52,7 @@ export class Type {
     }
   }
 
-  init (accessors) {
+  init(accessors) {
     if (!this.annotation.x) {
       this.mapX(accessors)
     }
@@ -56,29 +61,27 @@ export class Type {
     }
   }
 
-  mapY (accessors) {
+  mapY(accessors) {
     if (accessors.y) {
       this.annotation.y = accessors.y(this.annotation.data)
     }
   }
 
-  mapX (accessors) {
+  mapX(accessors) {
     if (accessors.x) {
       this.annotation.x = accessors.x(this.annotation.data)
     }
   }
 
-
-  updateEditMode () {
-    this.a.selectAll('circle.handle')
-      .remove()
+  updateEditMode() {
+    this.a.selectAll("circle.handle").remove()
   }
 
-  drawOnSVG (component, builders) {
+  drawOnSVG(component, builders) {
     if (!Array.isArray(builders)) {
-      builders = [ builders ]
+      builders = [builders]
     }
-    
+
     builders
       .filter(b => b)
       .forEach(({ type, className, attrs, handles, classID }) => {
@@ -86,14 +89,15 @@ export class Type {
           addHandles({ group: component, r: attrs && attrs.r, handles })
         } else {
           newWithClass(component, [this.annotation], type, className, classID)
-          const el = component.select(`${type}.${classID || className}`) 
+          const el = component.select(`${type}.${classID || className}`)
           const addAttrs = Object.keys(attrs)
           const removeAttrs = []
-          
+
           const currentAttrs = el.node().attributes
-          for(let i = currentAttrs.length - 1; i >= 0; i--) {
+          for (let i = currentAttrs.length - 1; i >= 0; i--) {
             const name = currentAttrs[i].name
-            if (addAttrs.indexOf(name) === -1 && name !== "class") removeAttrs.push(name)
+            if (addAttrs.indexOf(name) === -1 && name !== "class")
+              removeAttrs.push(name)
           }
 
           addAttrs.forEach(attr => {
@@ -109,23 +113,25 @@ export class Type {
       })
   }
 
-  //TODO: how to extend this to a drawOnCanvas mode? 
+  //TODO: how to extend this to a drawOnCanvas mode?
 
-  getNoteBBox () { return bboxWithoutHandles(this.note, '.annotation-note-content text')}
-  getNoteBBoxOffset () { 
-    const bbox = bboxWithoutHandles(this.note, '.annotation-note-content')
-    const transform = this.noteContent.attr('transform').split(/\(|\,|\)/g)
+  getNoteBBox() {
+    return bboxWithoutHandles(this.note, ".annotation-note-content text")
+  }
+  getNoteBBoxOffset() {
+    const bbox = bboxWithoutHandles(this.note, ".annotation-note-content")
+    const transform = this.noteContent.attr("transform").split(/\(|\,|\)/g)
     bbox.offsetCornerX = parseFloat(transform[1]) + this.annotation.dx
     bbox.offsetCornerY = parseFloat(transform[2]) + this.annotation.dy
     bbox.offsetX = this.annotation.dx
     bbox.offsetY = this.annotation.dy
-    return bbox 
+    return bbox
   }
 
-  drawSubject (context={}) {
+  drawSubject(context = {}) {
     const subjectData = this.annotation.subject
     const type = context.type
-    const subjectParams = { type: this, subjectData}
+    const subjectParams = { type: this, subjectData }
 
     let subject = {}
     if (type === "circle") subject = subjectCircle(subjectParams)
@@ -133,34 +139,41 @@ export class Type {
     else if (type === "threshold") subject = subjectThreshold(subjectParams)
     else if (type === "badge") subject = subjectBadge(subjectParams)
 
-    let { components=[], handles=[] } = subject
+    let { components = [], handles = [] } = subject
     if (this.editMode) {
-      handles = handles.concat(this.mapHandles([{ drag: this.dragSubject.bind(this)}]))
+      handles = handles.concat(
+        this.mapHandles([{ drag: this.dragSubject.bind(this) }])
+      )
       components.push({ type: "handle", handles })
     }
 
     return components
   }
 
-  drawConnector (context={}) {
+  drawConnector(context = {}) {
     const connectorData = this.annotation.connector
     const type = connectorData.type || context.type
-    const connectorParams = { type: this, connectorData}
-    connectorParams.subjectType = this.typeSettings && this.typeSettings.subject && this.typeSettings.subject.type 
+    const connectorParams = { type: this, connectorData }
+    connectorParams.subjectType =
+      this.typeSettings &&
+      this.typeSettings.subject &&
+      this.typeSettings.subject.type
 
     let connector = {}
     if (type === "curve") connector = connectorCurve(connectorParams)
     else if (type === "elbow") connector = connectorElbow(connectorParams)
     else connector = connectorLine(connectorParams)
 
-    let { components=[], handles=[] } = connector
+    let { components = [], handles = [] } = connector
     const line = components[0]
     const endType = connectorData.end || context.end
     let end = {}
     if (endType === "arrow") {
       let s = line.data[1]
       const e = line.data[0]
-      const distance = Math.sqrt(Math.pow(s[0] - e[0], 2) + Math.pow(s[1] - e[1], 2))
+      const distance = Math.sqrt(
+        Math.pow(s[0] - e[0], 2) + Math.pow(s[1] - e[1], 2)
+      )
       if (distance < 5 && line.data[2]) {
         s = line.data[2]
       }
@@ -169,79 +182,96 @@ export class Type {
       end = connectorDot({ line })
     }
 
-    if (end.components) { components = components.concat(end.components)}
+    if (end.components) {
+      components = components.concat(end.components)
+    }
 
     if (this.editMode) {
       if (handles.length !== 0) components.push({ type: "handle", handles })
     }
-    return components;
+    return components
   }
 
-  drawNote (context={}) {
+  drawNote(context = {}) {
     const noteData = this.annotation.note
-    const align = noteData.align || context.align || 'dynamic'
-    const noteParams = { bbox: context.bbox, align, offset: this.annotation.offset }
+    const align = noteData.align || context.align || "dynamic"
+    const noteParams = {
+      bbox: context.bbox,
+      align,
+      offset: this.annotation.offset
+    }
     const lineType = noteData.lineType || context.lineType
-    let note={}
+    let note = {}
     if (lineType === "vertical") note = noteVertical(noteParams)
     else if (lineType === "horizontal") note = noteHorizontal(noteParams)
 
-    let { components=[], handles=[] } = note
+    let { components = [], handles = [] } = note
     if (this.editMode) {
-      handles = this.mapHandles([{ x: 0, y: 0, drag: this.dragNote.bind(this)}])
+      handles = this.mapHandles([
+        { x: 0, y: 0, drag: this.dragNote.bind(this) }
+      ])
       components.push({ type: "handle", handles })
     }
     return components
   }
 
-  drawNoteContent (context) {
+  drawNoteContent(context) {
     const noteData = this.annotation.note
-    const padding = noteData.padding !== undefined ? noteData.padding : this.notePadding
-    let orientation = noteData.orientation || context.orientation || 'topBottom'
+    const padding =
+      noteData.padding !== undefined ? noteData.padding : this.notePadding
+    let orientation = noteData.orientation || context.orientation || "topBottom"
     const lineType = noteData.lineType || context.lineType
-    const align = noteData.align || context.align || 'dynamic'
-    
-    if (lineType === "vertical") orientation =  "leftRight"
+    const align = noteData.align || context.align || "dynamic"
+
+    if (lineType === "vertical") orientation = "leftRight"
     else if (lineType === "horizontal") orientation = "topBottom"
-  
-    const noteParams = { padding, bbox: context.bbox, offset: 
-    this.annotation.offset, orientation, align }
+
+    const noteParams = {
+      padding,
+      bbox: context.bbox,
+      offset: this.annotation.offset,
+      orientation,
+      align
+    }
     const { x, y } = noteAlignment(noteParams)
     this.offsetCornerX = x + this.annotation.dx
     this.offsetCornerY = y + this.annotation.dy
-    this.note && this.noteContent.attr('transform', `translate(${x}, ${y})`)
-    
+    this.note && this.noteContent.attr("transform", `translate(${x}, ${y})`)
+
     return []
-  } 
-
-  drawOnScreen (component, drawFunction) { return this.drawOnSVG( component, drawFunction ) }
-
-  redrawSubject () {
-    this.subject && this.drawOnScreen( this.subject, this.drawSubject())
   }
 
-  redrawConnector () {
-    this.connector && this.drawOnScreen( this.connector, this.drawConnector())
+  drawOnScreen(component, drawFunction) {
+    return this.drawOnSVG(component, drawFunction)
   }
 
-  redrawNote (bbox=this.getNoteBBox()) {
-    this.noteContent && this.drawOnScreen( this.noteContent, this.drawNoteContent({ bbox }))
-    this.note && this.drawOnScreen( this.note, this.drawNote({ bbox }))  
+  redrawSubject() {
+    this.subject && this.drawOnScreen(this.subject, this.drawSubject())
   }
 
-  setPosition () {
-    const position = this.annotation.position 
-    this.a.attr('transform', `translate(${position.x}, ${position.y})`)
+  redrawConnector() {
+    this.connector && this.drawOnScreen(this.connector, this.drawConnector())
   }
 
-  setOffset () {
+  redrawNote(bbox = this.getNoteBBox()) {
+    this.noteContent &&
+      this.drawOnScreen(this.noteContent, this.drawNoteContent({ bbox }))
+    this.note && this.drawOnScreen(this.note, this.drawNote({ bbox }))
+  }
+
+  setPosition() {
+    const position = this.annotation.position
+    this.a.attr("transform", `translate(${position.x}, ${position.y})`)
+  }
+
+  setOffset() {
     if (this.note) {
       const offset = this.annotation.offset
-      this.note.attr('transform', `translate(${offset.x}, ${offset.y})`)
+      this.note.attr("transform", `translate(${offset.x}, ${offset.y})`)
     }
   }
 
-  setPositionWithAccessors (accessors) {
+  setPositionWithAccessors(accessors) {
     if (accessors && this.annotation.data) {
       this.mapX(accessors)
       this.mapY(accessors)
@@ -249,12 +279,16 @@ export class Type {
     this.setPosition()
   }
 
-
-  setClassName () {
-    this.a.attr("class", `annotation ${this.className && this.className()} ${this.editMode ? "editable" : ""} ${this.annotation.className || ''}`)
+  setClassName() {
+    this.a.attr(
+      "class",
+      `annotation ${this.className && this.className()} ${this.editMode
+        ? "editable"
+        : ""} ${this.annotation.className || ""}`
+    )
   }
 
-  draw () {
+  draw() {
     this.setClassName()
     this.setPosition()
     this.setOffset()
@@ -263,41 +297,45 @@ export class Type {
     this.redrawNote()
   }
 
-  dragstarted () { event.sourceEvent.stopPropagation(); 
-    this.dispatcher && this.dispatcher.call("dragstart", this.a, this.annotation)
-    this.a.classed("dragging", true) 
+  dragstarted() {
+    event.sourceEvent.stopPropagation()
+    this.dispatcher &&
+      this.dispatcher.call("dragstart", this.a, this.annotation)
+    this.a.classed("dragging", true)
     this.a.selectAll("circle.handle").style("pointer-events", "none")
   }
-  dragended () { 
+  dragended() {
     this.dispatcher && this.dispatcher.call("dragend", this.a, this.annotation)
     this.a.classed("dragging", false)
     this.a.selectAll("circle.handle").style("pointer-events", "all")
   }
 
-  dragSubject () {
+  dragSubject() {
     const position = this.annotation.position
     position.x += event.dx
     position.y += event.dy
     this.annotation.position = position
   }
 
-  dragNote () {
+  dragNote() {
     const offset = this.annotation.offset
     offset.x += event.dx
     offset.y += event.dy
     this.annotation.offset = offset
   }
 
-  mapHandles (handles) {
-    return handles
-    .map(h => ({ ...h, 
-      start: this.dragstarted.bind(this), end: this.dragended.bind(this) }))
+  mapHandles(handles) {
+    return handles.map(h => ({
+      ...h,
+      start: this.dragstarted.bind(this),
+      end: this.dragended.bind(this)
+    }))
   }
 }
 
 export const customType = (initialType, typeSettings, init) => {
   return class customType extends initialType {
-    constructor (settings) {
+    constructor(settings) {
       super(settings)
       this.typeSettings = typeSettings
 
@@ -311,92 +349,133 @@ export const customType = (initialType, typeSettings, init) => {
       }
     }
 
-    static init (annotation, accessors) { 
-      super.init(annotation, accessors); 
+    static init(annotation, accessors) {
+      super.init(annotation, accessors)
       if (init) {
-        annotation = init(annotation, accessors) 
+        annotation = init(annotation, accessors)
       }
       return annotation
     }
 
-    className () { return `${typeSettings.className || super.className && super.className() || ''}`}
+    className() {
+      return `${typeSettings.className ||
+        super.className && super.className() ||
+        ""}`
+    }
 
-    drawSubject (context) {
-      this.typeSettings.subject = Object.assign({}, typeSettings.subject, this.typeSettings.subject)
+    drawSubject(context) {
+      this.typeSettings.subject = Object.assign(
+        {},
+        typeSettings.subject,
+        this.typeSettings.subject
+      )
       return super.drawSubject({ ...context, ...this.typeSettings.subject })
     }
 
-    drawConnector (context) {
-      this.typeSettings.connector = Object.assign({}, typeSettings.connector, this.typeSettings.connector)
-      return super.drawConnector({ ...context, ...typeSettings.connector, ...this.typeSettings.connector })
+    drawConnector(context) {
+      this.typeSettings.connector = Object.assign(
+        {},
+        typeSettings.connector,
+        this.typeSettings.connector
+      )
+      return super.drawConnector({
+        ...context,
+        ...typeSettings.connector,
+        ...this.typeSettings.connector
+      })
     }
 
-    drawNote (context) {
-      this.typeSettings.note = Object.assign({}, typeSettings.note, this.typeSettings.note)
-      return super.drawNote({ ...context, ...typeSettings.note, ...this.typeSettings.note })
+    drawNote(context) {
+      this.typeSettings.note = Object.assign(
+        {},
+        typeSettings.note,
+        this.typeSettings.note
+      )
+      return super.drawNote({
+        ...context,
+        ...typeSettings.note,
+        ...this.typeSettings.note
+      })
     }
 
-    drawNoteContent (context) {
-      return super.drawNoteContent({ ...context, ...typeSettings.note, ...this.typeSettings.note })
+    drawNoteContent(context) {
+      return super.drawNoteContent({
+        ...context,
+        ...typeSettings.note,
+        ...this.typeSettings.note
+      })
     }
   }
 }
 
 export class d3NoteText extends Type {
-
-  constructor (params) {
+  constructor(params) {
     super(params)
     this.textWrap = params.textWrap || 120
     this.drawText()
   }
 
-  updateTextWrap (textWrap) {
+  updateTextWrap(textWrap) {
     this.textWrap = textWrap
     this.drawText()
   }
 
   //TODO: add update text functionality
 
-  drawText () {
+  drawText() {
     if (this.note) {
-      
-      newWithClass(this.note, [this.annotation], 'g', 'annotation-note-content')
+      newWithClass(this.note, [this.annotation], "g", "annotation-note-content")
 
-      const noteContent = this.note.select('g.annotation-note-content')
-      newWithClass(noteContent, [this.annotation], 'rect', 'annotation-note-bg')
-      newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-label')
-      newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-title')
+      const noteContent = this.note.select("g.annotation-note-content")
+      newWithClass(noteContent, [this.annotation], "rect", "annotation-note-bg")
+      newWithClass(
+        noteContent,
+        [this.annotation],
+        "text",
+        "annotation-note-label"
+      )
+      newWithClass(
+        noteContent,
+        [this.annotation],
+        "text",
+        "annotation-note-title"
+      )
 
       let titleBBox = { height: 0 }
-      const label = this.a.select('text.annotation-note-label')
-      const wrapLength = this.annotation.note && this.annotation.note.wrap || 
-        this.typeSettings && this.typeSettings.note && this.typeSettings.note.wrap ||
-        this.textWrap 
+      const label = this.a.select("text.annotation-note-label")
+      const wrapLength =
+        this.annotation.note && this.annotation.note.wrap ||
+        this.typeSettings &&
+          this.typeSettings.note &&
+          this.typeSettings.note.wrap ||
+        this.textWrap
 
       if (this.annotation.note.title) {
-        const title = this.a.select('text.annotation-note-title')
+        const title = this.a.select("text.annotation-note-title")
         title.text(this.annotation.note.title)
         title.call(wrap, wrapLength)
         titleBBox = title.node().getBBox()
       }
 
-      label.text(this.annotation.note.label)
-        .attr('dx', '0')
+      label.text(this.annotation.note.label).attr("dx", "0")
       label.call(wrap, wrapLength)
 
-      label.attr('y', titleBBox.height * 1.1 || 0)
+      label.attr("y", titleBBox.height * 1.1 || 0)
 
       const bbox = this.getNoteBBox()
-      this.a.select('rect.annotation-note-bg')
-        .attr('width', bbox.width)
-        .attr('height', bbox.height)
+
+      this.a
+        .select("rect.annotation-note-bg")
+        .attr("width", bbox.width)
+        .attr("height", bbox.height)
+        .attr("x", bbox.x)
     }
   }
 }
 
 export const d3Label = customType(d3NoteText, {
-  className: "label", 
-  note: { align: "middle"}
+  className: "label",
+  note: { align: "middle" }
 })
 
 export const d3Callout = customType(d3NoteText, {
@@ -416,25 +495,22 @@ export const d3CalloutCurve = customType(d3Callout, {
 
 export const d3Badge = customType(Type, {
   className: "badge",
-  subject: { type: "badge"},
-  disable: ['connector', 'note']
+  subject: { type: "badge" },
+  disable: ["connector", "note"]
 })
-
 
 export const d3CalloutCircle = customType(d3CalloutElbow, {
   className: "callout circle",
-  subject: { type: "circle"}
+  subject: { type: "circle" }
 })
 
 export const d3CalloutRect = customType(d3CalloutElbow, {
   className: "callout rect",
-  subject: { type: "rect"}
+  subject: { type: "rect" }
 })
 
-
 class ThresholdMap extends d3Callout {
-
-  mapY (accessors) {
+  mapY(accessors) {
     super.mapY(accessors)
     const a = this.annotation
     if ((a.subject.x1 || a.subject.x2) && a.data && accessors.y) {
@@ -442,7 +518,7 @@ class ThresholdMap extends d3Callout {
     }
   }
 
-  mapX (accessors) {
+  mapX(accessors) {
     super.mapX(accessors)
     const a = this.annotation
     if ((a.subject.y1 || a.subject.y2) && a.data && accessors.x) {
@@ -453,65 +529,67 @@ class ThresholdMap extends d3Callout {
 
 export const d3XYThreshold = customType(ThresholdMap, {
   className: "callout xythreshold",
-  subject: { type: "threshold"}
+  subject: { type: "threshold" }
 })
-
-
 
 export const newWithClass = (a, d, type, className, classID) => {
   const group = a.selectAll(`${type}.${classID || className}`).data(d)
-  group.enter()
-    .append(type)
-    .merge(group)
-    .attr('class', className)
+  group.enter().append(type).merge(group).attr("class", className)
 
   group.exit().remove()
   return a
 }
 
-
-const addHandlers = ( dispatcher, annotation, { component, name }) => {
+const addHandlers = (dispatcher, annotation, { component, name }) => {
   if (component) {
     component
-    .on("mouseover.annotations", () => {
-      dispatcher.call(`${name}over`, component, annotation)})
-    .on("mouseout.annotations", () => dispatcher.call(`${name}out`, component, annotation))
-    .on("click.annotations", () => dispatcher.call(`${name}click`, component, annotation))
+      .on("mouseover.annotations", () => {
+        dispatcher.call(`${name}over`, component, annotation)
+      })
+      .on("mouseout.annotations", () =>
+        dispatcher.call(`${name}out`, component, annotation)
+      )
+      .on("click.annotations", () =>
+        dispatcher.call(`${name}click`, component, annotation)
+      )
   }
 }
 
 //Text wrapping code adapted from Mike Bostock
-const wrap = (text, width, lineHeight=1.2) => {
-  text.each(function () {
+const wrap = (text, width, lineHeight = 1.2) => {
+  text.each(function() {
     const text = select(this),
       words = text.text().split(/[ \t\r\n]+/).reverse().filter(w => w !== "")
     let word,
       line = [],
-      tspan = text.text(null)
+      tspan = text
+        .text(null)
         .append("tspan")
         .attr("x", 0)
-        .attr("dy", .8 + "em")
+        .attr("dy", 0.8 + "em")
 
     while (word = words.pop()) {
-      line.push(word);
-      tspan.text(line.join(" "));
+      line.push(word)
+      tspan.text(line.join(" "))
       if (tspan.node().getComputedTextLength() > width && line.length > 1) {
-        line.pop();
-        tspan.text(line.join(" "));
-        line = [word];
-        tspan = text.append("tspan")
+        line.pop()
+        tspan.text(line.join(" "))
+        line = [word]
+        tspan = text
+          .append("tspan")
           .attr("x", 0)
-          .attr("dy", lineHeight  + "em").text(word);
+          .attr("dy", lineHeight + "em")
+          .text(word)
       }
     }
-  });
+  })
 }
 
-const bboxWithoutHandles = (selection, selector=':not(.handle)') => {
+const bboxWithoutHandles = (selection, selector = ":not(.handle)") => {
   if (!selection) {
-    return { x: 0, y: 0, width: 0, height: 0}
+    return { x: 0, y: 0, width: 0, height: 0 }
   }
-  
+
   return selection.selectAll(selector).nodes().reduce((p, c) => {
     const bbox = c.getBBox()
     p.x = Math.min(p.x, bbox.x)
@@ -519,9 +597,12 @@ const bboxWithoutHandles = (selection, selector=':not(.handle)') => {
     p.width = Math.max(p.width, bbox.width)
 
     const yOffset = c && c.attributes && c.attributes.y
-    p.height = Math.max(p.height, (yOffset && parseFloat(yOffset.value) || 0) + bbox.height)
+    p.height = Math.max(
+      p.height,
+      (yOffset && parseFloat(yOffset.value) || 0) + bbox.height
+    )
     return p
-  }, { x: 0, y: 0, width: 0, height: 0});
+  }, { x: 0, y: 0, width: 0, height: 0 })
 }
 
 export default {
