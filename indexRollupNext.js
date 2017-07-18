@@ -1089,17 +1089,17 @@ var Type = function () {
 
     this.a = a;
 
-    this.note = annotation.disable.indexOf("note") === -1 && a.select('g.annotation-note');
-    this.noteContent = this.note && a.select('g.annotation-note-content');
-    this.connector = annotation.disable.indexOf("connector") === -1 && a.select('g.annotation-connector');
-    this.subject = annotation.disable.indexOf("subject") === -1 && a.select('g.annotation-subject');
+    this.note = annotation.disable.indexOf("note") === -1 && a.select("g.annotation-note");
+    this.noteContent = this.note && a.select("g.annotation-note-content");
+    this.connector = annotation.disable.indexOf("connector") === -1 && a.select("g.annotation-connector");
+    this.subject = annotation.disable.indexOf("subject") === -1 && a.select("g.annotation-subject");
     this.dispatcher = dispatcher;
 
     if (dispatcher) {
       var handler = addHandlers.bind(null, dispatcher, annotation);
-      handler({ component: this.note, name: 'note' });
-      handler({ component: this.connector, name: 'connector' });
-      handler({ component: this.subject, name: 'subject' });
+      handler({ component: this.note, name: "note" });
+      handler({ component: this.connector, name: "connector" });
+      handler({ component: this.subject, name: "subject" });
     }
 
     this.annotation = annotation;
@@ -1114,7 +1114,7 @@ var Type = function () {
   }
 
   createClass(Type, [{
-    key: 'init',
+    key: "init",
     value: function init(accessors) {
       if (!this.annotation.x) {
         this.mapX(accessors);
@@ -1124,26 +1124,26 @@ var Type = function () {
       }
     }
   }, {
-    key: 'mapY',
+    key: "mapY",
     value: function mapY(accessors) {
       if (accessors.y) {
         this.annotation.y = accessors.y(this.annotation.data);
       }
     }
   }, {
-    key: 'mapX',
+    key: "mapX",
     value: function mapX(accessors) {
       if (accessors.x) {
         this.annotation.x = accessors.x(this.annotation.data);
       }
     }
   }, {
-    key: 'updateEditMode',
+    key: "updateEditMode",
     value: function updateEditMode() {
-      this.a.selectAll('circle.handle').remove();
+      this.a.selectAll("circle.handle").remove();
     }
   }, {
-    key: 'drawOnSVG',
+    key: "drawOnSVG",
     value: function drawOnSVG(component, builders) {
       var _this = this;
 
@@ -1165,7 +1165,7 @@ var Type = function () {
         } else {
           (function () {
             newWithClass(component, [_this.annotation], type, className, classID);
-            var el = component.select(type + '.' + (classID || className));
+            var el = component.select(type + "." + (classID || className));
             var addAttrs = Object.keys(attrs);
             var removeAttrs = [];
 
@@ -1191,18 +1191,18 @@ var Type = function () {
       });
     }
 
-    //TODO: how to extend this to a drawOnCanvas mode? 
+    //TODO: how to extend this to a drawOnCanvas mode?
 
   }, {
-    key: 'getNoteBBox',
+    key: "getNoteBBox",
     value: function getNoteBBox() {
-      return bboxWithoutHandles(this.note, '.annotation-note-content text');
+      return bboxWithoutHandles(this.note, ".annotation-note-content text");
     }
   }, {
-    key: 'getNoteBBoxOffset',
+    key: "getNoteBBoxOffset",
     value: function getNoteBBoxOffset() {
-      var bbox = bboxWithoutHandles(this.note, '.annotation-note-content');
-      var transform = this.noteContent.attr('transform').split(/\(|\,|\)/g);
+      var bbox = bboxWithoutHandles(this.note, ".annotation-note-content");
+      var transform = this.noteContent.attr("transform").split(/\(|\,|\)/g);
       bbox.offsetCornerX = parseFloat(transform[1]) + this.annotation.dx;
       bbox.offsetCornerY = parseFloat(transform[2]) + this.annotation.dy;
       bbox.offsetX = this.annotation.dx;
@@ -1210,7 +1210,7 @@ var Type = function () {
       return bbox;
     }
   }, {
-    key: 'drawSubject',
+    key: "drawSubject",
     value: function drawSubject() {
       var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -1235,7 +1235,7 @@ var Type = function () {
       return components;
     }
   }, {
-    key: 'drawConnector',
+    key: "drawConnector",
     value: function drawConnector() {
       var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -1278,13 +1278,17 @@ var Type = function () {
       return components;
     }
   }, {
-    key: 'drawNote',
+    key: "drawNote",
     value: function drawNote() {
       var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       var noteData = this.annotation.note;
-      var align = noteData.align || context.align || 'dynamic';
-      var noteParams = { bbox: context.bbox, align: align, offset: this.annotation.offset };
+      var align = noteData.align || context.align || "dynamic";
+      var noteParams = {
+        bbox: context.bbox,
+        align: align,
+        offset: this.annotation.offset
+      };
       var lineType = noteData.lineType || context.lineType;
       var note = {};
       if (lineType === "vertical") note = noteVertical(noteParams);else if (lineType === "horizontal") note = noteHorizontal(noteParams);
@@ -1302,17 +1306,23 @@ var Type = function () {
       return components;
     }
   }, {
-    key: 'drawNoteContent',
+    key: "drawNoteContent",
     value: function drawNoteContent(context) {
       var noteData = this.annotation.note;
       var padding = noteData.padding !== undefined ? noteData.padding : this.notePadding;
-      var orientation = noteData.orientation || context.orientation || 'topBottom';
+      var orientation = noteData.orientation || context.orientation || "topBottom";
       var lineType = noteData.lineType || context.lineType;
-      var align = noteData.align || context.align || 'dynamic';
+      var align = noteData.align || context.align || "dynamic";
 
       if (lineType === "vertical") orientation = "leftRight";else if (lineType === "horizontal") orientation = "topBottom";
 
-      var noteParams = { padding: padding, bbox: context.bbox, offset: this.annotation.offset, orientation: orientation, align: align };
+      var noteParams = {
+        padding: padding,
+        bbox: context.bbox,
+        offset: this.annotation.offset,
+        orientation: orientation,
+        align: align
+      };
 
       var _noteAlignment = noteAlignment(noteParams),
           x = _noteAlignment.x,
@@ -1320,27 +1330,27 @@ var Type = function () {
 
       this.offsetCornerX = x + this.annotation.dx;
       this.offsetCornerY = y + this.annotation.dy;
-      this.note && this.noteContent.attr('transform', 'translate(' + x + ', ' + y + ')');
+      this.note && this.noteContent.attr("transform", "translate(" + x + ", " + y + ")");
 
       return [];
     }
   }, {
-    key: 'drawOnScreen',
+    key: "drawOnScreen",
     value: function drawOnScreen(component, drawFunction) {
       return this.drawOnSVG(component, drawFunction);
     }
   }, {
-    key: 'redrawSubject',
+    key: "redrawSubject",
     value: function redrawSubject() {
       this.subject && this.drawOnScreen(this.subject, this.drawSubject());
     }
   }, {
-    key: 'redrawConnector',
+    key: "redrawConnector",
     value: function redrawConnector() {
       this.connector && this.drawOnScreen(this.connector, this.drawConnector());
     }
   }, {
-    key: 'redrawNote',
+    key: "redrawNote",
     value: function redrawNote() {
       var bbox = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getNoteBBox();
 
@@ -1348,21 +1358,21 @@ var Type = function () {
       this.note && this.drawOnScreen(this.note, this.drawNote({ bbox: bbox }));
     }
   }, {
-    key: 'setPosition',
+    key: "setPosition",
     value: function setPosition() {
       var position = this.annotation.position;
-      this.a.attr('transform', 'translate(' + position.x + ', ' + position.y + ')');
+      this.a.attr("transform", "translate(" + position.x + ", " + position.y + ")");
     }
   }, {
-    key: 'setOffset',
+    key: "setOffset",
     value: function setOffset() {
       if (this.note) {
         var offset = this.annotation.offset;
-        this.note.attr('transform', 'translate(' + offset.x + ', ' + offset.y + ')');
+        this.note.attr("transform", "translate(" + offset.x + ", " + offset.y + ")");
       }
     }
   }, {
-    key: 'setPositionWithAccessors',
+    key: "setPositionWithAccessors",
     value: function setPositionWithAccessors(accessors) {
       if (accessors && this.annotation.data) {
         this.mapX(accessors);
@@ -1371,12 +1381,12 @@ var Type = function () {
       this.setPosition();
     }
   }, {
-    key: 'setClassName',
+    key: "setClassName",
     value: function setClassName() {
-      this.a.attr("class", 'annotation ' + (this.className && this.className()) + ' ' + (this.editMode ? "editable" : "") + ' ' + (this.annotation.className || ''));
+      this.a.attr("class", "annotation " + (this.className && this.className()) + " " + (this.editMode ? "editable" : "") + " " + (this.annotation.className || ""));
     }
   }, {
-    key: 'draw',
+    key: "draw",
     value: function draw() {
       this.setClassName();
       this.setPosition();
@@ -1386,7 +1396,7 @@ var Type = function () {
       this.redrawNote();
     }
   }, {
-    key: 'dragstarted',
+    key: "dragstarted",
     value: function dragstarted() {
       event.sourceEvent.stopPropagation();
       this.dispatcher && this.dispatcher.call("dragstart", this.a, this.annotation);
@@ -1394,14 +1404,14 @@ var Type = function () {
       this.a.selectAll("circle.handle").style("pointer-events", "none");
     }
   }, {
-    key: 'dragended',
+    key: "dragended",
     value: function dragended() {
       this.dispatcher && this.dispatcher.call("dragend", this.a, this.annotation);
       this.a.classed("dragging", false);
       this.a.selectAll("circle.handle").style("pointer-events", "all");
     }
   }, {
-    key: 'dragSubject',
+    key: "dragSubject",
     value: function dragSubject() {
       var position = this.annotation.position;
       position.x += event.dx;
@@ -1409,7 +1419,7 @@ var Type = function () {
       this.annotation.position = position;
     }
   }, {
-    key: 'dragNote',
+    key: "dragNote",
     value: function dragNote() {
       var offset = this.annotation.offset;
       offset.x += event.dx;
@@ -1417,13 +1427,15 @@ var Type = function () {
       this.annotation.offset = offset;
     }
   }, {
-    key: 'mapHandles',
+    key: "mapHandles",
     value: function mapHandles(handles) {
       var _this2 = this;
 
       return handles.map(function (h) {
         return _extends({}, h, {
-          start: _this2.dragstarted.bind(_this2), end: _this2.dragended.bind(_this2) });
+          start: _this2.dragstarted.bind(_this2),
+          end: _this2.dragended.bind(_this2)
+        });
       });
     }
   }]);
@@ -1453,37 +1465,37 @@ var customType = function customType(initialType, typeSettings, _init) {
     }
 
     createClass(customType, [{
-      key: 'className',
+      key: "className",
       value: function className() {
-        return '' + (typeSettings.className || get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'className', this) && get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'className', this).call(this) || '');
+        return "" + (typeSettings.className || get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), "className", this) && get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), "className", this).call(this) || "");
       }
     }, {
-      key: 'drawSubject',
+      key: "drawSubject",
       value: function drawSubject(context) {
         this.typeSettings.subject = _extends({}, typeSettings.subject, this.typeSettings.subject);
-        return get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawSubject', this).call(this, _extends({}, context, this.typeSettings.subject));
+        return get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), "drawSubject", this).call(this, _extends({}, context, this.typeSettings.subject));
       }
     }, {
-      key: 'drawConnector',
+      key: "drawConnector",
       value: function drawConnector(context) {
         this.typeSettings.connector = _extends({}, typeSettings.connector, this.typeSettings.connector);
-        return get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawConnector', this).call(this, _extends({}, context, typeSettings.connector, this.typeSettings.connector));
+        return get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), "drawConnector", this).call(this, _extends({}, context, typeSettings.connector, this.typeSettings.connector));
       }
     }, {
-      key: 'drawNote',
+      key: "drawNote",
       value: function drawNote(context) {
         this.typeSettings.note = _extends({}, typeSettings.note, this.typeSettings.note);
-        return get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawNote', this).call(this, _extends({}, context, typeSettings.note, this.typeSettings.note));
+        return get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), "drawNote", this).call(this, _extends({}, context, typeSettings.note, this.typeSettings.note));
       }
     }, {
-      key: 'drawNoteContent',
+      key: "drawNoteContent",
       value: function drawNoteContent(context) {
-        return get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), 'drawNoteContent', this).call(this, _extends({}, context, typeSettings.note, this.typeSettings.note));
+        return get(customType.prototype.__proto__ || Object.getPrototypeOf(customType.prototype), "drawNoteContent", this).call(this, _extends({}, context, typeSettings.note, this.typeSettings.note));
       }
     }], [{
-      key: 'init',
+      key: "init",
       value: function init(annotation, accessors) {
-        get(customType.__proto__ || Object.getPrototypeOf(customType), 'init', this).call(this, annotation, accessors);
+        get(customType.__proto__ || Object.getPrototypeOf(customType), "init", this).call(this, annotation, accessors);
         if (_init) {
           annotation = _init(annotation, accessors);
         }
@@ -1508,7 +1520,7 @@ var d3NoteText = function (_Type) {
   }
 
   createClass(d3NoteText, [{
-    key: 'updateTextWrap',
+    key: "updateTextWrap",
     value: function updateTextWrap(textWrap) {
       this.textWrap = textWrap;
       this.drawText();
@@ -1517,35 +1529,35 @@ var d3NoteText = function (_Type) {
     //TODO: add update text functionality
 
   }, {
-    key: 'drawText',
+    key: "drawText",
     value: function drawText() {
       if (this.note) {
+        newWithClass(this.note, [this.annotation], "g", "annotation-note-content");
 
-        newWithClass(this.note, [this.annotation], 'g', 'annotation-note-content');
-
-        var noteContent = this.note.select('g.annotation-note-content');
-        newWithClass(noteContent, [this.annotation], 'rect', 'annotation-note-bg');
-        newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-label');
-        newWithClass(noteContent, [this.annotation], 'text', 'annotation-note-title');
+        var noteContent = this.note.select("g.annotation-note-content");
+        newWithClass(noteContent, [this.annotation], "rect", "annotation-note-bg");
+        newWithClass(noteContent, [this.annotation], "text", "annotation-note-label");
+        newWithClass(noteContent, [this.annotation], "text", "annotation-note-title");
 
         var titleBBox = { height: 0 };
-        var label = this.a.select('text.annotation-note-label');
+        var label = this.a.select("text.annotation-note-label");
         var wrapLength = this.annotation.note && this.annotation.note.wrap || this.typeSettings && this.typeSettings.note && this.typeSettings.note.wrap || this.textWrap;
 
         if (this.annotation.note.title) {
-          var title = this.a.select('text.annotation-note-title');
+          var title = this.a.select("text.annotation-note-title");
           title.text(this.annotation.note.title);
           title.call(wrap, wrapLength);
           titleBBox = title.node().getBBox();
         }
 
-        label.text(this.annotation.note.label).attr('dx', '0');
+        label.text(this.annotation.note.label).attr("dx", "0");
         label.call(wrap, wrapLength);
 
-        label.attr('y', titleBBox.height * 1.1 || 0);
+        label.attr("y", titleBBox.height * 1.1 || 0);
 
         var bbox = this.getNoteBBox();
-        this.a.select('rect.annotation-note-bg').attr('width', bbox.width).attr('height', bbox.height);
+
+        this.a.select("rect.annotation-note-bg").attr("width", bbox.width).attr("height", bbox.height).attr("x", bbox.x);
       }
     }
   }]);
@@ -1575,7 +1587,7 @@ var d3CalloutCurve = customType(d3Callout, {
 var d3Badge = customType(Type, {
   className: "badge",
   subject: { type: "badge" },
-  disable: ['connector', 'note']
+  disable: ["connector", "note"]
 });
 
 var d3CalloutCircle = customType(d3CalloutElbow, {
@@ -1597,18 +1609,18 @@ var ThresholdMap = function (_d3Callout) {
   }
 
   createClass(ThresholdMap, [{
-    key: 'mapY',
+    key: "mapY",
     value: function mapY(accessors) {
-      get(ThresholdMap.prototype.__proto__ || Object.getPrototypeOf(ThresholdMap.prototype), 'mapY', this).call(this, accessors);
+      get(ThresholdMap.prototype.__proto__ || Object.getPrototypeOf(ThresholdMap.prototype), "mapY", this).call(this, accessors);
       var a = this.annotation;
       if ((a.subject.x1 || a.subject.x2) && a.data && accessors.y) {
         a.y = accessors.y(a.data);
       }
     }
   }, {
-    key: 'mapX',
+    key: "mapX",
     value: function mapX(accessors) {
-      get(ThresholdMap.prototype.__proto__ || Object.getPrototypeOf(ThresholdMap.prototype), 'mapX', this).call(this, accessors);
+      get(ThresholdMap.prototype.__proto__ || Object.getPrototypeOf(ThresholdMap.prototype), "mapX", this).call(this, accessors);
       var a = this.annotation;
       if ((a.subject.y1 || a.subject.y2) && a.data && accessors.x) {
         a.x = accessors.x(a.data);
@@ -1624,8 +1636,8 @@ var d3XYThreshold = customType(ThresholdMap, {
 });
 
 var newWithClass = function newWithClass(a, d, type, className, classID) {
-  var group = a.selectAll(type + '.' + (classID || className)).data(d);
-  group.enter().append(type).merge(group).attr('class', className);
+  var group = a.selectAll(type + "." + (classID || className)).data(d);
+  group.enter().append(type).merge(group).attr("class", className);
 
   group.exit().remove();
   return a;
@@ -1637,11 +1649,11 @@ var addHandlers = function addHandlers(dispatcher, annotation, _ref3) {
 
   if (component) {
     component.on("mouseover.annotations", function () {
-      dispatcher.call(name + 'over', component, annotation);
+      dispatcher.call(name + "over", component, annotation);
     }).on("mouseout.annotations", function () {
-      return dispatcher.call(name + 'out', component, annotation);
+      return dispatcher.call(name + "out", component, annotation);
     }).on("click.annotations", function () {
-      return dispatcher.call(name + 'click', component, annotation);
+      return dispatcher.call(name + "click", component, annotation);
     });
   }
 };
@@ -1657,7 +1669,7 @@ var wrap = function wrap(text, width) {
     });
     var word = void 0,
         line$$1 = [],
-        tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", .8 + "em");
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", 0.8 + "em");
 
     while (word = words.pop()) {
       line$$1.push(word);
@@ -1673,7 +1685,7 @@ var wrap = function wrap(text, width) {
 };
 
 var bboxWithoutHandles = function bboxWithoutHandles(selection) {
-  var selector = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ':not(.handle)';
+  var selector = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ":not(.handle)";
 
   if (!selection) {
     return { x: 0, y: 0, width: 0, height: 0 };
