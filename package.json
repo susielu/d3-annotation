@@ -39,7 +39,7 @@
     "rollup-plugin-node-resolve": "2.0.0",
     "uglify-js": "2.8.1",
     "@types/d3-dispatch": "1.0.4",
-    "@types/d3-selection": "1.0.10",
+    "@types/d3-selection": "1.0.10"
   },
   "scripts": {
     "start": "npm run server & npm run watch",
