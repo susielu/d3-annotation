@@ -16,11 +16,7 @@
     "d3-annotation.*",
     "types/*"
   ],
-  "keywords": [
-    "d3",
-    "d3-module",
-    "annotation"
-  ],
+  "keywords": ["d3", "d3-module", "annotation"],
   "directories": {},
   "devDependencies": {
     "babel-eslint": "7.1.1",
@@ -31,12 +27,11 @@
     "babelify": "7.3.0",
     "babelrc-rollup": "3.0.0",
     "browserify": "13.1.1",
-    "chai": "3.5.0",
     "eslint": "3.17.1",
     "http-server": "0.9.0",
+    "jest": "^20.0.4",
     "marked": "0.3.6",
     "markedify": "0.0.2",
-    "mocha": "3.2.0",
     "npm-watch": "0.1.6",
     "reify": "0.4.16",
     "rollup": "0.41.4",
@@ -55,19 +50,12 @@
     "uglify:independent": "uglifyjs d3-annotation.independent.js -o d3-annotation.independent.min.js -c -m",
     "eslint": "eslint --rule 'no-console: 2'  src/** --ignore-pattern /src/Adapter-d3.js",
     "prepublishOnly": "npm run eslint && npm test && npm run rollup:web && npm run uglify && npm run uglify:independent && rollup -c rollupWeb.config.js && rollup -c && rollup -c rollupNext.config.js",
-    "test": "mocha --require reify"
+    "test": "jest --watch"
   },
   "watch": {
-    "rollup:web": [
-      "src/*.js",
-      "src/**/*.js"
-    ],
+    "rollup:web": ["src/*.js", "src/**/*.js"],
     "docs": {
-      "patterns": [
-        "docs/docs.js",
-        "d3-annotation.js",
-        "docs/content/*.md"
-      ],
+      "patterns": ["docs/docs.js", "d3-annotation.js", "docs/content/*.md"],
       "extensions": "js,md"
     }
   },
