@@ -42,7 +42,9 @@
     "rollup": "0.41.4",
     "rollup-plugin-babel": "2.6.1",
     "rollup-plugin-node-resolve": "2.0.0",
-    "uglify-js": "2.8.1"
+    "uglify-js": "2.8.1",
+    "@types/d3-dispatch": "1.0.4",
+    "@types/d3-selection": "1.0.10",
   },
   "scripts": {
     "start": "npm run server & npm run watch",
@@ -81,8 +83,6 @@
   },
   "types": "./types/d3-svg-annotation.d.ts",
   "dependencies": {
-    "@types/d3-dispatch": "1.0.4",
-    "@types/d3-selection": "1.0.10",
     "d3-dispatch": "1.0.2",
     "d3-drag": "1.0.2",
     "d3-selection": "1.0.2",
