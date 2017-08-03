@@ -97,6 +97,7 @@ export default ({ subjectData = {}, type = {} }, annotation = {}) => {
 
   if (type.editMode) {
     const dragBadge = () => {
+      console.log("event", event.x, event.y)
       subjectData.x = event.x < 0 ? "left" : "right"
       subjectData.y = event.y < 0 ? "top" : "bottom"
       type.redrawSubject()

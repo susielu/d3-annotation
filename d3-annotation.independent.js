@@ -1113,6 +1113,7 @@ var subjectBadge = (function (_ref) {
 
   if (type.editMode) {
     var dragBadge = function dragBadge() {
+      console.log("event", d3Selection.event.x, d3Selection.event.y);
       subjectData.x = d3Selection.event.x < 0 ? "left" : "right";
       subjectData.y = d3Selection.event.y < 0 ? "top" : "bottom";
       type.redrawSubject();
@@ -1708,6 +1709,9 @@ var ThresholdMap = function (_d3Callout) {
       if ((a.subject.x1 || a.subject.x2) && a.data && accessors.y) {
         a.y = accessors.y(a.data);
       }
+      if ((a.subject.x1 || a.subject.x2) && !a.x) {
+        a.x = a.subject.x1 || a.subject.x2;
+      }
     }
   }, {
     key: "mapX",
@@ -1716,6 +1720,9 @@ var ThresholdMap = function (_d3Callout) {
       var a = this.annotation;
       if ((a.subject.y1 || a.subject.y2) && a.data && accessors.x) {
         a.x = accessors.x(a.data);
+      }
+      if ((a.subject.y1 || a.subject.y2) && !a.y) {
+        a.y = a.subject.y1 || a.subject.y2;
       }
     }
   }]);

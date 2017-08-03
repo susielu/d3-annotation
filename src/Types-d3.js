@@ -536,6 +536,9 @@ class ThresholdMap extends d3Callout {
     if ((a.subject.x1 || a.subject.x2) && a.data && accessors.y) {
       a.y = accessors.y(a.data)
     }
+    if ((a.subject.x1 || a.subject.x2) && !a.x) {
+      a.x = a.subject.x1 || a.subject.x2
+    }
   }
 
   mapX(accessors) {
@@ -543,6 +546,9 @@ class ThresholdMap extends d3Callout {
     const a = this.annotation
     if ((a.subject.y1 || a.subject.y2) && a.data && accessors.x) {
       a.x = accessors.x(a.data)
+    }
+    if ((a.subject.y1 || a.subject.y2) && !a.y) {
+      a.y = a.subject.y1 || a.subject.y2
     }
   }
 }
