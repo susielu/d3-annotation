@@ -94,7 +94,11 @@ Both examples above produce the same results.
 
 <h3 id="styles"><a href="#styles">#</a> Basic Styles</h3>
 
-Available on [github](https://github.com/susielu/d3-annotation/blob/master/d3-annotation.css).
+Now the library comes with default styles, read more about it in the [2.0 release](http://www.susielu.com/data-viz/d3-annotation-2) post.
+
+Before v2, there were style sheets you needed to use: 
+
+Available on [github](https://github.com/susielu/d3-annotation/blob/e7ba1e83f279a63e056964b080019d647f57e34c/d3-annotation.css).
 
 
 <h3 id="tips"><a href="#tips">#</a>Tips</h3>
