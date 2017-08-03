@@ -1065,7 +1065,7 @@ var subjectBadge = (function (_ref) {
     y = placement["y" + subjectData.y];
   } else if (subjectData.x && subjectData.y) {
     x = placement["x" + subjectData.x + "corner"];
-    y = placement["x" + subjectData.x + "corner"];
+    y = placement["y" + subjectData.y + "corner"];
   }
 
   var transform = "translate(" + x + ", " + y + ")";
@@ -1086,10 +1086,10 @@ var subjectBadge = (function (_ref) {
   circle.attrs.fill = "white";
 
   var pointer = void 0;
-  if (x && y) {
+  if (x && y || !x && !y) {
     pointer = lineBuilder({
       className: "subject-pointer",
-      data: [[0, 0], [x, 0], [0, y], [0, 0]]
+      data: [[0, 0], [x || 0, 0], [0, y || 0], [0, 0]]
     });
   } else if (x || y) {
     var notCornerPointerXY = function notCornerPointerXY(v) {
@@ -1112,13 +1112,18 @@ var subjectBadge = (function (_ref) {
 
   if (type.editMode) {
     var dragBadge = function dragBadge() {
-      subjectData.x = event.x < 0 ? "left" : "right";
-      subjectData.y = event.y < 0 ? "top" : "bottom";
+      subjectData.x = event.x < -radius * 2 ? "left" : event.x > radius * 2 ? "right" : undefined;
+      subjectData.y = event.y < -radius * 2 ? "top" : event.y > radius * 2 ? "bottom" : undefined;
+
       type.redrawSubject();
     };
 
-    var bHandles = [{ x: x * 2, y: y * 2, drag: dragBadge.bind(type) }];
-    handles = type.mapHandles(bHandles);
+    var bHandles = { x: x * 2, y: y * 2, drag: dragBadge.bind(type) };
+    if (!bHandles.x && !bHandles.y) {
+      bHandles.y = -radius;
+    }
+
+    handles = type.mapHandles([bHandles]);
   }
 
   var text = void 0;
@@ -1707,6 +1712,9 @@ var ThresholdMap = function (_d3Callout) {
       if ((a.subject.x1 || a.subject.x2) && a.data && accessors.y) {
         a.y = accessors.y(a.data);
       }
+      if ((a.subject.x1 || a.subject.x2) && !a.x) {
+        a.x = a.subject.x1 || a.subject.x2;
+      }
     }
   }, {
     key: "mapX",
@@ -1715,6 +1723,9 @@ var ThresholdMap = function (_d3Callout) {
       var a = this.annotation;
       if ((a.subject.y1 || a.subject.y2) && a.data && accessors.x) {
         a.x = accessors.x(a.data);
+      }
+      if ((a.subject.y1 || a.subject.y2) && !a.y) {
+        a.y = a.subject.y1 || a.subject.y2;
       }
     }
   }]);
