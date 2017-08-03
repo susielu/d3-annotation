@@ -814,21 +814,19 @@ var connectorCurve = (function (_ref) {
   var handles = [];
 
   if (type.editMode) {
-    (function () {
-      var cHandles = connectorData.points.map(function (c, i) {
-        return _extends({}, pointHandle({ cx: c[0], cy: c[1] }), { index: i });
-      });
+    var cHandles = connectorData.points.map(function (c, i) {
+      return _extends({}, pointHandle({ cx: c[0], cy: c[1] }), { index: i });
+    });
 
-      var updatePoint = function updatePoint(index) {
-        connectorData.points[index][0] += event.dx;
-        connectorData.points[index][1] += event.dy;
-        type.redrawConnector();
-      };
+    var updatePoint = function updatePoint(index) {
+      connectorData.points[index][0] += event.dx;
+      connectorData.points[index][1] += event.dy;
+      type.redrawConnector();
+    };
 
-      handles = type.mapHandles(cHandles.map(function (h) {
-        return _extends({}, h.move, { drag: updatePoint.bind(type, h.index) });
-      }));
-    })();
+    handles = type.mapHandles(cHandles.map(function (h) {
+      return _extends({}, h.move, { drag: updatePoint.bind(type, h.index) });
+    }));
   }
 
   var data = lineSetup({ type: type, subjectType: subjectType });
@@ -1002,8 +1000,10 @@ var subjectThreshold = (function (_ref) {
 });
 
 var subjectBadge = (function (_ref) {
-  var subjectData = _ref.subjectData,
-      type = _ref.type;
+  var _ref$subjectData = _ref.subjectData,
+      subjectData = _ref$subjectData === undefined ? {} : _ref$subjectData,
+      _ref$type = _ref.type,
+      type = _ref$type === undefined ? {} : _ref$type;
 
   var typeSettings = type.typeSettings && type.typeSettings.subject;
 
@@ -1017,36 +1017,73 @@ var subjectBadge = (function (_ref) {
   if (!subjectData.x) {
     if (typeSettings && typeSettings.x) {
       subjectData.x = typeSettings.x;
-    } else {
-      subjectData.x = "left";
     }
   }
   if (!subjectData.y) {
     if (typeSettings && typeSettings.y) {
       subjectData.y = typeSettings.y;
-    } else {
-      subjectData.y = "top";
     }
   }
 
   var handles = [];
+  var components = [];
   var radius = subjectData.radius;
-  var innerRadius = radius * .7;
-  var x = subjectData.x === "left" ? -radius : radius;
-  var y = subjectData.y === "top" ? -radius : radius;
-  var transform = 'translate(' + x + ', ' + y + ')';
-  var circlebg = arcBuilder({ className: 'subject', data: { radius: radius } });
+  var innerRadius = radius * 0.7;
+  var x = 0;
+  var y = 0;
+
+  var notCornerOffset = Math.sqrt(2) * radius;
+  var placement = {
+    xleftcorner: -radius,
+    xrightcorner: radius,
+    ytopcorner: -radius,
+    ybottomcorner: radius,
+    xleft: -notCornerOffset,
+    xright: notCornerOffset,
+    ytop: -notCornerOffset,
+    ybottom: notCornerOffset
+  };
+
+  if (subjectData.x && !subjectData.y) {
+    x = placement["x" + subjectData.x];
+  } else if (subjectData.y && !subjectData.x) {
+    y = placement["y" + subjectData.y];
+  } else if (subjectData.x && subjectData.y) {
+    x = placement["x" + subjectData.x + "corner"];
+    y = placement["x" + subjectData.x + "corner"];
+  }
+
+  var transform = "translate(" + x + ", " + y + ")";
+  var circlebg = arcBuilder({ className: "subject", data: { radius: radius } });
   circlebg.attrs.transform = transform;
 
-  var circle = arcBuilder({ className: 'subject-ring', data: { outerRadius: radius, innerRadius: innerRadius } });
-  circle.attrs.transform = transform;
-
-  var pointer = lineBuilder({ className: 'subject-pointer',
-    data: [[0, 0], [x, 0], [0, y], [0, 0]]
+  var circle = arcBuilder({
+    className: "subject-ring",
+    data: { outerRadius: radius, innerRadius: innerRadius }
   });
 
-  if (type.editMode) {
+  circle.attrs.transform = transform;
 
+  if (x && y) {
+    var pointer = lineBuilder({
+      className: "subject-pointer",
+      data: [[0, 0], [x, 0], [0, y], [0, 0]]
+    });
+    components.push(pointer);
+  } else if (x || y) {
+    var notCornerPointerXY = function notCornerPointerXY(v) {
+      var sign = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+      return v && v / Math.sqrt(2) / Math.sqrt(2) || sign * radius / Math.sqrt(2);
+    };
+
+    var _pointer = lineBuilder({
+      className: "subject-pointer",
+      // data: [[0, 0], [x , y || notCornerOffset], [x, y || -notCornerOffset], [0, 0]]
+      data: [[0, 0], [notCornerPointerXY(x), notCornerPointerXY(y)], [notCornerPointerXY(x, -1), notCornerPointerXY(y, -1)], [0, 0]]
+    });
+    components.push(_pointer);
+  }
+  if (type.editMode) {
     var dragBadge = function dragBadge() {
       subjectData.x = event.x < 0 ? "left" : "right";
       subjectData.y = event.y < 0 ? "top" : "bottom";
@@ -1071,7 +1108,12 @@ var subjectBadge = (function (_ref) {
       }
     };
   }
-  return { components: [pointer, circlebg, circle, text], handles: handles };
+
+  components.push(circlebg);
+  components.push(circle);
+  components.push(text);
+
+  return { components: components, handles: handles };
 });
 
 //Note options
@@ -1163,30 +1205,28 @@ var Type = function () {
         if (type === "handle") {
           addHandles({ group: component, r: attrs && attrs.r, handles: handles });
         } else {
-          (function () {
-            newWithClass(component, [_this.annotation], type, className, classID);
-            var el = component.select(type + "." + (classID || className));
-            var addAttrs = Object.keys(attrs);
-            var removeAttrs = [];
+          newWithClass(component, [_this.annotation], type, className, classID);
+          var el = component.select(type + "." + (classID || className));
+          var addAttrs = Object.keys(attrs);
+          var removeAttrs = [];
 
-            var currentAttrs = el.node().attributes;
-            for (var i = currentAttrs.length - 1; i >= 0; i--) {
-              var name = currentAttrs[i].name;
-              if (addAttrs.indexOf(name) === -1 && name !== "class") removeAttrs.push(name);
+          var currentAttrs = el.node().attributes;
+          for (var i = currentAttrs.length - 1; i >= 0; i--) {
+            var name = currentAttrs[i].name;
+            if (addAttrs.indexOf(name) === -1 && name !== "class") removeAttrs.push(name);
+          }
+
+          addAttrs.forEach(function (attr) {
+            if (attr === "text") {
+              el.text(attrs[attr]);
+            } else {
+              el.attr(attr, attrs[attr]);
             }
+          });
 
-            addAttrs.forEach(function (attr) {
-              if (attr === "text") {
-                el.text(attrs[attr]);
-              } else {
-                el.attr(attr, attrs[attr]);
-              }
-            });
-
-            removeAttrs.forEach(function (attr) {
-              return el.attr(attr, null);
-            });
-          })();
+          removeAttrs.forEach(function (attr) {
+            return el.attr(attr, null);
+          });
         }
       });
     }
