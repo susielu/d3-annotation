@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+
 <head>
   <meta name="author" content="Susie Lu">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
@@ -11,13 +12,17 @@
   <link rel="stylesheet" href="vendor/materialize.min.css">
   <link rel="stylesheet" href="vendor/highlight.css">
   <style>
-    :root {
+     :root {
       --font-color: #695B5B;
       --font-color-light: #eae4e4;
       --font-color-lightest: #f9f7f7;
       --accent-color: #E8336D;
     }
-    h1, h2, h3, .brand-logo {
+
+    h1,
+    h2,
+    h3,
+    .brand-logo {
       font-family: 'Bungee', Helvetica, Arial;
       color: var(--font-color);
     }
@@ -35,7 +40,7 @@
       font-weight: 300;
       font-size: 1.2em;
       line-height: 1.8em;
-            min-width: 340px;
+      min-width: 340px;
 
       color: var(--font-color);
     }
@@ -52,7 +57,7 @@
       background: white;
       color: var(--font-color);
       box-shadow: none;
-      border-bottom: 1px dotted var(--font-color );
+      border-bottom: 1px dotted var(--font-color);
     }
 
     nav .brand-logo {
@@ -60,7 +65,7 @@
       margin-top: 12px;
     }
 
-    nav .button-collapse img{
+    nav .button-collapse img {
       vertical-align: middle;
     }
 
@@ -71,7 +76,7 @@
     }
 
     .table-of-contents a.active {
-        border-left: 2px solid var(--accent-color);
+      border-left: 2px solid var(--accent-color);
     }
 
     .section {
@@ -86,7 +91,6 @@
     .section img {
       max-width: 100%;
     }
-
     /*Annotation related classes */
 
     svg {
@@ -103,16 +107,17 @@
       width: 100%;
       height: 440px;
     }
-
     /*.annotation.label text {
       text-anchor: middle;
     }*/
 
-    .editable .annotation-subject, .editable .annotation-note {
+    .editable .annotation-subject,
+    .editable .annotation-note {
       cursor: move;
     }
 
-    .annotation.label.dots .annotation-note, .annotation.callout.elbow .annotation-note {
+    .annotation.label.dots .annotation-note,
+    .annotation.callout.elbow .annotation-note {
       text-anchor: middle;
     }
 
@@ -127,7 +132,8 @@
       fill: none;
     }
 
-    .annotation path.connector-arrow, .annotation.callout.rect path.subject{
+    .annotation path.connector-arrow,
+    .annotation.callout.rect path.subject {
       fill: var(--accent-color);
     }
 
@@ -143,7 +149,8 @@
       fill: rgba(255, 255, 255, 0);
     }
 
-    .annotation.badge path.subject-pointer, .annotation.badge path.subject {
+    .annotation.badge path.subject-pointer,
+    .annotation.badge path.subject {
       fill: var(--accent-color);
       stroke-width: 3px;
       stroke-linecap: round;
@@ -159,11 +166,11 @@
       font-size: .7em;
     }
 
-    .annotation.callout.rect path.subject{
+    .annotation.callout.rect path.subject {
       fill-opacity: .1;
     }
 
-    .annotation .annotation-connector .connector-dot{
+    .annotation .annotation-connector .connector-dot {
       fill: var(--accent-color);
     }
 
@@ -185,7 +192,8 @@
       margin: 0px;
     }
 
-    .icons .btn, .icons .btn-flat {
+    .icons .btn,
+    .icons .btn-flat {
       width: 100%;
       text-align: center;
       padding: 0px;
@@ -214,8 +222,9 @@
       padding: 4px;
       border: 1px solid white;
     }
+
     .icons .presets .options img.active {
-        border: 1px dotted var(--accent-color);
+      border: 1px dotted var(--accent-color);
     }
 
     .icons .options input {
@@ -228,7 +237,8 @@
       fill: var(--font-color);
     }
 
-    .sandbox .summary, .sandbox .summaryCont {
+    .sandbox .summary,
+    .sandbox .summaryCont {
       font-size: .8em;
       fill: var(--font-color);
     }
@@ -244,7 +254,7 @@
       margin-top: 10px;
     }
 
-    .fixed-action-btn .red  {
+    .fixed-action-btn .red {
       text-align: center;
     }
 
@@ -255,77 +265,78 @@
       /*pointer-events: none;*/
     }
 
-    .section .fixed-action-btn ul:not(.collapsible)  li {
+    .section .fixed-action-btn ul:not(.collapsible) li {
       margin: 0px;
     }
 
-    #curveButtons .points a{
+    #curveButtons .points a {
       color: var(--accent-color)
     }
   </style>
-<!-- bungee and muli -->
+  <!-- bungee and muli -->
 </head>
+
 <body>
   <div class="container">
     <div class="row">
       <div class="col s12 hide-on-small-only">
         <h1>d3-annotation</h1>
-        <p>Made with <img src="img/heart.png"/> by <a href="http://www.susielu.com">Susie Lu</a></p>
+        <p>Made with <img src="img/heart.png" /> by <a href="http://www.susielu.com">Susie Lu</a></p>
 
       </div>
     </div>
     <div class="row">
       <div class="col s12 m3 l3 hide-on-small-only">
-          <ul class="col toc table-of-contents m2" id="toc1">
-          </ul>
+        <ul class="col toc table-of-contents m2" id="toc1">
+        </ul>
 
       </div>
 
       <div>
-        <ul id="slide-out" class="side-nav" >
+        <ul id="slide-out" class="side-nav">
 
         </ul>
       </div>
 
       <div class='hide-on-med-and-up navbar-fixed'>
 
-          <nav>
-            <div class="nav-wrapper">
-              <h1 class="brand-logo">d3-annotation</h1>
-              <ul id="nav-mobile">
-                <li><a href="#" data-activates="slide-out" class="button-collapse"><img src="img/menu.png"/></a></li>
-              </ul>
-            </div>
-          </nav>
+        <nav>
+          <div class="nav-wrapper">
+            <h1 class="brand-logo">d3-annotation</h1>
+            <ul id="nav-mobile">
+              <li><a href="#" data-activates="slide-out" class="button-collapse"><img src="img/menu.png"/></a></li>
+            </ul>
+          </div>
+        </nav>
       </div>
 
       <div class="col s12 m9 l9">
-          <div class="section scrollspy" id="introduction"></div>
-          <div class="section scrollspy" id="setup"></div>
-          <div class="section scrollspy" id="types" >
-            <h2><a href="#types">#</a>Annotation Types</h2>
-            <div>
-              <div class="icons">
+        <div class="section scrollspy" id="introduction"></div>
+        <div class="section scrollspy" id="setup"></div>
+        <div class="section scrollspy" id="types">
+          <h2><a href="#types">#</a>Annotation Types</h2>
+          <div>
+            <div class="icons">
               <ul class="collapsible presets" data-collapsible="expandable">
                 <li class="types">
                   <div class="collapsible-header active">
                     <b>Presets</b>
                     <div style="float:right;">
                       <div class="switch">
-                          <label>
+                        <label>
                             <b style="padding-right: 10px;">Edit Mode </b> Off
                             <input id="editmode" type="checkbox" checked>
                             <span class="lever"></span>
                             On
                           </label>
-                        </div>
-
                       </div>
+
+                    </div>
 
                   </div>
                   <div class="collapsible-body">
                     <img class="active" data-type="annotationLabel" src="img/a-label.png" />
-                    <img data-type="annotationCallout"  src="img/a-callout.png" />
+                    <img data-type="annotationCallout" src="img/a-callout.png" />
                     <img data-type="annotationCalloutElbow" src="img/a-elbow.png" />
                     <img data-type="annotationCalloutCurve" src="img/a-curve.png" />
                     <img data-type="annotationCalloutCircle" src="img/a-circle.png" />
@@ -337,66 +348,65 @@
                 <li class="options">
                   <div class="collapsible-header  "><b>Options</b></div>
                   <div class="collapsible-body">
-                    <div class"row">
+                    <div class "row">
                       <div class="col s6 m3 note">
                         <p><b>Note</b></p>
-                          <p>Line Type <img class="active"  data-section="note:lineType" data-setting="none" src="img/none.png"/></p>
-                         <img  data-section="note:lineType" data-setting="vertical" src="img/vertical.png"/>
-                         <img data-section="note:lineType" data-setting="horizontal" src="img/horizontal.png"/>
+                        <p>Line Type <img class="active" data-section="note:lineType" data-setting="none" src="img/none.png"
+                          /></p>
+                        <img data-section="note:lineType" data-setting="vertical" src="img/vertical.png" />
+                        <img data-section="note:lineType" data-setting="horizontal" src="img/horizontal.png" />
 
 
                         <div class="orientation">
-                        <p >Orientation</p>
-                         <img class="active" data-section="note:orientation" data-setting="topBottom" src="img/topBottom.png"/>
-                         <img data-section="note:orientation" data-setting="leftRight" src="img/leftRight.png"/>
-                         </div>
+                          <p>Orientation</p>
+                          <img class="active" data-section="note:orientation" data-setting="topBottom" src="img/topBottom.png" />
+                          <img data-section="note:orientation" data-setting="leftRight" src="img/leftRight.png" />
+                        </div>
 
                       </div>
                       <div class="col s6 m3 note">
-                          <br/>
+                        <br/>
                         <p>Align</p>
-                         <img data-section="note:align" data-setting="dynamic" src="img/dynamic.png"/>
-                         <img class="active" data-section="note:align" data-setting="middle" src="img/middle.png"/>
-                         <img class="horizontal" data-section="note:align" data-setting="left"src="img/left.png"/>
-                         <img class="horizontal" data-section="note:align" data-setting="right" src="img/right.png"/>
-                         <img class="vertical hidden" data-section="note:align" data-setting="top" src="img/top.png"/>
-                         <img class="vertical hidden" data-section="note:align" data-setting="bottom" src="img/down.png"/>
+                        <img data-section="note:align" data-setting="dynamic" src="img/dynamic.png" />
+                        <img class="active" data-section="note:align" data-setting="middle" src="img/middle.png" />
+                        <img class="horizontal" data-section="note:align" data-setting="left" src="img/left.png" />
+                        <img class="horizontal" data-section="note:align" data-setting="right" src="img/right.png" />
+                        <img class="vertical hidden" data-section="note:align" data-setting="top" src="img/top.png" />
+                        <img class="vertical hidden" data-section="note:align" data-setting="bottom" src="img/down.png" />
                       </div>
                       <div class="col m3 s12 note">
-                          <br />
-                         <label style="color: #9e9e9e;" for="textWrap">Text Wrap (120)</label>
-                          <input id="textWrap"
-                          placeholder=120 type="number" >
+                        <br />
+                        <label style="color: #9e9e9e;" for="textWrap">Text Wrap (120)</label>
+                        <input id="textWrap" placeholder=120 type="number">
 
-                           <label style="color: #9e9e9e;"  for="padding">Text Padding (5)</label>
+                        <label style="color: #9e9e9e;" for="padding">Text Padding (5)</label>
 
-                          <input id="padding"
-                          placeholder=5 type="number" >
+                        <input id="padding" placeholder=5 type="number">
                       </div>
                       <div class="col m3 s12 connector">
-                      <p><b>Connector</b></p>
+                        <p><b>Connector</b></p>
                         <div class="col s6 m12">
-                        <p>Type <img data-section="connector:type" data-setting="none" src="img/none.png"/></p>
+                          <p>Type <img data-section="connector:type" data-setting="none" src="img/none.png" /></p>
 
-                        <img class="active" data-section="connector:type"data-setting="line" src="img/line.png"/>
-                        <img data-section="connector:type" data-setting="elbow" src="img/elbow.png"/>
-                        <img data-section="connector:type" data-setting="curve" src="img/curve.png"/>
+                          <img class="active" data-section="connector:type" data-setting="line" src="img/line.png" />
+                          <img data-section="connector:type" data-setting="elbow" src="img/elbow.png" />
+                          <img data-section="connector:type" data-setting="curve" src="img/curve.png" />
                         </div>
                         <div class="col s6 m12">
-                        <p>End  <img class="active" data-section="connector:end" data-setting="none" src="img/none.png"/></p>
+                          <p>End <img class="active" data-section="connector:end" data-setting="none" src="img/none.png" /></p>
 
-                        <img data-section="connector:end" data-setting="arrow" src="img/arrow.png"/>
+                          <img data-section="connector:end" data-setting="arrow" src="img/arrow.png" />
 
-                        <img data-section="connector:end" data-setting="dot" src="img/dot.png"/>
+                          <img data-section="connector:end" data-setting="dot" src="img/dot.png" />
                         </div>
                       </div>
                     </div>
                   </div>
                 </li>
               </ul>
-              </div>
             </div>
-            <div style="position:relative;">
+          </div>
+          <div style="position:relative;">
             <svg class="sandbox">
               <g transform="translate(30, 60)">
                 <text class="type">d3.annotationLabel</text>
@@ -407,19 +417,19 @@
             </svg>
             <div style="top: 0px; position: absolute; width: 100%; text-align: right;">
               <div id="curveButtons" class="hidden">
-               <div class="fixed-action-btn horizontal">
+                <div class="fixed-action-btn horizontal">
                   <a class="btn-floating red lighten-4">
                     <img src="img/curve.png"/>
                   </a>
                   <ul class="curves">
                     <li><a class="btn-floating  red lighten-4"><img data-curve="curveBasis" src="img/basis.png"/></a></li>
                     <li><a class="btn-floating  red lighten-4"><img data-curve="curveCatmullRom" src="img/cardinal.png"/></a></li>
-                    <li><a class="btn-floating  red lighten-4" ><img data-curve="curveLinear" src="img/linear.png"/></a></li>
-                    <li><a class="btn-floating  red lighten-4" ><img data-curve="curveStep" src="img/step.png"/></a></li>
+                    <li><a class="btn-floating  red lighten-4"><img data-curve="curveLinear" src="img/linear.png"/></a></li>
+                    <li><a class="btn-floating  red lighten-4"><img data-curve="curveStep" src="img/step.png"/></a></li>
                   </ul>
                 </div>
 
-               <div class="fixed-action-btn horizontal">
+                <div class="fixed-action-btn horizontal">
                   <a class="btn-floating red lighten-4">
                     <img src="img/dots.png"/>
                   </a>
@@ -432,104 +442,110 @@
                 </div>
               </div>
             </div>
-            </div>
-            <h3 id="sandbox-title">Use d3.annotationLabel:</h3>
-            <pre id="sandbox-code">
+          </div>
+          <h3 id="sandbox-title">Use d3.annotationLabel:</h3>
+          <pre id="sandbox-code">
               <code class="lang-js hljs">
               </code>
             </pre>
 
-          </div>
-          <div class="section scrollspy" id="in-practice">
-          </div>
-          <div class="section scrollspy" id="examples">
-            <h2><a href="#examples">#</a>Examples</h2>
+        </div>
+        <div class="section scrollspy" id="in-practice">
+        </div>
+        <div class="section scrollspy" id="examples">
+          <h2><a href="#examples">#</a>Examples</h2>
 
-            <div class="row">
-              <div class="col s12 m6 l6">
-                <h3 id="basic"><a href="#basic">#</a>Basic Without Scales</h3>
+          <div class="row">
+            <div class="col s12 m6 l6">
+              <h3 id="basic"><a href="#basic">#</a>Basic Without Scales</h3>
 
-                <a href="https://bl.ocks.org/susielu/a464c24d8b42f0c4d9fafe7b48e9e60a"><img src="img/example1.png"></a>
-              </div>
-
-              <div class="col s12 m6 l6">
-                <h3 id="tooltips"><a href="#tooltips">#</a>Tooltips</h3>
-
-                <a href="https://bl.ocks.org/susielu/63269cf8ec84497920f2b7ef1ac85039"><img src="img/tooltip.png"></a>
-              </div>
+              <a href="https://bl.ocks.org/susielu/a464c24d8b42f0c4d9fafe7b48e9e60a"><img src="img/example1.png"></a>
             </div>
-            <div class="row">
-              <div class="col s12 m6 l6">
 
-                <h3 id="responsive"><a href="#responsive">#</a>Responsive with Types and Hover</h3>
+            <div class="col s12 m6 l6">
+              <h3 id="tooltips"><a href="#tooltips">#</a>Tooltips</h3>
 
-                <p>Example showing how to dynamically change anntation types</p>
-                <a href="https://bl.ocks.org/susielu/974e41473737320f8db5ae711ded8542">
+              <a href="https://bl.ocks.org/susielu/63269cf8ec84497920f2b7ef1ac85039"><img src="img/tooltip.png"></a>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col s12 m6 l6">
+
+              <h3 id="responsive"><a href="#responsive">#</a>Responsive with Types and Hover</h3>
+
+              <p>Example showing how to dynamically change anntation types</p>
+              <a href="https://bl.ocks.org/susielu/974e41473737320f8db5ae711ded8542">
                 <img src="img/resize.png"/></a>
-              </div>
-
-              <div class="col s12 m6 l6">
-                <h3 id="circle-pack"><a href="#circle-pack">#</a>Reimagining the Circle Pack</h3>
-
-                <p>Remake of the circle pack with annotations as the exterior circles</p>
-                <a href="https://bl.ocks.org/emeeks/762b3694269a46151f73f6bc48be6d1c"><img src="img/circle-pack.png"></a>
-              </div>
-
             </div>
-            <div class="row">
-              <div class="col s12 m6 l6">
-                <h3 id="thresholds"><a href="#thresholds">#</a>Thresholds and Annotation Color Styles</h3>
-                <p>Using annotation design for emphasis</p>
-                <a href="https://bl.ocks.org/susielu/23dc3082669ee026c552b85081d90976"><img src="img/example2.png"></a>
-              </div>
-              <div class="col s12 m6 l6">
-                <h3 id="points-of-interest"><a href="#points-of-interest">#</a>Points of Interest with Badges</h3>
-                <p>Expanding on points of interest outside of the chart itself</p>
-                <a href="https://bl.ocks.org/susielu/be6d1e920d529ed340cfb4c2879e7cd9"><img src="img/example3.png"></a>
-              </div>
 
-             
+            <div class="col s12 m6 l6">
+              <h3 id="circle-pack"><a href="#circle-pack">#</a>Reimagining the Circle Pack</h3>
+
+              <p>Remake of the circle pack with annotations as the exterior circles</p>
+              <a href="https://bl.ocks.org/emeeks/762b3694269a46151f73f6bc48be6d1c"><img src="img/circle-pack.png"></a>
             </div>
-            <div class="row">
-              <div class="col s12 m6 l6">
-                <h3 id="overlapping"><a href="#overlapping">#</a>Overlapping</h3>
 
-                <p>Moving annotations algorithmically to prevent overlap using rect collision</p>
-                <a href="https://bl.ocks.org/emeeks/625641430adead4bd7dbc9c1ab3f5102"><img src="img/overlapping.png" /></a>
-              </div>
-              <div class="col s12 m6 l6">
-
-                <h3 id="encircle"><a href="#encircle">#</a>Encircling</h3>
-
-                <p>Annotations following a set of points using d3.packEnclose</p>
-                <a href="https://bl.ocks.org/susielu/24ad9f80b9b681ce967f6005a03384f3"><img src="img/encircle.png" /></a>
-              </div>
+          </div>
+          <div class="row">
+            <div class="col s12 m6 l6">
+              <h3 id="thresholds"><a href="#thresholds">#</a>Thresholds and Annotation Color Styles</h3>
+              <p>Using annotation design for emphasis</p>
+              <a href="https://bl.ocks.org/susielu/23dc3082669ee026c552b85081d90976"><img src="img/example2.png"></a>
             </div>
-            
-            <div class="row">
+            <div class="col s12 m6 l6">
+              <h3 id="points-of-interest"><a href="#points-of-interest">#</a>Points of Interest with Badges</h3>
+              <p>Expanding on points of interest outside of the chart itself</p>
+              <a href="https://bl.ocks.org/susielu/be6d1e920d529ed340cfb4c2879e7cd9"><img src="img/example3.png"></a>
+            </div>
 
-              <div class="col s12 m6 l6">
-                <h3 id="map"><a href="#map">#</a>Map with Tooltips and Edit Mode</h3>
 
-                <p>A map with tooltips, double-click to enable/disable editMode</p>
-                <a href="https://bl.ocks.org/Fil/17fc857c3ce36bf8e21ddefab8bc9af4"><img src="img/map-edit-mode.jpg" /></a>
-              </div>
+          </div>
+          <div class="row">
+            <div class="col s12 m6 l6">
+              <h3 id="overlapping"><a href="#overlapping">#</a>Overlapping</h3>
+
+              <p>Moving annotations algorithmically to prevent overlap using rect collision</p>
+              <a href="https://bl.ocks.org/emeeks/625641430adead4bd7dbc9c1ab3f5102"><img src="img/overlapping.png" /></a>
+            </div>
+            <div class="col s12 m6 l6">
+
+              <h3 id="encircle"><a href="#encircle">#</a>Encircling</h3>
+
+              <p>Annotations following a set of points using d3.packEnclose</p>
+              <a href="https://bl.ocks.org/susielu/24ad9f80b9b681ce967f6005a03384f3"><img src="img/encircle.png" /></a>
             </div>
           </div>
-          <div class="section scrollspy" id="essays">
-            <h2><a href="#essays">#</a>Essays</h2>
-            <a href="http://www.susielu.com/data-viz/"><img src="img/post.png"/></a>
+
+          <div class="row">
+
+            <div class="col s12 m6 l6">
+              <h3 id="map"><a href="#map">#</a>Map with Tooltips and Edit Mode</h3>
+
+              <p>A map with tooltips, double-click to enable/disable editMode</p>
+
+              <a href="https://bl.ocks.org/Fil/17fc857c3ce36bf8e21ddefab8bc9af4"><img src="img/map-edit-mode.jpg" /></a>
+            </div>
+            <div class="col s12 m6 l6">
+              <h3 id="map"><a href="#map">#</a>d3 v2.0 Features</h3>
+              <p>Easy annotation coloring, new badge options, and new note positioning options</p>
+              <a href="https://bl.ocks.org/susielu/625aa4814098671290a8c6bb88a6301e"><img src="img/makeover.png" /></a>
+            </div>
           </div>
-       <!--   <div class="section scrollspy" id="highlights">
+        </div>
+        <div class="section scrollspy" id="essays">
+          <h2><a href="#essays">#</a>Essays</h2>
+          <a href="http://www.susielu.com/data-viz/"><img src="img/post.png"/></a>
+        </div>
+        <!--   <div class="section scrollspy" id="highlights">
             <h2><a href="#highlights">#</a>Highlights</h2>
             <p>Examples of projects made with d3.annotation</p>
           </div> -->
-          <div class="section scrollspy" id="api"></div>
-          <div class="section scrollspy" id="extend"></div>
-          <div class="section scrollspy" id="notes"></div>
-          <footer>
-            <small>Made by <a href="http://www.susielu.com">Susie Lu</a></small>
-          </footer>
+        <div class="section scrollspy" id="api"></div>
+        <div class="section scrollspy" id="extend"></div>
+        <div class="section scrollspy" id="notes"></div>
+        <footer>
+          <small>Made by <a href="http://www.susielu.com">Susie Lu</a></small>
+        </footer>
       </div>
     </div>
   </div>
