@@ -47,7 +47,7 @@ export default ({ subjectData = {}, type = {} }, annotation = {}) => {
     y = placement[`y${subjectData.y}`]
   } else if (subjectData.x && subjectData.y) {
     x = placement[`x${subjectData.x}corner`]
-    y = placement[`x${subjectData.x}corner`]
+    y = placement[`y${subjectData.y}corner`]
   }
 
   const transform = `translate(${x}, ${y})`
@@ -68,10 +68,10 @@ export default ({ subjectData = {}, type = {} }, annotation = {}) => {
   circle.attrs.fill = "white"
 
   let pointer
-  if (x && y) {
+  if (x && y || !x && !y) {
     pointer = lineBuilder({
       className: "subject-pointer",
-      data: [[0, 0], [x, 0], [0, y], [0, 0]]
+      data: [[0, 0], [x || 0, 0], [0, y || 0], [0, 0]]
     })
   } else if (x || y) {
     const notCornerPointerXY = (v, sign = 1) =>
@@ -97,14 +97,24 @@ export default ({ subjectData = {}, type = {} }, annotation = {}) => {
 
   if (type.editMode) {
     const dragBadge = () => {
-      console.log("event", event.x, event.y)
-      subjectData.x = event.x < 0 ? "left" : "right"
-      subjectData.y = event.y < 0 ? "top" : "bottom"
+      subjectData.x =
+        event.x < -radius * 2
+          ? "left"
+          : event.x > radius * 2 ? "right" : undefined
+      subjectData.y =
+        event.y < -radius * 2
+          ? "top"
+          : event.y > radius * 2 ? "bottom" : undefined
+
       type.redrawSubject()
     }
 
-    const bHandles = [{ x: x * 2, y: y * 2, drag: dragBadge.bind(type) }]
-    handles = type.mapHandles(bHandles)
+    const bHandles = { x: x * 2, y: y * 2, drag: dragBadge.bind(type) }
+    if (!bHandles.x && !bHandles.y) {
+      bHandles.y = -radius
+    }
+
+    handles = type.mapHandles([bHandles])
   }
 
   let text

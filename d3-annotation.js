@@ -1066,7 +1066,7 @@ var subjectBadge = (function (_ref) {
     y = placement["y" + subjectData.y];
   } else if (subjectData.x && subjectData.y) {
     x = placement["x" + subjectData.x + "corner"];
-    y = placement["x" + subjectData.x + "corner"];
+    y = placement["y" + subjectData.y + "corner"];
   }
 
   var transform = "translate(" + x + ", " + y + ")";
@@ -1087,10 +1087,10 @@ var subjectBadge = (function (_ref) {
   circle.attrs.fill = "white";
 
   var pointer = void 0;
-  if (x && y) {
+  if (x && y || !x && !y) {
     pointer = lineBuilder({
       className: "subject-pointer",
-      data: [[0, 0], [x, 0], [0, y], [0, 0]]
+      data: [[0, 0], [x || 0, 0], [0, y || 0], [0, 0]]
     });
   } else if (x || y) {
     var notCornerPointerXY = function notCornerPointerXY(v) {
@@ -1113,14 +1113,18 @@ var subjectBadge = (function (_ref) {
 
   if (type.editMode) {
     var dragBadge = function dragBadge() {
-      console.log("event", d3Selection.event.x, d3Selection.event.y);
-      subjectData.x = d3Selection.event.x < 0 ? "left" : "right";
-      subjectData.y = d3Selection.event.y < 0 ? "top" : "bottom";
+      subjectData.x = d3Selection.event.x < -radius * 2 ? "left" : d3Selection.event.x > radius * 2 ? "right" : undefined;
+      subjectData.y = d3Selection.event.y < -radius * 2 ? "top" : d3Selection.event.y > radius * 2 ? "bottom" : undefined;
+
       type.redrawSubject();
     };
 
-    var bHandles = [{ x: x * 2, y: y * 2, drag: dragBadge.bind(type) }];
-    handles = type.mapHandles(bHandles);
+    var bHandles = { x: x * 2, y: y * 2, drag: dragBadge.bind(type) };
+    if (!bHandles.x && !bHandles.y) {
+      bHandles.y = -radius;
+    }
+
+    handles = type.mapHandles([bHandles]);
   }
 
   var text = void 0;
