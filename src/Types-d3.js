@@ -137,9 +137,16 @@ export class Type {
     if (type === "circle") subject = subjectCircle(subjectParams)
     else if (type === "rect") subject = subjectRect(subjectParams)
     else if (type === "threshold") subject = subjectThreshold(subjectParams)
-    else if (type === "badge") subject = subjectBadge(subjectParams)
+    else if (type === "badge")
+      subject = subjectBadge(subjectParams, this.annotation)
 
     let { components = [], handles = [] } = subject
+    components.forEach(c => {
+      if (c && c.attrs && !c.attrs.stroke) {
+        c.attrs.stroke = this.annotation.color
+      }
+    })
+
     if (this.editMode) {
       handles = handles.concat(
         this.mapHandles([{ drag: this.dragSubject.bind(this) }])
@@ -163,9 +170,13 @@ export class Type {
     if (type === "curve") connector = connectorCurve(connectorParams)
     else if (type === "elbow") connector = connectorElbow(connectorParams)
     else connector = connectorLine(connectorParams)
-
     let { components = [], handles = [] } = connector
     const line = components[0]
+    //TODO: genericize this into fill t/f stroke t/f
+    if (line) {
+      line.attrs.stroke = this.annotation.color
+      line.attrs.fill = "none"
+    }
     const endType = connectorData.end || context.end
     let end = {}
     if (endType === "arrow") {
@@ -183,6 +194,10 @@ export class Type {
     }
 
     if (end.components) {
+      end.components.forEach(c => {
+        c.attrs.fill = this.annotation.color
+        c.attrs.stroke = this.annotation.color
+      })
       components = components.concat(end.components)
     }
 
@@ -453,6 +468,8 @@ export class d3NoteText extends Type {
       if (this.annotation.note.title) {
         const title = this.a.select("text.annotation-note-title")
         title.text(this.annotation.note.title)
+        title.attr("fill", this.annotation.color)
+        title.attr("font-weight", "bold")
         title.call(wrap, wrapLength)
         titleBBox = title.node().getBBox()
       }
@@ -461,6 +478,7 @@ export class d3NoteText extends Type {
       label.call(wrap, wrapLength)
 
       label.attr("y", titleBBox.height * 1.1 || 0)
+      label.attr("fill", this.annotation.color)
 
       const bbox = this.getNoteBBox()
 
@@ -469,6 +487,8 @@ export class d3NoteText extends Type {
         .attr("width", bbox.width)
         .attr("height", bbox.height)
         .attr("x", bbox.x)
+        .attr("fill", "white")
+        .attr("fill-opacity", 0)
     }
   }
 }

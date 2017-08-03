@@ -1,7 +1,7 @@
 import { lineBuilder, arcBuilder } from "../Builder"
 import { event } from "d3-selection"
 
-export default ({ subjectData = {}, type = {} }) => {
+export default ({ subjectData = {}, type = {} }, annotation = {}) => {
   const typeSettings = type.typeSettings && type.typeSettings.subject
 
   if (!subjectData.radius) {
@@ -53,6 +53,9 @@ export default ({ subjectData = {}, type = {} }) => {
   const transform = `translate(${x}, ${y})`
   const circlebg = arcBuilder({ className: "subject", data: { radius } })
   circlebg.attrs.transform = transform
+  circlebg.attrs.fill = annotation.color
+  circlebg.attrs["stroke-linecap"] = "round"
+  circlebg.attrs["stroke-width"] = "3px"
 
   const circle = arcBuilder({
     className: "subject-ring",
@@ -60,20 +63,22 @@ export default ({ subjectData = {}, type = {} }) => {
   })
 
   circle.attrs.transform = transform
+  // circle.attrs.fill = annotation.color
+  circle.attrs["stroke-width"] = "3px"
+  circle.attrs.fill = "white"
 
+  let pointer
   if (x && y) {
-    const pointer = lineBuilder({
+    pointer = lineBuilder({
       className: "subject-pointer",
       data: [[0, 0], [x, 0], [0, y], [0, 0]]
     })
-    components.push(pointer)
   } else if (x || y) {
     const notCornerPointerXY = (v, sign = 1) =>
       v && v / Math.sqrt(2) / Math.sqrt(2) || sign * radius / Math.sqrt(2)
 
-    const pointer = lineBuilder({
+    pointer = lineBuilder({
       className: "subject-pointer",
-      // data: [[0, 0], [x , y || notCornerOffset], [x, y || -notCornerOffset], [0, 0]]
       data: [
         [0, 0],
         [notCornerPointerXY(x), notCornerPointerXY(y)],
@@ -81,8 +86,15 @@ export default ({ subjectData = {}, type = {} }) => {
         [0, 0]
       ]
     })
+  }
+
+  if (pointer) {
+    pointer.attrs.fill = annotation.color
+    pointer.attrs["stroke-linecap"] = "round"
+    pointer.attrs["stroke-width"] = "3px"
     components.push(pointer)
   }
+
   if (type.editMode) {
     const dragBadge = () => {
       subjectData.x = event.x < 0 ? "left" : "right"
@@ -100,6 +112,9 @@ export default ({ subjectData = {}, type = {} }) => {
       type: "text",
       className: "badge-text",
       attrs: {
+        fill: "white",
+        stroke: "none",
+        "font-size": ".7em",
         text: subjectData.text,
         "text-anchor": "middle",
         dy: ".25em",

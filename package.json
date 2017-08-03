@@ -50,8 +50,7 @@
     "watch": "npm-watch",
     "uglify": "uglifyjs d3-annotation.js -o d3-annotation.min.js -c -m",
     "uglify:independent": "uglifyjs d3-annotation.independent.js -o d3-annotation.independent.min.js -c -m",
-    "eslint": "eslint --rule 'no-console: 2'  src/** --ignore-pattern /src/Adapter-d3.js",
-    "prepublishOnly": "npm run eslint && npm run test:only && npm run rollup:web && npm run uglify && npm run uglify:independent && rollup -c rollupWeb.config.js && rollup -c && rollup -c rollupNext.config.js",
+    "prepublishOnly": "eslint src/** && npm run test:only && npm run rollup:web && npm run uglify && npm run uglify:independent && rollup -c rollupWeb.config.js && rollup -c && rollup -c rollupNext.config.js",
     "test": "jest --watch",
     "test:only": "jest"
   },

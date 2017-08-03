@@ -1,5 +1,5 @@
 :root {
-    --annotation-color: #E8336D;
+  --annotation-color: #e8336d;
 }
 
 .annotation path {
@@ -10,7 +10,7 @@
 .annotation text,
 .annotation .annotation-connector .connector-dot,
 .annotation path.connector-arrow,
-.annotation.callout.rect path.subject{
+.annotation.callout.rect path.subject {
   fill: var(--annotation-color);
 }
 
@@ -18,19 +18,20 @@
   font-weight: bold;
 }
 
-.annotation-note-bg {
+/* .annotation-note-bg {
   fill: rgba(0, 0, 0, 0);;
-}
+} */
 
-.annotation.callout.rect path.subject{
+.annotation.callout.rect path.subject {
   fill-opacity: .1;
 }
 
-.annotation.badge path.subject-pointer, .annotation.badge path.subject {
+.annotation.badge path.subject-pointer,
+.annotation.badge path.subject {
   fill: var(--annotation-color);
   stroke-width: 3px;
   stroke-linecap: round;
-} 
+}
 
 .annotation.badge path.subject-ring {
   fill: white;
@@ -43,15 +44,16 @@
 }
 
 /* Handling edit mode styles */
-.editable .annotation-subject, .editable .annotation-note {
+.editable .annotation-subject,
+.editable .annotation-note {
   cursor: move;
 }
 
-circle.handle {
+/* circle.handle {
   stroke-dasharray: 5;
   stroke: var(--annotation-color);
   fill: rgba(255, 255, 255, .2);
   cursor: move;
 
   stroke-opacity: .4;
-}
+} */
