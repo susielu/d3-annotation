@@ -926,7 +926,7 @@ var connectorDot = (function (_ref) {
   var dot = arcBuilder({
     className: "connector-end connector-dot",
     classID: "connector-end",
-    data: { radius: 3 * scale }
+    data: { radius: 3 * Math.sqrt(scale) }
   });
   dot.attrs.transform = "translate(" + line$$1.data[0][0] + ", " + line$$1.data[0][1] + ")";
 

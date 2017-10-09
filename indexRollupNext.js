@@ -863,7 +863,9 @@ var createPoints = function createPoints(offset) {
 var connectorArrow = (function (_ref) {
   var annotation = _ref.annotation,
       start = _ref.start,
-      end = _ref.end;
+      end = _ref.end,
+      _ref$scale = _ref.scale,
+      scale = _ref$scale === undefined ? 1 : _ref$scale;
 
   var offset = annotation.position;
   if (!start) {
@@ -881,7 +883,7 @@ var connectorArrow = (function (_ref) {
   var dx = start[0];
   var dy = start[1];
 
-  var size = 10;
+  var size = 10 * scale;
   var angleOffset = 16 / 180 * Math.PI;
   var angle = Math.atan(dy / dx);
 
@@ -893,28 +895,39 @@ var connectorArrow = (function (_ref) {
 
   //TODO add in reverse
   // if (canvasContext.arrowReverse){
-  //   data = [[x1, y1], 
+  //   data = [[x1, y1],
   //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
   //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
   //   [x1, y1]
   //   ]
   // } else {
-  //   data = [[x1, y1], 
+  //   data = [[x1, y1],
   //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
   //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
   //   [x1, y1]
   //   ]
   // }
 
-  return { components: [lineBuilder({ data: data, className: 'connector-end connector-arrow', classID: 'connector-end' })] };
+  return {
+    components: [lineBuilder({
+      data: data,
+      className: "connector-end connector-arrow",
+      classID: "connector-end"
+    })]
+  };
 });
 
 var connectorDot = (function (_ref) {
-  var line$$1 = _ref.line;
+  var line$$1 = _ref.line,
+      _ref$scale = _ref.scale,
+      scale = _ref$scale === undefined ? 1 : _ref$scale;
 
-
-  var dot = arcBuilder({ className: 'connector-end connector-dot', classID: 'connector-end', data: { radius: 3 } });
-  dot.attrs.transform = 'translate(' + line$$1.data[0][0] + ', ' + line$$1.data[0][1] + ')';
+  var dot = arcBuilder({
+    className: "connector-end connector-dot",
+    classID: "connector-end",
+    data: { radius: 3 * Math.sqrt(scale) }
+  });
+  dot.attrs.transform = "translate(" + line$$1.data[0][0] + ", " + line$$1.data[0][1] + ")";
 
   return { components: [dot] };
 });
@@ -1352,9 +1365,14 @@ var Type = function () {
         if (distance < 5 && line$$1.data[2]) {
           s = line$$1.data[2];
         }
-        end = connectorArrow({ annotation: this.annotation, start: s, end: e });
+        end = connectorArrow({
+          annotation: this.annotation,
+          start: s,
+          end: e,
+          scale: connectorData.endScale
+        });
       } else if (endType === "dot") {
-        end = connectorDot({ line: line$$1 });
+        end = connectorDot({ line: line$$1, scale: connectorData.endScale });
       }
 
       if (end.components) {
@@ -1373,6 +1391,8 @@ var Type = function () {
   }, {
     key: "drawNote",
     value: function drawNote() {
+      var _this4 = this;
+
       var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       var noteData = this.annotation.note;
@@ -1391,6 +1411,10 @@ var Type = function () {
           components = _note$components === undefined ? [] : _note$components,
           _note$handles = _note.handles,
           handles = _note$handles === undefined ? [] : _note$handles;
+
+      components.forEach(function (c) {
+        c.attrs.stroke = _this4.annotation.color;
+      });
 
       if (this.editMode) {
         handles = this.mapHandles([{ x: 0, y: 0, drag: this.dragNote.bind(this) }]);
@@ -1522,12 +1546,12 @@ var Type = function () {
   }, {
     key: "mapHandles",
     value: function mapHandles(handles) {
-      var _this4 = this;
+      var _this5 = this;
 
       return handles.map(function (h) {
         return _extends({}, h, {
-          start: _this4.dragstarted.bind(_this4),
-          end: _this4.dragended.bind(_this4)
+          start: _this5.dragstarted.bind(_this5),
+          end: _this5.dragended.bind(_this5)
         });
       });
     }
@@ -1542,19 +1566,19 @@ var customType = function customType(initialType, typeSettings, _init) {
     function customType(settings) {
       classCallCheck(this, customType);
 
-      var _this5 = possibleConstructorReturn(this, (customType.__proto__ || Object.getPrototypeOf(customType)).call(this, settings));
+      var _this6 = possibleConstructorReturn(this, (customType.__proto__ || Object.getPrototypeOf(customType)).call(this, settings));
 
-      _this5.typeSettings = typeSettings;
+      _this6.typeSettings = typeSettings;
 
       if (typeSettings.disable) {
         typeSettings.disable.forEach(function (d) {
-          _this5[d] = undefined;
+          _this6[d] = undefined;
           if (d === "note") {
-            _this5.noteContent = undefined;
+            _this6.noteContent = undefined;
           }
         });
       }
-      return _this5;
+      return _this6;
     }
 
     createClass(customType, [{
@@ -1605,11 +1629,11 @@ var d3NoteText = function (_Type) {
   function d3NoteText(params) {
     classCallCheck(this, d3NoteText);
 
-    var _this6 = possibleConstructorReturn(this, (d3NoteText.__proto__ || Object.getPrototypeOf(d3NoteText)).call(this, params));
+    var _this7 = possibleConstructorReturn(this, (d3NoteText.__proto__ || Object.getPrototypeOf(d3NoteText)).call(this, params));
 
-    _this6.textWrap = params.textWrap || 120;
-    _this6.drawText();
-    return _this6;
+    _this7.textWrap = params.textWrap || 120;
+    _this7.drawText();
+    return _this7;
   }
 
   createClass(d3NoteText, [{
@@ -1636,17 +1660,19 @@ var d3NoteText = function (_Type) {
         var label = this.a.select("text.annotation-note-label");
         var wrapLength = this.annotation.note && this.annotation.note.wrap || this.typeSettings && this.typeSettings.note && this.typeSettings.note.wrap || this.textWrap;
 
+        var wrapSplitter = this.annotation.note && this.annotation.note.wrapSplitter || this.typeSettings && this.typeSettings.note && this.typeSettings.note.wrapSplitter;
+
         if (this.annotation.note.title) {
           var title = this.a.select("text.annotation-note-title");
           title.text(this.annotation.note.title);
           title.attr("fill", this.annotation.color);
           title.attr("font-weight", "bold");
-          title.call(wrap, wrapLength);
+          title.call(wrap, wrapLength, wrapSplitter);
           titleBBox = title.node().getBBox();
         }
 
         label.text(this.annotation.note.label).attr("dx", "0");
-        label.call(wrap, wrapLength);
+        label.call(wrap, wrapLength, wrapSplitter);
 
         label.attr("y", titleBBox.height * 1.1 || 0);
         label.attr("fill", this.annotation.color);
@@ -1761,12 +1787,12 @@ var addHandlers = function addHandlers(dispatcher, annotation, _ref3) {
 };
 
 //Text wrapping code adapted from Mike Bostock
-var wrap = function wrap(text, width) {
-  var lineHeight = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1.2;
+var wrap = function wrap(text, width, wrapSplitter) {
+  var lineHeight = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1.2;
 
   text.each(function () {
     var text = select(this),
-        words = text.text().split(/[ \t\r\n]+/).reverse().filter(function (w) {
+        words = text.text().split(wrapSplitter || /[ \t\r\n]+/).reverse().filter(function (w) {
       return w !== "";
     });
     var word = void 0,
