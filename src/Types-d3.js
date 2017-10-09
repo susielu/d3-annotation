@@ -188,9 +188,14 @@ export class Type {
       if (distance < 5 && line.data[2]) {
         s = line.data[2]
       }
-      end = connectorArrow({ annotation: this.annotation, start: s, end: e })
+      end = connectorArrow({
+        annotation: this.annotation,
+        start: s,
+        end: e,
+        scale: connectorData.endScale
+      })
     } else if (endType === "dot") {
-      end = connectorDot({ line })
+      end = connectorDot({ line, scale: connectorData.endScale })
     }
 
     if (end.components) {

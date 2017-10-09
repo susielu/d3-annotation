@@ -864,7 +864,9 @@ var createPoints = function createPoints(offset) {
 var connectorArrow = (function (_ref) {
   var annotation = _ref.annotation,
       start = _ref.start,
-      end = _ref.end;
+      end = _ref.end,
+      _ref$scale = _ref.scale,
+      scale = _ref$scale === undefined ? 1 : _ref$scale;
 
   var offset = annotation.position;
   if (!start) {
@@ -882,7 +884,7 @@ var connectorArrow = (function (_ref) {
   var dx = start[0];
   var dy = start[1];
 
-  var size = 10;
+  var size = 10 * scale;
   var angleOffset = 16 / 180 * Math.PI;
   var angle = Math.atan(dy / dx);
 
@@ -894,28 +896,39 @@ var connectorArrow = (function (_ref) {
 
   //TODO add in reverse
   // if (canvasContext.arrowReverse){
-  //   data = [[x1, y1], 
+  //   data = [[x1, y1],
   //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
   //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
   //   [x1, y1]
   //   ]
   // } else {
-  //   data = [[x1, y1], 
+  //   data = [[x1, y1],
   //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
   //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
   //   [x1, y1]
   //   ]
   // }
 
-  return { components: [lineBuilder({ data: data, className: 'connector-end connector-arrow', classID: 'connector-end' })] };
+  return {
+    components: [lineBuilder({
+      data: data,
+      className: "connector-end connector-arrow",
+      classID: "connector-end"
+    })]
+  };
 });
 
 var connectorDot = (function (_ref) {
-  var line$$1 = _ref.line;
+  var line$$1 = _ref.line,
+      _ref$scale = _ref.scale,
+      scale = _ref$scale === undefined ? 1 : _ref$scale;
 
-
-  var dot = arcBuilder({ className: 'connector-end connector-dot', classID: 'connector-end', data: { radius: 3 } });
-  dot.attrs.transform = 'translate(' + line$$1.data[0][0] + ', ' + line$$1.data[0][1] + ')';
+  var dot = arcBuilder({
+    className: "connector-end connector-dot",
+    classID: "connector-end",
+    data: { radius: 3 * scale }
+  });
+  dot.attrs.transform = "translate(" + line$$1.data[0][0] + ", " + line$$1.data[0][1] + ")";
 
   return { components: [dot] };
 });
@@ -1353,9 +1366,14 @@ var Type = function () {
         if (distance < 5 && line$$1.data[2]) {
           s = line$$1.data[2];
         }
-        end = connectorArrow({ annotation: this.annotation, start: s, end: e });
+        end = connectorArrow({
+          annotation: this.annotation,
+          start: s,
+          end: e,
+          scale: connectorData.endScale
+        });
       } else if (endType === "dot") {
-        end = connectorDot({ line: line$$1 });
+        end = connectorDot({ line: line$$1, scale: connectorData.endScale });
       }
 
       if (end.components) {
