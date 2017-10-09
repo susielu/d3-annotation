@@ -1374,6 +1374,8 @@ var Type = function () {
   }, {
     key: "drawNote",
     value: function drawNote() {
+      var _this4 = this;
+
       var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       var noteData = this.annotation.note;
@@ -1392,6 +1394,10 @@ var Type = function () {
           components = _note$components === undefined ? [] : _note$components,
           _note$handles = _note.handles,
           handles = _note$handles === undefined ? [] : _note$handles;
+
+      components.forEach(function (c) {
+        c.attrs.stroke = _this4.annotation.color;
+      });
 
       if (this.editMode) {
         handles = this.mapHandles([{ x: 0, y: 0, drag: this.dragNote.bind(this) }]);
@@ -1523,12 +1529,12 @@ var Type = function () {
   }, {
     key: "mapHandles",
     value: function mapHandles(handles) {
-      var _this4 = this;
+      var _this5 = this;
 
       return handles.map(function (h) {
         return _extends({}, h, {
-          start: _this4.dragstarted.bind(_this4),
-          end: _this4.dragended.bind(_this4)
+          start: _this5.dragstarted.bind(_this5),
+          end: _this5.dragended.bind(_this5)
         });
       });
     }
@@ -1543,19 +1549,19 @@ var customType = function customType(initialType, typeSettings, _init) {
     function customType(settings) {
       classCallCheck(this, customType);
 
-      var _this5 = possibleConstructorReturn(this, (customType.__proto__ || Object.getPrototypeOf(customType)).call(this, settings));
+      var _this6 = possibleConstructorReturn(this, (customType.__proto__ || Object.getPrototypeOf(customType)).call(this, settings));
 
-      _this5.typeSettings = typeSettings;
+      _this6.typeSettings = typeSettings;
 
       if (typeSettings.disable) {
         typeSettings.disable.forEach(function (d) {
-          _this5[d] = undefined;
+          _this6[d] = undefined;
           if (d === "note") {
-            _this5.noteContent = undefined;
+            _this6.noteContent = undefined;
           }
         });
       }
-      return _this5;
+      return _this6;
     }
 
     createClass(customType, [{
@@ -1606,11 +1612,11 @@ var d3NoteText = function (_Type) {
   function d3NoteText(params) {
     classCallCheck(this, d3NoteText);
 
-    var _this6 = possibleConstructorReturn(this, (d3NoteText.__proto__ || Object.getPrototypeOf(d3NoteText)).call(this, params));
+    var _this7 = possibleConstructorReturn(this, (d3NoteText.__proto__ || Object.getPrototypeOf(d3NoteText)).call(this, params));
 
-    _this6.textWrap = params.textWrap || 120;
-    _this6.drawText();
-    return _this6;
+    _this7.textWrap = params.textWrap || 120;
+    _this7.drawText();
+    return _this7;
   }
 
   createClass(d3NoteText, [{

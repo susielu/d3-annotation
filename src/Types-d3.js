@@ -221,6 +221,10 @@ export class Type {
     else if (lineType === "horizontal") note = noteHorizontal(noteParams)
 
     let { components = [], handles = [] } = note
+    components.forEach(c => {
+      c.attrs.stroke = this.annotation.color
+    })
+
     if (this.editMode) {
       handles = this.mapHandles([
         { x: 0, y: 0, drag: this.dragNote.bind(this) }
@@ -560,7 +564,11 @@ export const d3XYThreshold = customType(ThresholdMap, {
 
 export const newWithClass = (a, d, type, className, classID) => {
   const group = a.selectAll(`${type}.${classID || className}`).data(d)
-  group.enter().append(type).merge(group).attr("class", className)
+  group
+    .enter()
+    .append(type)
+    .merge(group)
+    .attr("class", className)
 
   group.exit().remove()
   return a
@@ -585,7 +593,11 @@ const addHandlers = (dispatcher, annotation, { component, name }) => {
 const wrap = (text, width, lineHeight = 1.2) => {
   text.each(function() {
     const text = select(this),
-      words = text.text().split(/[ \t\r\n]+/).reverse().filter(w => w !== "")
+      words = text
+        .text()
+        .split(/[ \t\r\n]+/)
+        .reverse()
+        .filter(w => w !== "")
     let word,
       line = [],
       tspan = text
@@ -616,19 +628,25 @@ const bboxWithoutHandles = (selection, selector = ":not(.handle)") => {
     return { x: 0, y: 0, width: 0, height: 0 }
   }
 
-  return selection.selectAll(selector).nodes().reduce((p, c) => {
-    const bbox = c.getBBox()
-    p.x = Math.min(p.x, bbox.x)
-    p.y = Math.min(p.y, bbox.y)
-    p.width = Math.max(p.width, bbox.width)
+  return selection
+    .selectAll(selector)
+    .nodes()
+    .reduce(
+      (p, c) => {
+        const bbox = c.getBBox()
+        p.x = Math.min(p.x, bbox.x)
+        p.y = Math.min(p.y, bbox.y)
+        p.width = Math.max(p.width, bbox.width)
 
-    const yOffset = c && c.attributes && c.attributes.y
-    p.height = Math.max(
-      p.height,
-      (yOffset && parseFloat(yOffset.value) || 0) + bbox.height
+        const yOffset = c && c.attributes && c.attributes.y
+        p.height = Math.max(
+          p.height,
+          (yOffset && parseFloat(yOffset.value) || 0) + bbox.height
+        )
+        return p
+      },
+      { x: 0, y: 0, width: 0, height: 0 }
     )
-    return p
-  }, { x: 0, y: 0, width: 0, height: 0 })
 }
 
 export default {
