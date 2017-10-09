@@ -474,17 +474,23 @@ export class d3NoteText extends Type {
           this.typeSettings.note.wrap ||
         this.textWrap
 
+      const wrapSplitter =
+        this.annotation.note && this.annotation.note.wrapSplitter ||
+        this.typeSettings &&
+          this.typeSettings.note &&
+          this.typeSettings.note.wrapSplitter
+
       if (this.annotation.note.title) {
         const title = this.a.select("text.annotation-note-title")
         title.text(this.annotation.note.title)
         title.attr("fill", this.annotation.color)
         title.attr("font-weight", "bold")
-        title.call(wrap, wrapLength)
+        title.call(wrap, wrapLength, wrapSplitter)
         titleBBox = title.node().getBBox()
       }
 
       label.text(this.annotation.note.label).attr("dx", "0")
-      label.call(wrap, wrapLength)
+      label.call(wrap, wrapLength, wrapSplitter)
 
       label.attr("y", titleBBox.height * 1.1 || 0)
       label.attr("fill", this.annotation.color)
@@ -595,12 +601,12 @@ const addHandlers = (dispatcher, annotation, { component, name }) => {
 }
 
 //Text wrapping code adapted from Mike Bostock
-const wrap = (text, width, lineHeight = 1.2) => {
+const wrap = (text, width, wrapSplitter, lineHeight = 1.2) => {
   text.each(function() {
     const text = select(this),
       words = text
         .text()
-        .split(/[ \t\r\n]+/)
+        .split(wrapSplitter || /[ \t\r\n]+/)
         .reverse()
         .filter(w => w !== "")
     let word,

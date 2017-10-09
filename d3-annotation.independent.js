@@ -1661,17 +1661,19 @@ var d3NoteText = function (_Type) {
         var label = this.a.select("text.annotation-note-label");
         var wrapLength = this.annotation.note && this.annotation.note.wrap || this.typeSettings && this.typeSettings.note && this.typeSettings.note.wrap || this.textWrap;
 
+        var wrapSplitter = this.annotation.note && this.annotation.note.wrapSplitter || this.typeSettings && this.typeSettings.note && this.typeSettings.note.wrapSplitter;
+
         if (this.annotation.note.title) {
           var title = this.a.select("text.annotation-note-title");
           title.text(this.annotation.note.title);
           title.attr("fill", this.annotation.color);
           title.attr("font-weight", "bold");
-          title.call(wrap, wrapLength);
+          title.call(wrap, wrapLength, wrapSplitter);
           titleBBox = title.node().getBBox();
         }
 
         label.text(this.annotation.note.label).attr("dx", "0");
-        label.call(wrap, wrapLength);
+        label.call(wrap, wrapLength, wrapSplitter);
 
         label.attr("y", titleBBox.height * 1.1 || 0);
         label.attr("fill", this.annotation.color);
@@ -1786,12 +1788,12 @@ var addHandlers = function addHandlers(dispatcher, annotation, _ref3) {
 };
 
 //Text wrapping code adapted from Mike Bostock
-var wrap = function wrap(text, width) {
-  var lineHeight = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1.2;
+var wrap = function wrap(text, width, wrapSplitter) {
+  var lineHeight = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1.2;
 
   text.each(function () {
     var text = d3Selection.select(this),
-        words = text.text().split(/[ \t\r\n]+/).reverse().filter(function (w) {
+        words = text.text().split(wrapSplitter || /[ \t\r\n]+/).reverse().filter(function (w) {
       return w !== "";
     });
     var word = void 0,
