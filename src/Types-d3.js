@@ -1,4 +1,5 @@
 import { select, event } from "d3-selection"
+import { drag } from "d3-drag"
 import { addHandles } from "./Handles"
 
 //Note options
@@ -235,6 +236,19 @@ export class Type {
         { x: 0, y: 0, drag: this.dragNote.bind(this) }
       ])
       components.push({ type: "handle", handles })
+
+      const dragging = this.dragNote.bind(this),
+        start = this.dragstarted.bind(this),
+        end = this.dragended.bind(this)
+      this.note.call(
+        drag()
+          .container(select("g.annotations").node())
+          .on("start", d => start(d))
+          .on("drag", d => dragging(d))
+          .on("end", d => end(d))
+      )
+    } else {
+      this.note.on("mousedown.drag", null)
     }
     return components
   }
@@ -306,9 +320,9 @@ export class Type {
   setClassName() {
     this.a.attr(
       "class",
-      `annotation ${this.className && this.className()} ${this.editMode
-        ? "editable"
-        : ""} ${this.annotation.className || ""}`
+      `annotation ${this.className && this.className()} ${
+        this.editMode ? "editable" : ""
+      } ${this.annotation.className || ""}`
     )
   }
 
