@@ -1,6 +1,6 @@
 {
   "name": "d3-svg-annotation",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "",
   "main": "indexRollup.js",
   "jsnext:main": "indexRollupNext.js",
@@ -16,7 +16,11 @@
     "d3-annotation.*",
     "types/*"
   ],
-  "keywords": ["d3", "d3-module", "annotation"],
+  "keywords": [
+    "d3",
+    "d3-module",
+    "annotation"
+  ],
   "directories": {},
   "devDependencies": {
     "babel-eslint": "7.1.1",
@@ -44,24 +48,27 @@
   "scripts": {
     "start": "npm run server & npm run watch",
     "server": "http-server",
-    "rollup:web":
-      "rollup -c rollupWeb.config.js && rollup -c rollupWebIndependent.config.js",
+    "rollup:web": "rollup -c rollupWeb.config.js && rollup -c rollupWebIndependent.config.js",
     "docs": "node docs/browserify-docs.js && npm run docs-bundle",
-    "docs-bundle":
-      "uglifyjs --source-map=docs/bundle.map --source-map-url=bundle.map -- docs/vendor/jquery2.1.1.min.js docs/vendor/materialize.min.js docs/vendor/d3-selection.js  docs/vendor/d3-path.js docs/vendor/d3-shape.js docs/vendor/d3-dispatch.js docs/vendor/d3-drag.js docs/vendor/d3-transition.js d3-annotation.js docs/docs-compiled.js > docs/bundle.js",
+    "docs-bundle": "uglifyjs --source-map=docs/bundle.map --source-map-url=bundle.map -- docs/vendor/jquery2.1.1.min.js docs/vendor/materialize.min.js docs/vendor/d3-selection.js  docs/vendor/d3-path.js docs/vendor/d3-shape.js docs/vendor/d3-dispatch.js docs/vendor/d3-drag.js docs/vendor/d3-transition.js d3-annotation.js docs/docs-compiled.js > docs/bundle.js",
     "watch": "npm-watch",
     "uglify": "uglifyjs d3-annotation.js -o d3-annotation.min.js -c -m",
-    "uglify:independent":
-      "uglifyjs d3-annotation.independent.js -o d3-annotation.independent.min.js -c -m",
-    "prepublishOnly":
-      "eslint src/** && npm run test:only && npm run rollup:web && npm run uglify && npm run uglify:independent && rollup -c rollupWeb.config.js && rollup -c && rollup -c rollupNext.config.js",
+    "uglify:independent": "uglifyjs d3-annotation.independent.js -o d3-annotation.independent.min.js -c -m",
+    "prepublishOnly": "eslint src/** && npm run test:only && npm run rollup:web && npm run uglify && npm run uglify:independent && rollup -c rollupWeb.config.js && rollup -c && rollup -c rollupNext.config.js",
     "test": "jest --watch",
     "test:only": "jest"
   },
   "watch": {
-    "rollup:web": ["src/*.js", "src/**/*.js"],
+    "rollup:web": [
+      "src/*.js",
+      "src/**/*.js"
+    ],
     "docs": {
-      "patterns": ["docs/docs.js", "d3-annotation.js", "docs/content/*.md"],
+      "patterns": [
+        "docs/docs.js",
+        "d3-annotation.js",
+        "docs/content/*.md"
+      ],
       "extensions": "js,md"
     }
   },
