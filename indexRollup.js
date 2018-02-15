@@ -3349,6 +3349,19 @@ var Type = function () {
       if (this.editMode) {
         handles = this.mapHandles([{ x: 0, y: 0, drag: this.dragNote.bind(this) }]);
         components.push({ type: "handle", handles: handles });
+
+        var dragging = this.dragNote.bind(this),
+            start = this.dragstarted.bind(this),
+            end = this.dragended.bind(this);
+        this.note.call(drag().container(select("g.annotations").node()).on("start", function (d) {
+          return start(d);
+        }).on("drag", function (d) {
+          return dragging(d);
+        }).on("end", function (d) {
+          return end(d);
+        }));
+      } else {
+        this.note.on("mousedown.drag", null);
       }
       return components;
     }
