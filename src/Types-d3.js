@@ -197,6 +197,8 @@ export class Type {
       })
     } else if (endType === "dot") {
       end = connectorDot({ line, scale: connectorData.endScale })
+    } else if (!endType || endType === "none") {
+      this.connector && this.connector.select(".connector-end").remove()
     }
 
     if (end.components) {
@@ -379,7 +381,7 @@ export const customType = (initialType, typeSettings, init) => {
 
       if (typeSettings.disable) {
         typeSettings.disable.forEach(d => {
-          this[d].remove()
+          this[d] && this[d].remove()
 
           this[d] = undefined
           if (d === "note") {

@@ -1374,6 +1374,8 @@ var Type = function () {
         });
       } else if (endType === "dot") {
         end = connectorDot({ line: line$$1, scale: connectorData.endScale });
+      } else if (!endType || endType === "none") {
+        this.connector && this.connector.select(".connector-end").remove();
       }
 
       if (end.components) {
@@ -1586,7 +1588,7 @@ var customType = function customType(initialType, typeSettings, _init) {
 
       if (typeSettings.disable) {
         typeSettings.disable.forEach(function (d) {
-          _this6[d].remove();
+          _this6[d] && _this6[d].remove();
 
           _this6[d] = undefined;
           if (d === "note") {
