@@ -1586,6 +1586,8 @@ var customType = function customType(initialType, typeSettings, _init) {
 
       if (typeSettings.disable) {
         typeSettings.disable.forEach(function (d) {
+          _this6[d].remove();
+
           _this6[d] = undefined;
           if (d === "note") {
             _this6.noteContent = undefined;
@@ -1702,22 +1704,26 @@ var d3NoteText = function (_Type) {
 
 var d3Label = customType(d3NoteText, {
   className: "label",
-  note: { align: "middle" }
+  note: { align: "middle" },
+  disable: ["subject"]
 });
 
 var d3Callout = customType(d3NoteText, {
   className: "callout",
-  note: { lineType: "horizontal" }
+  note: { lineType: "horizontal" },
+  disable: ["subject"]
 });
 
 var d3CalloutElbow = customType(d3Callout, {
   className: "callout elbow",
-  connector: { type: "elbow" }
+  connector: { type: "elbow" },
+  disable: ["subject"]
 });
 
 var d3CalloutCurve = customType(d3Callout, {
   className: "callout curve",
-  connector: { type: "curve" }
+  connector: { type: "curve" },
+  disable: ["subject"]
 });
 
 var d3Badge = customType(Type, {

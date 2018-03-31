@@ -379,6 +379,8 @@ export const customType = (initialType, typeSettings, init) => {
 
       if (typeSettings.disable) {
         typeSettings.disable.forEach(d => {
+          this[d].remove()
+
           this[d] = undefined
           if (d === "note") {
             this.noteContent = undefined
@@ -524,22 +526,26 @@ export class d3NoteText extends Type {
 
 export const d3Label = customType(d3NoteText, {
   className: "label",
-  note: { align: "middle" }
+  note: { align: "middle" },
+  disable: ["subject"]
 })
 
 export const d3Callout = customType(d3NoteText, {
   className: "callout",
-  note: { lineType: "horizontal" }
+  note: { lineType: "horizontal" },
+  disable: ["subject"]
 })
 
 export const d3CalloutElbow = customType(d3Callout, {
   className: "callout elbow",
-  connector: { type: "elbow" }
+  connector: { type: "elbow" },
+  disable: ["subject"]
 })
 
 export const d3CalloutCurve = customType(d3Callout, {
   className: "callout curve",
-  connector: { type: "curve" }
+  connector: { type: "curve" },
+  disable: ["subject"]
 })
 
 export const d3Badge = customType(Type, {
