@@ -59,7 +59,7 @@ If this is true, then the annotation will create handles for parts of the annota
 
 annotation.**update()**
 
-Redraws all of the annotations. Typcially used to reflect updated settings. If you are only updating the position (x, y) or the offset (dx, dy) you do not need to run `call` on makeAnnotations afterwards. Example in [Layout - Encircling Annotation](#encircle).
+Redraws all of the annotations. Typically used to reflect updated settings. If you are only updating the position (x, y) or the offset (dx, dy) you do not need to run `call` on makeAnnotations afterwards. Example in [Layout - Encircling Annotation](#encircle).
 
 annotation.**updateText()**
 
