@@ -556,14 +556,16 @@ export const d3Badge = customType(Type, {
   disable: ["connector", "note"]
 })
 
-export const d3CalloutCircle = customType(d3CalloutElbow, {
+export const d3CalloutCircle = customType(d3NoteText, {
   className: "callout circle",
-  subject: { type: "circle" }
+  subject: { type: "circle" },
+  connector: { type: "elbow", lineType: "horizontal" }
 })
 
-export const d3CalloutRect = customType(d3CalloutElbow, {
+export const d3CalloutRect = customType(d3NoteText, {
   className: "callout rect",
-  subject: { type: "rect" }
+  subject: { type: "rect" },
+  connector: { type: "elbow", lineType: "horizontal" }
 })
 
 class ThresholdMap extends d3Callout {
