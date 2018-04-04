@@ -3666,13 +3666,15 @@ var d3Badge = customType(Type, {
 var d3CalloutCircle = customType(d3NoteText, {
   className: "callout circle",
   subject: { type: "circle" },
-  connector: { type: "elbow", lineType: "horizontal" }
+  note: { lineType: "horizontal" },
+  connector: { type: "elbow" }
 });
 
 var d3CalloutRect = customType(d3NoteText, {
   className: "callout rect",
   subject: { type: "rect" },
-  connector: { type: "elbow", lineType: "horizontal" }
+  note: { lineType: "horizontal" },
+  connector: { type: "elbow" }
 });
 
 var ThresholdMap = function (_d3Callout) {
