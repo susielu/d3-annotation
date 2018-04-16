@@ -37,7 +37,10 @@ export default class Annotation {
   updatePosition() {
     if (this.type.setPosition) {
       this.type.setPosition()
-      if (this.type.subject.selectAll(":not(.handle)").nodes().length !== 0) {
+      if (
+        this.type.subject &&
+        this.type.subject.selectAll(":not(.handle)").nodes().length !== 0
+      ) {
         this.type.redrawSubject()
       }
     }
