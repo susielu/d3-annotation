@@ -6,20 +6,20 @@ annotation.**annotations([ objects ])**
 
 Pass an array of objects with annotation properties:
 
-* **id**: This can be anything that will help you filter and parse your annotations
+- **id**: This can be anything that will help you filter and parse your annotations
 
 ![Annotation JSON](img/json.png)
 
-* **x,y (number:pixels)**: Position of the subject and one end of the connector
-* **data (object)**: If you also set accessor functions, you can give data instead of x,y coordinates for placing your annotations
-* **dx, dy (number:pixels)**: Position of the note and one end of the connector, as an offset from x,y
-* **nx, ny (number:pixels)**: Position of the note and one end of the connector, as the raw x,y position **not** an offset
-* **type ([d3annotationType](#types))**: Type for this annotation. Recommended to set the base type at the d3.annotation().type() property and use this to override the base
-* **disable ([string])**: takes the values 'connector', 'subject', and 'note' pass them in this array if you want to disable those parts from rendering
-* **color([string])**: only in version 2.0, you can pass a color string that will be applied to the annotation. This color can be overridden via css or inline-styles
-* **note (object)**: You can specify a title and label property here. All of the annotation types that come with d3-annotation have built in functionality to take the title and the label and add them to the note, however the underlying system is composable in a way that you could customize the note to contain any type of content. You can also use this to overwrite the default note properties (align, orientation, lineType, wrap, padding) in the type. For example if on one of the notes you wanted to align it differently. In v2.1.0 and higher you can pass a regex or string to customize the wrapping <code>{ wrapSplitter: /\n/ }</code>
-* **connector (object)**: Some connectors such as the curve connector require additional parameters to set up the annotation. You can also use this to overwrite the default connector properties (type, end) in the type. For example if you wanted to add an arrow to the end of some of the annotations in the array you could add <code>{ end: "arrow" }</code> to this connector property on the relevant annotations. In v2.1.0 and higher, there is also a <code>{ endScale: 2 }</code> that allows you to scale the size of the <code>dot</code> or <code>arrow</code> end types
-* **subject (object)**: Some subjects such as the circle require additional parameters to set up the annotation.
+- **x,y (number:pixels)**: Position of the subject and one end of the connector
+- **data (object)**: If you also set accessor functions, you can give data instead of x,y coordinates for placing your annotations
+- **dx, dy (number:pixels)**: Position of the note and one end of the connector, as an offset from x,y
+- **nx, ny (number:pixels)**: Position of the note and one end of the connector, as the raw x,y position **not** an offset
+- **type ([d3annotationType](#types))**: Type for this annotation. Recommended to set the base type at the d3.annotation().type() property and use this to override the base
+- **disable ([string])**: takes the values 'connector', 'subject', and 'note' pass them in this array if you want to disable those parts from rendering
+- **color([string])**: only in version 2.0, you can pass a color string that will be applied to the annotation. This color can be overridden via css or inline-styles
+- **note (object)**: You can specify a title and label property here. All of the annotation types that come with d3-annotation have built in functionality to take the title and the label and add them to the note, however the underlying system is composable in a way that you could customize the note to contain any type of content. You can also use this to overwrite the default note properties (align, orientation, lineType, wrap, padding) in the type. For example if on one of the notes you wanted to align it differently. In v2.1.0 and higher you can pass a regex or string to customize the wrapping <code>{ wrapSplitter: /\n/ }</code>. In v2.3.0 and higher, you can pass a <code>bgPadding</code> that accepts a number or an object with one or more <code>top</code>, <code>bottom</code>, <code>left</code>, and <code>right</code> properties, to increase the size of the rectangle behind the text.
+- **connector (object)**: Some connectors such as the curve connector require additional parameters to set up the annotation. You can also use this to overwrite the default connector properties (type, end) in the type. For example if you wanted to add an arrow to the end of some of the annotations in the array you could add <code>{ end: "arrow" }</code> to this connector property on the relevant annotations. In v2.1.0 and higher, there is also a <code>{ endScale: 2 }</code> that allows you to scale the size of the <code>dot</code> or <code>arrow</code> end types
+- **subject (object)**: Some subjects such as the circle require additional parameters to set up the annotation.
 
 If you don't pass anything to this function, it returns the current array of annotations.
 

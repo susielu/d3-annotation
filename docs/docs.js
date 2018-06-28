@@ -39,7 +39,6 @@ $(document).ready(function() {
 
   let typeSettings = JSON.parse(JSON.stringify(defaultSettings))
 
-  let currentType = d3.annotationLabel
   let typeKey = "annotationLabel"
   let curve = "curveCatmullRom"
   let points = 2
@@ -47,15 +46,27 @@ $(document).ready(function() {
   const types = {
     annotationLabel: {
       typeSettings: {
-        note: { align: "middle", orientation: "topBottom" },
-        connector: { type: "line" }
+        note: {
+          align: "middle",
+          orientation: "topBottom",
+          bgPadding: 20,
+          padding: 15
+        },
+        connector: { type: "line" },
+        className: "show-bg"
       },
       summary: "A centered label annotation"
     },
     annotationCallout: {
       typeSettings: {
-        note: { align: "dynamic", lineType: "horizontal" },
-        connector: { type: "line" }
+        note: {
+          align: "dynamic",
+          lineType: "horizontal",
+          bgPadding: { top: 15, left: 10, right: 10, bottom: 10 },
+          padding: 15
+        },
+        connector: { type: "line" },
+        className: "show-bg"
       },
       summary: "Adds a line along the note"
     },
@@ -121,16 +132,20 @@ $(document).ready(function() {
       }
     }
   }
-
+  let currentType = d3.annotationCustomType(
+    d3.annotationLabel,
+    types.annotationLabel.typeSettings
+  )
   let editMode = true
   let textWrap = 120
-  let padding = 5
-
+  let padding = types[typeKey].typeSettings.note.padding || 5
+  console.log("TYPES", types[typeKey])
   const annotation = {
     note: {
       label: "Longer text to show text wrapping",
       title: "Annotations :)"
     },
+    className: types[typeKey].className,
     x: 150,
     y: 170,
     dy: 117,
@@ -142,9 +157,10 @@ $(document).ready(function() {
     const value = d3.event.target.attributes["data-setting"].value
     d3.selectAll(`[data-section="${type}"]`).classed("active", false)
 
-    d3
-      .selectAll(`[data-section="${type}"][data-setting="${value}"]`)
-      .classed("active", true)
+    d3.selectAll(`[data-section="${type}"][data-setting="${value}"]`).classed(
+      "active",
+      true
+    )
 
     if (type === "note:lineType") {
       if (value === "none") {
@@ -158,26 +174,29 @@ $(document).ready(function() {
       type === "note:lineType" && value === "vertical" ||
       type === "note:orientation" && value === "leftRight"
     ) {
-      d3
-        .selectAll("[data-section='note:align'].horizontal")
-        .classed("hidden", true)
-      d3
-        .selectAll("[data-section='note:align'].vertical")
-        .classed("hidden", false)
+      d3.selectAll("[data-section='note:align'].horizontal").classed(
+        "hidden",
+        true
+      )
+      d3.selectAll("[data-section='note:align'].vertical").classed(
+        "hidden",
+        false
+      )
     } else if (
       type === "note:lineType" && value === "horizontal" ||
       type === "note:orientation" && value === "topBottom"
     ) {
-      d3
-        .selectAll("[data-section='note:align'].vertical")
-        .classed("hidden", true)
-      d3
-        .selectAll("[data-section='note:align'].horizontal")
-        .classed("hidden", false)
+      d3.selectAll("[data-section='note:align'].vertical").classed(
+        "hidden",
+        true
+      )
+      d3.selectAll("[data-section='note:align'].horizontal").classed(
+        "hidden",
+        false
+      )
     }
 
     type = type.split(":")
-
     if (value === "none") {
       delete typeSettings[type[0]][type[1]]
       if (type[0] == "connector" && type[1] == "type") {
@@ -219,7 +238,7 @@ $(document).ready(function() {
         typeSettings[type[0]][type[1]] = value
       }
     }
-
+    console.log("ABOUT TO MAKE ANNOTTION", typeSettings)
     currentType = d3.annotationCustomType(d3[typeKey], typeSettings)
 
     updateAnnotations()
@@ -230,7 +249,10 @@ $(document).ready(function() {
 
   d3.selectAll(".icons .presets .types img").on("click", function() {
     typeKey = d3.event.target.attributes["data-type"].value
-    currentType = d3[typeKey]
+    currentType = d3.annotationCustomType(d3[typeKey], {
+      className: types[typeKey].typeSettings.className,
+      note: { bgPadding: types[typeKey].typeSettings.note.bgPadding }
+    })
 
     d3.selectAll(`.icons .presets img`).classed("active", false)
 
@@ -249,39 +271,37 @@ $(document).ready(function() {
 
     d3.selectAll(".icons .options img").classed("active", false)
 
-    d3
-      .select(
-        `.icons img[data-section="note:align"][data-setting="${options.note
-          .align}"]`
-      )
-      .classed("active", true)
+    d3.select(
+      `.icons img[data-section="note:align"][data-setting="${
+        options.note.align
+      }"]`
+    ).classed("active", true)
 
     if (options.note.lineType) {
-      d3
-        .select(
-          `.icons img[data-section="note:lineType"][data-setting=${options.note
-            .lineType}]`
-        )
-        .classed("active", true)
+      d3.select(
+        `.icons img[data-section="note:lineType"][data-setting=${
+          options.note.lineType
+        }]`
+      ).classed("active", true)
       d3.selectAll(".icons .orientation").classed("hidden", true)
     } else {
-      d3
-        .select(`.icons img[data-section="note:lineType"][data-setting="none"]`)
-        .classed("active", true)
+      d3.select(
+        `.icons img[data-section="note:lineType"][data-setting="none"]`
+      ).classed("active", true)
       d3.selectAll(".icons .orientation").classed("hidden", false)
       d3.select(".icons .orientation img").classed("active", true)
     }
 
-    d3
-      .select('.icons img[data-section="connector:end"]')
-      .classed("active", true)
+    d3.select('.icons img[data-section="connector:end"]').classed(
+      "active",
+      true
+    )
 
-    d3
-      .select(
-        `.icons img[data-section="connector:type"][data-setting=${options
-          .connector.type}]`
-      )
-      .classed("active", true)
+    d3.select(
+      `.icons img[data-section="connector:type"][data-setting=${
+        options.connector.type
+      }]`
+    ).classed("active", true)
 
     if (typeKey == "annotationCalloutCurve") {
       d3.select("#curveButtons").classed("hidden", false)
@@ -322,8 +342,7 @@ $(document).ready(function() {
     sandboxCode()
   }
 
-  d3
-    .selectAll("#curveButtons ul.curves li img")
+  d3.selectAll("#curveButtons ul.curves li img")
     .on("click", changeCurve)
     .on("pointerdown", changeCurve)
 
@@ -333,19 +352,17 @@ $(document).ready(function() {
     sandboxCode()
   }
 
-  d3
-    .selectAll("#curveButtons ul.points li a")
+  d3.selectAll("#curveButtons ul.points li a")
     .on("click", changePoints)
     .on("pointerdown", changePoints)
-
+  console.log("CURRENT", currentType)
   window.makeAnnotations = d3
     .annotation()
     .editMode(editMode)
     .type(currentType)
     .annotations([annotation])
 
-  d3
-    .select(".sandbox")
+  d3.select(".sandbox")
     .append("g")
     .attr("class", "sandbox-annotations")
     .call(makeAnnotations)
@@ -359,8 +376,7 @@ $(document).ready(function() {
       connector: newSettings && newSettings.connector
     })
 
-    d3
-      .select(".sandbox")
+    d3.select(".sandbox")
       .append("g")
       .attr("class", "sandbox-annotations")
       .call(makeAnnotations)
@@ -456,56 +472,67 @@ $(document).ready(function() {
       subjectText =
         `  subject: {\n` + '    text: "A",\n' + "    radius: 14\n" + "  }\n"
     }
-
-    d3
-      .select("#sandbox-code code")
-      .text(
-        typeText +
-          "\n" +
-          "const annotations = [{\n" +
-          "  note: {\n" +
-          '    label: "Longer text to show text wrapping",\n' +
-          '    title: "Annotations :)"\n' +
-          "  },\n" +
-          "  //can use x, y directly instead of data\n" +
-          '  data: { date: "18-Sep-09", close: 185.02 },\n' +
-          "  dy: 137,\n" +
-          `  dx: 162${curveText !== "" || subjectText !== "" ? "," : ""}\n` +
-          curveText +
-          (subjectText !== "" && curveText !== "" ? ",\n" : "") +
-          subjectText +
-          "}]\n" +
-          "\n" +
-          'const parseTime = d3.timeParse("%d-%b-%y")\n' +
-          'const timeFormat = d3.timeFormat("%d-%b-%y")\n' +
-          "\n" +
-          "//Skipping setting domains for sake of example\n" +
-          "const x = d3.scaleTime().range([0, 800])\n" +
-          "const y = d3.scaleLinear().range([300, 0])\n" +
-          "\n" +
-          "const makeAnnotations = d3.annotation()\n" +
-          editModeText +
-          disableText +
-          textWrapText +
-          paddingText +
-          `  .type(type)\n` +
-          "  //accessors & accessorsInverse not needed\n" +
-          "  //if using x, y in annotations JSON\n" +
-          "  .accessors({\n" +
-          "    x: d => x(parseTime(d.date)),\n" +
-          "    y: d => y(d.close)\n" +
-          "  })\n" +
-          "  .accessorsInverse({\n" +
-          "     date: d => timeFormat(x.invert(d.x)),\n" +
-          "     close: d => y.invert(d.y)\n" +
-          "  })\n" +
-          `  .annotations(annotations)\n` +
-          "\n" +
-          'd3.select("svg")\n' +
-          '  .append("g")\n' +
-          '  .attr("class", "annotation-group")\n' +
-          "  .call(makeAnnotations)\n"
-      )
+    console.log(types[typeKey])
+    d3.select("#sandbox-code code").text(
+      typeText +
+        "\n" +
+        "const annotations = [{\n" +
+        "  note: {\n" +
+        '    label: "Longer text to show text wrapping",\n' +
+        (types[typeKey] &&
+          types[typeKey].typeSettings.note &&
+          types[typeKey].typeSettings.note.bgPadding &&
+          `    bgPadding: ${JSON.stringify(
+            types[typeKey].typeSettings.note.bgPadding
+          )},\n` ||
+          "") +
+        '    title: "Annotations :)"\n' +
+        "  },\n" +
+        "  //can use x, y directly instead of data\n" +
+        '  data: { date: "18-Sep-09", close: 185.02 },\n' +
+        (types[typeKey] &&
+          types[typeKey].typeSettings.className &&
+          `  className: ${JSON.stringify(
+            types[typeKey].typeSettings.className
+          )},\n` ||
+          "") +
+        "  dy: 137,\n" +
+        `  dx: 162${curveText !== "" || subjectText !== "" ? "," : ""}\n` +
+        curveText +
+        (subjectText !== "" && curveText !== "" ? ",\n" : "") +
+        subjectText +
+        "}]\n" +
+        "\n" +
+        'const parseTime = d3.timeParse("%d-%b-%y")\n' +
+        'const timeFormat = d3.timeFormat("%d-%b-%y")\n' +
+        "\n" +
+        "//Skipping setting domains for sake of example\n" +
+        "const x = d3.scaleTime().range([0, 800])\n" +
+        "const y = d3.scaleLinear().range([300, 0])\n" +
+        "\n" +
+        "const makeAnnotations = d3.annotation()\n" +
+        editModeText +
+        disableText +
+        textWrapText +
+        paddingText +
+        `  .type(type)\n` +
+        "  //accessors & accessorsInverse not needed\n" +
+        "  //if using x, y in annotations JSON\n" +
+        "  .accessors({\n" +
+        "    x: d => x(parseTime(d.date)),\n" +
+        "    y: d => y(d.close)\n" +
+        "  })\n" +
+        "  .accessorsInverse({\n" +
+        "     date: d => timeFormat(x.invert(d.x)),\n" +
+        "     close: d => y.invert(d.y)\n" +
+        "  })\n" +
+        `  .annotations(annotations)\n` +
+        "\n" +
+        'd3.select("svg")\n' +
+        '  .append("g")\n' +
+        '  .attr("class", "annotation-group")\n' +
+        "  .call(makeAnnotations)\n"
+    )
 
     $("#sandbox-code code").each(function(i, block) {
       highlight.highlightBlock(block)

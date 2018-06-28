@@ -4,6 +4,22 @@
 	(factory((global.d3 = global.d3 || {}),global.d3,global.d3,global.d3,global.d3));
 }(this, (function (exports,d3Selection,d3Drag,d3Shape,d3Dispatch) { 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
+
+
+
+
+
+
+
+
+
+
+
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -1185,7 +1201,7 @@ var Type = function () {
     this.connector = annotation.disable.indexOf("connector") === -1 && a.select("g.annotation-connector");
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select("g.annotation-subject");
     this.dispatcher = dispatcher;
-
+    console.log("ANNOTATION", annotation);
     if (dispatcher) {
       var handler = addHandlers.bind(null, dispatcher, annotation);
       handler({ component: this.note, name: "note" });
@@ -1680,6 +1696,21 @@ var d3NoteText = function (_Type) {
 
         var wrapSplitter = this.annotation.note && this.annotation.note.wrapSplitter || this.typeSettings && this.typeSettings.note && this.typeSettings.note.wrapSplitter;
 
+        var bgPadding = this.annotation.note && this.annotation.note.bgPadding || this.typeSettings && this.typeSettings.note && this.typeSettings.note.bgPadding;
+
+        console.log(this.annotation.note);
+        var bgPaddingFinal = { top: 0, bottom: 0, left: 0, right: 0 };
+        if (typeof bgPadding === "number") {
+          bgPaddingFinal = {
+            top: bgPadding,
+            bottom: bgPadding,
+            left: bgPadding,
+            right: bgPadding
+          };
+        } else if (bgPadding && (typeof bgPadding === "undefined" ? "undefined" : _typeof(bgPadding)) === "object") {
+          bgPaddingFinal = _extends(bgPaddingFinal, bgPadding);
+        }
+
         if (this.annotation.note.title) {
           var title = this.a.select("text.annotation-note-title");
           title.text(this.annotation.note.title);
@@ -1696,8 +1727,8 @@ var d3NoteText = function (_Type) {
         label.attr("fill", this.annotation.color);
 
         var bbox = this.getNoteBBox();
-
-        this.a.select("rect.annotation-note-bg").attr("width", bbox.width).attr("height", bbox.height).attr("x", bbox.x).attr("fill", "white").attr("fill-opacity", 0);
+        console.log("BG", bgPaddingFinal);
+        this.a.select("rect.annotation-note-bg").attr("width", bbox.width + bgPaddingFinal.left + bgPaddingFinal.right).attr("height", bbox.height + bgPaddingFinal.top + bgPaddingFinal.bottom).attr("x", bbox.x - bgPaddingFinal.left).attr("y", -bgPaddingFinal.top).attr("fill", "white").attr("fill-opacity", 0);
       }
     }
   }]);

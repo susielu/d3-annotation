@@ -34,7 +34,7 @@ export class Type {
       annotation.disable.indexOf("subject") === -1 &&
       a.select("g.annotation-subject")
     this.dispatcher = dispatcher
-
+    console.log("ANNOTATION", annotation)
     if (dispatcher) {
       const handler = addHandlers.bind(null, dispatcher, annotation)
       handler({ component: this.note, name: "note" })
@@ -498,6 +498,25 @@ export class d3NoteText extends Type {
           this.typeSettings.note &&
           this.typeSettings.note.wrapSplitter
 
+      let bgPadding =
+        this.annotation.note && this.annotation.note.bgPadding ||
+        this.typeSettings &&
+          this.typeSettings.note &&
+          this.typeSettings.note.bgPadding
+
+      console.log(this.annotation.note)
+      let bgPaddingFinal = { top: 0, bottom: 0, left: 0, right: 0 }
+      if (typeof bgPadding === "number") {
+        bgPaddingFinal = {
+          top: bgPadding,
+          bottom: bgPadding,
+          left: bgPadding,
+          right: bgPadding
+        }
+      } else if (bgPadding && typeof bgPadding === "object") {
+        bgPaddingFinal = Object.assign(bgPaddingFinal, bgPadding)
+      }
+
       if (this.annotation.note.title) {
         const title = this.a.select("text.annotation-note-title")
         title.text(this.annotation.note.title)
@@ -514,12 +533,16 @@ export class d3NoteText extends Type {
       label.attr("fill", this.annotation.color)
 
       const bbox = this.getNoteBBox()
-
+      console.log("BG", bgPaddingFinal)
       this.a
         .select("rect.annotation-note-bg")
-        .attr("width", bbox.width)
-        .attr("height", bbox.height)
-        .attr("x", bbox.x)
+        .attr("width", bbox.width + bgPaddingFinal.left + bgPaddingFinal.right)
+        .attr(
+          "height",
+          bbox.height + bgPaddingFinal.top + bgPaddingFinal.bottom
+        )
+        .attr("x", bbox.x - bgPaddingFinal.left)
+        .attr("y", -bgPaddingFinal.top)
         .attr("fill", "white")
         .attr("fill-opacity", 0)
     }
@@ -559,15 +582,15 @@ export const d3Badge = customType(Type, {
 export const d3CalloutCircle = customType(d3NoteText, {
   className: "callout circle",
   subject: { type: "circle" },
-  note: {lineType: "horizontal"},
+  note: { lineType: "horizontal" },
   connector: { type: "elbow" }
 })
 
 export const d3CalloutRect = customType(d3NoteText, {
   className: "callout rect",
   subject: { type: "rect" },
-  note: {lineType: "horizontal" },
-  connector: { type: "elbow"}
+  note: { lineType: "horizontal" },
+  connector: { type: "elbow" }
 })
 
 class ThresholdMap extends d3Callout {

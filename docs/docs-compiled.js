@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports = "<h2><a href=\"#api\">#</a>API</h2>\n\n<p><strong>d3.annotation()</strong></p>\n<p>annotation.<strong>annotations([ objects ])</strong></p>\n<p>Pass an array of objects with annotation properties:</p>\n<ul>\n<li><strong>id</strong>: This can be anything that will help you filter and parse your annotations</li>\n</ul>\n<p><img src=\"img/json.png\" alt=\"Annotation JSON\"></p>\n<ul>\n<li><strong>x,y (number:pixels)</strong>: Position of the subject and one end of the connector</li>\n<li><strong>data (object)</strong>: If you also set accessor functions, you can give data instead of x,y coordinates for placing your annotations</li>\n<li><strong>dx, dy (number:pixels)</strong>: Position of the note and one end of the connector, as an offset from x,y</li>\n<li><strong>nx, ny (number:pixels)</strong>: Position of the note and one end of the connector, as the raw x,y position <strong>not</strong> an offset</li>\n<li><strong>type (<a href=\"#types\">d3annotationType</a>)</strong>: Type for this annotation. Recommended to set the base type at the d3.annotation().type() property and use this to override the base</li>\n<li><strong>disable ([string])</strong>: takes the values &#39;connector&#39;, &#39;subject&#39;, and &#39;note&#39; pass them in this array if you want to disable those parts from rendering</li>\n<li><strong>color([string])</strong>: only in version 2.0, you can pass a color string that will be applied to the annotation. This color can be overridden via css or inline-styles</li>\n<li><strong>note (object)</strong>: You can specify a title and label property here. All of the annotation types that come with d3-annotation have built in functionality to take the title and the label and add them to the note, however the underlying system is composable in a way that you could customize the note to contain any type of content. You can also use this to overwrite the default note properties (align, orientation, lineType, wrap, padding) in the type. For example if on one of the notes you wanted to align it differently. In v2.1.0 and higher you can pass a regex or string to customize the wrapping <code>{ wrapSplitter: /\\n/ }</code></li>\n<li><strong>connector (object)</strong>: Some connectors such as the curve connector require additional parameters to set up the annotation. You can also use this to overwrite the default connector properties (type, end) in the type. For example if you wanted to add an arrow to the end of some of the annotations in the array you could add <code>{ end: &quot;arrow&quot; }</code> to this connector property on the relevant annotations. In v2.1.0 and higher, there is also a <code>{ endScale: 2 }</code> that allows you to scale the size of the <code>dot</code> or <code>arrow</code> end types</li>\n<li><strong>subject (object)</strong>: Some subjects such as the circle require additional parameters to set up the annotation.</li>\n</ul>\n<p>If you don&#39;t pass anything to this function, it returns the current array of annotations.</p>\n<p>annotation.<strong>accessors({ x: function, y: function })</strong></p>\n<p>Functions that would map the .data attribute of your annotation to x and y positions:</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-comment\">//Sample .data for an annotation</span>\n<span class=\"hljs-comment\">//{date: \"2-Jan-08\", close: 194.84}</span>\n<span class=\"hljs-keyword\">const</span> parseTime = d3.timeParse(<span class=\"hljs-string\">\"%d-%b-%y\"</span>)\n\nd3.annotation().accessors({\n  x: d =&gt; x(parseTime(d.date)),\n  y: d =&gt; y(d.close)\n})\n</code></pre>\n<p>annotation.<strong>accessorsInverse({ &lt;x property mapping&gt;: function, &lt;y property mapping&gt;: function })</strong></p>\n<p>The inverse of the accessor function. If you are given x, y coordinates, how to get back to the original data properties. Only for the x and y accessors:</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-comment\">//Sample .data for an annotation</span>\n<span class=\"hljs-comment\">//{date: \"2-Jan-08\", close: 194.84}</span>\n<span class=\"hljs-keyword\">const</span> timeFormat = d3.timeFormat(<span class=\"hljs-string\">\"%d-%b-%y\"</span>)\n\nd3.annotation().accessorsInverse({\n  date: d =&gt; timeFormat(x.invert(d.x)),\n  close: d =&gt; y.invert(d.y)\n})\n</code></pre>\n<p>annotation.<strong>editMode(boolean)</strong></p>\n<p>If this is true, then the annotation will create handles for parts of the annotation that are draggable. You can style these handles with the <code>circle.handle</code> selector. If you are hooking this up to a button, you will need to run the update function below, after changing the editMode. Example in <a href=\"#map\">Map with Tooltips and Edit Mode</a></p>\n<p>annotation.<strong>update()</strong></p>\n<p>Redraws all of the annotations. Typically used to reflect updated settings. If you are only updating the position (x, y) or the offset (dx, dy) you do not need to run <code>call</code> on makeAnnotations afterwards. Example in <a href=\"#encircle\">Layout - Encircling Annotation</a>.</p>\n<p>annotation.<strong>updateText()</strong></p>\n<p>If you only want to update the text then use this function. It will re-evaluate with the new text and text wrapping settings. This is separated from the <code>update()</code> function for flexibility with performance. If you call the entire set again it will run both functions.</p>\n<p>annotation.<strong>updatedAccessors()</strong></p>\n<p>Redraws all the annotations with updated accessor scales. Example in <a href=\"#responsive\">Responsive with Types and Hover</a></p>\n<p>annotation.<strong>type( d3annotationType )</strong>\nYou can pass different types into the annotation objects themselves, but you can also set a default type here. If you want to change the type, you will need to re-call the d3.annotation function on your element to recreate the annotations with the new type. Example in <a href=\"#responsive\">Responsive with Types and Hover</a></p>\n<p>annotation.<strong>json()</strong></p>\n<p>You can run this in the developer console and it will print out the current annotation settings and copy them to your clipboard. Please note that in the console each annotation will also include the type that you&#39;ve associated with it.</p>\n<p>annotation.<strong>collection()</strong></p>\n<p>Access to the collection of annotations with the instantiated types.</p>\n<p>annotation.<strong>textWrap()</strong>\nChange the overall textWrap, otherwise in the annotation object array you can change each individual one with the <code>{note: {wrap: 30}}</code> property. This function calls <code>updateText()</code> internally so you do not need to call both functions when updating <code>textWrap</code>.</p>\n<p>annotation.<strong>notePadding()</strong>\nChange the overall notePadding, otherwise in the annotation object array you can change each individual one with the <code>{note: {padding: 30}}</code> property</p>\n<p>annotation.<strong>disable()</strong>\nTakes the values &#39;connector&#39;, &#39;subject&#39;, and &#39;note&#39; pass them in this array if you want to disable those parts from rendering</p>\n<p>annotation.<strong>on()</strong>\nTakes the values &#39;subjectover&#39;, &#39;subjectout&#39;, &#39;subjectclick&#39;, &#39;connectorover&#39;, &#39;connectorout&#39;, &#39;connectorclick&#39;, &#39;noteover&#39;, &#39;noteout&#39;, &#39;noteclick&#39;, &#39;dragend&#39;, &#39;dragstart&#39; as custom dispatch events you can hook into.</p>\n";
+module.exports = "<h2><a href=\"#api\">#</a>API</h2>\n\n<p><strong>d3.annotation()</strong></p>\n<p>annotation.<strong>annotations([ objects ])</strong></p>\n<p>Pass an array of objects with annotation properties:</p>\n<ul>\n<li><strong>id</strong>: This can be anything that will help you filter and parse your annotations</li>\n</ul>\n<p><img src=\"img/json.png\" alt=\"Annotation JSON\"></p>\n<ul>\n<li><strong>x,y (number:pixels)</strong>: Position of the subject and one end of the connector</li>\n<li><strong>data (object)</strong>: If you also set accessor functions, you can give data instead of x,y coordinates for placing your annotations</li>\n<li><strong>dx, dy (number:pixels)</strong>: Position of the note and one end of the connector, as an offset from x,y</li>\n<li><strong>nx, ny (number:pixels)</strong>: Position of the note and one end of the connector, as the raw x,y position <strong>not</strong> an offset</li>\n<li><strong>type (<a href=\"#types\">d3annotationType</a>)</strong>: Type for this annotation. Recommended to set the base type at the d3.annotation().type() property and use this to override the base</li>\n<li><strong>disable ([string])</strong>: takes the values &#39;connector&#39;, &#39;subject&#39;, and &#39;note&#39; pass them in this array if you want to disable those parts from rendering</li>\n<li><strong>color([string])</strong>: only in version 2.0, you can pass a color string that will be applied to the annotation. This color can be overridden via css or inline-styles</li>\n<li><strong>note (object)</strong>: You can specify a title and label property here. All of the annotation types that come with d3-annotation have built in functionality to take the title and the label and add them to the note, however the underlying system is composable in a way that you could customize the note to contain any type of content. You can also use this to overwrite the default note properties (align, orientation, lineType, wrap, padding) in the type. For example if on one of the notes you wanted to align it differently. In v2.1.0 and higher you can pass a regex or string to customize the wrapping <code>{ wrapSplitter: /\\n/ }</code>. In v2.3.0 and higher, you can pass a <code>bgPadding</code> that accepts a number or an object with one or more <code>top</code>, <code>bottom</code>, <code>left</code>, and <code>right</code> properties, to increase the size of the rectangle behind the text.</li>\n<li><strong>connector (object)</strong>: Some connectors such as the curve connector require additional parameters to set up the annotation. You can also use this to overwrite the default connector properties (type, end) in the type. For example if you wanted to add an arrow to the end of some of the annotations in the array you could add <code>{ end: &quot;arrow&quot; }</code> to this connector property on the relevant annotations. In v2.1.0 and higher, there is also a <code>{ endScale: 2 }</code> that allows you to scale the size of the <code>dot</code> or <code>arrow</code> end types</li>\n<li><strong>subject (object)</strong>: Some subjects such as the circle require additional parameters to set up the annotation.</li>\n</ul>\n<p>If you don&#39;t pass anything to this function, it returns the current array of annotations.</p>\n<p>annotation.<strong>accessors({ x: function, y: function })</strong></p>\n<p>Functions that would map the .data attribute of your annotation to x and y positions:</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-comment\">//Sample .data for an annotation</span>\n<span class=\"hljs-comment\">//{date: \"2-Jan-08\", close: 194.84}</span>\n<span class=\"hljs-keyword\">const</span> parseTime = d3.timeParse(<span class=\"hljs-string\">\"%d-%b-%y\"</span>)\n\nd3.annotation().accessors({\n  x: d =&gt; x(parseTime(d.date)),\n  y: d =&gt; y(d.close)\n})\n</code></pre>\n<p>annotation.<strong>accessorsInverse({ &lt;x property mapping&gt;: function, &lt;y property mapping&gt;: function })</strong></p>\n<p>The inverse of the accessor function. If you are given x, y coordinates, how to get back to the original data properties. Only for the x and y accessors:</p>\n<pre><code class=\"lang-js\"><span class=\"hljs-comment\">//Sample .data for an annotation</span>\n<span class=\"hljs-comment\">//{date: \"2-Jan-08\", close: 194.84}</span>\n<span class=\"hljs-keyword\">const</span> timeFormat = d3.timeFormat(<span class=\"hljs-string\">\"%d-%b-%y\"</span>)\n\nd3.annotation().accessorsInverse({\n  date: d =&gt; timeFormat(x.invert(d.x)),\n  close: d =&gt; y.invert(d.y)\n})\n</code></pre>\n<p>annotation.<strong>editMode(boolean)</strong></p>\n<p>If this is true, then the annotation will create handles for parts of the annotation that are draggable. You can style these handles with the <code>circle.handle</code> selector. If you are hooking this up to a button, you will need to run the update function below, after changing the editMode. Example in <a href=\"#map\">Map with Tooltips and Edit Mode</a></p>\n<p>annotation.<strong>update()</strong></p>\n<p>Redraws all of the annotations. Typically used to reflect updated settings. If you are only updating the position (x, y) or the offset (dx, dy) you do not need to run <code>call</code> on makeAnnotations afterwards. Example in <a href=\"#encircle\">Layout - Encircling Annotation</a>.</p>\n<p>annotation.<strong>updateText()</strong></p>\n<p>If you only want to update the text then use this function. It will re-evaluate with the new text and text wrapping settings. This is separated from the <code>update()</code> function for flexibility with performance. If you call the entire set again it will run both functions.</p>\n<p>annotation.<strong>updatedAccessors()</strong></p>\n<p>Redraws all the annotations with updated accessor scales. Example in <a href=\"#responsive\">Responsive with Types and Hover</a></p>\n<p>annotation.<strong>type( d3annotationType )</strong>\nYou can pass different types into the annotation objects themselves, but you can also set a default type here. If you want to change the type, you will need to re-call the d3.annotation function on your element to recreate the annotations with the new type. Example in <a href=\"#responsive\">Responsive with Types and Hover</a></p>\n<p>annotation.<strong>json()</strong></p>\n<p>You can run this in the developer console and it will print out the current annotation settings and copy them to your clipboard. Please note that in the console each annotation will also include the type that you&#39;ve associated with it.</p>\n<p>annotation.<strong>collection()</strong></p>\n<p>Access to the collection of annotations with the instantiated types.</p>\n<p>annotation.<strong>textWrap()</strong>\nChange the overall textWrap, otherwise in the annotation object array you can change each individual one with the <code>{note: {wrap: 30}}</code> property. This function calls <code>updateText()</code> internally so you do not need to call both functions when updating <code>textWrap</code>.</p>\n<p>annotation.<strong>notePadding()</strong>\nChange the overall notePadding, otherwise in the annotation object array you can change each individual one with the <code>{note: {padding: 30}}</code> property</p>\n<p>annotation.<strong>disable()</strong>\nTakes the values &#39;connector&#39;, &#39;subject&#39;, and &#39;note&#39; pass them in this array if you want to disable those parts from rendering</p>\n<p>annotation.<strong>on()</strong>\nTakes the values &#39;subjectover&#39;, &#39;subjectout&#39;, &#39;subjectclick&#39;, &#39;connectorover&#39;, &#39;connectorout&#39;, &#39;connectorclick&#39;, &#39;noteover&#39;, &#39;noteout&#39;, &#39;noteclick&#39;, &#39;dragend&#39;, &#39;dragstart&#39; as custom dispatch events you can hook into.</p>\n";
 },{}],2:[function(require,module,exports){
 module.exports = "<ul>\n<li><a href=\"#introduction\">Introduction</a></li>\n<li><a href=\"#setup\">Setup</a></li>\n<li><a href=\"#types\">Types</a></li>\n<li><a href=\"#in-practice\">In Practice</a></li>\n<li><a href=\"#examples\">Examples</a></li>\n<li><a href=\"#essays\">Essays</a></li>\n<li><a href=\"#api\">API</a></li>\n<li><a href=\"#extend\">Extending Types</a></li>\n<li><a href=\"#notes\">Notes</a></li>\n</ul>\n";
 },{}],3:[function(require,module,exports){
@@ -857,7 +857,6 @@ $(document).ready(function () {
 
   var typeSettings = JSON.parse(JSON.stringify(defaultSettings));
 
-  var currentType = d3.annotationLabel;
   var typeKey = "annotationLabel";
   var curve = "curveCatmullRom";
   var points = 2;
@@ -865,15 +864,27 @@ $(document).ready(function () {
   var types = {
     annotationLabel: {
       typeSettings: {
-        note: { align: "middle", orientation: "topBottom" },
-        connector: { type: "line" }
+        note: {
+          align: "middle",
+          orientation: "topBottom",
+          bgPadding: 20,
+          padding: 15
+        },
+        connector: { type: "line" },
+        className: "show-bg"
       },
       summary: "A centered label annotation"
     },
     annotationCallout: {
       typeSettings: {
-        note: { align: "dynamic", lineType: "horizontal" },
-        connector: { type: "line" }
+        note: {
+          align: "dynamic",
+          lineType: "horizontal",
+          bgPadding: { top: 15, left: 10, right: 10, bottom: 10 },
+          padding: 15
+        },
+        connector: { type: "line" },
+        className: "show-bg"
       },
       summary: "Adds a line along the note"
     },
@@ -938,16 +949,17 @@ $(document).ready(function () {
       }
     }
   };
-
+  var currentType = d3.annotationCustomType(d3.annotationLabel, types.annotationLabel.typeSettings);
   var editMode = true;
   var textWrap = 120;
-  var padding = 5;
-
+  var padding = types[typeKey].typeSettings.note.padding || 5;
+  console.log("TYPES", types[typeKey]);
   var annotation = {
     note: {
       label: "Longer text to show text wrapping",
       title: "Annotations :)"
     },
+    className: types[typeKey].className,
     x: 150,
     y: 170,
     dy: 117,
@@ -978,7 +990,6 @@ $(document).ready(function () {
     }
 
     type = type.split(":");
-
     if (value === "none") {
       delete typeSettings[type[0]][type[1]];
       if (type[0] == "connector" && type[1] == "type") {
@@ -1016,7 +1027,7 @@ $(document).ready(function () {
         typeSettings[type[0]][type[1]] = value;
       }
     }
-
+    console.log("ABOUT TO MAKE ANNOTTION", typeSettings);
     currentType = d3.annotationCustomType(d3[typeKey], typeSettings);
 
     updateAnnotations();
@@ -1027,7 +1038,10 @@ $(document).ready(function () {
 
   d3.selectAll(".icons .presets .types img").on("click", function () {
     typeKey = d3.event.target.attributes["data-type"].value;
-    currentType = d3[typeKey];
+    currentType = d3.annotationCustomType(d3[typeKey], {
+      className: types[typeKey].typeSettings.className,
+      note: { bgPadding: types[typeKey].typeSettings.note.bgPadding }
+    });
 
     d3.selectAll(".icons .presets img").classed("active", false);
 
@@ -1109,7 +1123,7 @@ $(document).ready(function () {
   };
 
   d3.selectAll("#curveButtons ul.points li a").on("click", changePoints).on("pointerdown", changePoints);
-
+  console.log("CURRENT", currentType);
   window.makeAnnotations = d3.annotation().editMode(editMode).type(currentType).annotations([annotation]);
 
   d3.select(".sandbox").append("g").attr("class", "sandbox-annotations").call(makeAnnotations);
@@ -1189,8 +1203,8 @@ $(document).ready(function () {
     } else if (typeKey == "annotationBadge") {
       subjectText = "  subject: {\n" + '    text: "A",\n' + "    radius: 14\n" + "  }\n";
     }
-
-    d3.select("#sandbox-code code").text(typeText + "\n" + "const annotations = [{\n" + "  note: {\n" + '    label: "Longer text to show text wrapping",\n' + '    title: "Annotations :)"\n' + "  },\n" + "  //can use x, y directly instead of data\n" + '  data: { date: "18-Sep-09", close: 185.02 },\n' + "  dy: 137,\n" + ("  dx: 162" + (curveText !== "" || subjectText !== "" ? "," : "") + "\n") + curveText + (subjectText !== "" && curveText !== "" ? ",\n" : "") + subjectText + "}]\n" + "\n" + 'const parseTime = d3.timeParse("%d-%b-%y")\n' + 'const timeFormat = d3.timeFormat("%d-%b-%y")\n' + "\n" + "//Skipping setting domains for sake of example\n" + "const x = d3.scaleTime().range([0, 800])\n" + "const y = d3.scaleLinear().range([300, 0])\n" + "\n" + "const makeAnnotations = d3.annotation()\n" + editModeText + disableText + textWrapText + paddingText + "  .type(type)\n" + "  //accessors & accessorsInverse not needed\n" + "  //if using x, y in annotations JSON\n" + "  .accessors({\n" + "    x: d => x(parseTime(d.date)),\n" + "    y: d => y(d.close)\n" + "  })\n" + "  .accessorsInverse({\n" + "     date: d => timeFormat(x.invert(d.x)),\n" + "     close: d => y.invert(d.y)\n" + "  })\n" + "  .annotations(annotations)\n" + "\n" + 'd3.select("svg")\n' + '  .append("g")\n' + '  .attr("class", "annotation-group")\n' + "  .call(makeAnnotations)\n");
+    console.log(types[typeKey]);
+    d3.select("#sandbox-code code").text(typeText + "\n" + "const annotations = [{\n" + "  note: {\n" + '    label: "Longer text to show text wrapping",\n' + (types[typeKey] && types[typeKey].typeSettings.note && types[typeKey].typeSettings.note.bgPadding && "    bgPadding: " + JSON.stringify(types[typeKey].typeSettings.note.bgPadding) + ",\n" || "") + '    title: "Annotations :)"\n' + "  },\n" + "  //can use x, y directly instead of data\n" + '  data: { date: "18-Sep-09", close: 185.02 },\n' + (types[typeKey] && types[typeKey].typeSettings.className && "  className: " + JSON.stringify(types[typeKey].typeSettings.className) + ",\n" || "") + "  dy: 137,\n" + ("  dx: 162" + (curveText !== "" || subjectText !== "" ? "," : "") + "\n") + curveText + (subjectText !== "" && curveText !== "" ? ",\n" : "") + subjectText + "}]\n" + "\n" + 'const parseTime = d3.timeParse("%d-%b-%y")\n' + 'const timeFormat = d3.timeFormat("%d-%b-%y")\n' + "\n" + "//Skipping setting domains for sake of example\n" + "const x = d3.scaleTime().range([0, 800])\n" + "const y = d3.scaleLinear().range([300, 0])\n" + "\n" + "const makeAnnotations = d3.annotation()\n" + editModeText + disableText + textWrapText + paddingText + "  .type(type)\n" + "  //accessors & accessorsInverse not needed\n" + "  //if using x, y in annotations JSON\n" + "  .accessors({\n" + "    x: d => x(parseTime(d.date)),\n" + "    y: d => y(d.close)\n" + "  })\n" + "  .accessorsInverse({\n" + "     date: d => timeFormat(x.invert(d.x)),\n" + "     close: d => y.invert(d.y)\n" + "  })\n" + "  .annotations(annotations)\n" + "\n" + 'd3.select("svg")\n' + '  .append("g")\n' + '  .attr("class", "annotation-group")\n' + "  .call(makeAnnotations)\n");
 
     $("#sandbox-code code").each(function (i, block) {
       highlight.highlightBlock(block);
