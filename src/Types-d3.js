@@ -34,7 +34,7 @@ export class Type {
       annotation.disable.indexOf("subject") === -1 &&
       a.select("g.annotation-subject")
     this.dispatcher = dispatcher
-    console.log("ANNOTATION", annotation)
+
     if (dispatcher) {
       const handler = addHandlers.bind(null, dispatcher, annotation)
       handler({ component: this.note, name: "note" })
@@ -504,7 +504,6 @@ export class d3NoteText extends Type {
           this.typeSettings.note &&
           this.typeSettings.note.bgPadding
 
-      console.log(this.annotation.note)
       let bgPaddingFinal = { top: 0, bottom: 0, left: 0, right: 0 }
       if (typeof bgPadding === "number") {
         bgPaddingFinal = {
@@ -533,7 +532,7 @@ export class d3NoteText extends Type {
       label.attr("fill", this.annotation.color)
 
       const bbox = this.getNoteBBox()
-      console.log("BG", bgPaddingFinal)
+
       this.a
         .select("rect.annotation-note-bg")
         .attr("width", bbox.width + bgPaddingFinal.left + bgPaddingFinal.right)

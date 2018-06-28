@@ -953,7 +953,7 @@ $(document).ready(function () {
   var editMode = true;
   var textWrap = 120;
   var padding = types[typeKey].typeSettings.note.padding || 5;
-  console.log("TYPES", types[typeKey]);
+
   var annotation = {
     note: {
       label: "Longer text to show text wrapping",
@@ -1027,7 +1027,7 @@ $(document).ready(function () {
         typeSettings[type[0]][type[1]] = value;
       }
     }
-    console.log("ABOUT TO MAKE ANNOTTION", typeSettings);
+
     currentType = d3.annotationCustomType(d3[typeKey], typeSettings);
 
     updateAnnotations();
@@ -1123,7 +1123,7 @@ $(document).ready(function () {
   };
 
   d3.selectAll("#curveButtons ul.points li a").on("click", changePoints).on("pointerdown", changePoints);
-  console.log("CURRENT", currentType);
+
   window.makeAnnotations = d3.annotation().editMode(editMode).type(currentType).annotations([annotation]);
 
   d3.select(".sandbox").append("g").attr("class", "sandbox-annotations").call(makeAnnotations);
@@ -1203,7 +1203,7 @@ $(document).ready(function () {
     } else if (typeKey == "annotationBadge") {
       subjectText = "  subject: {\n" + '    text: "A",\n' + "    radius: 14\n" + "  }\n";
     }
-    console.log(types[typeKey]);
+
     d3.select("#sandbox-code code").text(typeText + "\n" + "const annotations = [{\n" + "  note: {\n" + '    label: "Longer text to show text wrapping",\n' + (types[typeKey] && types[typeKey].typeSettings.note && types[typeKey].typeSettings.note.bgPadding && "    bgPadding: " + JSON.stringify(types[typeKey].typeSettings.note.bgPadding) + ",\n" || "") + '    title: "Annotations :)"\n' + "  },\n" + "  //can use x, y directly instead of data\n" + '  data: { date: "18-Sep-09", close: 185.02 },\n' + (types[typeKey] && types[typeKey].typeSettings.className && "  className: " + JSON.stringify(types[typeKey].typeSettings.className) + ",\n" || "") + "  dy: 137,\n" + ("  dx: 162" + (curveText !== "" || subjectText !== "" ? "," : "") + "\n") + curveText + (subjectText !== "" && curveText !== "" ? ",\n" : "") + subjectText + "}]\n" + "\n" + 'const parseTime = d3.timeParse("%d-%b-%y")\n' + 'const timeFormat = d3.timeFormat("%d-%b-%y")\n' + "\n" + "//Skipping setting domains for sake of example\n" + "const x = d3.scaleTime().range([0, 800])\n" + "const y = d3.scaleLinear().range([300, 0])\n" + "\n" + "const makeAnnotations = d3.annotation()\n" + editModeText + disableText + textWrapText + paddingText + "  .type(type)\n" + "  //accessors & accessorsInverse not needed\n" + "  //if using x, y in annotations JSON\n" + "  .accessors({\n" + "    x: d => x(parseTime(d.date)),\n" + "    y: d => y(d.close)\n" + "  })\n" + "  .accessorsInverse({\n" + "     date: d => timeFormat(x.invert(d.x)),\n" + "     close: d => y.invert(d.y)\n" + "  })\n" + "  .annotations(annotations)\n" + "\n" + 'd3.select("svg")\n' + '  .append("g")\n' + '  .attr("class", "annotation-group")\n' + "  .call(makeAnnotations)\n");
 
     $("#sandbox-code code").each(function (i, block) {

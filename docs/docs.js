@@ -139,7 +139,7 @@ $(document).ready(function() {
   let editMode = true
   let textWrap = 120
   let padding = types[typeKey].typeSettings.note.padding || 5
-  console.log("TYPES", types[typeKey])
+
   const annotation = {
     note: {
       label: "Longer text to show text wrapping",
@@ -238,7 +238,7 @@ $(document).ready(function() {
         typeSettings[type[0]][type[1]] = value
       }
     }
-    console.log("ABOUT TO MAKE ANNOTTION", typeSettings)
+
     currentType = d3.annotationCustomType(d3[typeKey], typeSettings)
 
     updateAnnotations()
@@ -355,7 +355,7 @@ $(document).ready(function() {
   d3.selectAll("#curveButtons ul.points li a")
     .on("click", changePoints)
     .on("pointerdown", changePoints)
-  console.log("CURRENT", currentType)
+
   window.makeAnnotations = d3
     .annotation()
     .editMode(editMode)
@@ -472,7 +472,7 @@ $(document).ready(function() {
       subjectText =
         `  subject: {\n` + '    text: "A",\n' + "    radius: 14\n" + "  }\n"
     }
-    console.log(types[typeKey])
+
     d3.select("#sandbox-code code").text(
       typeText +
         "\n" +

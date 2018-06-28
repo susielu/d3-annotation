@@ -1200,7 +1200,7 @@ var Type = function () {
     this.connector = annotation.disable.indexOf("connector") === -1 && a.select("g.annotation-connector");
     this.subject = annotation.disable.indexOf("subject") === -1 && a.select("g.annotation-subject");
     this.dispatcher = dispatcher;
-    console.log("ANNOTATION", annotation);
+
     if (dispatcher) {
       var handler = addHandlers.bind(null, dispatcher, annotation);
       handler({ component: this.note, name: "note" });
@@ -1697,7 +1697,6 @@ var d3NoteText = function (_Type) {
 
         var bgPadding = this.annotation.note && this.annotation.note.bgPadding || this.typeSettings && this.typeSettings.note && this.typeSettings.note.bgPadding;
 
-        console.log(this.annotation.note);
         var bgPaddingFinal = { top: 0, bottom: 0, left: 0, right: 0 };
         if (typeof bgPadding === "number") {
           bgPaddingFinal = {
@@ -1726,7 +1725,7 @@ var d3NoteText = function (_Type) {
         label.attr("fill", this.annotation.color);
 
         var bbox = this.getNoteBBox();
-        console.log("BG", bgPaddingFinal);
+
         this.a.select("rect.annotation-note-bg").attr("width", bbox.width + bgPaddingFinal.left + bgPaddingFinal.right).attr("height", bbox.height + bgPaddingFinal.top + bgPaddingFinal.bottom).attr("x", bbox.x - bgPaddingFinal.left).attr("y", -bgPaddingFinal.top).attr("fill", "white").attr("fill-opacity", 0);
       }
     }
