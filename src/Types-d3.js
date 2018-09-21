@@ -304,6 +304,12 @@ export class Type {
     this.a.attr("transform", `translate(${position.x}, ${position.y})`)
   }
 
+  clearComponents() {
+    this.subject && this.subject.select("*").remove()
+    this.connector && this.connector.select("*").remove()
+    // this.note && this.note.select("*").remove()
+  }
+
   setOffset() {
     if (this.note) {
       const offset = this.annotation.offset
@@ -550,26 +556,22 @@ export class d3NoteText extends Type {
 
 export const d3Label = customType(d3NoteText, {
   className: "label",
-  note: { align: "middle" },
-  disable: ["subject"]
+  note: { align: "middle" }
 })
 
 export const d3Callout = customType(d3NoteText, {
   className: "callout",
-  note: { lineType: "horizontal" },
-  disable: ["subject"]
+  note: { lineType: "horizontal" }
 })
 
 export const d3CalloutElbow = customType(d3Callout, {
   className: "callout elbow",
-  connector: { type: "elbow" },
-  disable: ["subject"]
+  connector: { type: "elbow" }
 })
 
 export const d3CalloutCurve = customType(d3Callout, {
   className: "callout curve",
-  connector: { type: "curve" },
-  disable: ["subject"]
+  connector: { type: "curve" }
 })
 
 export const d3Badge = customType(Type, {

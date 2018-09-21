@@ -183,7 +183,7 @@ var Annotation = function () {
     this.id = id;
     this._className = className || "";
 
-    this.type = type || "";
+    this._type = type || "";
     this.data = data;
 
     this.note = note || {};
@@ -202,6 +202,11 @@ var Annotation = function () {
           this.type.redrawSubject();
         }
       }
+    }
+  }, {
+    key: "clearComponents",
+    value: function clearComponents() {
+      this.type.clearComponents && this.type.clearComponents();
     }
   }, {
     key: "updateOffset",
@@ -224,6 +229,15 @@ var Annotation = function () {
     set: function set$$1(className) {
       this._className = className;
       if (this.type.setClassName) this.type.setClassName();
+    }
+  }, {
+    key: "type",
+    get: function get$$1() {
+      return this._type;
+    },
+    set: function set$$1(type) {
+      this._type = type;
+      this.clearComponents();
     }
   }, {
     key: "x",
@@ -1513,6 +1527,13 @@ var Type = function () {
       this.a.attr("transform", "translate(" + position.x + ", " + position.y + ")");
     }
   }, {
+    key: "clearComponents",
+    value: function clearComponents() {
+      this.subject && this.subject.select("*").remove();
+      this.connector && this.connector.select("*").remove();
+      // this.note && this.note.select("*").remove()
+    }
+  }, {
     key: "setOffset",
     value: function setOffset() {
       if (this.note) {
@@ -1736,26 +1757,22 @@ var d3NoteText = function (_Type) {
 
 var d3Label = customType(d3NoteText, {
   className: "label",
-  note: { align: "middle" },
-  disable: ["subject"]
+  note: { align: "middle" }
 });
 
 var d3Callout = customType(d3NoteText, {
   className: "callout",
-  note: { lineType: "horizontal" },
-  disable: ["subject"]
+  note: { lineType: "horizontal" }
 });
 
 var d3CalloutElbow = customType(d3Callout, {
   className: "callout elbow",
-  connector: { type: "elbow" },
-  disable: ["subject"]
+  connector: { type: "elbow" }
 });
 
 var d3CalloutCurve = customType(d3Callout, {
   className: "callout curve",
-  connector: { type: "curve" },
-  disable: ["subject"]
+  connector: { type: "curve" }
 });
 
 var d3Badge = customType(Type, {

@@ -24,7 +24,7 @@ export default class Annotation {
     this.id = id
     this._className = className || ""
 
-    this.type = type || ""
+    this._type = type || ""
     this.data = data
 
     this.note = note || {}
@@ -46,6 +46,10 @@ export default class Annotation {
     }
   }
 
+  clearComponents() {
+    this.type.clearComponents && this.type.clearComponents()
+  }
+
   get className() {
     return this._className
   }
@@ -65,6 +69,15 @@ export default class Annotation {
 
       this.type.redrawNote()
     }
+  }
+
+  get type() {
+    return this._type
+  }
+
+  set type(type) {
+    this._type = type
+    this.clearComponents()
   }
 
   get x() {
