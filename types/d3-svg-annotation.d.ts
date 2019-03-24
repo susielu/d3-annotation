@@ -64,6 +64,7 @@ export default class Annotation<T> {
   accessors(accessors: { x?: (datum: T) => any, y?: (datum: T) => any }): Annotation<T>;
   accessorsInverse(accessors: any): Annotation<T>;
   editMode(editMode: boolean): Annotation<T>;
+  notePadding(padding: number): Annotation<T>;
   type(type: any): Annotation<T>;
   updatePosition(): void;
   updateOffset(): void;
