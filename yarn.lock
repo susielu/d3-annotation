@@ -1552,10 +1552,10 @@ d3-dispatch@1.0.2:
   resolved "https://registry.npmjs.org/d3-dispatch/-/d3-dispatch-1.0.2.tgz#5b511e79a46a1f89492841c0a8f656687d5daa0a"
   integrity sha1-W1EeeaRqH4lJKEHAqPZWaH1dqgo=
 
-d3-drag@1.0.2:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/d3-drag/-/d3-drag-1.0.2.tgz#d634cc3f7689f99dd03fd7eb1af2945c0f4339ad"
-  integrity sha1-1jTMP3aJ+Z3QP9frGvKUXA9DOa0=
+d3-drag@1.2.3:
+  version "1.2.3"
+  resolved "https://registry.npmjs.org/d3-drag/-/d3-drag-1.2.3.tgz#46e206ad863ec465d88c588098a1df444cd33c64"
+  integrity sha512-8S3HWCAg+ilzjJsNtWW1Mutl74Nmzhb9yU6igspilaJzeZVFktmY6oO9xOh5TDk+BM2KrNFjttZNoJJmDnkjkg==
   dependencies:
     d3-dispatch "1"
     d3-selection "1"
@@ -1582,10 +1582,10 @@ d3-selection@1:
   resolved "https://registry.npmjs.org/d3-selection/-/d3-selection-1.4.0.tgz#ab9ac1e664cf967ebf1b479cc07e28ce9908c474"
   integrity sha512-EYVwBxQGEjLCKF2pJ4+yrErskDnz5v403qvAid96cNdCMr8rmCYfY5RGzWz24mdIbxmDf6/4EAH+K9xperD5jg==
 
-d3-selection@1.0.2:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/d3-selection/-/d3-selection-1.0.2.tgz#ae662afd4702ac9c5da039b2107a1764fa1c9070"
-  integrity sha1-rmYq/UcCrJxdoDmyEHoXZPockHA=
+d3-selection@1.0.6:
+  version "1.0.6"
+  resolved "https://registry.npmjs.org/d3-selection/-/d3-selection-1.0.6.tgz#15332288f01f429d3d8d04051f043184d07642b9"
+  integrity sha1-FTMiiPAfQp09jQQFHwQxhNB2Qrk=
 
 d3-shape@1.0.4:
   version "1.0.4"
