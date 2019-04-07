@@ -84,7 +84,7 @@
   "dependencies": {
     "d3-dispatch": "1.0.2",
     "d3-drag": "1.2.3",
-    "d3-selection": "1.0.6",
+    "d3-selection": "1.4.0",
     "d3-shape": "1.0.4",
     "d3-transition": "1.0.3",
     "marked": "0.3.9"

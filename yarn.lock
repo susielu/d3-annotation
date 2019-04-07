@@ -1577,15 +1577,10 @@ d3-path@1:
   resolved "https://registry.npmjs.org/d3-path/-/d3-path-1.0.7.tgz#8de7cd693a75ac0b5480d3abaccd94793e58aae8"
   integrity sha512-q0cW1RpvA5c5ma2rch62mX8AYaiLX0+bdaSM2wxSU9tXjU4DNvkx9qiUvjkuWCj3p22UO/hlPivujqMiR9PDzA==
 
-d3-selection@1:
+d3-selection@1, d3-selection@1.4.0:
   version "1.4.0"
   resolved "https://registry.npmjs.org/d3-selection/-/d3-selection-1.4.0.tgz#ab9ac1e664cf967ebf1b479cc07e28ce9908c474"
   integrity sha512-EYVwBxQGEjLCKF2pJ4+yrErskDnz5v403qvAid96cNdCMr8rmCYfY5RGzWz24mdIbxmDf6/4EAH+K9xperD5jg==
-
-d3-selection@1.0.6:
-  version "1.0.6"
-  resolved "https://registry.npmjs.org/d3-selection/-/d3-selection-1.0.6.tgz#15332288f01f429d3d8d04051f043184d07642b9"
-  integrity sha1-FTMiiPAfQp09jQQFHwQxhNB2Qrk=
 
 d3-shape@1.0.4:
   version "1.0.4"
