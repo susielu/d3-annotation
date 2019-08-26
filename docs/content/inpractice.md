@@ -13,7 +13,7 @@ Settings for subject types are in the annotation object's <code>.subject</code>:
 ```js
 const annotations = [{
   note: { label: "Hi"},
-  x: 100, y 100,
+  x: 100, y: 100,
   dy: 137, dx: 162,
   subject: { radius: 50, radiusPadding: 10 }
 }]
