@@ -32,30 +32,33 @@ type BBox = {
 };
 
 interface AnnotationConfig {
+  classname: string;
   color?: string;
-  type?: any;
-  note?: {
-    label?: string | number;
-    title?: string | number;
-    wrap?: number;
-    align?: Align;
-  };
-  subject?: {
-    radius?: number;
-  };
   connector?: {
     end?: string;
     endScale?: number;
     type?: string;
     points?: any[];
   };
-  x?: number;
-  y?: number;
-  dy?: number;
+  data: any;
+  disable?: Array<'connector' | 'subject' | 'note'>;
   dx?: number;
+  dy?: number;
+  id: string | number;
+  note?: {
+    label?: string | number;
+    title?: string | number;
+    wrap?: number;
+    align?: Align;
+  };
   nx?: number;
   ny?: number;
-  disable?: Array<'connector' | 'subject' | 'note'>;
+  subject?: {
+    radius?: number;
+  };
+  type?: any;
+  x?: number;
+  y?: number;
 }
 
 export default class Annotation<T> {
