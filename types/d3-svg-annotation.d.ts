@@ -11,6 +11,18 @@ type Components = any[];
 type Orientation = 'topBottom' | 'leftRight' | 'fixed';
 type Align = 'dynamic' | 'left' | 'right' | 'top' | 'bottom' | 'middle';
 type LineType = 'horizontal' | 'vertical' | 'none';
+type AnnotationEvent =
+  | 'subjectover'
+  | 'subjectout'
+  | 'subjectclick'
+  | 'connectorover'
+  | 'connectorout'
+  | 'connectorclick'
+  | 'noteover'
+  | 'noteout'
+  | 'noteclick'
+  | 'dragend'
+  | 'dragstart';
 
 type BBox = {
   x: number,
@@ -18,6 +30,36 @@ type BBox = {
   width: number,
   height: number
 };
+
+interface AnnotationConfig {
+  classname: string;
+  color?: string;
+  connector?: {
+    end?: string;
+    endScale?: number;
+    type?: string;
+    points?: any[];
+  };
+  data: any;
+  disable?: Array<'connector' | 'subject' | 'note'>;
+  dx?: number;
+  dy?: number;
+  id: string | number;
+  note?: {
+    label?: string | number;
+    title?: string | number;
+    wrap?: number;
+    align?: Align;
+  };
+  nx?: number;
+  ny?: number;
+  subject?: {
+    radius?: number;
+  };
+  type?: any;
+  x?: number;
+  y?: number;
+}
 
 export default class Annotation<T> {
 
@@ -45,22 +87,9 @@ export default class Annotation<T> {
     dy: number;
   };
 
-  constructor({ x, y, dy, dx, data, type, subject, connector, note, disable, id, className }: {
-    x?: number;
-    y?: number;
-    dy?: number;
-    dx?: number;
-    data: any;
-    type: any;
-    subject: any;
-    connector: any;
-    note: any;
-    disable: any;
-    id: any;
-    className: string;
-  });
+  constructor(args: AnnotationConfig);
 
-  annotations(anotations: any[]): Annotation<T>;
+  annotations(anotations: AnnotationConfig[]): Annotation<T>;
   accessors(accessors: { x?: (datum: T) => any, y?: (datum: T) => any }): Annotation<T>;
   accessorsInverse(accessors: any): Annotation<T>;
   editMode(editMode: boolean): Annotation<T>;
@@ -68,8 +97,12 @@ export default class Annotation<T> {
   type(type: any): Annotation<T>;
   updatePosition(): void;
   updateOffset(): void;
-  update(): void;
-  updatedAccessors(): void;
+  update(): Annotation<T>;
+  updatedAccessors(): Annotation<T>;
+  on(
+    event: AnnotationEvent,
+    callback: (target: Annotation<T>) => void
+  ): Annotation<T>;
 }
 
 export class Type<T> {
